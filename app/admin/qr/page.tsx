@@ -1,29 +1,56 @@
 "use client";
-import React, { useState, useRef } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
-import { Download, UploadCloud, Link as LinkIcon, Loader2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { QRCodeCanvas } from 'qrcode.react';
+import { Download, Link as LinkIcon, Loader2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { Playfair_Display, Montserrat } from 'next/font/google';
+import { supabase } from '@/lib/supabase';
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400', '600', '700'] });
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
 export default function QRCodePage() {
-  const [color, setColor] = useState('#0f172a'); // Premium slate dark
-  const [restaurantName, setRestaurantName] = useState('The Golden Spoon');
-  const [logo, setLogo] = useState<string | null>(null);
+  const [color, setColor] = useState('#0f172a');
+  const [restaurantName, setRestaurantName] = useState('...');
+  const [restaurantSlug, setRestaurantSlug] = useState('');
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  
+  const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   
-  const restaurantSlug = 'the-golden-spoon';
-  const publicUrl = `https://your-domain.com/menu/${restaurantSlug}`;
-  
   const printRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchRestaurantData = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data: restaurant, error } = await supabase
+        .from('restaurants')
+        .select('name, slug, logo_url, theme_color')
+        .eq('owner_id', session.user.id)
+        .single();
+        
+      if (restaurant && !error) {
+        setRestaurantName(restaurant.name || 'Your Restaurant');
+        setRestaurantSlug(restaurant.slug || '');
+        setLogoUrl(restaurant.logo_url || null);
+        if (restaurant.theme_color) {
+          setColor(restaurant.theme_color);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    fetchRestaurantData();
+  }, []);
+
+  const publicUrl = typeof window !== 'undefined' ? `${window.location.origin}/menu/${restaurantSlug}` : `https://your-domain.com/menu/${restaurantSlug}`;
 
   const downloadHighResQR = async () => {
     if (!printRef.current) return;
     setIsExporting(true);
     try {
-      // Create high-res canvas (scale: 4 for 300+ DPI equivalent print quality)
       const canvas = await html2canvas(printRef.current, {
         scale: 4,
         useCORS: true,
@@ -44,18 +71,20 @@ export default function QRCodePage() {
     }
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setLogo(URL.createObjectURL(e.target.files[0]));
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-8 relative min-h-screen">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">QR Code Template</h1>
-          <p className="mt-1 text-gray-500">Design and export a high-end table stand for your guests.</p>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Download QR Code</h1>
+          <p className="mt-1 text-gray-500">Export a branded, high-resolution QR code for your tables.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
@@ -67,34 +96,6 @@ export default function QRCodePage() {
               <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Configuration</h3>
               <div className="space-y-6">
                 
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Restaurant Name</label>
-                  <input 
-                    type="text" 
-                    value={restaurantName} 
-                    onChange={e => setRestaurantName(e.target.value)}
-                    className="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900" 
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Upload Brand Logo</label>
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                      {logo ? (
-                        <img src={logo} alt="Logo" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-lg font-bold text-gray-300">{restaurantName.charAt(0)}</span>
-                      )}
-                    </div>
-                    <label className="cursor-pointer bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-bold hover:bg-gray-100 transition-colors flex items-center gap-2">
-                      <UploadCloud className="w-4 h-4 text-gray-500" />
-                      Choose Image
-                      <input type="file" className="sr-only" onChange={handleLogoUpload} accept="image/*" />
-                    </label>
-                  </div>
-                </div>
-
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">Theme Color</label>
                   <div className="flex items-center gap-4">
@@ -113,13 +114,14 @@ export default function QRCodePage() {
                       />
                     </div>
                   </div>
+                  <p className="text-xs text-gray-500 mt-2">Go to Settings to permanently update your brand color and logo.</p>
                 </div>
 
               </div>
             </div>
 
             <div className="pt-6 border-t border-gray-100">
-              <div className="bg-gray-50 px-4 py-3 rounded-xl flex items-center justify-between mb-6">
+              <div className="bg-gray-50 px-4 py-3 rounded-xl flex items-center justify-between mb-6 overflow-hidden">
                 <div className="flex items-center gap-2 text-gray-500 truncate mr-4">
                   <LinkIcon className="w-4 h-4 shrink-0" />
                   <span className="text-sm font-medium truncate">{publicUrl}</span>
@@ -131,7 +133,7 @@ export default function QRCodePage() {
                 className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-black shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isExporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-                {isExporting ? 'Generating High-Res PDF...' : 'Download for Print (300 DPI)'}
+                {isExporting ? 'Generating PNG...' : 'Download QR as PNG'}
               </button>
             </div>
           </div>
@@ -153,10 +155,11 @@ export default function QRCodePage() {
 
               {/* Header / Logo Area */}
               <div className="pt-12 px-8 text-center flex flex-col items-center">
-                {logo ? (
+                {logoUrl ? (
                   <img 
-                    src={logo} 
+                    src={logoUrl} 
                     alt={restaurantName} 
+                    crossOrigin="anonymous"
                     className="h-20 object-contain drop-shadow-md mb-6" 
                   />
                 ) : (
@@ -174,15 +177,23 @@ export default function QRCodePage() {
               <div className="flex-1 flex flex-col justify-center items-center px-12">
                 <div 
                   className="p-6 bg-white rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] transition-colors duration-300 relative"
-                  style={{ border: `1px solid ${color}20` }} // 20 hex opacity
+                  style={{ border: `1px solid ${color}20` }}
                 >
-                  <QRCodeSVG 
+                  <QRCodeCanvas 
                     value={publicUrl} 
                     size={200} 
                     fgColor={color} 
                     bgColor="#ffffff"
                     level="H"
                     includeMargin={false}
+                    imageSettings={
+                      logoUrl ? {
+                        src: logoUrl,
+                        height: 48,
+                        width: 48,
+                        excavate: true,
+                      } : undefined
+                    }
                   />
                   {/* Small decorative corners */}
                   <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 rounded-tl-xl m-2 transition-colors duration-300" style={{ borderColor: color }}></div>
@@ -204,7 +215,7 @@ export default function QRCodePage() {
 
             </div>
 
-            {/* Background Decorative Elements (Not captured in print) */}
+            {/* Background Decorative Elements */}
             <div className="absolute -top-32 -right-32 w-96 h-96 bg-white/50 rounded-full blur-3xl pointer-events-none"></div>
             <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-white/50 rounded-full blur-3xl pointer-events-none"></div>
           </div>

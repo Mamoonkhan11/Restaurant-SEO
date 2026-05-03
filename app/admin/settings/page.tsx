@@ -59,7 +59,7 @@ export default function SettingsPage() {
     try {
       // 1. Upload Logo if a new file was selected
       if (logoFile) {
-        finalLogoUrl = await uploadDishImage(logoFile, 'dishes'); 
+        finalLogoUrl = await uploadDishImage(logoFile, 'restaurant-logos'); 
       }
 
       // 2. Update the Restaurant Profile in the database
