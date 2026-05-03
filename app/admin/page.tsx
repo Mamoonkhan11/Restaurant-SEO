@@ -4,32 +4,20 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 
-// Mock Data for the chart
-const scanData = [
-  { name: 'Mon', scans: 120 },
-  { name: 'Tue', scans: 150 },
-  { name: 'Wed', scans: 180 },
-  { name: 'Thu', scans: 140 },
-  { name: 'Fri', scans: 250 },
-  { name: 'Sat', scans: 320 },
-  { name: 'Sun', scans: 280 },
-];
-
-const recentActivity = [
-  { id: 1, action: 'Marked as Sold Out', item: 'Spicy Chicken Wrap', time: '2 hours ago' },
-  { id: 2, action: 'Marked as Sold Out', item: 'New York Cheesecake', time: '5 hours ago' },
-  { id: 3, action: 'Price Updated to $18.50', item: 'Wagyu Beef Burger', time: '1 day ago' },
-];
-
 export default function AdminDashboardOverview() {
+  const [isLoading, setIsLoading] = useState(true);
   const [ownerName, setOwnerName] = useState('...');
   const [totalItems, setTotalItems] = useState<number | string>('-');
   const [totalScans, setTotalScans] = useState<number | string>('-');
   const [topDish, setTopDish] = useState<string>('-');
   
+  // Real Data States
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+
   // Estimated Revenue States
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
-  const [aov, setAov] = useState<number>(500); // Default AOV if missing
+  const [aov, setAov] = useState<number>(500);
   const [revenueCounter, setRevenueCounter] = useState(0);
   const [isEditingAov, setIsEditingAov] = useState(false);
   const [newAov, setNewAov] = useState<number | string>('');
@@ -62,7 +50,7 @@ export default function AdminDashboardOverview() {
         
         setTotalItems(dishCount ?? 0);
 
-        // Calculate Total Scans
+        // Calculate Total Scans from views table (Real Data)
         const { count: scansCount } = await supabase
           .from('restaurant_views')
           .select('*', { count: 'exact', head: true })
@@ -70,20 +58,39 @@ export default function AdminDashboardOverview() {
         
         setTotalScans(scansCount ?? 0);
 
-        // Fetch Top Selling Dish
-        const { data: topDishes } = await supabase
+        // Fetch Top Selling Dish & Line Chart Data (Menu Views)
+        const { data: dishesData } = await supabase
           .from('dishes')
-          .select('name')
+          .select('name, view_count')
           .eq('owner_id', session.user.id)
-          .order('order_count', { ascending: false })
-          .limit(1);
+          .order('view_count', { ascending: false })
+          .limit(7);
         
-        if (topDishes && topDishes.length > 0) {
-          setTopDish(topDishes[0].name);
+        if (dishesData && dishesData.length > 0) {
+          setTopDish(dishesData[0].name);
+          setChartData(dishesData.map(d => ({
+            name: d.name.length > 12 ? d.name.substring(0, 12) + '...' : d.name,
+            views: d.view_count || 0
+          })));
         } else {
           setTopDish('N/A');
         }
+
+        // Fetch Recent Activities
+        const { data: logsData, error: logError } = await supabase
+          .from('activity_logs')
+          .select('*')
+          .eq('owner_id', session.user.id)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        // Gracefully handle if table doesn't exist yet
+        if (logsData && !logError) {
+          setRecentActivity(logsData);
+        }
       }
+      
+      setIsLoading(false);
     };
     
     fetchDashboardData();
@@ -100,7 +107,7 @@ export default function AdminDashboardOverview() {
     }
 
     let currentRev = 0;
-    const duration = 1500; // 1.5 seconds
+    const duration = 1500;
     const interval = 20;
     const step = Math.max(targetRev / (duration / interval), 1);
     
@@ -140,8 +147,27 @@ export default function AdminDashboardOverview() {
     }
   };
 
+  // Modern Skeleton Loading State
+  if (isLoading) {
+    return (
+      <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-8 min-h-screen">
+        <div className="animate-pulse space-y-4">
+          <div className="h-10 bg-gray-200 rounded-xl w-64"></div>
+          <div className="h-5 bg-gray-200 rounded-xl w-96"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-36 bg-gray-200 rounded-3xl"></div>)}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
+          <div className="lg:col-span-2 h-[400px] bg-gray-200 rounded-3xl"></div>
+          <div className="h-[400px] bg-gray-200 rounded-3xl"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-4 sm:p-8 relative">
+    <div className="p-4 sm:p-8 relative animate-fade-in">
       <Toaster />
       <div className="max-w-6xl mx-auto space-y-8">
         
@@ -154,7 +180,7 @@ export default function AdminDashboardOverview() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
-          {/* Estimated Revenue Card (Modern Analytic Style) */}
+          {/* Estimated Revenue Card */}
           <div className="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col justify-between hover:shadow-md transition-shadow relative group">
             <div className="flex justify-between items-start mb-2">
               <div className="flex items-center gap-2">
@@ -242,25 +268,31 @@ export default function AdminDashboardOverview() {
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* Chart Section */}
+          {/* Line Chart Section */}
           <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
             <div className="mb-6">
-              <h3 className="text-lg font-bold text-gray-900">QR Code Scans (Last 7 Days)</h3>
-              <p className="text-sm text-gray-500">Track your daily menu engagement.</p>
+              <h3 className="text-lg font-bold text-gray-900">Menu Item Views</h3>
+              <p className="text-sm text-gray-500">Track which dishes customers are looking at the most.</p>
             </div>
             <div className="flex-1 min-h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={scanData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
-                  />
-                  <Line type="monotone" dataKey="scans" stroke="#2563eb" strokeWidth={4} dot={{ r: 4, fill: '#2563eb', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
-                </LineChart>
-              </ResponsiveContainer>
+              {chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 30, left: -20 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 11 }} dy={15} angle={-25} textAnchor="end" />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                      itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
+                    />
+                    <Line type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center border-2 border-dashed border-gray-100 rounded-xl">
+                   <p className="text-gray-400 font-medium text-sm">No view data available yet.</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -269,31 +301,42 @@ export default function AdminDashboardOverview() {
             <div className="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
                <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
             </div>
-            <div className="p-6 flex-1">
+            <div className="p-6 flex-1 overflow-y-auto max-h-[350px]">
               <div className="space-y-6">
-                {recentActivity.map((activity, index) => (
-                  <div key={activity.id} className="relative pl-6">
-                    {/* Timeline line */}
-                    {index !== recentActivity.length - 1 && (
-                      <div className="absolute left-[7px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
-                    )}
-                    {/* Dot */}
-                    <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-white bg-blue-500 shadow-sm"></div>
-                    
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{activity.action}</p>
-                      <p className="text-sm text-gray-500 mt-0.5">{activity.item}</p>
-                      <p className="text-xs text-gray-400 mt-1 font-medium">{activity.time}</p>
-                    </div>
+                {recentActivity.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-10 text-center">
+                    <svg className="w-10 h-10 text-gray-200 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p className="text-sm font-medium text-gray-500">No recent activity.</p>
                   </div>
-                ))}
+                ) : (
+                  recentActivity.map((activity, index) => (
+                    <div key={activity.id || index} className="relative pl-6 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+                      {/* Timeline line */}
+                      {index !== recentActivity.length - 1 && (
+                        <div className="absolute left-[7px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
+                      )}
+                      {/* Dot */}
+                      <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-white bg-blue-500 shadow-sm"></div>
+                      
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{activity.action}</p>
+                        {activity.item_name && <p className="text-sm text-gray-500 mt-0.5">{activity.item_name}</p>}
+                        <p className="text-[10px] text-gray-400 mt-1 font-bold tracking-wider uppercase">
+                          {new Date(activity.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 text-center">
-              <button className="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors">
-                View All Activity
-              </button>
-            </div>
+            {recentActivity.length > 0 && (
+              <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 text-center">
+                <button className="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors">
+                  View All Activity
+                </button>
+              </div>
+            )}
           </div>
 
         </div>
@@ -304,8 +347,15 @@ export default function AdminDashboardOverview() {
           from { opacity: 0; transform: translateY(10px); } 
           to { opacity: 1; transform: translateY(0); } 
         }
+        @keyframes fadeIn { 
+          from { opacity: 0; } 
+          to { opacity: 1; } 
+        }
         .animate-fade-in-up { 
-          animation: fadeInUp 0.3s ease forwards; 
+          animation: fadeInUp 0.4s ease forwards; 
+        }
+        .animate-fade-in { 
+          animation: fadeIn 0.4s ease forwards; 
         }
       `}</style>
     </div>
