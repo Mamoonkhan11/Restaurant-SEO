@@ -1,28 +1,99 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Save, Loader2, UploadCloud } from 'lucide-react';
+import { supabase, uploadDishImage } from '@/lib/supabase';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
-    name: 'The Golden Spoon',
-    whatsapp: '+1 234 567 8900',
-    themeColor: '#ef4444',
+    name: '',
+    whatsapp: '',
+    themeColor: '#000000',
   });
-  const [logo, setLogo] = useState<string | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [restaurantId, setRestaurantId] = useState<number | string | null>(null);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data: restaurant, error } = await supabase
+        .from('restaurants')
+        .select('*')
+        .eq('owner_id', session.user.id)
+        .single();
+        
+      if (restaurant && !error) {
+        setRestaurantId(restaurant.id);
+        setFormData({
+          name: restaurant.name || '',
+          whatsapp: restaurant.whatsapp || '',
+          themeColor: restaurant.theme_color || '#000000',
+        });
+        setLogoPreview(restaurant.logo_url || null);
+      }
+      setIsLoading(false);
+    };
+    fetchSettings();
+  }, []);
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setLogoFile(file);
+      setLogoPreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!restaurantId) return;
+
     setIsSaving(true);
-    // Simulate DB save
-    setTimeout(() => {
+    let finalLogoUrl = logoPreview;
+
+    try {
+      // 1. Upload Logo if a new file was selected
+      if (logoFile) {
+        finalLogoUrl = await uploadDishImage(logoFile, 'dishes'); 
+      }
+
+      // 2. Update the Restaurant Profile in the database
+      const { error } = await supabase
+        .from('restaurants')
+        .update({
+          name: formData.name,
+          whatsapp: formData.whatsapp,
+          theme_color: formData.themeColor,
+          logo_url: finalLogoUrl
+        })
+        .eq('id', restaurantId);
+
+      if (error) throw new Error(error.message);
+
+      toast.success('Settings saved successfully!', { style: { background: '#000', color: '#fff' }});
+    } catch (err: any) {
+      toast.error(`Save failed: ${err.message}`, { style: { background: '#000', color: '#fff' }, duration: 5000 });
+    } finally {
       setIsSaving(false);
-      alert('Settings saved successfully!');
-    }, 1000);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-8 relative min-h-screen">
+      <Toaster />
       <div className="max-w-6xl mx-auto space-y-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Restaurant Settings</h1>
@@ -49,6 +120,7 @@ export default function SettingsPage() {
                 type="text" 
                 value={formData.whatsapp} 
                 onChange={e => setFormData({...formData, whatsapp: e.target.value})}
+                placeholder="+1 234 567 8900"
                 className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900" 
               />
             </div>
@@ -57,18 +129,18 @@ export default function SettingsPage() {
               <label className="block text-sm font-bold text-gray-700 mb-2">Brand Logo</label>
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                  {logo ? (
-                    <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+                  {logoPreview ? (
+                    <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-xl font-bold text-gray-400">{formData.name.charAt(0)}</span>
+                    <span className="text-xl font-bold text-gray-400">
+                      {formData.name ? formData.name.charAt(0) : '?'}
+                    </span>
                   )}
                 </div>
                 <label className="cursor-pointer bg-blue-50 text-blue-600 px-4 py-2 rounded-xl font-bold hover:bg-blue-100 transition-colors flex items-center gap-2">
                   <UploadCloud className="w-4 h-4" />
                   Upload New
-                  <input type="file" className="sr-only" onChange={(e) => {
-                    if(e.target.files?.[0]) setLogo(URL.createObjectURL(e.target.files[0]));
-                  }} accept="image/*" />
+                  <input type="file" className="sr-only" onChange={handleLogoUpload} accept="image/*" />
                 </label>
               </div>
             </div>
@@ -82,7 +154,7 @@ export default function SettingsPage() {
                   onChange={e => setFormData({...formData, themeColor: e.target.value})}
                   className="w-12 h-12 rounded-xl cursor-pointer border-0 p-0"
                 />
-                <span className="font-mono text-gray-500 font-medium">{formData.themeColor}</span>
+                <span className="font-mono text-gray-500 font-medium uppercase">{formData.themeColor}</span>
               </div>
             </div>
 
@@ -104,11 +176,11 @@ export default function SettingsPage() {
               <div className="h-48 relative transition-colors duration-300" style={{ backgroundColor: formData.themeColor }}>
                 <div className="absolute bottom-6 inset-x-0 flex justify-center">
                   <div className="w-24 h-24 bg-white rounded-full p-1.5 shadow-lg">
-                    {logo ? (
-                      <img src={logo} alt="Logo" className="w-full h-full rounded-full object-cover" />
+                    {logoPreview ? (
+                      <img src={logoPreview} alt="Logo" className="w-full h-full rounded-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center font-bold text-3xl text-gray-400">
-                        {formData.name.charAt(0)}
+                        {formData.name ? formData.name.charAt(0) : '?'}
                       </div>
                     )}
                   </div>
@@ -117,7 +189,7 @@ export default function SettingsPage() {
 
               {/* Content Mockup */}
               <div className="p-6 text-center">
-                <h3 className="font-bold text-xl text-gray-900">{formData.name}</h3>
+                <h3 className="font-bold text-xl text-gray-900">{formData.name || 'Your Restaurant'}</h3>
                 <p className="text-gray-500 text-sm mt-1 mb-6">Digital Menu</p>
                 
                 <div className="space-y-4">
