@@ -25,51 +25,58 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     // Generate a highly secure random 16-character password in the background
-    // This allows us to use Auth cleanly while keeping the UI passwordless
     const randomPassword = Array.from(crypto.getRandomValues(new Uint8Array(16)))
       .map((b) => b.toString(16).padStart(2, '0'))
       .join('');
 
-    // 1. Sign up the user in Supabase Auth
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password: randomPassword,
-      options: {
-        emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/login` : 'http://localhost:3000/login',
-        data: {
-          full_name: fullName,
-          business_name: businessName
+    try {
+      // 1. Sign up the user in Supabase Auth
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password: randomPassword,
+        options: {
+          emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/login` : 'http://localhost:3000/login',
+          data: {
+            full_name: fullName,
+            business_name: businessName
+          }
         }
-      }
-    });
+      });
 
-    if (signUpError) {
-      toast.error(signUpError.message, {
+      if (signUpError) {
+        toast.error(signUpError.message, {
+          style: { background: '#000', color: '#fff' },
+          position: 'top-center'
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (authData.user) {
+        // 2. Provision the restaurant profile in the database
+        const { error: dbError } = await supabase.from('restaurants').insert({
+          owner_id: authData.user.id,
+          email: authData.user.email,
+          name: businessName,
+          slug: businessName.toLowerCase().replace(/ /g, '-')
+        });
+
+        if (dbError) {
+          throw new Error(dbError.message);
+        }
+
+        // Only show success if BOTH auth and database succeed
+        setIsSubmitted(true);
+      }
+    } catch (err: any) {
+      toast.error(`Error: ${err.message}`, {
         style: { background: '#000', color: '#fff' },
+        duration: 5000,
         position: 'top-center'
       });
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    // 2. Provision the restaurant profile in the database
-    const slug = generateSlug(businessName);
-    const { error: dbError } = await supabase.from('restaurants').insert([
-      {
-        name: businessName,
-        email: email,
-        slug: slug
-      }
-    ]);
-
-    if (dbError) {
-      console.error('Restaurant provisioning error:', dbError);
-      // We don't fail the UI here because auth succeeded, 
-      // but in production we'd want a retry mechanism or webhook.
-    }
-
-    setIsLoading(false);
-    setIsSubmitted(true);
   };
 
   return (
