@@ -96,26 +96,27 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
       
-      {/* Sticky Top Header */}
-      <div className="sticky top-0 z-40 bg-gray-50/85 backdrop-blur-md border-b border-gray-100 px-4 py-3 sm:px-6 flex items-center gap-4 transition-all duration-300">
-        <div className="max-w-4xl mx-auto w-full flex items-center gap-4">
-          {restaurant?.logo_url ? (
-            <img src={restaurant.logo_url} alt="Logo" className="w-[50px] h-[50px] rounded-full object-cover shadow-sm border border-gray-200 shrink-0" />
-          ) : (
-            <div className="w-[50px] h-[50px] rounded-full bg-black text-white flex items-center justify-center font-bold text-xl shadow-sm shrink-0">
-              {restaurant?.name?.charAt(0) || 'R'}
-            </div>
-          )}
-          <h1 className="text-xl font-bold text-gray-900 tracking-tight truncate">
-            {restaurant?.name || 'Our Menu'}
-          </h1>
-        </div>
+      {/* Centered Hero Header */}
+      <div className="pt-10 pb-6 px-4 flex flex-col items-center text-center">
+        {restaurant?.logo_url ? (
+          <img src={restaurant.logo_url} alt="Logo" className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow-md border-2 border-gray-100 mb-4" />
+        ) : (
+          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-black text-white flex items-center justify-center font-bold text-4xl shadow-md border-2 border-gray-100 mb-4">
+            {restaurant?.name?.charAt(0) || 'R'}
+          </div>
+        )}
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+          {restaurant?.name || 'Our Menu'}
+        </h1>
+        {restaurant?.description && (
+          <p className="mt-2 text-gray-500 font-medium text-sm max-w-sm mx-auto">{restaurant.description}</p>
+        )}
       </div>
 
-      <div className="max-w-4xl mx-auto mt-6">
-        {/* Search Bar */}
-        <div className="px-4 sm:px-6 mb-6">
-          <div className="relative">
+      <div className="max-w-4xl mx-auto">
+        {/* Sticky Search Bar */}
+        <div className="sticky top-0 z-40 bg-gray-50/95 backdrop-blur-md pt-4 pb-2 px-4 sm:px-6 border-b border-gray-100/50">
+          <div className="relative shadow-sm rounded-full">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-gray-400" />
             </div>
@@ -124,7 +125,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
               placeholder="Search for a dish..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full pl-11 pr-4 py-3.5 bg-white border border-gray-100 rounded-full text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black shadow-sm transition-all"
+              className="block w-full pl-11 pr-4 py-3.5 bg-white border border-gray-200 rounded-full text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black transition-all"
             />
           </div>
         </div>
