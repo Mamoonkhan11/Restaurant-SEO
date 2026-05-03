@@ -61,7 +61,8 @@ export default function LoginPage() {
     const { error: authError } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/admin` : undefined,
+        // Dynamically routes back to /admin regardless of localhost or production domain
+        emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/admin` : 'http://localhost:3000/admin',
       }
     });
 
@@ -74,6 +75,11 @@ export default function LoginPage() {
         position: 'top-center'
       });
     } else {
+      toast.success('Check your email for the login link!', {
+        style: { background: '#000', color: '#fff' },
+        duration: 4000,
+        position: 'top-center'
+      });
       setStep('otp');
       setCountdown(60); // Start the 60 second cooldown
     }
