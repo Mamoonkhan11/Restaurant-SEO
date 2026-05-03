@@ -139,10 +139,26 @@ export async function deleteDishFromDb(id: string | number) {
 /**
  * Upserts a dish (creates if no id, updates if id exists).
  */
-export async function upsertDish(dish: Partial<Dish>) {
+export async function upsertDish(dishData: any) {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  console.log('User ID:', user.id);
+
+  const payload = {
+    ...dishData,
+    owner_id: user.id,
+    price: parseFloat(dishData.price) || 0
+  };
+
+  console.log('Sending Payload:', payload);
+
   const { data, error } = await supabase
     .from('dishes')
-    .upsert(dish)
+    .upsert(payload)
     .select()
     .single();
 
