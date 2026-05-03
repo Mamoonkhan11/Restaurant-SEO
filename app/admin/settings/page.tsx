@@ -1,0 +1,147 @@
+"use client";
+import React, { useState } from 'react';
+import { Save, Loader2, UploadCloud } from 'lucide-react';
+
+export default function SettingsPage() {
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    name: 'The Golden Spoon',
+    whatsapp: '+1 234 567 8900',
+    themeColor: '#ef4444',
+  });
+  const [logo, setLogo] = useState<string | null>(null);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    // Simulate DB save
+    setTimeout(() => {
+      setIsSaving(false);
+      alert('Settings saved successfully!');
+    }, 1000);
+  };
+
+  return (
+    <div className="p-4 sm:p-8 relative min-h-screen">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Restaurant Settings</h1>
+          <p className="mt-1 text-gray-500">Manage your brand identity and public profile.</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          
+          {/* Form */}
+          <form onSubmit={handleSave} className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Restaurant Name</label>
+              <input 
+                type="text" 
+                value={formData.name} 
+                onChange={e => setFormData({...formData, name: e.target.value})}
+                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900" 
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">WhatsApp Ordering Number</label>
+              <input 
+                type="text" 
+                value={formData.whatsapp} 
+                onChange={e => setFormData({...formData, whatsapp: e.target.value})}
+                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900" 
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Brand Logo</label>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                  {logo ? (
+                    <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xl font-bold text-gray-400">{formData.name.charAt(0)}</span>
+                  )}
+                </div>
+                <label className="cursor-pointer bg-blue-50 text-blue-600 px-4 py-2 rounded-xl font-bold hover:bg-blue-100 transition-colors flex items-center gap-2">
+                  <UploadCloud className="w-4 h-4" />
+                  Upload New
+                  <input type="file" className="sr-only" onChange={(e) => {
+                    if(e.target.files?.[0]) setLogo(URL.createObjectURL(e.target.files[0]));
+                  }} accept="image/*" />
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Primary Theme Color</label>
+              <div className="flex items-center gap-4">
+                <input 
+                  type="color" 
+                  value={formData.themeColor} 
+                  onChange={e => setFormData({...formData, themeColor: e.target.value})}
+                  className="w-12 h-12 rounded-xl cursor-pointer border-0 p-0"
+                />
+                <span className="font-mono text-gray-500 font-medium">{formData.themeColor}</span>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-gray-100">
+              <button type="submit" disabled={isSaving} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70">
+                {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </form>
+
+          {/* Mini Preview */}
+          <div className="bg-gray-100 p-8 rounded-3xl flex justify-center lg:sticky lg:top-8">
+            <div className="w-[300px] h-[600px] bg-white rounded-[40px] shadow-2xl overflow-hidden border-[10px] border-gray-900 relative">
+              {/* Notches */}
+              <div className="absolute top-0 inset-x-0 h-6 bg-gray-900 rounded-b-3xl w-40 mx-auto z-20"></div>
+              
+              {/* App Header */}
+              <div className="h-48 relative transition-colors duration-300" style={{ backgroundColor: formData.themeColor }}>
+                <div className="absolute bottom-6 inset-x-0 flex justify-center">
+                  <div className="w-24 h-24 bg-white rounded-full p-1.5 shadow-lg">
+                    {logo ? (
+                      <img src={logo} alt="Logo" className="w-full h-full rounded-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center font-bold text-3xl text-gray-400">
+                        {formData.name.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Content Mockup */}
+              <div className="p-6 text-center">
+                <h3 className="font-bold text-xl text-gray-900">{formData.name}</h3>
+                <p className="text-gray-500 text-sm mt-1 mb-6">Digital Menu</p>
+                
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-20 bg-gray-50 rounded-2xl border border-gray-100 flex items-center p-3 gap-3">
+                      <div className="w-14 h-14 bg-gray-200 rounded-xl shrink-0"></div>
+                      <div className="flex-1 space-y-2 text-left">
+                        <div className="h-3 w-3/4 bg-gray-200 rounded-full"></div>
+                        <div className="h-2 w-1/2 bg-gray-200 rounded-full"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Floating WhatsApp Mock */}
+              <div className="absolute bottom-6 right-6 w-14 h-14 bg-[#25D366] rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform cursor-pointer">
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/></svg>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}

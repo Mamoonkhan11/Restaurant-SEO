@@ -6,7 +6,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials missing! Please check your .env.local file.');
+  console.warn('Supabase credentials missing!');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -66,4 +66,89 @@ export async function uploadDishImage(file: File, bucket: string = 'dishes'): Pr
 
   const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
   return data.publicUrl;
+}
+
+/**
+ * Updates the image_url field for a specific dish in the database.
+ * @param id The dish ID
+ * @param newImageUrl The new image URL to save
+ */
+export async function updateDishImageInDb(id: string | number, newImageUrl: string) {
+  const { error } = await supabase
+    .from('dishes')
+    .update({ image_url: newImageUrl })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating dish image in database:', error);
+    throw new Error('Failed to update database');
+  }
+}
+
+/**
+ * Removes an old image from Supabase storage using its public URL.
+ * @param imageUrl The public URL of the image to remove
+ * @param bucket The storage bucket name
+ */
+export async function removeDishImage(imageUrl: string, bucket: string = 'dishes') {
+  try {
+    // Extract the file path from the public URL
+    const urlParts = imageUrl.split(`/storage/v1/object/public/${bucket}/`);
+    if (urlParts.length === 2) {
+      const filePath = urlParts[1];
+      const { error } = await supabase.storage.from(bucket).remove([filePath]);
+      if (error) {
+        console.error('Error removing old image:', error);
+      }
+    }
+  } catch (err) {
+    console.error('Failed to parse and remove old image:', err);
+  }
+}
+
+/**
+ * Updates the availability status of a dish.
+ */
+export async function updateDishAvailability(id: string | number, is_available: boolean) {
+  const { error } = await supabase
+    .from('dishes')
+    .update({ is_available })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating availability:', error);
+    throw new Error('Failed to update availability');
+  }
+}
+
+/**
+ * Deletes a dish from the database.
+ */
+export async function deleteDishFromDb(id: string | number) {
+  const { error } = await supabase
+    .from('dishes')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting dish:', error);
+    throw new Error('Failed to delete dish');
+  }
+}
+
+/**
+ * Upserts a dish (creates if no id, updates if id exists).
+ */
+export async function upsertDish(dish: Partial<Dish>) {
+  const { data, error } = await supabase
+    .from('dishes')
+    .upsert(dish)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error upserting dish:', error);
+    throw new Error('Failed to save dish');
+  }
+  return data;
 }
