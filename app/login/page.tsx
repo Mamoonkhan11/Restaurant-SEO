@@ -75,13 +75,12 @@ export default function LoginPage() {
         position: 'top-center'
       });
     } else {
-      toast.success('Check your email for the login link!', {
+      toast.success('Magic Link sent! Check your inbox.', {
         style: { background: '#000', color: '#fff' },
-        duration: 4000,
+        duration: 5000,
         position: 'top-center'
       });
-      setStep('otp');
-      setCountdown(60); // Start the 60 second cooldown
+      setEmail(''); // clear the input after sending
     }
   };
 
