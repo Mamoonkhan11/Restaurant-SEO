@@ -169,7 +169,7 @@ export default function AdminPreview() {
                         </span>
                       </td>
                       <td className="p-4 font-semibold text-gray-900">
-                        ${dish.price.toFixed(2)}
+                        ₹{dish.price.toFixed(2)}
                       </td>
                       <td className="p-4">
                         {dish.isAvailable ? (

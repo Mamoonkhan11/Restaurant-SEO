@@ -131,7 +131,7 @@ export default function MenuManagement() {
                         </span>
                       </td>
                       <td className="px-6 py-4 font-black text-gray-900">
-                        ${dish.price.toFixed(2)}
+                        ₹{dish.price.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <button onClick={() => handleToggle(dish)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${dish.is_available ? 'bg-green-500' : 'bg-gray-300'}`}>

@@ -72,19 +72,19 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
         <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6 overflow-y-auto flex-1">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Dish Name</label>
-            <input {...register('name')} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="e.g. Wagyu Burger" />
+            <input {...register('name')} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="e.g. Wagyu Burger" />
             {errors.name && <p className="text-red-500 text-xs mt-1">{String(errors.name.message)}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
-            <textarea {...register('description')} rows={2} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="Delicious ingredients..." />
+            <textarea {...register('description')} rows={2} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="Delicious ingredients..." />
           </div>
 
           <div className="grid grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Category</label>
-              <select {...register('category')} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium">
+              <select {...register('category')} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium">
                 <option>Fast Food</option>
                 <option>Main Course</option>
                 <option>Drinks</option>
@@ -92,8 +92,8 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
               </select>
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Price ($)</label>
-              <input type="number" step="0.01" {...register('price')} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="0.00" />
+              <label className="block text-sm font-bold text-gray-700 mb-2">Price (₹)</label>
+              <input type="number" step="0.01" {...register('price')} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="0.00" />
               {errors.price && <p className="text-red-500 text-xs mt-1">{String(errors.price.message)}</p>}
             </div>
           </div>

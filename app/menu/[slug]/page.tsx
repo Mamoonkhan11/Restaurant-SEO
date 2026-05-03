@@ -204,7 +204,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                           </p>
                           <div className="mt-auto pt-2 flex items-center justify-between">
                             <motion.span layoutId={`dish-price-${item.id}`} className="text-lg font-black text-gray-900">
-                              ${item.price?.toFixed(2)}
+                              ₹{item.price?.toFixed(2)}
                             </motion.span>
                             {item.view_count > 0 && item.is_available && (
                               <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded-md">
@@ -285,7 +285,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                       {selectedDish.name}
                     </motion.h2>
                     <motion.span layoutId={`dish-price-${selectedDish.id}`} className="text-3xl font-black text-gray-900 shrink-0">
-                      ${selectedDish.price?.toFixed(2)}
+                      ₹{selectedDish.price?.toFixed(2)}
                     </motion.span>
                   </div>
                   
@@ -350,7 +350,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                   <button 
                     onClick={() => {
                       const num = restaurant?.whatsapp || '';
-                      const msg = `Hi! I would like to order: ${selectedDish.name} ($${selectedDish.price?.toFixed(2)})`;
+                      const msg = `Hi! I would like to order: ${selectedDish.name} (₹${selectedDish.price?.toFixed(2)})`;
                       window.open(`https://wa.me/${num.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
                     }}
                     className="w-full bg-black hover:bg-gray-900 text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
