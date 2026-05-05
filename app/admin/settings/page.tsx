@@ -51,9 +51,15 @@ export default function SettingsPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!restaurantId) return;
-
     setIsSaving(true);
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error('Not authenticated');
+      setIsSaving(false);
+      return;
+    }
+
     let finalLogoUrl = logoPreview;
 
     try {
@@ -62,18 +68,34 @@ export default function SettingsPage() {
         finalLogoUrl = await uploadDishImage(logoFile, 'restaurant-logos'); 
       }
 
-      // 2. Update the Restaurant Profile in the database
-      const { error } = await supabase
+      // 2. Prepare payload for upsert
+      const payload: any = {
+        name: formData.name,
+        whatsapp: formData.whatsapp,
+        theme_color: formData.themeColor,
+        logo_url: finalLogoUrl,
+        owner_id: session.user.id
+      };
+
+      if (restaurantId) {
+        payload.id = restaurantId;
+      } else {
+        // Create slug if new restaurant
+        payload.slug = formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      }
+
+      // 3. Upsert the Restaurant Profile in the database
+      const { data, error } = await supabase
         .from('restaurants')
-        .update({
-          name: formData.name,
-          whatsapp: formData.whatsapp,
-          theme_color: formData.themeColor,
-          logo_url: finalLogoUrl
-        })
-        .eq('id', restaurantId);
+        .upsert(payload)
+        .select()
+        .single();
 
       if (error) throw new Error(error.message);
+      
+      if (data) {
+        setRestaurantId(data.id);
+      }
 
       toast.success('Settings saved successfully!', { style: { background: '#000', color: '#fff' }});
     } catch (err: any) {

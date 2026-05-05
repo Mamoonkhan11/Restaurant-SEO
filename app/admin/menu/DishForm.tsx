@@ -8,8 +8,8 @@ import { uploadDishImage } from '@/lib/supabase';
 
 const dishSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
-  price: z.any(),
+  description: z.string().min(1, 'Description is required'),
+  price: z.any().refine((val) => val !== '' && val !== null && val !== undefined, 'Price is required'),
   category: z.string().min(1, 'Category is required'),
 });
 
@@ -79,6 +79,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
             <textarea {...register('description')} rows={2} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="Delicious ingredients..." />
+            {errors.description && <p className="text-red-500 text-xs mt-1">{String(errors.description.message)}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-5">
