@@ -153,12 +153,10 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
             >
               {/* Square Image Placeholder / Actual Image */}
               <motion.div layoutId={`dish-image-${item.id}`} className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-gray-200 shrink-0 overflow-hidden relative shadow-sm">
-                <Image 
+                <img 
                   src={item.image_url || `https://placehold.co/400x400/e2e8f0/94a3b8?text=${encodeURIComponent(item.name.charAt(0))}`}
                   alt={item.name}
-                  fill
-                  className="object-cover"
-                  priority={index < 5}
+                  className="w-full h-full object-cover"
                 />
               </motion.div>
 
@@ -232,12 +230,10 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                 </button>
 
                 <motion.div layoutId={`dish-image-${selectedDish.id}`} className="relative h-64 sm:h-80 w-full bg-gray-100 shrink-0">
-                  <Image 
+                  <img 
                     src={selectedDish.image_url || `https://placehold.co/600x400/e2e8f0/94a3b8?text=${encodeURIComponent(selectedDish.name)}`}
                     alt={selectedDish.name}
-                    fill
-                    className="object-cover"
-                    priority
+                    className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
                 </motion.div>

@@ -198,13 +198,17 @@ export async function logAdminAction(actionType: string, description: string) {
 
     if (!restaurant) return;
 
-    await supabase.from('activity_logs').insert({
-      owner_id: user.id,
+    const { error } = await supabase.from('activity_logs').insert({
       restaurant_id: restaurant.id,
+      admin_id: user.id,
       action_type: actionType,
       description: description
     });
-  } catch (err) {
-    console.error('Failed to log admin action:', err);
+
+    if (error) {
+      console.error('Insert activity log failed:', error.message);
+    }
+  } catch (err: any) {
+    console.error('Failed to log admin action:', err.message || err);
   }
 }

@@ -91,23 +91,45 @@ export default function AdminDashboardOverview() {
         }
 
         // Fetch Recent Activities
-        const { data: logsData, error: logError } = await supabase
-          .from('activity_logs')
-          .select('*')
-          .eq('owner_id', session.user.id)
-          .order('created_at', { ascending: false })
-          .limit(10);
+        const fetchLogs = async () => {
+          const { data: logsData, error: logError } = await supabase
+            .from('activity_logs')
+            .select('*')
+            .eq('admin_id', session.user.id)
+            .order('created_at', { ascending: false })
+            .limit(10);
 
-        // Gracefully handle if table doesn't exist yet
-        if (logsData && !logError) {
-          setRecentActivity(logsData);
-        }
+          if (logsData && !logError) {
+            setRecentActivity(logsData);
+          }
+        };
+        fetchLogs();
+
+        // Subscribe to real-time changes
+        const subscription = supabase
+          .channel('public:activity_logs')
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'activity_logs', filter: `admin_id=eq.${session.user.id}` },
+            (payload) => {
+              fetchLogs();
+            }
+          )
+          .subscribe();
+
+        // Cleanup
+        return () => {
+          supabase.removeChannel(subscription);
+        };
       }
       
       setIsLoading(false);
     };
     
-    fetchDashboardData();
+    const cleanup = fetchDashboardData();
+    return () => {
+      cleanup.then(fn => fn && fn());
+    };
   }, []);
 
   // Animated Count-Up for Revenue
