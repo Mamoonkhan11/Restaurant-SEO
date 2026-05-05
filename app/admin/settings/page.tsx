@@ -77,7 +77,7 @@ export default function SettingsPage() {
       }
 
       // 2. Update the Restaurant Profile in the database
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('restaurants')
         .update({
           name: formData.name,
@@ -85,7 +85,9 @@ export default function SettingsPage() {
           theme_color: formData.themeColor,
           logo_url: finalLogoUrl
         })
-        .eq('owner_id', session.user.id);
+        .eq('owner_id', session.user.id)
+        .select()
+        .single();
 
       if (error) throw new Error(error.message);
       
