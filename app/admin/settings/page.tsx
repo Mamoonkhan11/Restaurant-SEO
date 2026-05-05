@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Save, Loader2, UploadCloud } from 'lucide-react';
-import { supabase, uploadDishImage } from '@/lib/supabase';
+import { supabase, uploadDishImage, logAdminAction } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function SettingsPage() {
@@ -9,7 +9,7 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
-    whatsapp: '',
+    whatsapp_number: '',
     themeColor: '#000000',
   });
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -31,7 +31,7 @@ export default function SettingsPage() {
         setRestaurantId(restaurant.id);
         setFormData({
           name: restaurant.name || '',
-          whatsapp: restaurant.whatsapp || '',
+          whatsapp_number: restaurant.whatsapp_number || restaurant.whatsapp || '',
           themeColor: restaurant.theme_color || '#000000',
         });
         setLogoPreview(restaurant.logo_url || null);
@@ -60,6 +60,14 @@ export default function SettingsPage() {
       return;
     }
 
+    // Validation: only digits and a plus sign
+    const whatsappPattern = /^\+?[0-9]*$/;
+    if (!whatsappPattern.test(formData.whatsapp_number)) {
+      toast.error('WhatsApp number can only contain digits and a plus sign.');
+      setIsSaving(false);
+      return;
+    }
+
     let finalLogoUrl = logoPreview;
 
     try {
@@ -68,30 +76,20 @@ export default function SettingsPage() {
         finalLogoUrl = await uploadDishImage(logoFile, 'restaurant-logos'); 
       }
 
-      // 2. Prepare payload for upsert
-      const payload: any = {
-        name: formData.name,
-        whatsapp: formData.whatsapp,
-        theme_color: formData.themeColor,
-        logo_url: finalLogoUrl,
-        owner_id: session.user.id
-      };
-
-      if (restaurantId) {
-        payload.id = restaurantId;
-      } else {
-        // Create slug if new restaurant
-        payload.slug = formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-      }
-
-      // 3. Upsert the Restaurant Profile in the database
-      const { data, error } = await supabase
+      // 2. Update the Restaurant Profile in the database
+      const { error } = await supabase
         .from('restaurants')
-        .upsert(payload)
-        .select()
-        .single();
+        .update({
+          name: formData.name,
+          whatsapp_number: formData.whatsapp_number,
+          theme_color: formData.themeColor,
+          logo_url: finalLogoUrl
+        })
+        .eq('owner_id', session.user.id);
 
       if (error) throw new Error(error.message);
+      
+      await logAdminAction('SETTINGS_CHANGE', 'Restaurant profile updated');
       
       if (data) {
         setRestaurantId(data.id);
@@ -140,8 +138,8 @@ export default function SettingsPage() {
               <label className="block text-sm font-bold text-gray-700 mb-2">WhatsApp Ordering Number</label>
               <input 
                 type="text" 
-                value={formData.whatsapp} 
-                onChange={e => setFormData({...formData, whatsapp: e.target.value})}
+                value={formData.whatsapp_number} 
+                onChange={e => setFormData({...formData, whatsapp_number: e.target.value})}
                 placeholder="+1 234 567 8900"
                 className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900" 
               />

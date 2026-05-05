@@ -5,6 +5,20 @@ import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function AdminDashboardOverview() {
+  const timeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days} day${days > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+  };
+
   const [isLoading, setIsLoading] = useState(true);
   const [ownerName, setOwnerName] = useState('...');
   const [totalItems, setTotalItems] = useState<number | string>('-');
@@ -82,7 +96,7 @@ export default function AdminDashboardOverview() {
           .select('*')
           .eq('owner_id', session.user.id)
           .order('created_at', { ascending: false })
-          .limit(5);
+          .limit(10);
 
         // Gracefully handle if table doesn't exist yet
         if (logsData && !logError) {
@@ -309,24 +323,42 @@ export default function AdminDashboardOverview() {
                     <p className="text-sm font-medium text-gray-500">No recent activity.</p>
                   </div>
                 ) : (
-                  recentActivity.map((activity, index) => (
-                    <div key={activity.id || index} className="relative pl-6 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
-                      {/* Timeline line */}
-                      {index !== recentActivity.length - 1 && (
-                        <div className="absolute left-[7px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
-                      )}
-                      {/* Dot */}
-                      <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-white bg-blue-500 shadow-sm"></div>
-                      
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{activity.action}</p>
-                        {activity.item_name && <p className="text-sm text-gray-500 mt-0.5">{activity.item_name}</p>}
-                        <p className="text-[10px] text-gray-400 mt-1 font-bold tracking-wider uppercase">
-                          {new Date(activity.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                        </p>
+                  recentActivity.map((activity, index) => {
+                    let Icon = <span className="text-[10px]">📝</span>;
+                    let bgColor = "bg-blue-500";
+                    
+                    if (activity.action_type === 'STOCK_UPDATE') {
+                      Icon = <span className="text-[10px]">📦</span>;
+                      bgColor = "bg-orange-500";
+                    } else if (activity.action_type === 'SETTINGS_CHANGE') {
+                      Icon = <span className="text-[10px]">⚙️</span>;
+                      bgColor = "bg-gray-700";
+                    } else if (activity.action_type === 'MENU_CHANGE') {
+                      Icon = <span className="text-[10px]">🍔</span>;
+                      bgColor = "bg-green-500";
+                    }
+                    
+                    return (
+                      <div key={activity.id || index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+                        {/* Timeline line */}
+                        {index !== recentActivity.length - 1 && (
+                          <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
+                        )}
+                        {/* Dot */}
+                        <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white ${bgColor} shadow-sm flex items-center justify-center`}>
+                          {Icon}
+                        </div>
+                        
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{activity.description || activity.action}</p>
+                          {activity.item_name && !activity.description && <p className="text-sm text-gray-500 mt-0.5">{activity.item_name}</p>}
+                          <p className="text-[10px] text-gray-400 mt-1 font-bold tracking-wider uppercase">
+                            {timeAgo(activity.created_at)}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>

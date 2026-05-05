@@ -181,3 +181,30 @@ export async function upsertDish(dishData: any) {
   }
   return data;
 }
+
+/**
+ * Logs an admin action to the activity_logs table.
+ */
+export async function logAdminAction(actionType: string, description: string) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: restaurant } = await supabase
+      .from('restaurants')
+      .select('id')
+      .eq('owner_id', user.id)
+      .single();
+
+    if (!restaurant) return;
+
+    await supabase.from('activity_logs').insert({
+      owner_id: user.id,
+      restaurant_id: restaurant.id,
+      action_type: actionType,
+      description: description
+    });
+  } catch (err) {
+    console.error('Failed to log admin action:', err);
+  }
+}

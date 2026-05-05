@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Loader2, AlertTriangle } from 'lucide-react';
 import DishForm from './DishForm';
-import { getDishesByRestaurantSlug, updateDishAvailability, deleteDishFromDb, removeDishImage, upsertDish, Dish } from '@/lib/supabase';
+import { getDishesByRestaurantSlug, updateDishAvailability, deleteDishFromDb, removeDishImage, upsertDish, logAdminAction, Dish } from '@/lib/supabase';
 
 // We mock the session slug for now
 const RESTAURANT_SLUG = 'demo-restaurant'; 
@@ -35,6 +35,7 @@ export default function MenuManagement() {
     setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, is_available: newValue } : d));
     try {
       await updateDishAvailability(dish.id, newValue);
+      await logAdminAction('STOCK_UPDATE', `Item "${dish.name}" status changed to ${newValue ? 'In Stock' : 'Out of Stock'}`);
     } catch (err) {
       // Revert if failed
       setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, is_available: !newValue } : d));
@@ -54,6 +55,7 @@ export default function MenuManagement() {
       if (dishToDelete.image_url) {
         await removeDishImage(dishToDelete.image_url, 'dishes');
       }
+      await logAdminAction('MENU_CHANGE', `Deleted dish "${dishToDelete.name}"`);
     } catch (err) {
       setDishes(prevDishes);
       alert('Failed to delete dish');
@@ -70,6 +72,7 @@ export default function MenuManagement() {
       setIsFormOpen(false);
       setEditingDish(null);
       fetchDishes(); // Refresh list to get accurate DB state
+      await logAdminAction('MENU_CHANGE', `${data.id ? 'Edited' : 'Added'} dish "${data.name}"`);
     } catch (err) {
       throw err;
     }

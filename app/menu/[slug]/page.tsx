@@ -182,6 +182,11 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                   HOT
                 </div>
               )}
+              {!item.is_available && (
+                <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-2xl bg-gray-700 text-white text-[10px] font-bold px-2.5 py-1 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
+                  Out of stock
+                </div>
+              )}
             </motion.div>
           ))
         )}
