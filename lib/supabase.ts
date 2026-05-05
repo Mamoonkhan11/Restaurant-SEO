@@ -148,9 +148,22 @@ export async function upsertDish(dishData: any) {
 
   console.log('User ID:', user.id);
 
+  // Fetch the restaurant to get the restaurant_id
+  const { data: restaurant, error: restError } = await supabase
+    .from('restaurants')
+    .select('id')
+    .eq('owner_id', user.id)
+    .single();
+
+  if (restError || !restaurant) {
+    // This exact error string can be caught and shown as an alert in the UI
+    throw new Error('Please set up your restaurant in Settings first!');
+  }
+
   const payload = {
     ...dishData,
     owner_id: user.id,
+    restaurant_id: restaurant.id,
     price: parseFloat(dishData.price) || 0
   };
 
