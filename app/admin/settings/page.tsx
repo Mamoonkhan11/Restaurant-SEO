@@ -76,11 +76,38 @@ export default function SettingsPage() {
         finalLogoUrl = await uploadDishImage(logoFile, 'restaurant-logos'); 
       }
 
-      // 2. Update the Restaurant Profile in the database
+      // 2. Auto-Slug Generation & Validation
+      const generatedSlug = formData.name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+
+      if (!generatedSlug) {
+        toast.error('Restaurant name cannot be empty.');
+        setIsSaving(false);
+        return;
+      }
+
+      // Check for Slug Conflicts (excluding current user's restaurant)
+      const { data: existingSlugData } = await supabase
+        .from('restaurants')
+        .select('id')
+        .eq('slug', generatedSlug)
+        .neq('owner_id', session.user.id);
+
+      if (existingSlugData && existingSlugData.length > 0) {
+        toast.error('This business name is already taken. Please try adding your city or a unique identifier.', { duration: 5000 });
+        setIsSaving(false);
+        return;
+      }
+
+      // 3. Update the Restaurant Profile in the database
       const { data, error } = await supabase
         .from('restaurants')
         .update({
           name: formData.name,
+          slug: generatedSlug,
           whatsapp_number: formData.whatsapp_number,
           theme_color: formData.themeColor,
           logo_url: finalLogoUrl

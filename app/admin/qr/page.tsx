@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
-import { QRCodeCanvas } from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { Download, Link as LinkIcon, Loader2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { Playfair_Display, Montserrat } from 'next/font/google';
@@ -179,7 +179,7 @@ export default function QRCodePage() {
                   className="p-6 bg-white rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] transition-colors duration-300 relative"
                   style={{ border: `1px solid ${color}20` }}
                 >
-                  <QRCodeCanvas 
+                  <QRCodeSVG 
                     value={publicUrl} 
                     size={200} 
                     fgColor={color} 

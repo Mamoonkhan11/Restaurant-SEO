@@ -44,7 +44,8 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
           
           setDishes(processedDishes);
 
-          const uniqueCategories = Array.from(new Set(processedDishes.map(d => d.category).filter(Boolean))) as string[];
+          const uniqueCategories = Array.from(new Set(processedDishes.map(d => d.category || 'Uncategorized'))) as string[];
+          uniqueCategories.sort((a, b) => a.localeCompare(b));
           setCategories(uniqueCategories);
           if (uniqueCategories.length > 0 && !activeCategory) {
             setActiveCategory(uniqueCategories[0]);
@@ -182,18 +183,18 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
 
       {/* Menu List by Categories */}
       <div className="max-w-xl mx-auto px-4 space-y-10">
-        {Object.keys(groupedDishes).length === 0 ? (
+        {categories.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 font-medium">No dishes available.</p>
           </div>
         ) : (
-          Object.keys(groupedDishes).map((cat) => (
+          categories.map((cat) => (
             <div key={cat} id={`category-${cat}`} className="scroll-mt-24">
               <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-5 sticky top-[4.5rem] bg-gray-50/95 backdrop-blur-sm py-2 z-30">
                 {cat}
               </h2>
               <div className="space-y-4">
-                {groupedDishes[cat].map((item: any, index: number) => (
+                {groupedDishes[cat]?.map((item: any, index: number) => (
                   <motion.div 
                     layoutId={`dish-${item.id}`}
                     key={item.id} 
