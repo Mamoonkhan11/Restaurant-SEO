@@ -16,6 +16,9 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
   const [selectedDish, setSelectedDish] = useState<any>(null);
 
   useEffect(() => {
+    let restaurantSubscription: any;
+    let dishesSubscription: any;
+
     const fetchMenu = async () => {
       const { data: restData } = await supabase
         .from('restaurants')
@@ -32,7 +35,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
           .eq('owner_id', restData.owner_id)
           .order('view_count', { ascending: false });
 
-        if (dishesData && dishesData.length > 0) {
+        if (dishesData) {
           const processedDishes = dishesData.map((d, index) => ({
             ...d,
             isBestSeller: index < 3 && (d.view_count || 0) > 0,
@@ -43,12 +46,40 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
 
           const uniqueCategories = Array.from(new Set(processedDishes.map(d => d.category).filter(Boolean)));
           setCategories(uniqueCategories as string[]);
+
+          // Sync open modal if the item was updated (e.g. out of stock)
+          setSelectedDish((prev: any) => {
+            if (!prev) return null;
+            const updated = processedDishes.find(d => d.id === prev.id);
+            if (!updated || !updated.is_available) return null;
+            return updated;
+          });
+        }
+
+        // Setup real-time subscriptions
+        if (!restaurantSubscription) {
+          restaurantSubscription = supabase
+            .channel(`public:restaurants:${restData.id}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurants', filter: `id=eq.${restData.id}` }, () => fetchMenu())
+            .subscribe();
+        }
+
+        if (!dishesSubscription) {
+          dishesSubscription = supabase
+            .channel(`public:dishes:${restData.owner_id}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'dishes', filter: `owner_id=eq.${restData.owner_id}` }, () => fetchMenu())
+            .subscribe();
         }
       }
       setIsLoading(false);
     };
     
     fetchMenu();
+
+    return () => {
+      if (restaurantSubscription) supabase.removeChannel(restaurantSubscription);
+      if (dishesSubscription) supabase.removeChannel(dishesSubscription);
+    };
   }, [params.slug]);
 
   const handleDishClick = async (dish: any) => {
