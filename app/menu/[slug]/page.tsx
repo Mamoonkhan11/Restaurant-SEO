@@ -9,7 +9,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
   const [restaurant, setRestaurant] = useState<any>(null);
   const [dishes, setDishes] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [activeCategory, setActiveCategory] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
   // Deep Detail Modal State
@@ -44,8 +44,11 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
           
           setDishes(processedDishes);
 
-          const uniqueCategories = Array.from(new Set(processedDishes.map(d => d.category).filter(Boolean)));
-          setCategories(uniqueCategories as string[]);
+          const uniqueCategories = Array.from(new Set(processedDishes.map(d => d.category).filter(Boolean))) as string[];
+          setCategories(uniqueCategories);
+          if (uniqueCategories.length > 0 && !activeCategory) {
+            setActiveCategory(uniqueCategories[0]);
+          }
 
           // Sync open modal if the item was updated (e.g. out of stock)
           setSelectedDish((prev: any) => {
@@ -103,10 +106,12 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
     window.open(`https://wa.me/${num.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  const displayCategories = ['all', ...categories];
-  const filteredDishes = activeCategory === 'all' 
-    ? dishes 
-    : dishes.filter(d => d.category === activeCategory);
+  const groupedDishes = dishes.reduce((acc: any, dish: any) => {
+    const cat = dish.category || 'Uncategorized';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(dish);
+    return acc;
+  }, {});
 
   if (isLoading) {
     return (
@@ -147,76 +152,92 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         <p className="text-gray-500 text-sm sm:text-base mt-1 font-medium">Digital Menu</p>
       </div>
 
-      {/* Categories Filter */}
+      {/* Quick Jump Bar */}
       {categories.length > 0 && (
-        <div className="max-w-xl mx-auto px-4 mb-6">
-          <div className="flex space-x-2 overflow-x-auto scrollbar-hide snap-x pb-2">
-            {displayCategories.map((cat) => (
+        <div className="max-w-xl mx-auto px-4 mb-6 sticky top-0 z-40 bg-gray-50/95 backdrop-blur-md py-3 shadow-sm border-b border-gray-200">
+          <div className="flex space-x-2 overflow-x-auto scrollbar-hide snap-x">
+            {categories.map((cat) => (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => {
+                  setActiveCategory(cat);
+                  const el = document.getElementById(`category-${cat}`);
+                  if (el) {
+                    const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                  }
+                }}
                 className={`whitespace-nowrap px-5 py-2 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${
                   activeCategory === cat
                     ? 'bg-black text-white'
                     : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
                 }`}
               >
-                {cat === 'all' ? 'All' : cat}
+                {cat}
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {/* Menu List */}
-      <div className="max-w-xl mx-auto px-4 space-y-3 sm:space-y-4">
-        {filteredDishes.length === 0 ? (
+      {/* Menu List by Categories */}
+      <div className="max-w-xl mx-auto px-4 space-y-10">
+        {Object.keys(groupedDishes).length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 font-medium">No dishes available.</p>
           </div>
         ) : (
-          filteredDishes.map((item, index) => (
-            <motion.div 
-              layoutId={`dish-${item.id}`}
-              key={item.id} 
-              onClick={() => handleDishClick(item)}
-              className={`bg-gray-100 rounded-2xl p-3 sm:p-4 flex flex-row gap-4 items-center relative group cursor-pointer hover:bg-gray-200 transition-colors ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
-            >
-              {/* Square Image Placeholder / Actual Image */}
-              <motion.div layoutId={`dish-image-${item.id}`} className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-gray-200 shrink-0 overflow-hidden relative shadow-sm">
-                <img 
-                  src={item.image_url || `https://placehold.co/400x400/e2e8f0/94a3b8?text=${encodeURIComponent(item.name.charAt(0))}`}
-                  alt={item.name}
-                  className="w-full h-full object-cover"
-                />
-              </motion.div>
+          Object.keys(groupedDishes).map((cat) => (
+            <div key={cat} id={`category-${cat}`} className="scroll-mt-24">
+              <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-5 sticky top-[4.5rem] bg-gray-50/95 backdrop-blur-sm py-2 z-30">
+                {cat}
+              </h2>
+              <div className="space-y-4">
+                {groupedDishes[cat].map((item: any, index: number) => (
+                  <motion.div 
+                    layoutId={`dish-${item.id}`}
+                    key={item.id} 
+                    onClick={() => handleDishClick(item)}
+                    className={`bg-white rounded-3xl p-4 sm:p-5 flex flex-row gap-4 items-center relative group cursor-pointer hover:shadow-md transition-shadow shadow-sm border border-gray-100 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                  >
+                    {/* Image */}
+                    <motion.div layoutId={`dish-image-${item.id}`} className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gray-100 shrink-0 overflow-hidden relative">
+                      <img 
+                        src={item.image_url || `https://placehold.co/400x400/e2e8f0/94a3b8?text=${encodeURIComponent(item.name.charAt(0))}`}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </motion.div>
 
-              {/* Skeleton-style 2-3 lines of Info */}
-              <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
-                <motion.h3 layoutId={`dish-title-${item.id}`} className="text-base sm:text-lg font-bold text-gray-900 truncate">
-                  {item.name}
-                </motion.h3>
-                {item.description && (
-                  <p className="text-gray-500 text-xs sm:text-sm mt-0.5 line-clamp-1 sm:line-clamp-2">
-                    {item.description}
-                  </p>
-                )}
-                <motion.span layoutId={`dish-price-${item.id}`} className="text-sm sm:text-base font-black text-gray-900 mt-1.5 block">
-                  ₹{item.price?.toFixed(2)}
-                </motion.span>
+                    {/* Info */}
+                    <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
+                      <motion.h3 layoutId={`dish-title-${item.id}`} className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+                        {item.name}
+                      </motion.h3>
+                      {item.description && (
+                        <p className="text-gray-500 text-xs sm:text-sm mt-1 line-clamp-2 leading-relaxed">
+                          {item.description}
+                        </p>
+                      )}
+                      <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 mt-2 block">
+                        ₹{item.price?.toFixed(2)}
+                      </motion.span>
+                    </div>
+
+                    {item.isBestSeller && item.is_available && (
+                      <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-orange-500 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
+                        Bestseller
+                      </div>
+                    )}
+                    {!item.is_available && (
+                      <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-gray-700 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
+                        Out of stock
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
               </div>
-
-              {item.isBestSeller && item.is_available && (
-                <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-2xl bg-gray-900 text-white text-[10px] font-bold px-2.5 py-1 shadow-sm flex items-center gap-1 tracking-wider z-10">
-                  HOT
-                </div>
-              )}
-              {!item.is_available && (
-                <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-2xl bg-gray-700 text-white text-[10px] font-bold px-2.5 py-1 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
-                  Out of stock
-                </div>
-              )}
-            </motion.div>
+            </div>
           ))
         )}
       </div>
