@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 export default function AdminDashboardOverview() {
   const timeAgo = (dateString: string) => {
@@ -36,101 +37,108 @@ export default function AdminDashboardOverview() {
   const [isEditingAov, setIsEditingAov] = useState(false);
   const [newAov, setNewAov] = useState<number | string>('');
 
+  const router = useRouter();
+
   useEffect(() => {
     const fetchDashboardData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      
-      setOwnerName(session.user.user_metadata?.full_name || 'Owner');
-
-      // Fetch the restaurant profile
-      const { data: restaurant } = await supabase
-        .from('restaurants')
-        .select('id, slug, average_order_value')
-        .eq('owner_id', session.user.id)
-        .single();
-        
-      if (restaurant) {
-        setRestaurantId(restaurant.id);
-        if (restaurant.average_order_value) {
-          setAov(restaurant.average_order_value);
-        }
-
-        // Calculate Total Items
-        const { count: dishCount } = await supabase
-          .from('dishes')
-          .select('*', { count: 'exact', head: true })
-          .eq('owner_id', session.user.id);
-        
-        setTotalItems(dishCount ?? 0);
-
-        // Calculate Total Scans from views table (Real Data)
-        const { count: scansCount } = await supabase
-          .from('restaurant_views')
-          .select('*', { count: 'exact', head: true })
-          .eq('restaurant_slug', restaurant.slug);
-        
-        setTotalScans(scansCount ?? 0);
-
-        // Fetch Top Selling Dish & Line Chart Data (Menu Views)
-        const { data: dishesData } = await supabase
-          .from('dishes')
-          .select('name, view_count')
-          .eq('owner_id', session.user.id)
-          .order('view_count', { ascending: false })
-          .limit(7);
-        
-        if (dishesData && dishesData.length > 0) {
-          setTopDish(dishesData[0].name);
-          setChartData(dishesData.map(d => ({
-            name: d.name.length > 12 ? d.name.substring(0, 12) + '...' : d.name,
-            views: d.view_count || 0
-          })));
-        } else {
-          setTopDish('N/A');
-        }
-
-        // Fetch Recent Activities
-        const fetchLogs = async () => {
-          const { data: logsData, error: logError } = await supabase
-            .from('activity_logs')
-            .select('*')
-            .eq('admin_id', session.user.id)
-            .order('created_at', { ascending: false })
-            .limit(10);
-
-          if (logsData && !logError) {
-            setRecentActivity(logsData);
-          }
-        };
-        fetchLogs();
-
-        // Subscribe to real-time changes
-        const subscription = supabase
-          .channel('public:activity_logs')
-          .on(
-            'postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'activity_logs', filter: `admin_id=eq.${session.user.id}` },
-            (payload) => {
-              fetchLogs();
-            }
-          )
-          .subscribe();
-
-        // Cleanup
-        return () => {
-          supabase.removeChannel(subscription);
-        };
+      // 1. Auth Check
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/login');
+        return;
       }
       
+      setOwnerName(user.user_metadata?.full_name || 'Owner');
+
+      // 2. Profile Fetch
+      const { data: restaurant, error } = await supabase
+        .from('restaurants')
+        .select('id, slug, average_order_value')
+        .eq('owner_id', user.id)
+        .single();
+        
+      if (error || !restaurant) {
+        // 5. Loading UI: Redirect if no restaurant found
+        router.push('/admin/settings');
+        return;
+      }
+
+      // 4. State Management: Store restaurantId
+      setRestaurantId(restaurant.id);
+      
+      if (restaurant.average_order_value) {
+        setAov(restaurant.average_order_value);
+      }
+
+      // 3. Conditional Fetching (Only runs if restaurant is found)
+      const { count: dishCount } = await supabase
+        .from('dishes')
+        .select('*', { count: 'exact', head: true })
+        .eq('owner_id', user.id);
+      
+      setTotalItems(dishCount ?? 0);
+
+      const { count: scansCount } = await supabase
+        .from('restaurant_views')
+        .select('*', { count: 'exact', head: true })
+        .eq('restaurant_slug', restaurant.slug);
+      
+      setTotalScans(scansCount ?? 0);
+
+      const { data: dishesData } = await supabase
+        .from('dishes')
+        .select('name, view_count')
+        .eq('owner_id', user.id)
+        .order('view_count', { ascending: false })
+        .limit(7);
+      
+      if (dishesData && dishesData.length > 0) {
+        setTopDish(dishesData[0].name);
+        setChartData(dishesData.map(d => ({
+          name: d.name.length > 12 ? d.name.substring(0, 12) + '...' : d.name,
+          views: d.view_count || 0
+        })));
+      } else {
+        setTopDish('N/A');
+      }
+
+      const fetchLogs = async () => {
+        const { data: logsData, error: logError } = await supabase
+          .from('activity_logs')
+          .select('*')
+          .eq('admin_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        if (logsData && !logError) {
+          setRecentActivity(logsData);
+        }
+      };
+      fetchLogs();
+
+      const subscription = supabase
+        .channel('public:activity_logs')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'activity_logs', filter: `admin_id=eq.${user.id}` },
+          (payload) => {
+            fetchLogs();
+          }
+        )
+        .subscribe();
+      
       setIsLoading(false);
+
+      return () => {
+        supabase.removeChannel(subscription);
+      };
     };
     
     const cleanup = fetchDashboardData();
     return () => {
       cleanup.then(fn => fn && fn());
     };
-  }, []);
+  }, [router]);
 
   // Animated Count-Up for Revenue
   useEffect(() => {
