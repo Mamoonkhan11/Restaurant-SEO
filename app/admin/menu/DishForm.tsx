@@ -18,7 +18,12 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
   const [previewUrl, setPreviewUrl] = useState<string>(initialData?.image_url || '');
   const [isUploading, setIsUploading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<any>({
+  const standardCategories = ['Fast Food', 'Main Course', 'Drinks', 'Desserts'];
+  const [isCustomCategory, setIsCustomCategory] = useState(
+    initialData?.category ? !standardCategories.includes(initialData.category) : false
+  );
+
+  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<any>({
     resolver: zodResolver(dishSchema),
     defaultValues: {
       name: initialData?.name || '',
@@ -85,18 +90,45 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
           <div className="grid grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Category</label>
-              <input 
-                list="category-options"
-                {...register('category')} 
-                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" 
-                placeholder="Select or type new..."
-              />
-              <datalist id="category-options">
-                <option value="Fast Food" />
-                <option value="Main Course" />
-                <option value="Drinks" />
-                <option value="Desserts" />
-              </datalist>
+              {!isCustomCategory ? (
+                <select 
+                  {...register('category')} 
+                  onChange={(e) => {
+                    if (e.target.value === 'custom') {
+                      setIsCustomCategory(true);
+                      setValue('category', '');
+                    } else {
+                      setValue('category', e.target.value);
+                    }
+                  }}
+                  className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium appearance-none"
+                >
+                  {standardCategories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                  <option value="custom" className="font-bold text-blue-600">➕ Add Custom Category</option>
+                </select>
+              ) : (
+                <div className="relative">
+                  <input 
+                    {...register('category')} 
+                    autoFocus
+                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" 
+                    placeholder="Type custom category..."
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setIsCustomCategory(false);
+                      setValue('category', standardCategories[0]);
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 p-1 rounded-full transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+              {errors.category && <p className="text-red-500 text-xs mt-1">{String(errors.category.message)}</p>}
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Price (₹)</label>
