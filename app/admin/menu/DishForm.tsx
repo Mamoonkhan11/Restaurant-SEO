@@ -85,12 +85,18 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
           <div className="grid grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Category</label>
-              <select {...register('category')} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium">
-                <option>Fast Food</option>
-                <option>Main Course</option>
-                <option>Drinks</option>
-                <option>Desserts</option>
-              </select>
+              <input 
+                list="category-options"
+                {...register('category')} 
+                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" 
+                placeholder="Select or type new..."
+              />
+              <datalist id="category-options">
+                <option value="Fast Food" />
+                <option value="Main Course" />
+                <option value="Drinks" />
+                <option value="Desserts" />
+              </datalist>
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Price (₹)</label>
