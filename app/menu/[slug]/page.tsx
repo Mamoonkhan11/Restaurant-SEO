@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
-import { X, MessageCircle, Loader2 } from 'lucide-react';
+import { X, MessageCircle, Loader2, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DigitalMenu({ params }: { params: { slug: string } }) {
@@ -10,6 +10,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
   const [dishes, setDishes] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   // Deep Detail Modal State
@@ -38,7 +39,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         if (dishesData) {
           const processedDishes = dishesData.map((d, index) => ({
             ...d,
-            isBestSeller: index < 3 && (d.view_count || 0) > 0,
+            isBestSeller: (d.view_count || 0) > 60,
             view_count: d.view_count || 0
           }));
           
@@ -107,7 +108,12 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
     window.open(`https://wa.me/${num.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  const groupedDishes = dishes.reduce((acc: any, dish: any) => {
+  const searchedDishes = dishes.filter(dish => 
+    dish.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (dish.description && dish.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const groupedDishes = searchedDishes.reduce((acc: any, dish: any) => {
     const cat = dish.category || 'Uncategorized';
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(dish);
@@ -153,6 +159,30 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         <p className="text-gray-500 text-sm sm:text-base mt-1 font-medium">Digital Menu</p>
       </div>
 
+      {/* Search Bar */}
+      <div className="max-w-xl mx-auto px-4 mb-4">
+        <div className="relative group">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400 group-focus-within:text-black transition-colors" />
+          </div>
+          <input
+            type="text"
+            className="block w-full pl-11 pr-10 py-3.5 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all shadow-sm font-medium"
+            placeholder="Search for a dish..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery('')}
+              className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-900 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Quick Jump Bar */}
       {categories.length > 0 && (
         <div className="max-w-xl mx-auto px-4 mb-6 sticky top-0 z-40 bg-gray-50/95 backdrop-blur-md py-3 shadow-sm border-b border-gray-200">
@@ -183,18 +213,25 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
 
       {/* Menu List by Categories */}
       <div className="max-w-xl mx-auto px-4 space-y-10">
-        {categories.length === 0 ? (
+        {Object.keys(groupedDishes).length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 font-medium">No dishes available.</p>
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="h-6 w-6 text-gray-400" />
+            </div>
+            <p className="text-gray-500 font-medium">No dishes found matching your search.</p>
           </div>
         ) : (
-          categories.map((cat) => (
-            <div key={cat} id={`category-${cat}`} className="scroll-mt-24">
-              <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-5 sticky top-[4.5rem] bg-gray-50/95 backdrop-blur-sm py-2 z-30">
-                {cat}
-              </h2>
-              <div className="space-y-4">
-                {groupedDishes[cat]?.map((item: any, index: number) => (
+          categories.map((cat) => {
+            const categoryDishes = groupedDishes[cat];
+            if (!categoryDishes || categoryDishes.length === 0) return null;
+            
+            return (
+              <div key={cat} id={`category-${cat}`} className="scroll-mt-24">
+                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-5 sticky top-[4.5rem] bg-gray-50/95 backdrop-blur-sm py-2 z-30">
+                  {cat}
+                </h2>
+                <div className="space-y-4">
+                  {categoryDishes.map((item: any, index: number) => (
                   <motion.div 
                     layoutId={`dish-${item.id}`}
                     key={item.id} 
@@ -239,7 +276,8 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                 ))}
               </div>
             </div>
-          ))
+            );
+          })
         )}
       </div>
 
