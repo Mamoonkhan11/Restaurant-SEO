@@ -4,7 +4,6 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-900">
       <div className="text-center p-8 max-w-2xl w-full">
-<<<<<<< HEAD
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
           <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg transform -rotate-6">
             <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -21,11 +20,6 @@ export default function Home() {
             QR-Crave
           </h1>
         </div>
-=======
-        <h1 className="text-5xl font-extrabold mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-          QR-Crave
-        </h1>
->>>>>>> 99e532fae1d1583e6a97c0ebc05b9a8a0213b53c
         <p className="text-xl text-gray-600 mb-10">
           Supercharge your restaurant's online presence with lightning-fast digital menus.
         </p>
