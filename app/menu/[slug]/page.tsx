@@ -299,9 +299,22 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
 
       {/* Fixed Footer */}
       <div className="fixed bottom-0 inset-x-0 h-10 bg-gray-50/90 backdrop-blur-sm border-t border-gray-200 flex items-center justify-center z-30">
-        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-          Powered by QR-Crave
-        </p>
+        <div className="flex items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
+          <div className="w-4 h-4 bg-gray-400 rounded flex items-center justify-center">
+            <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 4H5a2 2 0 0 0-2 2v3" />
+              <path d="M16 4h3a2 2 0 0 1 2 2v3" />
+              <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
+              <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
+              <path d="M7 14a5 5 0 0 1 10 0" />
+              <path d="M6 14h12" />
+              <path d="M12 9V7" />
+            </svg>
+          </div>
+          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+            Powered by QR-Crave
+          </p>
+        </div>
       </div>
 
       {/* Deep Detail Organic Full-Screen Expansion (Retained) */}

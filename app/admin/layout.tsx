@@ -62,9 +62,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-gray-300 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-20 flex items-center px-6 border-b border-gray-800 shrink-0">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 4H5a2 2 0 0 0-2 2v3" />
+              <path d="M16 4h3a2 2 0 0 1 2 2v3" />
+              <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
+              <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
+              <path d="M7 14a5 5 0 0 1 10 0" />
+              <path d="M6 14h12" />
+              <path d="M12 9V7" />
+            </svg>
           </div>
-          <h2 className="text-xl font-bold text-white tracking-tight">Resto<span className="text-blue-500">OS</span></h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">QR-<span className="text-blue-500">Crave</span></h2>
         </div>
         
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -101,7 +109,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <button onClick={() => setIsSidebarOpen(true)} className="text-gray-600 hover:text-gray-900 focus:outline-none p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
             <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </button>
-          <h2 className="text-xl font-bold text-gray-900 tracking-tight">Resto<span className="text-blue-600">OS</span></h2>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 4H5a2 2 0 0 0-2 2v3" />
+                <path d="M16 4h3a2 2 0 0 1 2 2v3" />
+                <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
+                <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
+                <path d="M7 14a5 5 0 0 1 10 0" />
+                <path d="M6 14h12" />
+                <path d="M12 9V7" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 tracking-tight">QR-<span className="text-blue-600">Crave</span></h2>
+          </div>
           <div className="w-9" /> {/* Spacer */}
         </header>
 

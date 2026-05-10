@@ -1,9 +1,9 @@
-# 🍔 QR-Crave 
+# 🍔 QR-Curve 
 
-Welcome to **QR-Crave**, the ultimate digital menu platform designed to skyrocket your restaurant's online presence, engage your customers, and boost your sales effortlessly! 
+Welcome to **QR-Curve**, the ultimate digital menu platform designed to skyrocket your restaurant's online presence, engage your customers, and boost your sales effortlessly! 
 
-## 🌟 What is QR-Crave?
-Gone are the days of sticky, outdated physical menus. QR-Crave gives restaurant owners the power to create a stunning, real-time digital menu that customers can access instantly by scanning a beautifully generated QR code placed right at their tables.
+## 🌟 What is QR-Curve?
+Gone are the days of sticky, outdated physical menus. QR-Curve gives restaurant owners the power to create a stunning, real-time digital menu that customers can access instantly by scanning a beautifully generated QR code placed right at their tables.
 
 ## 🚀 Key Features
 
@@ -24,7 +24,7 @@ Gone are the days of sticky, outdated physical menus. QR-Crave gives restaurant 
    - **Historical Context**: Click on any metric card to see a breakdown of your performance over the last 3 months.
 
 ## 🛠️ Technology Stack
-QR-Crave is built for speed and reliability, leveraging modern web development tools:
+QR-Curve is built for speed and reliability, leveraging modern web development tools:
 - **Framework**: [Next.js](https://nextjs.org/) (React)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) for beautiful, responsive design
 - **Database & Auth**: [Supabase](https://supabase.com/) for real-time data sync, authentication, and image storage

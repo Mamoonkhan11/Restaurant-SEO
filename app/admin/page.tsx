@@ -280,7 +280,7 @@ export default function AdminDashboardOverview() {
             <div className="flex justify-between items-start mb-2">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-bold text-emerald-800 uppercase tracking-wider">Estimated Revenue</p>
-                <div className="relative flex items-center justify-center cursor-help">
+                <div onClick={(e) => e.stopPropagation()} className="relative flex items-center justify-center cursor-help">
                   <div className="w-4 h-4 rounded-full bg-emerald-200 text-emerald-700 flex items-center justify-center text-[10px] font-bold shadow-sm hover:bg-emerald-300 transition-colors">?</div>
                   <div className="absolute bottom-full mb-2 hidden group-hover:block w-52 p-3 bg-gray-900 text-white text-xs font-medium rounded-xl shadow-xl z-10 text-center leading-relaxed">
                     This is calculated by multiplying your total QR scans by your average bill amount.
