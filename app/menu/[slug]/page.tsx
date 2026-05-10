@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
-import { X, MessageCircle, Loader2, Search } from 'lucide-react';
+import { X, MessageCircle, Loader2, Search, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DigitalMenu({ params }: { params: { slug: string } }) {
@@ -102,16 +102,17 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
     }
   };
 
-  const handleWhatsAppClick = () => {
-    const num = restaurant?.whatsapp_number || restaurant?.whatsapp || '';
-    const msg = `Hi! Do you deliver products to home?`;
-    window.open(`https://wa.me/${num.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+  const handleWhatsAppShare = () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const msg = `Check out the digital menu for ${restaurant?.name || 'this restaurant'}! Order delicious food here: ${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  const searchedDishes = dishes.filter(dish => 
-    dish.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    (dish.description && dish.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const searchedDishes = dishes.filter(dish => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return true;
+    return dish.name.toLowerCase().startsWith(query);
+  });
 
   const groupedDishes = searchedDishes.reduce((acc: any, dish: any) => {
     const cat = dish.category || 'Uncategorized';
@@ -281,12 +282,13 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         )}
       </div>
 
-      {/* Floating WhatsApp Button */}
+      {/* Floating WhatsApp Share Button */}
       <button 
-        onClick={handleWhatsAppClick}
-        className="fixed bottom-14 right-4 sm:right-8 bg-[#25D366] text-white w-14 h-14 rounded-full shadow-[0_4px_14px_0_rgba(37,211,102,0.39)] flex items-center justify-center hover:scale-105 active:scale-95 transition-transform z-40"
+        onClick={handleWhatsAppShare}
+        className="fixed bottom-14 right-4 sm:right-8 bg-[#25D366] text-white px-5 h-14 rounded-full shadow-[0_4px_14px_0_rgba(37,211,102,0.39)] flex items-center justify-center gap-2.5 hover:scale-105 active:scale-95 transition-transform z-40 font-bold"
       >
-        <MessageCircle className="w-7 h-7" />
+        <Share2 className="w-5 h-5" />
+        <span className="text-sm tracking-wide">Share Menu</span>
       </button>
 
       {/* Fixed Footer */}

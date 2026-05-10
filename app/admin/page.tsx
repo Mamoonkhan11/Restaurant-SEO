@@ -4,6 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { X } from 'lucide-react';
 
 export default function AdminDashboardOverview() {
   const timeAgo = (dateString: string) => {
@@ -36,6 +37,7 @@ export default function AdminDashboardOverview() {
   const [revenueCounter, setRevenueCounter] = useState(0);
   const [isEditingAov, setIsEditingAov] = useState(false);
   const [newAov, setNewAov] = useState<number | string>('');
+  const [activeModalTitle, setActiveModalTitle] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -70,6 +72,32 @@ export default function AdminDashboardOverview() {
         setAov(restaurant.average_order_value);
       }
 
+      // --- Weekly Reset Logic for Item Views ---
+      const d = new Date();
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(d.setDate(diff));
+      monday.setHours(0,0,0,0);
+
+      const { data: resetLog } = await supabase
+        .from('activity_logs')
+        .select('created_at')
+        .eq('admin_id', user.id)
+        .eq('action_type', 'WEEKLY_RESET')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!resetLog || new Date(resetLog.created_at) < monday) {
+        await supabase.from('dishes').update({ view_count: 0 }).eq('owner_id', user.id);
+        await supabase.from('activity_logs').insert({
+          admin_id: user.id,
+          restaurant_id: restaurant.id,
+          action_type: 'WEEKLY_RESET',
+          description: 'Weekly item views reset automatically'
+        });
+      }
+
       // 3. Conditional Fetching (Only runs if restaurant is found)
       const { count: dishCount } = await supabase
         .from('dishes')
@@ -78,10 +106,14 @@ export default function AdminDashboardOverview() {
       
       setTotalItems(dishCount ?? 0);
 
+      const now = new Date();
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
       const { count: scansCount } = await supabase
         .from('restaurant_views')
         .select('*', { count: 'exact', head: true })
-        .eq('restaurant_slug', restaurant.slug);
+        .eq('restaurant_slug', restaurant.slug)
+        .gte('created_at', firstDayOfMonth);
       
       setTotalScans(scansCount ?? 0);
 
@@ -225,7 +257,7 @@ export default function AdminDashboardOverview() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
           {/* Estimated Revenue Card */}
-          <div className="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col justify-between hover:shadow-md transition-shadow relative group">
+          <div onClick={() => setActiveModalTitle('Estimated Revenue')} className="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col justify-between hover:shadow-md transition-shadow relative group cursor-pointer">
             <div className="flex justify-between items-start mb-2">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-bold text-emerald-800 uppercase tracking-wider">Estimated Revenue</p>
@@ -256,6 +288,7 @@ export default function AdminDashboardOverview() {
                   <div className="flex items-center gap-1.5 animate-fade-in-up">
                     <span className="text-xs font-bold text-emerald-700">₹</span>
                     <input 
+                      onClick={e => e.stopPropagation()}
                       type="number" 
                       value={newAov} 
                       onChange={e => setNewAov(e.target.value)}
@@ -263,10 +296,10 @@ export default function AdminDashboardOverview() {
                       className="w-14 px-2 py-1 text-xs font-bold border border-emerald-300 rounded-lg bg-white text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm text-center"
                       autoFocus
                     />
-                    <button onClick={handleSaveAov} className="text-xs font-bold text-white bg-emerald-600 px-3 py-1 rounded-lg hover:bg-emerald-700 shadow-sm transition-colors">Save</button>
+                    <button onClick={(e) => { e.stopPropagation(); handleSaveAov(); }} className="text-xs font-bold text-white bg-emerald-600 px-3 py-1 rounded-lg hover:bg-emerald-700 shadow-sm transition-colors">Save</button>
                   </div>
                 ) : (
-                  <button onClick={() => { setIsEditingAov(true); setNewAov(aov); }} className="text-xs font-bold text-emerald-700 hover:text-emerald-900 transition-colors flex items-center gap-1 hover:bg-emerald-100/50 px-2 py-1 rounded-md">
+                  <button onClick={(e) => { e.stopPropagation(); setIsEditingAov(true); setNewAov(aov); }} className="text-xs font-bold text-emerald-700 hover:text-emerald-900 transition-colors flex items-center gap-1 hover:bg-emerald-100/50 px-2 py-1 rounded-md">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                     Edit AOV
                   </button>
@@ -276,7 +309,7 @@ export default function AdminDashboardOverview() {
           </div>
 
           {/* Total Scans Card */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div onClick={() => setActiveModalTitle('Total Scans')} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer">
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Scans</p>
               <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
@@ -287,7 +320,7 @@ export default function AdminDashboardOverview() {
           </div>
           
           {/* Top Dish Card */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div onClick={() => setActiveModalTitle('Top Selling Dish')} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer">
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Top Selling Dish</p>
               <div className="p-2 bg-orange-50 text-orange-600 rounded-xl">
@@ -298,7 +331,7 @@ export default function AdminDashboardOverview() {
           </div>
           
           {/* Total Items Card */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div onClick={() => setActiveModalTitle('Total Items')} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer">
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Items</p>
               <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
@@ -403,6 +436,59 @@ export default function AdminDashboardOverview() {
 
         </div>
       </div>
+
+      {/* History Log Modal */}
+      {activeModalTitle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up border border-gray-100 flex flex-col max-h-[80vh]">
+            <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
+              <h3 className="text-xl font-bold text-gray-900">
+                {activeModalTitle} <span className="text-gray-400 font-medium text-base ml-1">History</span>
+              </h3>
+              <button onClick={() => setActiveModalTitle(null)} className="text-gray-400 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-200 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="space-y-6">
+                {recentActivity.length === 0 ? (
+                  <p className="text-sm font-medium text-gray-500 text-center py-4">No history available yet.</p>
+                ) : (
+                  recentActivity.slice(0, 3).map((activity, index) => {
+                    let Icon = <span className="text-[10px]">📝</span>;
+                    let bgColor = "bg-blue-500";
+                    if (activity.action_type === 'STOCK_UPDATE') { Icon = <span className="text-[10px]">📦</span>; bgColor = "bg-orange-500"; } 
+                    else if (activity.action_type === 'SETTINGS_CHANGE') { Icon = <span className="text-[10px]">⚙️</span>; bgColor = "bg-gray-700"; } 
+                    else if (activity.action_type === 'MENU_CHANGE') { Icon = <span className="text-[10px]">🍔</span>; bgColor = "bg-green-500"; }
+                    else if (activity.action_type === 'WEEKLY_RESET') { Icon = <span className="text-[10px]">🔄</span>; bgColor = "bg-purple-500"; }
+                    
+                    return (
+                      <div key={activity.id || index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+                        {index !== 2 && index !== recentActivity.slice(0,3).length - 1 && (
+                          <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
+                        )}
+                        <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white ${bgColor} shadow-sm flex items-center justify-center`}>
+                          {Icon}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{activity.description || activity.action}</p>
+                          {activity.item_name && !activity.description && <p className="text-sm text-gray-500 mt-0.5">{activity.item_name}</p>}
+                          <p className="text-[10px] text-gray-400 mt-1 font-bold tracking-wider uppercase">
+                            {timeAgo(activity.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Showing last 3 logs</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes fadeInUp { 
