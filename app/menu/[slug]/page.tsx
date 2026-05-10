@@ -103,8 +103,8 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
   };
 
   const handleWhatsAppClick = () => {
-    const num = restaurant?.whatsapp || '';
-    const msg = `Hi! I'm looking at your digital menu.`;
+    const num = restaurant?.whatsapp_number || restaurant?.whatsapp || '';
+    const msg = `Hi! Do you deliver products to home?`;
     window.open(`https://wa.me/${num.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -357,8 +357,8 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                 >
                   <button 
                     onClick={() => {
-                      const num = restaurant?.whatsapp || '';
-                      const msg = `Hi! I would like to order: ${selectedDish.name} (₹${selectedDish.price?.toFixed(2)})`;
+                      const num = restaurant?.whatsapp_number || restaurant?.whatsapp || '';
+                      const msg = `Hi! I'm checking whether this item is available for home delivery: ${selectedDish.name} (₹${selectedDish.price?.toFixed(2)})`;
                       window.open(`https://wa.me/${num.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
                     }}
                     className="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
