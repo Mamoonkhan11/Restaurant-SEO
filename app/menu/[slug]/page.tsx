@@ -286,6 +286,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
             );
           })
         )}
+<<<<<<< HEAD
       </div>
 
       {/* Floating WhatsApp Share Button */}
@@ -317,6 +318,26 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         </div>
       </div>
 
+=======
+      </div>
+
+      {/* Floating WhatsApp Share Button */}
+      <button 
+        onClick={handleWhatsAppShare}
+        className="fixed bottom-14 right-4 sm:right-8 bg-[#25D366] text-white px-5 h-14 rounded-full shadow-[0_4px_14px_0_rgba(37,211,102,0.39)] flex items-center justify-center gap-2.5 hover:scale-105 active:scale-95 transition-transform z-40 font-bold"
+      >
+        <Share2 className="w-5 h-5" />
+        <span className="text-sm tracking-wide">Share Menu</span>
+      </button>
+
+      {/* Fixed Footer */}
+      <div className="fixed bottom-0 inset-x-0 h-10 bg-gray-50/90 backdrop-blur-sm border-t border-gray-200 flex items-center justify-center z-30">
+        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+          Powered by QR-Crave
+        </p>
+      </div>
+
+>>>>>>> 99e532fae1d1583e6a97c0ebc05b9a8a0213b53c
       {/* Deep Detail Organic Full-Screen Expansion (Retained) */}
       <AnimatePresence>
         {selectedDish && (
