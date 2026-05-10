@@ -300,7 +300,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
       {/* Fixed Footer */}
       <div className="fixed bottom-0 inset-x-0 h-10 bg-gray-50/90 backdrop-blur-sm border-t border-gray-200 flex items-center justify-center z-30">
         <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-          Powered by RestoOS
+          Powered by QR-Crave
         </p>
       </div>
 

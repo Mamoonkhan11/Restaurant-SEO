@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Restaurant SEO Menu",
-  description: "Digital Menu for Restaurant SEO",
+  title: "QR-Crave",
+  description: "Digital Menu platform powered by QR-Crave",
 };
 
 export default function RootLayout({

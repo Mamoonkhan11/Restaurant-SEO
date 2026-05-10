@@ -38,6 +38,7 @@ export default function AdminDashboardOverview() {
   const [isEditingAov, setIsEditingAov] = useState(false);
   const [newAov, setNewAov] = useState<number | string>('');
   const [activeModalTitle, setActiveModalTitle] = useState<string | null>(null);
+  const [historicalStats, setHistoricalStats] = useState<any[]>([]);
 
   const router = useRouter();
 
@@ -134,11 +135,29 @@ export default function AdminDashboardOverview() {
         setTopDish('N/A');
       }
 
+      const firstDayOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+      const firstDayOf2MonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString();
+      const firstDayOf3MonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString();
+
+      const { count: month1 } = await supabase.from('restaurant_views').select('*', { count: 'exact', head: true })
+        .eq('restaurant_slug', restaurant.slug).gte('created_at', firstDayOfLastMonth).lt('created_at', firstDayOfMonth);
+      const { count: month2 } = await supabase.from('restaurant_views').select('*', { count: 'exact', head: true })
+        .eq('restaurant_slug', restaurant.slug).gte('created_at', firstDayOf2MonthsAgo).lt('created_at', firstDayOfLastMonth);
+      const { count: month3 } = await supabase.from('restaurant_views').select('*', { count: 'exact', head: true })
+        .eq('restaurant_slug', restaurant.slug).gte('created_at', firstDayOf3MonthsAgo).lt('created_at', firstDayOf2MonthsAgo);
+
+      setHistoricalStats([
+        { label: 'Last Month', scans: month1 || 0 },
+        { label: '2 Months Ago', scans: month2 || 0 },
+        { label: '3 Months Ago', scans: month3 || 0 }
+      ]);
+
       const fetchLogs = async () => {
         const { data: logsData, error: logError } = await supabase
           .from('activity_logs')
           .select('*')
           .eq('admin_id', user.id)
+          .gte('created_at', monday.toISOString())
           .order('created_at', { ascending: false })
           .limit(10);
 
@@ -331,7 +350,7 @@ export default function AdminDashboardOverview() {
           </div>
           
           {/* Total Items Card */}
-          <div onClick={() => setActiveModalTitle('Total Items')} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer">
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Items</p>
               <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
@@ -451,40 +470,53 @@ export default function AdminDashboardOverview() {
             </div>
             <div className="p-6 overflow-y-auto flex-1">
               <div className="space-y-6">
-                {recentActivity.length === 0 ? (
-                  <p className="text-sm font-medium text-gray-500 text-center py-4">No history available yet.</p>
-                ) : (
-                  recentActivity.slice(0, 3).map((activity, index) => {
-                    let Icon = <span className="text-[10px]">📝</span>;
-                    let bgColor = "bg-blue-500";
-                    if (activity.action_type === 'STOCK_UPDATE') { Icon = <span className="text-[10px]">📦</span>; bgColor = "bg-orange-500"; } 
-                    else if (activity.action_type === 'SETTINGS_CHANGE') { Icon = <span className="text-[10px]">⚙️</span>; bgColor = "bg-gray-700"; } 
-                    else if (activity.action_type === 'MENU_CHANGE') { Icon = <span className="text-[10px]">🍔</span>; bgColor = "bg-green-500"; }
-                    else if (activity.action_type === 'WEEKLY_RESET') { Icon = <span className="text-[10px]">🔄</span>; bgColor = "bg-purple-500"; }
-                    
-                    return (
-                      <div key={activity.id || index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
-                        {index !== 2 && index !== recentActivity.slice(0,3).length - 1 && (
+                {(activeModalTitle === 'Estimated Revenue' || activeModalTitle === 'Total Scans') ? (
+                  historicalStats.length === 0 ? (
+                    <p className="text-sm font-medium text-gray-500 text-center py-4">No historical data available.</p>
+                  ) : (
+                    historicalStats.map((stat, index) => (
+                      <div key={index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+                        {index !== historicalStats.length - 1 && (
                           <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
                         )}
-                        <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white ${bgColor} shadow-sm flex items-center justify-center`}>
-                          {Icon}
+                        <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white ${activeModalTitle === 'Estimated Revenue' ? 'bg-emerald-500' : 'bg-purple-500'} shadow-sm flex items-center justify-center`}>
+                          <span className="text-[10px]">{activeModalTitle === 'Estimated Revenue' ? '💰' : '📊'}</span>
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-gray-900">{activity.description || activity.action}</p>
-                          {activity.item_name && !activity.description && <p className="text-sm text-gray-500 mt-0.5">{activity.item_name}</p>}
-                          <p className="text-[10px] text-gray-400 mt-1 font-bold tracking-wider uppercase">
-                            {timeAgo(activity.created_at)}
+                          <p className="text-sm font-semibold text-gray-900">{stat.label}</p>
+                          <p className="text-xs text-gray-500 mt-0.5 font-bold">
+                            {activeModalTitle === 'Total Scans' ? `${stat.scans} Scans` : `₹${(stat.scans * aov).toLocaleString('en-IN')} Est. Revenue`}
                           </p>
                         </div>
                       </div>
-                    );
-                  })
-                )}
+                    ))
+                  )
+                ) : activeModalTitle === 'Top Selling Dish' ? (
+                  chartData.slice(0, 3).length === 0 ? (
+                    <p className="text-sm font-medium text-gray-500 text-center py-4">No dish data available.</p>
+                  ) : (
+                    chartData.slice(0, 3).map((dish, index) => (
+                      <div key={index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+                        {index !== chartData.slice(0, 3).length - 1 && (
+                          <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
+                        )}
+                        <div className="absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white bg-orange-500 shadow-sm flex items-center justify-center">
+                          <span className="text-[10px]">🏆</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">Rank #{index + 1}: {dish.name}</p>
+                          <p className="text-xs text-gray-500 mt-0.5 font-bold">{dish.views} Views this week</p>
+                        </div>
+                      </div>
+                    ))
+                  )
+                ) : null}
               </div>
             </div>
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
-              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Showing last 3 logs</p>
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
+                {(activeModalTitle === 'Estimated Revenue' || activeModalTitle === 'Total Scans') ? 'Showing last 3 months' : 'Showing top 3 dishes'}
+              </p>
             </div>
           </div>
         </div>

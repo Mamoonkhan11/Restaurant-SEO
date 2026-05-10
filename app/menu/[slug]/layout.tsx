@@ -11,13 +11,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const restaurantName = params.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
   return {
-    title: `${restaurantName} - Digital Menu | Restaurant SEO SaaS`,
+    title: `${restaurantName} - Digital Menu | QR-Crave`,
     description: `Check out the delicious digital menu for ${restaurantName}. View our best sellers, pricing, and more!`,
     openGraph: {
       title: `${restaurantName} - Digital Menu`,
       description: `Check out the delicious digital menu for ${restaurantName}. View our best sellers, pricing, and more!`,
       url: `https://your-saas-domain.com/menu/${params.slug}`,
-      siteName: 'Restaurant SEO SaaS',
+      siteName: 'QR-Crave',
       images: [
         {
           // Dynamic image placeholder based on restaurant name

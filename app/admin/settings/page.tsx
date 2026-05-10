@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Save, Loader2, UploadCloud } from 'lucide-react';
 import { supabase, uploadDishImage, logAdminAction } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
@@ -15,6 +15,8 @@ export default function SettingsPage() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [restaurantId, setRestaurantId] = useState<number | string | null>(null);
+  const [hasWarnedNameChange, setHasWarnedNameChange] = useState(false);
+  const originalName = useRef('');
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -29,8 +31,10 @@ export default function SettingsPage() {
         
       if (restaurant && !error) {
         setRestaurantId(restaurant.id);
+        const fetchedName = restaurant.name || '';
+        originalName.current = fetchedName;
         setFormData({
-          name: restaurant.name || '',
+          name: fetchedName,
           whatsapp_number: restaurant.whatsapp_number || restaurant.whatsapp || '',
           themeColor: restaurant.theme_color || '#000000',
         });
@@ -84,7 +88,7 @@ export default function SettingsPage() {
         .replace(/(^-|-$)+/g, '');
 
       if (!generatedSlug) {
-        toast.error('Restaurant name cannot be empty.');
+        toast.error('Business name cannot be empty.');
         setIsSaving(false);
         return;
       }
@@ -154,11 +158,21 @@ export default function SettingsPage() {
           {/* Form */}
           <form onSubmit={handleSave} className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Restaurant Name</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Business Name</label>
               <input 
                 type="text" 
                 value={formData.name} 
-                onChange={e => setFormData({...formData, name: e.target.value})}
+                onChange={e => {
+                  setFormData({...formData, name: e.target.value});
+                  if (!hasWarnedNameChange && e.target.value !== originalName.current && originalName.current !== '') {
+                    toast('Warning: Changing your Business Name alters your URL link. Previously printed QR codes will become invalid!', { 
+                      icon: '⚠️', 
+                      duration: 6000,
+                      style: { border: '1px solid #f59e0b', padding: '16px', color: '#92400e', background: '#fffbeb', fontWeight: 'bold' }
+                    });
+                    setHasWarnedNameChange(true);
+                  }
+                }}
                 className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900" 
               />
             </div>
