@@ -6,7 +6,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials missing! Please check your .env.local file.');
+  console.warn('Supabase credentials missing!');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -66,4 +66,149 @@ export async function uploadDishImage(file: File, bucket: string = 'dishes'): Pr
 
   const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
   return data.publicUrl;
+}
+
+/**
+ * Updates the image_url field for a specific dish in the database.
+ * @param id The dish ID
+ * @param newImageUrl The new image URL to save
+ */
+export async function updateDishImageInDb(id: string | number, newImageUrl: string) {
+  const { error } = await supabase
+    .from('dishes')
+    .update({ image_url: newImageUrl })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating dish image in database:', error);
+    throw new Error('Failed to update database');
+  }
+}
+
+/**
+ * Removes an old image from Supabase storage using its public URL.
+ * @param imageUrl The public URL of the image to remove
+ * @param bucket The storage bucket name
+ */
+export async function removeDishImage(imageUrl: string, bucket: string = 'dishes') {
+  try {
+    // Extract the file path from the public URL
+    const urlParts = imageUrl.split(`/storage/v1/object/public/${bucket}/`);
+    if (urlParts.length === 2) {
+      const filePath = urlParts[1];
+      const { error } = await supabase.storage.from(bucket).remove([filePath]);
+      if (error) {
+        console.error('Error removing old image:', error);
+      }
+    }
+  } catch (err) {
+    console.error('Failed to parse and remove old image:', err);
+  }
+}
+
+/**
+ * Updates the availability status of a dish.
+ */
+export async function updateDishAvailability(id: string | number, is_available: boolean) {
+  const { error } = await supabase
+    .from('dishes')
+    .update({ is_available })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating availability:', error);
+    throw new Error('Failed to update availability');
+  }
+}
+
+/**
+ * Deletes a dish from the database.
+ */
+export async function deleteDishFromDb(id: string | number) {
+  const { error } = await supabase
+    .from('dishes')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting dish:', error);
+    throw new Error('Failed to delete dish');
+  }
+}
+
+/**
+ * Upserts a dish (creates if no id, updates if id exists).
+ */
+export async function upsertDish(dishData: any) {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  console.log('User ID:', user.id);
+
+  // Fetch the restaurant to get the restaurant_id
+  const { data: restaurant, error: restError } = await supabase
+    .from('restaurants')
+    .select('id')
+    .eq('owner_id', user.id)
+    .single();
+
+  if (restError || !restaurant) {
+    // This exact error string can be caught and shown as an alert in the UI
+    throw new Error('Please set up your restaurant in Settings first!');
+  }
+
+  const payload = {
+    ...dishData,
+    owner_id: user.id,
+    restaurant_id: restaurant.id,
+    price: parseFloat(dishData.price) || 0
+  };
+
+  console.log('Sending Payload:', payload);
+
+  const { data, error } = await supabase
+    .from('dishes')
+    .upsert(payload)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error upserting dish:', error);
+    throw new Error('Failed to save dish');
+  }
+  return data;
+}
+
+/**
+ * Logs an admin action to the activity_logs table.
+ */
+export async function logAdminAction(actionType: string, description: string) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: restaurant } = await supabase
+      .from('restaurants')
+      .select('id')
+      .eq('owner_id', user.id)
+      .single();
+
+    if (!restaurant) return;
+
+    const { error } = await supabase.from('activity_logs').insert({
+      restaurant_id: restaurant.id,
+      admin_id: user.id,
+      action_type: actionType,
+      description: description
+    });
+
+    if (error) {
+      console.error('Insert activity log failed:', error.message);
+    }
+  } catch (err: any) {
+    console.error('Failed to log admin action:', err.message || err);
+  }
 }

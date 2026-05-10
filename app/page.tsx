@@ -5,7 +5,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-900">
       <div className="text-center p-8 max-w-2xl w-full">
         <h1 className="text-5xl font-extrabold mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-          Restaurant SEO SaaS
+          QR-Crave
         </h1>
         <p className="text-xl text-gray-600 mb-10">
           Supercharge your restaurant's online presence with lightning-fast digital menus.

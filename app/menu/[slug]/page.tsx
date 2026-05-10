@@ -1,255 +1,386 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-
-const DishImage = ({ src, alt, priority = false }: { src: string, alt: string, priority?: boolean }) => {
-  return (
-    <div className="relative shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-gray-100 shadow-sm border border-gray-100">
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes="(max-width: 640px) 96px, 112px"
-        priority={priority}
-        placeholder="blur"
-        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mN8/wQAAgMBAAC4vC4AAAAASUVORK5CYII="
-        className="object-cover transition-transform duration-500 group-hover:scale-110"
-      />
-    </div>
-  );
-};
-
-const menuData = [
-  {
-    category: 'Fast Food',
-    id: 'fast-food',
-    items: [
-      { name: 'Truffle Parmesan Fries', price: 8.99, description: 'Crispy fries tossed in white truffle oil and aged parmesan', isBestSeller: true, isAvailable: true, rating: 4.8, ordersText: 'Ordered 120+ times this week', image: 'https://placehold.co/600x400/f8fafc/94a3b8?text=Fries' },
-      { name: 'Wagyu Beef Burger', price: 18.50, description: 'Premium wagyu beef patty with caramelized onions and house sauce', isBestSeller: true, isAvailable: true, rating: 4.9, ordersText: 'Ordered 350+ times this week', image: 'https://placehold.co/600x400/f8fafc/94a3b8?text=Burger' },
-      { name: 'Spicy Chicken Wrap', price: 12.50, description: 'Crispy chicken, spicy mayo, and fresh lettuce in a warm tortilla', isBestSeller: false, isAvailable: false, rating: 4.5, ordersText: 'Ordered 85 times this week', image: 'https://placehold.co/600x400/f8fafc/94a3b8?text=Chicken+Wrap' },
-    ]
-  },
-  {
-    category: 'Drinks',
-    id: 'drinks',
-    items: [
-      { name: 'Mango Passionfruit Smoothie', price: 6.50, description: 'Fresh tropical fruits blended to perfection', isBestSeller: true, isAvailable: true, rating: 4.7, ordersText: 'Ordered 200+ times this week', image: 'https://placehold.co/600x400/f8fafc/94a3b8?text=Smoothie' },
-      { name: 'Artisan Iced Coffee', price: 4.99, description: 'Cold brewed single-origin coffee with a splash of oat milk', isBestSeller: false, isAvailable: true, rating: 4.6, ordersText: 'Ordered 150 times this week', image: 'https://placehold.co/600x400/f8fafc/94a3b8?text=Iced+Coffee' },
-    ]
-  },
-  {
-    category: 'Sweets',
-    id: 'sweets',
-    items: [
-      { name: 'Molten Chocolate Lava Cake', price: 9.50, description: 'Warm chocolate cake with a gooey center, served with vanilla bean ice cream', isBestSeller: true, isAvailable: true, rating: 4.9, ordersText: 'Ordered 240+ times this week', image: 'https://placehold.co/600x400/f8fafc/94a3b8?text=Lava+Cake' },
-      { name: 'New York Cheesecake', price: 8.00, description: 'Classic creamy cheesecake with a graham cracker crust and berry compote', isBestSeller: false, isAvailable: false, rating: 4.7, ordersText: 'Ordered 110 times this week', image: 'https://placehold.co/600x400/f8fafc/94a3b8?text=Cheesecake' },
-    ]
-  }
-];
+import { supabase } from '@/lib/supabase';
+import { X, MessageCircle, Loader2, Search, Share2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DigitalMenu({ params }: { params: { slug: string } }) {
-  const restaurantName = params.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [activeCategory, setActiveCategory] = React.useState('all');
+  const [restaurant, setRestaurant] = useState<any>(null);
+  const [dishes, setDishes] = useState<any[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredMenuData = menuData
-    .filter(category => activeCategory === 'all' || category.id === activeCategory)
-    .map(category => ({
-      ...category,
-      items: category.items.filter(item =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    }))
-    .filter(category => category.items.length > 0);
+  // Deep Detail Modal State
+  const [selectedDish, setSelectedDish] = useState<any>(null);
+
+  useEffect(() => {
+    let restaurantSubscription: any;
+    let dishesSubscription: any;
+
+    const fetchMenu = async () => {
+      const { data: restData } = await supabase
+        .from('restaurants')
+        .select('*')
+        .eq('slug', params.slug)
+        .single();
+        
+      if (restData) {
+        setRestaurant(restData);
+        
+        const { data: dishesData } = await supabase
+          .from('dishes')
+          .select('*')
+          .eq('owner_id', restData.owner_id)
+          .order('view_count', { ascending: false });
+
+        if (dishesData) {
+          const processedDishes = dishesData.map((d, index) => ({
+            ...d,
+            isBestSeller: (d.view_count || 0) > 60,
+            view_count: d.view_count || 0
+          }));
+          
+          setDishes(processedDishes);
+
+          const uniqueCategories = Array.from(new Set(processedDishes.map(d => d.category || 'Uncategorized'))) as string[];
+          uniqueCategories.sort((a, b) => a.localeCompare(b));
+          setCategories(uniqueCategories);
+          if (uniqueCategories.length > 0 && !activeCategory) {
+            setActiveCategory(uniqueCategories[0]);
+          }
+
+          // Sync open modal if the item was updated (e.g. out of stock)
+          setSelectedDish((prev: any) => {
+            if (!prev) return null;
+            const updated = processedDishes.find(d => d.id === prev.id);
+            if (!updated || !updated.is_available) return null;
+            return updated;
+          });
+        }
+
+        // Setup real-time subscriptions
+        if (!restaurantSubscription) {
+          restaurantSubscription = supabase
+            .channel(`public:restaurants:${restData.id}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurants', filter: `id=eq.${restData.id}` }, () => fetchMenu())
+            .subscribe();
+        }
+
+        if (!dishesSubscription) {
+          dishesSubscription = supabase
+            .channel(`public:dishes:${restData.owner_id}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'dishes', filter: `owner_id=eq.${restData.owner_id}` }, () => fetchMenu())
+            .subscribe();
+        }
+      }
+      setIsLoading(false);
+    };
+    
+    fetchMenu();
+
+    return () => {
+      if (restaurantSubscription) supabase.removeChannel(restaurantSubscription);
+      if (dishesSubscription) supabase.removeChannel(dishesSubscription);
+    };
+  }, [params.slug]);
+
+  const handleDishClick = async (dish: any) => {
+    if (!dish.is_available) return;
+    
+    setSelectedDish(dish);
+    
+    setDishes(prev => prev.map(d => 
+      d.id === dish.id ? { ...d, view_count: d.view_count + 1 } : d
+    ));
+    
+    const { error } = await supabase.rpc('increment_view_count', { dish_id: dish.id });
+    if (error) {
+       await supabase.from('dishes').update({ view_count: dish.view_count + 1 }).eq('id', dish.id);
+    }
+  };
+
+  const handleWhatsAppShare = () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const msg = `Check out the digital menu for ${restaurant?.name || 'this restaurant'}! Order delicious food here: ${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  const searchedDishes = dishes.filter(dish => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return true;
+    return dish.name.toLowerCase().startsWith(query);
+  });
+
+  const groupedDishes = searchedDishes.reduce((acc: any, dish: any) => {
+    const cat = dish.category || 'Uncategorized';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(dish);
+    return acc;
+  }, {});
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-gray-400" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-16 px-4 sm:px-6 lg:px-8 font-sans selection:bg-gray-200">
+    <div className="min-h-screen bg-gray-50 pb-24 font-sans relative selection:bg-gray-200">
       <style>{`
-        @keyframes fadeInSlideUp {
-          from { opacity: 0; transform: translateY(15px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in-up {
-          animation: fadeInSlideUp 0.4s ease-out forwards;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .theme-ring:focus { 
+          outline: none !important; 
+          box-shadow: 0 0 0 2px ${restaurant?.theme_color || '#000000'} !important; 
+          border-color: transparent !important; 
         }
       `}</style>
-      <div className="max-w-4xl mx-auto">
-
-        {/* Header Section */}
-        <div className="text-center mb-16">
-          <div className="inline-block mb-4 p-3 bg-white rounded-full shadow-sm">
-            <svg className="w-8 h-8 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-          </div>
-          <h1 className="text-5xl font-extrabold text-gray-900 tracking-tight sm:text-6xl mb-4">
-            {restaurantName || 'Restaurant'}
-          </h1>
-          <p className="text-xl text-gray-500 font-medium max-w-2xl mx-auto">
-            Experience our carefully curated digital menu
-          </p>
-        </div>
-
-        {/* Search Bar */}
-        <div className="max-w-md mx-auto mb-10">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
-            </div>
-            <input
-              type="text"
-              placeholder="Search for a dish..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full pl-11 pr-4 py-3.5 bg-white border border-gray-200 rounded-full text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent shadow-sm transition-all"
-            />
+      
+      {/* Top Section: Theme Header */}
+      <div className="h-40 sm:h-48 relative transition-colors duration-500" style={{ backgroundColor: restaurant?.theme_color || '#000000' }}>
+        {/* Central Circular Logo overlapping the bottom */}
+        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 z-10">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 bg-white rounded-full shadow-lg border-4 border-white flex items-center justify-center overflow-hidden">
+            {restaurant?.logo_url ? (
+              <img src={restaurant.logo_url} alt="Logo" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-4xl sm:text-5xl font-bold transition-colors duration-500" style={{ color: restaurant?.theme_color || '#000000' }}>
+                {restaurant?.name?.charAt(0) || 'L'}
+              </span>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Sticky Category Navigation (Tab Bar) */}
-        <div className="sticky top-0 z-40 bg-gray-50/95 backdrop-blur-md pt-2 pb-4 mb-8 -mx-4 px-4 sm:mx-0 sm:px-0">
-          <div className="flex space-x-2 sm:space-x-3 overflow-x-auto scrollbar-hide snap-x pb-2">
-            <button
-              onClick={() => setActiveCategory('all')}
-              className={`whitespace-nowrap px-6 py-2.5 rounded-full font-semibold transition-all duration-300 snap-start focus:outline-none ${
-                activeCategory === 'all' 
-                  ? 'bg-gray-900 text-white shadow-md scale-105' 
-                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100 hover:text-gray-900'
-              }`}
+      {/* Info Section */}
+      <div className="pt-16 pb-6 text-center px-4 max-w-xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+          {restaurant?.name || 'Restaurant Name'}
+        </h1>
+        <p className="text-gray-500 text-sm sm:text-base mt-1 font-medium">Digital Menu</p>
+      </div>
+
+      {/* Search Bar */}
+      <div className="max-w-xl mx-auto px-4 mb-4">
+        <div className="relative group">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400 group-focus-within:text-black transition-colors" />
+          </div>
+          <input
+            type="text"
+            className="block w-full pl-11 pr-10 py-3.5 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 theme-ring transition-all shadow-sm font-medium"
+            placeholder="Search for a dish..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery('')}
+              className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-900 transition-colors"
             >
-              All Menu
+              <X className="h-5 w-5" />
             </button>
-            {menuData.map((category) => (
+          )}
+        </div>
+      </div>
+
+      {/* Quick Jump Bar */}
+      {categories.length > 0 && (
+        <div className="max-w-xl mx-auto px-4 mb-6 sticky top-0 z-40 bg-gray-50/95 backdrop-blur-md py-3 shadow-sm border-b border-gray-200">
+          <div className="flex space-x-2 overflow-x-auto scrollbar-hide snap-x">
+            {categories.map((cat) => (
               <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                className={`whitespace-nowrap px-6 py-2.5 rounded-full font-semibold transition-all duration-300 snap-start focus:outline-none ${
-                  activeCategory === category.id
-                    ? 'bg-gray-900 text-white shadow-md scale-105'
-                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100 hover:text-gray-900'
+                key={cat}
+                onClick={() => {
+                  setActiveCategory(cat);
+                  const el = document.getElementById(`category-${cat}`);
+                  if (el) {
+                    const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                  }
+                }}
+                className={`whitespace-nowrap px-5 py-2 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${
+                  activeCategory === cat
+                    ? 'text-white'
+                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
                 }`}
+                style={activeCategory === cat ? { backgroundColor: restaurant?.theme_color || '#000000' } : {}}
               >
-                {category.category}
+                {cat}
               </button>
             ))}
           </div>
         </div>
+      )}
 
-        {/* Menu Sections */}
-        <div key={activeCategory} className="space-y-16 animate-fade-in-up">
-          {filteredMenuData.length === 0 ? (
-            <div className="text-center py-20">
-              <svg className="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <h3 className="mt-4 text-lg font-medium text-gray-900">No dishes found</h3>
-              <p className="mt-1 text-gray-500">Try adjusting your search criteria.</p>
+      {/* Menu List by Categories */}
+      <div className="max-w-xl mx-auto px-4 space-y-10">
+        {Object.keys(groupedDishes).length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="h-6 w-6 text-gray-400" />
             </div>
-          ) : (
-            filteredMenuData.map((category) => (
-              <div key={category.id} id={category.id} className="scroll-mt-28">
-                <div className="mb-8">
-                  <h2 className="text-3xl font-extrabold text-gray-900 border-b-4 border-blue-500 inline-block pb-2 tracking-tight">
-                    {category.category}
-                  </h2>
-                </div>
-                <div className="space-y-6">
-                  {category.items.map((item, index) => (
-                    <div key={index} className={`bg-white rounded-2xl shadow-sm transition-all duration-300 border border-gray-100 p-4 sm:p-6 flex flex-row gap-4 relative group ${item.isAvailable ? 'hover:shadow-xl' : 'opacity-60 grayscale-[40%]'}`}>
-                      {item.isBestSeller && item.isAvailable && (
-                        <div className="absolute -top-3 sm:-top-3.5 -right-2 sm:-right-4 z-10">
-                          <span className="bg-orange-500 text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1 tracking-wide">
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                            BEST SELLER
-                          </span>
-                        </div>
+            <p className="text-gray-500 font-medium">No dishes found matching your search.</p>
+          </div>
+        ) : (
+          categories.map((cat) => {
+            const categoryDishes = groupedDishes[cat];
+            if (!categoryDishes || categoryDishes.length === 0) return null;
+            
+            return (
+              <div key={cat} id={`category-${cat}`} className="scroll-mt-24">
+                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-5 sticky top-[4.5rem] bg-gray-50/95 backdrop-blur-sm py-2 z-30">
+                  {cat}
+                </h2>
+                <div className="space-y-4">
+                  {categoryDishes.map((item: any, index: number) => (
+                  <motion.div 
+                    layoutId={`dish-${item.id}`}
+                    key={item.id} 
+                    onClick={() => handleDishClick(item)}
+                    className={`bg-white rounded-3xl p-4 sm:p-5 flex flex-row gap-4 items-center relative group cursor-pointer hover:shadow-md transition-shadow shadow-sm border border-gray-100 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                  >
+                    {/* Image */}
+                    <motion.div layoutId={`dish-image-${item.id}`} className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gray-100 shrink-0 overflow-hidden relative">
+                      <img 
+                        src={item.image_url || `https://placehold.co/400x400/e2e8f0/94a3b8?text=${encodeURIComponent(item.name.charAt(0))}`}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </motion.div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
+                      <motion.h3 layoutId={`dish-title-${item.id}`} className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+                        {item.name}
+                      </motion.h3>
+                      {item.description && (
+                        <p className="text-gray-500 text-xs sm:text-sm mt-1 line-clamp-2 leading-relaxed">
+                          {item.description}
+                        </p>
                       )}
-                      {!item.isAvailable && (
-                        <div className="absolute -top-3 sm:-top-3.5 -right-2 sm:-right-4 z-10">
-                          <span className="bg-gray-600 text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5 tracking-wide">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            SOLD OUT
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Thumbnail Image */}
-                      <DishImage src={item.image} alt={item.name} priority={index < 2} />
-
-                      <div className="flex-1 flex flex-col justify-center min-w-0">
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-4">
-                          <div className="min-w-0">
-                            <div className="flex justify-between items-start sm:block">
-                              <h3 className={`text-lg sm:text-xl font-bold truncate transition-colors ${item.isAvailable ? 'text-gray-900 group-hover:text-blue-600' : 'text-gray-600'}`}>
-                                {item.name}
-                              </h3>
-                              <div className={`text-lg sm:text-xl font-black shrink-0 sm:hidden ${item.isAvailable ? 'text-gray-900' : 'text-gray-400 line-through'}`}>
-                                ${item.price.toFixed(2)}
-                              </div>
-                            </div>
-
-                            {/* Rating and Social Proof */}
-                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1.5 sm:mt-2.5">
-                              <div className={`flex items-center ${item.isAvailable ? 'text-yellow-400' : 'text-gray-400'}`}>
-                                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <span className="ml-1 text-xs sm:text-sm font-bold text-gray-700">{item.rating}</span>
-                              </div>
-                              <div className={`flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 rounded-md border text-[10px] sm:text-xs font-semibold tracking-wide shadow-sm ${item.isAvailable ? 'bg-green-50 text-green-700 border-green-100' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
-                                <svg className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${item.isAvailable ? 'text-green-600' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                <span className="truncate max-w-[120px] sm:max-w-none">{item.ordersText}</span>
-                              </div>
-                            </div>
-
-                            <p className="mt-2 sm:mt-3 text-gray-500 text-xs sm:text-sm leading-relaxed line-clamp-2">
-                              {item.description}
-                            </p>
-                          </div>
-                          <div className={`text-xl sm:text-2xl font-black shrink-0 hidden sm:block ${item.isAvailable ? 'text-gray-900' : 'text-gray-400 line-through'}`}>
-                            ${item.price.toFixed(2)}
-                          </div>
-                        </div>
-                      </div>
+                      <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 mt-2 block">
+                        ₹{item.price?.toFixed(2)}
+                      </motion.span>
                     </div>
-                  ))}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
 
-        {/* Footer */}
-        <div className="mt-12 text-center">
-          <p className="text-sm text-gray-400 font-medium">
-            Powered by <span className="text-gray-600 font-bold">Restaurant SEO SaaS</span>
-          </p>
-        </div>
+                    {item.isBestSeller && item.is_available && (
+                      <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-orange-500 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
+                        Bestseller
+                      </div>
+                    )}
+                    {!item.is_available && (
+                      <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-gray-700 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
+                        Out of stock
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            );
+          })
+        )}
       </div>
 
       {/* Floating WhatsApp Share Button */}
-      <button
-        onClick={() => {
-          const url = typeof window !== 'undefined' ? window.location.href : '';
-          const text = `Check out our delicious menu here: ${url}`;
-          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-        }}
-        className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 bg-[#25D366] text-white p-4 rounded-full shadow-[0_4px_14px_0_rgba(37,211,102,0.39)] hover:bg-[#128C7E] hover:shadow-[0_6px_20px_rgba(37,211,102,0.23)] hover:-translate-y-1 transition-all duration-300 z-50 flex items-center justify-center group cursor-pointer"
-        aria-label="Share on WhatsApp"
-        title="Share on WhatsApp"
+      <button 
+        onClick={handleWhatsAppShare}
+        className="fixed bottom-14 right-4 sm:right-8 bg-[#25D366] text-white px-5 h-14 rounded-full shadow-[0_4px_14px_0_rgba(37,211,102,0.39)] flex items-center justify-center gap-2.5 hover:scale-105 active:scale-95 transition-transform z-40 font-bold"
       >
-        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-        </svg>
+        <Share2 className="w-5 h-5" />
+        <span className="text-sm tracking-wide">Share Menu</span>
       </button>
+
+      {/* Fixed Footer */}
+      <div className="fixed bottom-0 inset-x-0 h-10 bg-gray-50/90 backdrop-blur-sm border-t border-gray-200 flex items-center justify-center z-30">
+        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+          Powered by QR-Crave
+        </p>
+      </div>
+
+      {/* Deep Detail Organic Full-Screen Expansion (Retained) */}
+      <AnimatePresence>
+        {selectedDish && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedDish(null)}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm cursor-pointer"
+            />
+
+            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none p-0 sm:p-6">
+              <motion.div
+                layoutId={`dish-${selectedDish.id}`}
+                className="bg-white w-full h-[85vh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg rounded-t-[2rem] sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl pointer-events-auto"
+              >
+                <button 
+                  onClick={() => setSelectedDish(null)}
+                  className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/50 hover:bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-900 shadow-sm transition-all"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                <motion.div layoutId={`dish-image-${selectedDish.id}`} className="relative h-64 sm:h-80 w-full bg-gray-100 shrink-0">
+                  <img 
+                    src={selectedDish.image_url || `https://placehold.co/600x400/e2e8f0/94a3b8?text=${encodeURIComponent(selectedDish.name)}`}
+                    alt={selectedDish.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                </motion.div>
+
+                <div className="p-6 sm:p-8 overflow-y-auto flex-1 bg-white">
+                  <div className="flex justify-between items-start gap-4 mb-4">
+                    <motion.h2 layoutId={`dish-title-${selectedDish.id}`} className="text-2xl sm:text-3xl font-black text-gray-900 leading-tight">
+                      {selectedDish.name}
+                    </motion.h2>
+                    <motion.span layoutId={`dish-price-${selectedDish.id}`} className="text-2xl sm:text-3xl font-black text-gray-900 shrink-0">
+                      ₹{selectedDish.price?.toFixed(2)}
+                    </motion.span>
+                  </div>
+                  
+                  <motion.p 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="text-gray-600 text-sm sm:text-base leading-relaxed mb-8"
+                  >
+                    {selectedDish.description || "Prepared with fresh ingredients and our secret house spices."}
+                  </motion.p>
+                </div>
+
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="p-4 sm:p-6 border-t border-gray-100 bg-white shrink-0"
+                >
+                  <button 
+                    onClick={() => {
+                      const num = restaurant?.whatsapp_number || restaurant?.whatsapp || '';
+                      const msg = `Hi! I'm checking whether this item is available for home delivery: ${selectedDish.name} (₹${selectedDish.price?.toFixed(2)})`;
+                      window.open(`https://wa.me/${num.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+                    }}
+                    className="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
+                  >
+                    <MessageCircle className="w-6 h-6" />
+                    Order on WhatsApp
+                  </button>
+                </motion.div>
+
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

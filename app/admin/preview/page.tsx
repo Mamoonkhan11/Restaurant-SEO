@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { uploadDishImage } from '@/lib/supabase';
+import { uploadDishImage, removeDishImage, updateDishImageInDb } from '@/lib/supabase';
 
 const initialDishes = [
   { id: 1, name: 'Truffle Parmesan Fries', category: 'Fast Food', price: 8.99, isAvailable: true, image: 'https://placehold.co/600x400/f8fafc/94a3b8?text=Fries' },
@@ -48,9 +48,25 @@ export default function AdminPreview() {
     }, 300);
 
     try {
-      // Execute real upload to Supabase storage
+      const dish = dishes.find(d => d.id === id);
+      const oldImage = dish?.image;
+
+      // 1. Remove old image if it is a Supabase storage URL to save space
+      if (oldImage && oldImage.includes('supabase.co')) {
+        await removeDishImage(oldImage, 'dishes');
+      }
+
+      // 2. Execute real upload to Supabase storage
       const publicUrl = await uploadDishImage(file, 'dishes');
       
+      // 3. Update the database record
+      try {
+        await updateDishImageInDb(id, publicUrl);
+      } catch (dbErr) {
+        console.warn('Skipped DB update (likely using mock numeric IDs):', dbErr);
+      }
+
+      // 4. Update UI to immediately show only the new image
       setDishes(prev => prev.map(d => 
         d.id === id ? { ...d, image: publicUrl } : d
       ));
@@ -153,7 +169,7 @@ export default function AdminPreview() {
                         </span>
                       </td>
                       <td className="p-4 font-semibold text-gray-900">
-                        ${dish.price.toFixed(2)}
+                        ₹{dish.price.toFixed(2)}
                       </td>
                       <td className="p-4">
                         {dish.isAvailable ? (
