@@ -195,6 +195,19 @@ export default function QRCodePage() {
                       } : undefined
                     }
                   />
+
+                  {/* Absolute HTML Image Overlay to fix html2canvas nested SVG bug */}
+                  {logoUrl && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <img 
+                        src={logoUrl} 
+                        crossOrigin="anonymous" 
+                        className="w-[48px] h-[48px] object-contain bg-white rounded-sm" 
+                        alt="Center Logo"
+                      />
+                    </div>
+                  )}
+
                   {/* Small decorative corners */}
                   <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 rounded-tl-xl m-2 transition-colors duration-300" style={{ borderColor: color }}></div>
                   <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 rounded-tr-xl m-2 transition-colors duration-300" style={{ borderColor: color }}></div>

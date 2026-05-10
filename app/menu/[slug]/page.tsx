@@ -134,17 +134,22 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
       <style>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .theme-ring:focus { 
+          outline: none !important; 
+          box-shadow: 0 0 0 2px ${restaurant?.theme_color || '#000000'} !important; 
+          border-color: transparent !important; 
+        }
       `}</style>
       
-      {/* Top Section: Black Header */}
-      <div className="h-40 sm:h-48 bg-black relative">
+      {/* Top Section: Theme Header */}
+      <div className="h-40 sm:h-48 relative transition-colors duration-500" style={{ backgroundColor: restaurant?.theme_color || '#000000' }}>
         {/* Central Circular Logo overlapping the bottom */}
         <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 z-10">
           <div className="w-24 h-24 sm:w-28 sm:h-28 bg-white rounded-full shadow-lg border-4 border-white flex items-center justify-center overflow-hidden">
             {restaurant?.logo_url ? (
               <img src={restaurant.logo_url} alt="Logo" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-4xl sm:text-5xl font-bold text-black">
+              <span className="text-4xl sm:text-5xl font-bold transition-colors duration-500" style={{ color: restaurant?.theme_color || '#000000' }}>
                 {restaurant?.name?.charAt(0) || 'L'}
               </span>
             )}
@@ -168,7 +173,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
           </div>
           <input
             type="text"
-            className="block w-full pl-11 pr-10 py-3.5 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all shadow-sm font-medium"
+            className="block w-full pl-11 pr-10 py-3.5 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 theme-ring transition-all shadow-sm font-medium"
             placeholder="Search for a dish..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -201,9 +206,10 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                 }}
                 className={`whitespace-nowrap px-5 py-2 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${
                   activeCategory === cat
-                    ? 'bg-black text-white'
+                    ? 'text-white'
                     : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
                 }`}
+                style={activeCategory === cat ? { backgroundColor: restaurant?.theme_color || '#000000' } : {}}
               >
                 {cat}
               </button>
