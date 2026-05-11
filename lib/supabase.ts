@@ -212,3 +212,21 @@ export async function logAdminAction(actionType: string, description: string) {
     console.error('Failed to log admin action:', err.message || err);
   }
 }
+
+/**
+ * Broadcasts an update to connected clients so the digital menu refreshes immediately.
+ */
+export async function broadcastMenuUpdate(slug: string) {
+  const channel = supabase.channel(`menu-updates-${slug}`);
+  channel.subscribe((status) => {
+    if (status === 'SUBSCRIBED') {
+      channel.send({
+        type: 'broadcast',
+        event: 'refresh-menu',
+        payload: { timestamp: Date.now() },
+      });
+      // Optionally remove channel after short delay
+      setTimeout(() => supabase.removeChannel(channel), 1000);
+    }
+  });
+}

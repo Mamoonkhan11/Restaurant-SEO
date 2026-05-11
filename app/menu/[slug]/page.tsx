@@ -17,8 +17,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
   const [selectedDish, setSelectedDish] = useState<any>(null);
 
   useEffect(() => {
-    let restaurantSubscription: any;
-    let dishesSubscription: any;
+    let broadcastSubscription: any;
 
     const fetchMenu = async () => {
       const { data: restData } = await supabase
@@ -61,18 +60,14 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
           });
         }
 
-        // Setup real-time subscriptions
-        if (!restaurantSubscription) {
-          restaurantSubscription = supabase
-            .channel(`public:restaurants:${restData.id}`)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurants', filter: `id=eq.${restData.id}` }, () => fetchMenu())
-            .subscribe();
-        }
-
-        if (!dishesSubscription) {
-          dishesSubscription = supabase
-            .channel(`public:dishes:${restData.owner_id}`)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'dishes', filter: `owner_id=eq.${restData.owner_id}` }, () => fetchMenu())
+        // Setup explicit real-time broadcast subscription for instant updates
+        if (!broadcastSubscription) {
+          broadcastSubscription = supabase
+            .channel(`menu-updates-${params.slug}`)
+            .on('broadcast', { event: 'refresh-menu' }, () => {
+              console.log('Real-time update received! Refreshing menu...');
+              fetchMenu();
+            })
             .subscribe();
         }
       }
@@ -82,8 +77,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
     fetchMenu();
 
     return () => {
-      if (restaurantSubscription) supabase.removeChannel(restaurantSubscription);
-      if (dishesSubscription) supabase.removeChannel(dishesSubscription);
+      if (broadcastSubscription) supabase.removeChannel(broadcastSubscription);
     };
   }, [params.slug]);
 
@@ -123,14 +117,14 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
         <Loader2 className="w-10 h-10 animate-spin text-gray-400" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 font-sans relative selection:bg-gray-200">
+    <div className="min-h-screen bg-[#FDFBF7] pb-24 font-sans relative selection:bg-gray-200">
       <style>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -298,7 +292,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
       </button>
 
       {/* Fixed Footer */}
-      <div className="fixed bottom-0 inset-x-0 h-10 bg-gray-50/90 backdrop-blur-sm border-t border-gray-200 flex items-center justify-center z-30">
+      <div className="fixed bottom-0 inset-x-0 h-10 bg-[#FDFBF7]/90 backdrop-blur-sm border-t border-gray-200 flex items-center justify-center z-30">
         <div className="flex items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
           <div className="w-4 h-4 bg-gray-400 rounded flex items-center justify-center">
             <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

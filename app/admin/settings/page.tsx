@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { Save, Loader2, UploadCloud } from 'lucide-react';
-import { supabase, uploadDishImage, logAdminAction } from '@/lib/supabase';
+import { supabase, uploadDishImage, logAdminAction, broadcastMenuUpdate } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function SettingsPage() {
@@ -126,6 +126,8 @@ export default function SettingsPage() {
       
       if (data) {
         setRestaurantId(data.id);
+        // Broadcast change so live menu updates instantly (colors, logo, etc.)
+        await broadcastMenuUpdate(generatedSlug);
       }
 
       toast.success('Settings saved successfully!', { style: { background: '#000', color: '#fff' }});
