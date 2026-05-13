@@ -258,7 +258,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
 
       {/* Special Offers Section */}
       {dishes.filter(d => d.is_special_offer && d.is_available).length > 0 && (
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-12 pt-2">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <span className="text-orange-500">✨</span> Offers for You
           </h2>
@@ -280,12 +280,8 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                 </div>
                 {item.offer_tag && (
                   <div 
-                    className="absolute z-10 whitespace-nowrap font-black text-[10px] sm:text-xs text-white px-3 py-1.5"
+                    className="absolute z-[50] -top-[12px] -right-[8px] rotate-[5deg] whitespace-nowrap font-black text-[10px] sm:text-xs text-white px-3 py-1.5 shadow-lg border-2 border-white"
                     style={{
-                      top: '-10px',
-                      right: '-5px',
-                      transform: 'rotate(3deg)',
-                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.2)',
                       backgroundColor: restaurant?.theme_color || '#f97316',
                       borderRadius: '4px 12px 4px 12px'
                     }}
