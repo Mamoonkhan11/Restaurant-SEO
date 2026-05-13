@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
-import { X, MessageCircle, Loader2, Search, Share2 } from 'lucide-react';
+import { X, MessageCircle, Loader2, Search, Share2, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DigitalMenu({ params }: { params: { slug: string } }) {
@@ -15,6 +15,26 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
 
   // Deep Detail Modal State
   const [selectedDish, setSelectedDish] = useState<any>(null);
+
+  // Size Selector State
+  const [selectedSizes, setSelectedSizes] = useState<Record<string, number>>({});
+
+  // Dynamic SEO: Update Title and Meta Description
+  useEffect(() => {
+    if (restaurant && activeCategory) {
+      document.title = `${activeCategory} at ${restaurant.name} | Order Online`;
+      const metaDescription = document.querySelector('meta[name="description"]');
+      const descText = `Explore our delicious ${activeCategory} menu at ${restaurant.name}. View prices, details, and order online via WhatsApp!`;
+      if (metaDescription) {
+        metaDescription.setAttribute('content', descText);
+      } else {
+        const meta = document.createElement('meta');
+        meta.name = 'description';
+        meta.content = descText;
+        document.head.appendChild(meta);
+      }
+    }
+  }, [activeCategory, restaurant]);
 
   useEffect(() => {
     let broadcastSubscription: any;
@@ -125,6 +145,43 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] pb-24 font-sans relative selection:bg-gray-200">
+      {restaurant && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Restaurant",
+                "name": restaurant.name,
+                "image": restaurant.logo_url || undefined,
+                "telephone": restaurant.whatsapp_number,
+                "menu": typeof window !== 'undefined' ? window.location.href : '',
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "Menu",
+                "name": `Digital Menu for ${restaurant.name}`,
+                "hasMenuSection": Object.keys(groupedDishes).map(category => ({
+                  "@type": "MenuSection",
+                  "name": category,
+                  "hasMenuItem": groupedDishes[category].map((dish: any) => ({
+                    "@type": "MenuItem",
+                    "name": dish.name,
+                    "description": dish.description || undefined,
+                    "image": dish.image_url || undefined,
+                    "offers": {
+                      "@type": "Offer",
+                      "price": dish.price,
+                      "priceCurrency": "INR"
+                    }
+                  }))
+                }))
+              }
+            ])
+          }}
+        />
+      )}
       <style>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -135,6 +192,23 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         }
       `}</style>
       
+      {/* Pre-header: Address & Description */}
+      {(restaurant?.address || restaurant?.description) && (
+        <div className="bg-[#FDFBF7] text-center py-4 px-4 flex flex-col items-center justify-center animate-fade-in z-20 relative border-b border-gray-100">
+          {restaurant?.address && (
+            <div className="flex items-center justify-center gap-1.5 text-gray-700 text-xs sm:text-sm font-medium mb-1.5">
+              <MapPin className="w-4 h-4 text-gray-500" />
+              <span>{restaurant.address}</span>
+            </div>
+          )}
+          {restaurant?.description && (
+            <p className="text-gray-500 text-xs sm:text-sm italic max-w-md text-center leading-relaxed">
+              {restaurant.description}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Top Section: Theme Header */}
       <div className="h-40 sm:h-48 relative transition-colors duration-500" style={{ backgroundColor: restaurant?.theme_color || '#000000' }}>
         {/* Central Circular Logo overlapping the bottom */}
@@ -158,6 +232,39 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         </h1>
         <p className="text-gray-500 text-sm sm:text-base mt-1 font-medium">Digital Menu</p>
       </div>
+
+      {/* Special Offers Section */}
+      {dishes.filter(d => d.is_special_offer && d.is_available).length > 0 && (
+        <div className="max-w-xl mx-auto px-4 mb-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-orange-500">✨</span> Offers for You
+          </h2>
+          <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x">
+            {dishes.filter(d => d.is_special_offer && d.is_available).map(item => (
+              <motion.div
+                key={`offer-${item.id}`}
+                onClick={() => handleDishClick(item)}
+                className="min-w-[260px] max-w-[260px] bg-white rounded-3xl p-3 flex gap-3 shadow-sm border border-orange-100 relative snap-center cursor-pointer hover:shadow-md transition-all shrink-0"
+              >
+                <div className="w-20 h-20 rounded-2xl bg-gray-100 shrink-0 overflow-hidden relative">
+                  <img src={item.image_url || `https://placehold.co/400x400/e2e8f0/94a3b8?text=${encodeURIComponent(item.name.charAt(0))}`} alt={item.name} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
+                  <h3 className="text-base font-bold text-gray-900 truncate">{item.name}</h3>
+                  <span className="text-sm font-black text-gray-900 mt-1 block">
+                    ₹{item.sizes && item.sizes.length > 0 ? parseFloat(item.sizes[selectedSizes[item.id] || 0].price).toFixed(2) : item.price?.toFixed(2)}
+                  </span>
+                </div>
+                {item.offer_tag && (
+                  <div className="absolute -top-2.5 -right-2.5 bg-orange-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-md z-10 whitespace-nowrap">
+                    {item.offer_tag}
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Search Bar */}
       <div className="max-w-xl mx-auto px-4 mb-4">
@@ -258,13 +365,41 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                           {item.description}
                         </p>
                       )}
-                      <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 mt-2 block">
-                        ₹{item.price?.toFixed(2)}
-                      </motion.span>
+                      
+                      {item.sizes && item.sizes.length > 0 ? (
+                        <div className="mt-3">
+                          <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 block mb-2">
+                            ₹{parseFloat(item.sizes[selectedSizes[item.id] || 0].price).toFixed(2)}
+                          </motion.span>
+                          <div className="flex flex-wrap gap-2" onClick={e => e.stopPropagation()}>
+                            {item.sizes.map((sz: any, i: number) => {
+                              const isSelected = (selectedSizes[item.id] || 0) === i;
+                              return (
+                                <button
+                                  key={i}
+                                  onClick={() => setSelectedSizes({ ...selectedSizes, [item.id]: i })}
+                                  className={`px-3 py-1.5 text-[11px] uppercase tracking-wide font-bold rounded-xl transition-all ${isSelected ? 'bg-gray-900 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                                >
+                                  {sz.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : (
+                        <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 mt-2 block">
+                          ₹{item.price?.toFixed(2)}
+                        </motion.span>
+                      )}
                     </div>
 
-                    {item.isBestSeller && item.is_available && (
+                    {item.is_special_offer && item.offer_tag && item.is_available && (
                       <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-orange-500 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
+                        {item.offer_tag}
+                      </div>
+                    )}
+                    {item.isBestSeller && !item.is_special_offer && item.is_available && (
+                      <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-blue-600 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
                         Bestseller
                       </div>
                     )}

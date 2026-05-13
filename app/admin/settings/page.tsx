@@ -11,6 +11,8 @@ export default function SettingsPage() {
     name: '',
     whatsapp_number: '',
     themeColor: '#000000',
+    description: '',
+    address: '',
   });
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -37,6 +39,8 @@ export default function SettingsPage() {
           name: fetchedName,
           whatsapp_number: restaurant.whatsapp_number || restaurant.whatsapp || '',
           themeColor: restaurant.theme_color || '#000000',
+          description: restaurant.description || '',
+          address: restaurant.address || '',
         });
         setLogoPreview(restaurant.logo_url || null);
       }
@@ -114,7 +118,9 @@ export default function SettingsPage() {
           slug: generatedSlug,
           whatsapp_number: formData.whatsapp_number,
           theme_color: formData.themeColor,
-          logo_url: finalLogoUrl
+          logo_url: finalLogoUrl,
+          description: formData.description,
+          address: formData.address
         })
         .eq('owner_id', session.user.id)
         .select()
@@ -186,6 +192,30 @@ export default function SettingsPage() {
                 value={formData.whatsapp_number} 
                 onChange={e => setFormData({...formData, whatsapp_number: e.target.value})}
                 placeholder="+1 234 567 8900"
+                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900" 
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Business Description</label>
+              <textarea 
+                maxLength={150}
+                value={formData.description} 
+                onChange={e => setFormData({...formData, description: e.target.value})}
+                placeholder="Briefly describe your restaurant (max 150 chars)"
+                rows={2}
+                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900 resize-none" 
+              />
+              <p className="text-xs text-gray-400 mt-1 text-right">{formData.description.length}/150</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Store Address</label>
+              <input 
+                type="text" 
+                value={formData.address} 
+                onChange={e => setFormData({...formData, address: e.target.value})}
+                placeholder="123 Main Street, City"
                 className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900" 
               />
             </div>
