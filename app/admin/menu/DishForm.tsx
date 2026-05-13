@@ -94,8 +94,9 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
       delete finalData.price;
 
       await onSave(finalData);
-    } catch (error) {
-      alert('Failed to save dish');
+    } catch (error: any) {
+      console.error(error);
+      alert(error.message || 'Failed to save dish');
     } finally {
       setIsUploading(false);
     }

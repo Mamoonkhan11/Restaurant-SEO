@@ -167,10 +167,14 @@ export async function upsertDish(dishData: any) {
     ...dishData,
     owner_id: user.id,
     restaurant_id: restaurant.id,
-    price: parseFloat(dishData.price) || 0
+    is_special_offer: Boolean(dishData.is_special_offer),
+    offer_tag: dishData.offer_tag ? String(dishData.offer_tag) : null,
   };
 
-  console.log('Sending Payload:', payload);
+  // Strictly remove price key as it's no longer used in the new schema
+  delete payload.price;
+
+  console.log('Final Payload:', payload);
 
   const { data, error } = await supabase
     .from('dishes')
@@ -180,7 +184,8 @@ export async function upsertDish(dishData: any) {
 
   if (error) {
     console.error('Error upserting dish:', error);
-    throw new Error('Failed to save dish');
+    // Extract the exact Supabase error so the user knows if columns are missing
+    throw new Error(`Database Error: ${error.message} (Hint: ${error.hint || 'Make sure your Supabase schema matches the new features.'})`);
   }
   return data;
 }
