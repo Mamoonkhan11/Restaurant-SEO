@@ -33,6 +33,16 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
   // Size Selector State
   const [selectedSizes, setSelectedSizes] = useState<Record<string, number>>({});
 
+  const getDishPrice = (item: any) => {
+    if (item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0) {
+      const prices = Object.values(item.sizes);
+      const selectedIndex = selectedSizes[item.id] || 0;
+      const price = prices[selectedIndex] ?? prices[0] ?? 0;
+      return Number(price).toFixed(2);
+    }
+    return Number(item.price ?? 0).toFixed(2);
+  };
+
   // Dynamic SEO: Update Title and Meta Description
   useEffect(() => {
     if (restaurant && activeCategory) {
@@ -213,14 +223,14 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         {restaurant?.address && (
           <div className="flex items-center justify-center gap-1.5 text-xs sm:text-sm font-medium mb-1.5 animate-fade-in" style={{ color: getContrastYIQ(restaurant?.theme_color || '#000000') === 'dark' ? '#4B5563' : '#E5E7EB' }}>
             <MapPin className="w-4 h-4" />
-            <span>{restaurant.address}</span>
+            <span>{restaurant?.address}</span>
           </div>
         )}
 
         {/* Description */}
         {restaurant?.description && (
           <p className="text-xs sm:text-sm italic max-w-md text-center leading-relaxed mb-6 animate-fade-in" style={{ color: getContrastYIQ(restaurant?.theme_color || '#000000') === 'dark' ? '#4B5563' : '#E5E7EB' }}>
-            {restaurant.description}
+            {restaurant?.description}
           </p>
         )}
 
@@ -261,7 +271,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                 <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
                   <h3 className="text-base font-bold text-gray-900 truncate">{item.name}</h3>
                   <span className="text-sm font-black text-gray-900 mt-1 block">
-                    ₹{item.sizes && item.sizes.length > 0 ? parseFloat(item.sizes[selectedSizes[item.id] || 0].price).toFixed(2) : item.price?.toFixed(2)}
+                    ₹{getDishPrice(item)}
                   </span>
                 </div>
                 {item.offer_tag && (
@@ -375,13 +385,13 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                         </p>
                       )}
                       
-                      {item.sizes && item.sizes.length > 0 ? (
+                      {item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0 ? (
                         <div className="mt-3">
                           <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 block mb-2">
-                            ₹{parseFloat(item.sizes[selectedSizes[item.id] || 0].price).toFixed(2)}
+                            ₹{getDishPrice(item)}
                           </motion.span>
                           <div className="flex flex-wrap gap-2" onClick={e => e.stopPropagation()}>
-                            {item.sizes.map((sz: any, i: number) => {
+                            {Object.entries(item.sizes).map(([label, _price], i: number) => {
                               const isSelected = (selectedSizes[item.id] || 0) === i;
                               return (
                                 <button
@@ -389,7 +399,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                                   onClick={() => setSelectedSizes({ ...selectedSizes, [item.id]: i })}
                                   className={`px-3 py-1.5 text-[11px] uppercase tracking-wide font-bold rounded-xl transition-all ${isSelected ? 'bg-gray-900 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                                 >
-                                  {sz.label}
+                                  {label}
                                 </button>
                               );
                             })}
@@ -397,7 +407,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                         </div>
                       ) : (
                         <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 mt-2 block">
-                          ₹{item.price?.toFixed(2)}
+                          ₹{getDishPrice(item)}
                         </motion.span>
                       )}
                     </div>
