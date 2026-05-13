@@ -267,7 +267,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
               <motion.div
                 key={`offer-${item.id}`}
                 onClick={() => handleDishClick(item)}
-                className="min-w-[260px] max-w-[260px] bg-white rounded-3xl p-3 flex gap-3 shadow-sm border border-orange-100 relative snap-center cursor-pointer hover:shadow-md transition-all shrink-0"
+                className="min-w-[260px] max-w-[260px] bg-white rounded-3xl p-3 flex gap-3 shadow-sm border border-orange-100 relative overflow-visible snap-center cursor-pointer hover:shadow-md transition-all shrink-0"
               >
                 <div className="w-20 h-20 rounded-2xl bg-gray-100 shrink-0 overflow-hidden relative">
                   <img src={item.image_url || `https://placehold.co/400x400/e2e8f0/94a3b8?text=${encodeURIComponent(item.name.charAt(0))}`} alt={item.name} className="w-full h-full object-cover" />
@@ -279,7 +279,17 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                   </span>
                 </div>
                 {item.offer_tag && (
-                  <div className="absolute -top-2.5 -right-2.5 bg-orange-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-md z-10 whitespace-nowrap">
+                  <div 
+                    className="absolute z-10 whitespace-nowrap font-black text-[10px] sm:text-xs text-white px-3 py-1.5"
+                    style={{
+                      top: '-10px',
+                      right: '-5px',
+                      transform: 'rotate(3deg)',
+                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.2)',
+                      backgroundColor: restaurant?.theme_color || '#f97316',
+                      borderRadius: '4px 12px 4px 12px'
+                    }}
+                  >
                     {item.offer_tag}
                   </div>
                 )}
