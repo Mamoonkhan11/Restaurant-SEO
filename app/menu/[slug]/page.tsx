@@ -61,20 +61,30 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
   }, [activeCategory, restaurant]);
 
   useEffect(() => {
-    let broadcastSubscription: any;
+    let ownerId: string | null = null;
+    let restaurantId: number | null = null;
+
+    const updateCategories = (dishList: any[]) => {
+      const uniqueCategories = Array.from(new Set(dishList.map(d => d.category || 'Uncategorized'))) as string[];
+      uniqueCategories.sort((a, b) => a.localeCompare(b));
+      setCategories(uniqueCategories);
+      setActiveCategory(prev => {
+        if (!prev && uniqueCategories.length > 0) return uniqueCategories[0];
+        if (prev && !uniqueCategories.includes(prev) && uniqueCategories.length > 0) return uniqueCategories[0];
+        return prev;
+      });
+    };
 
     const fetchMenu = async () => {
-      // Adding an active query timestamp bypasses Next.js aggressive client-side fetch caching
-      const cacheBuster = new Date().getTime();
-      
       const { data: restData } = await supabase
         .from('restaurants')
-        .select('*, address, description')
+        .select('*')
         .eq('slug', params.slug)
-        .gte('created_at', '2000-01-01') // Dummy filter to bust cache
         .single();
         
       if (restData) {
+        ownerId = restData.owner_id;
+        restaurantId = restData.id;
         setRestaurant(restData);
         
         const { data: dishesData } = await supabase
@@ -84,39 +94,14 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
           .order('view_count', { ascending: false });
 
         if (dishesData) {
-          const processedDishes = dishesData.map((d, index) => ({
+          const processedDishes = dishesData.map((d) => ({
             ...d,
             isBestSeller: (d.view_count || 0) > 60,
             view_count: d.view_count || 0
           }));
           
           setDishes(processedDishes);
-
-          const uniqueCategories = Array.from(new Set(processedDishes.map(d => d.category || 'Uncategorized'))) as string[];
-          uniqueCategories.sort((a, b) => a.localeCompare(b));
-          setCategories(uniqueCategories);
-          if (uniqueCategories.length > 0 && !activeCategory) {
-            setActiveCategory(uniqueCategories[0]);
-          }
-
-          // Sync open modal if the item was updated (e.g. out of stock)
-          setSelectedDish((prev: any) => {
-            if (!prev) return null;
-            const updated = processedDishes.find(d => d.id === prev.id);
-            if (!updated || !updated.is_available) return null;
-            return updated;
-          });
-        }
-
-        // Setup explicit real-time broadcast subscription for instant updates
-        if (!broadcastSubscription) {
-          broadcastSubscription = supabase
-            .channel(`menu-updates-${params.slug}`)
-            .on('broadcast', { event: 'refresh-menu' }, () => {
-              console.log('Real-time update received! Refreshing menu...');
-              fetchMenu();
-            })
-            .subscribe();
+          updateCategories(processedDishes);
         }
       }
       setIsLoading(false);
@@ -124,8 +109,84 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
     
     fetchMenu();
 
+    // Native Postgres Realtime Subscriptions
+    const realtimeChannel = supabase.channel(`public-data-${params.slug}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'dishes' },
+        (payload) => {
+          setDishes(prev => {
+            if (ownerId && payload.new.owner_id !== ownerId) return prev;
+            const newDish = {
+              ...payload.new,
+              isBestSeller: (payload.new.view_count || 0) > 60,
+              view_count: payload.new.view_count || 0
+            };
+            const newDishes = [newDish, ...prev];
+            updateCategories(newDishes);
+            return newDishes;
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'dishes' },
+        (payload) => {
+          setDishes(prev => {
+            if (ownerId && payload.new.owner_id !== ownerId) return prev;
+            const newDishes = prev.map(d => 
+              d.id === payload.new.id ? {
+                ...payload.new,
+                isBestSeller: (payload.new.view_count || 0) > 60,
+                view_count: payload.new.view_count || 0
+              } : d
+            );
+            updateCategories(newDishes);
+            
+            // Sync modal if open
+            setSelectedDish((currentModal: any) => {
+              if (currentModal?.id === payload.new.id) {
+                return payload.new.is_available ? newDishes.find(d => d.id === payload.new.id) : null;
+              }
+              return currentModal;
+            });
+            return newDishes;
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'dishes' },
+        (payload) => {
+          setDishes(prev => {
+            const newDishes = prev.filter(d => d.id !== payload.old.id);
+            updateCategories(newDishes);
+            
+            // Close modal if deleted
+            setSelectedDish((currentModal: any) => {
+              if (currentModal?.id === payload.old.id) return null;
+              return currentModal;
+            });
+            return newDishes;
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'restaurants' },
+        (payload) => {
+          setRestaurant(prev => {
+            if (prev?.id === payload.new.id) {
+              return { ...prev, ...payload.new };
+            }
+            return prev;
+          });
+        }
+      )
+      .subscribe();
+
     return () => {
-      if (broadcastSubscription) supabase.removeChannel(broadcastSubscription);
+      supabase.removeChannel(realtimeChannel);
     };
   }, [params.slug]);
 
@@ -280,10 +341,10 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                 </div>
                 {item.offer_tag && (
                   <div 
-                    className="absolute z-[50] -top-[12px] -right-[8px] rotate-[5deg] whitespace-nowrap font-black text-[10px] sm:text-xs text-white px-3 py-1.5 shadow-lg border-2 border-white"
+                    className="absolute z-[50] -bottom-[10px] -right-[8px] -rotate-[3deg] whitespace-nowrap font-black text-[10px] sm:text-xs text-white px-3 py-1.5 shadow-xl border-2 border-white"
                     style={{
                       backgroundColor: restaurant?.theme_color || '#f97316',
-                      borderRadius: '4px 12px 4px 12px'
+                      borderRadius: '12px 4px 12px 4px'
                     }}
                   >
                     {item.offer_tag}
