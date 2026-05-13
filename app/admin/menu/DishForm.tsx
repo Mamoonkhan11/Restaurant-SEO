@@ -22,9 +22,21 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
     initialData?.category ? !standardCategories.includes(initialData.category) : false
   );
 
-  const [sizes, setSizes] = useState<{label: string, price: string}[]>(
-    initialData?.sizes || [{ label: 'Regular', price: initialData?.price || '' }]
-  );
+  const [sizes, setSizes] = useState<{label: string, price: string}[]>(() => {
+    if (initialData?.sizes) {
+      if (typeof initialData.sizes === 'string') {
+        try {
+          const parsed = JSON.parse(initialData.sizes);
+          return Object.entries(parsed).map(([label, price]) => ({ label, price: String(price) }));
+        } catch { }
+      } else if (typeof initialData.sizes === 'object' && !Array.isArray(initialData.sizes)) {
+        return Object.entries(initialData.sizes).map(([label, price]) => ({ label, price: String(price) }));
+      } else if (Array.isArray(initialData.sizes)) {
+        return initialData.sizes;
+      }
+    }
+    return [{ label: 'Regular', price: initialData?.price ? String(initialData.price) : '' }];
+  });
   const [isSpecialOffer, setIsSpecialOffer] = useState(initialData?.is_special_offer || false);
   const [offerTag, setOfferTag] = useState(initialData?.offer_tag || '');
 
@@ -62,17 +74,24 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
         imageUrl = await uploadDishImage(imageFile, 'dishes');
       }
 
-      const basePrice = sizes.length > 0 && sizes[0].price ? parseFloat(sizes[0].price) : 0;
+      const sizesObj = sizes.reduce((acc, curr) => {
+        if (curr.label && curr.price) {
+          acc[curr.label] = parseFloat(curr.price);
+        }
+        return acc;
+      }, {} as Record<string, number>);
 
       const finalData = {
         ...data,
-        price: basePrice, // required for existing schema
-        sizes: sizes,
+        sizes: sizesObj, // Send as proper object
         is_special_offer: isSpecialOffer,
         offer_tag: isSpecialOffer ? offerTag : null,
         image_url: imageUrl,
         ...(initialData?.id ? { id: initialData.id } : {})
       };
+      
+      // Ensure we don't send price if the DB doesn't have it anymore
+      delete finalData.price;
 
       await onSave(finalData);
     } catch (error) {

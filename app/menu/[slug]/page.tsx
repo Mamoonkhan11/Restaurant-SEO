@@ -5,6 +5,20 @@ import { supabase } from '@/lib/supabase';
 import { X, MessageCircle, Loader2, Search, Share2, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Helper to determine text contrast
+const getContrastYIQ = (hexcolor: string) => {
+  if (!hexcolor) return 'dark';
+  hexcolor = hexcolor.replace("#", "");
+  if (hexcolor.length === 3) {
+    hexcolor = hexcolor[0] + hexcolor[0] + hexcolor[1] + hexcolor[1] + hexcolor[2] + hexcolor[2];
+  }
+  const r = parseInt(hexcolor.substring(0, 2), 16) || 0;
+  const g = parseInt(hexcolor.substring(2, 2), 16) || 0;
+  const b = parseInt(hexcolor.substring(4, 2), 16) || 0;
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  return (yiq >= 128) ? 'dark' : 'light';
+};
+
 export default function DigitalMenu({ params }: { params: { slug: string } }) {
   const [restaurant, setRestaurant] = useState<any>(null);
   const [dishes, setDishes] = useState<any[]>([]);
@@ -42,7 +56,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
     const fetchMenu = async () => {
       const { data: restData } = await supabase
         .from('restaurants')
-        .select('*')
+        .select('*, address, description')
         .eq('slug', params.slug)
         .single();
         
@@ -192,45 +206,40 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         }
       `}</style>
       
-      {/* Pre-header: Address & Description */}
-      {(restaurant?.address || restaurant?.description) && (
-        <div className="bg-[#FDFBF7] text-center py-4 px-4 flex flex-col items-center justify-center animate-fade-in z-20 relative border-b border-gray-100">
-          {restaurant?.address && (
-            <div className="flex items-center justify-center gap-1.5 text-gray-700 text-xs sm:text-sm font-medium mb-1.5">
-              <MapPin className="w-4 h-4 text-gray-500" />
-              <span>{restaurant.address}</span>
-            </div>
-          )}
-          {restaurant?.description && (
-            <p className="text-gray-500 text-xs sm:text-sm italic max-w-md text-center leading-relaxed">
-              {restaurant.description}
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* Top Section: Theme Header */}
-      <div className="h-40 sm:h-48 relative transition-colors duration-500" style={{ backgroundColor: restaurant?.theme_color || '#000000' }}>
-        {/* Central Circular Logo overlapping the bottom */}
-        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 z-10">
-          <div className="w-24 h-24 sm:w-28 sm:h-28 bg-white rounded-full shadow-lg border-4 border-white flex items-center justify-center overflow-hidden">
-            {restaurant?.logo_url ? (
-              <img src={restaurant.logo_url} alt="Logo" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-4xl sm:text-5xl font-bold transition-colors duration-500" style={{ color: restaurant?.theme_color || '#000000' }}>
-                {restaurant?.name?.charAt(0) || 'L'}
-              </span>
-            )}
+      {/* Combined Top Header (Theme Background) */}
+      <div className="pt-10 pb-12 px-4 flex flex-col items-center justify-center transition-colors duration-500 rounded-b-[40px] shadow-sm relative z-10" style={{ backgroundColor: restaurant?.theme_color || '#000000' }}>
+        
+        {/* Address */}
+        {restaurant?.address && (
+          <div className="flex items-center justify-center gap-1.5 text-xs sm:text-sm font-medium mb-1.5 animate-fade-in" style={{ color: getContrastYIQ(restaurant?.theme_color || '#000000') === 'dark' ? '#4B5563' : '#E5E7EB' }}>
+            <MapPin className="w-4 h-4" />
+            <span>{restaurant.address}</span>
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* Info Section */}
-      <div className="pt-16 pb-6 text-center px-4 max-w-xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+        {/* Description */}
+        {restaurant?.description && (
+          <p className="text-xs sm:text-sm italic max-w-md text-center leading-relaxed mb-6 animate-fade-in" style={{ color: getContrastYIQ(restaurant?.theme_color || '#000000') === 'dark' ? '#4B5563' : '#E5E7EB' }}>
+            {restaurant.description}
+          </p>
+        )}
+
+        {/* Logo */}
+        <div className="w-24 h-24 sm:w-28 sm:h-28 bg-white rounded-full shadow-lg border-4 border-white flex items-center justify-center overflow-hidden mb-4 mt-2">
+          {restaurant?.logo_url ? (
+            <img src={restaurant.logo_url} alt="Logo" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-4xl sm:text-5xl font-bold" style={{ color: restaurant?.theme_color || '#000000' }}>
+              {restaurant?.name?.charAt(0) || 'L'}
+            </span>
+          )}
+        </div>
+
+        {/* Name */}
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-1" style={{ color: getContrastYIQ(restaurant?.theme_color || '#000000') === 'dark' ? '#111827' : '#FFFFFF' }}>
           {restaurant?.name || 'Restaurant Name'}
         </h1>
-        <p className="text-gray-500 text-sm sm:text-base mt-1 font-medium">Digital Menu</p>
+        <p className="text-sm sm:text-base font-medium" style={{ color: getContrastYIQ(restaurant?.theme_color || '#000000') === 'dark' ? '#4B5563' : '#E5E7EB' }}>Digital Menu</p>
       </div>
 
       {/* Special Offers Section */}
