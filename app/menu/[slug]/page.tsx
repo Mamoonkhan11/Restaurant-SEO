@@ -64,10 +64,14 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
     let broadcastSubscription: any;
 
     const fetchMenu = async () => {
+      // Adding an active query timestamp bypasses Next.js aggressive client-side fetch caching
+      const cacheBuster = new Date().getTime();
+      
       const { data: restData } = await supabase
         .from('restaurants')
         .select('*, address, description')
         .eq('slug', params.slug)
+        .gte('created_at', '2000-01-01') // Dummy filter to bust cache
         .single();
         
       if (restData) {
@@ -219,19 +223,19 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
       {/* Combined Top Header (Theme Background) */}
       <div className="pt-10 pb-12 px-4 flex flex-col items-center justify-center transition-colors duration-500 rounded-b-[40px] shadow-sm relative z-10" style={{ backgroundColor: restaurant?.theme_color || '#000000' }}>
         
+        {/* Description */}
+        {restaurant?.description && (
+          <p className="text-xs sm:text-sm italic max-w-md text-center leading-relaxed mb-4 animate-fade-in" style={{ color: getContrastYIQ(restaurant?.theme_color || '#000000') === 'dark' ? '#4B5563' : '#E5E7EB' }}>
+            {restaurant?.description}
+          </p>
+        )}
+
         {/* Address */}
         {restaurant?.address && (
-          <div className="flex items-center justify-center gap-1.5 text-xs sm:text-sm font-medium mb-1.5 animate-fade-in" style={{ color: getContrastYIQ(restaurant?.theme_color || '#000000') === 'dark' ? '#4B5563' : '#E5E7EB' }}>
+          <div className="flex items-center justify-center gap-1.5 text-xs sm:text-sm font-medium mb-6 animate-fade-in" style={{ color: getContrastYIQ(restaurant?.theme_color || '#000000') === 'dark' ? '#4B5563' : '#E5E7EB' }}>
             <MapPin className="w-4 h-4" />
             <span>{restaurant?.address}</span>
           </div>
-        )}
-
-        {/* Description */}
-        {restaurant?.description && (
-          <p className="text-xs sm:text-sm italic max-w-md text-center leading-relaxed mb-6 animate-fade-in" style={{ color: getContrastYIQ(restaurant?.theme_color || '#000000') === 'dark' ? '#4B5563' : '#E5E7EB' }}>
-            {restaurant?.description}
-          </p>
         )}
 
         {/* Logo */}

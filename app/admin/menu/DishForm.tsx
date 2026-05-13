@@ -76,7 +76,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
 
       const sizesObj = sizes.reduce((acc, curr) => {
         if (curr.label && curr.price) {
-          acc[curr.label] = parseFloat(curr.price);
+          acc[curr.label] = Math.round(parseFloat(curr.price) * 100) / 100;
         }
         return acc;
       }, {} as Record<string, number>);
