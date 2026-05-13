@@ -254,8 +254,8 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
 
       {/* Special Offers Section */}
       {dishes.filter(d => d.is_special_offer && d.is_available).length > 0 && (
-        <div className="max-w-xl mx-auto px-4 mb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-10">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
             <span className="text-orange-500">✨</span> Offers for You
           </h2>
           <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x">
@@ -286,14 +286,14 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
       )}
 
       {/* Search Bar */}
-      <div className="max-w-xl mx-auto px-4 mb-4">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-6 mt-8">
         <div className="relative group">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400 group-focus-within:text-black transition-colors" />
+          <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 group-focus-within:text-black transition-colors" />
           </div>
           <input
             type="text"
-            className="block w-full pl-11 pr-10 py-3.5 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 theme-ring transition-all shadow-sm font-medium"
+            className="block w-full pl-14 pr-10 py-4 sm:py-5 text-sm sm:text-base bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 theme-ring transition-all shadow-sm font-medium"
             placeholder="Search for a dish..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -311,7 +311,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
 
       {/* Quick Jump Bar */}
       {categories.length > 0 && (
-        <div className="max-w-xl mx-auto px-4 mb-6 sticky top-0 z-40 bg-gray-50/95 backdrop-blur-md py-3 shadow-sm border-b border-gray-200">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-2 sticky top-0 z-40 bg-gray-50/95 backdrop-blur-md py-3 shadow-sm border-b border-gray-200">
           <div className="flex space-x-2 overflow-x-auto scrollbar-hide snap-x">
             {categories.map((cat) => (
               <button
@@ -339,13 +339,13 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
       )}
 
       {/* Menu List by Categories */}
-      <div className="max-w-xl mx-auto px-4 space-y-10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-12">
         {Object.keys(groupedDishes).length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="h-6 w-6 text-gray-400" />
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="h-8 w-8 text-gray-400" />
             </div>
-            <p className="text-gray-500 font-medium">No dishes found matching your search.</p>
+            <p className="text-gray-500 font-medium sm:text-lg">No dishes found matching your search.</p>
           </div>
         ) : (
           categories.map((cat) => {
@@ -354,10 +354,10 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
             
             return (
               <div key={cat} id={`category-${cat}`} className="scroll-mt-24">
-                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-5 sticky top-[4.5rem] bg-gray-50/95 backdrop-blur-sm py-2 z-30">
+                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6 sticky top-[5rem] sm:top-[5.5rem] bg-gray-50/95 backdrop-blur-sm py-2 z-30">
                   {cat}
                 </h2>
-                <div className="space-y-4">
+                <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
                   {categoryDishes.map((item: any, index: number) => (
                   <motion.div 
                     layoutId={`dish-${item.id}`}
