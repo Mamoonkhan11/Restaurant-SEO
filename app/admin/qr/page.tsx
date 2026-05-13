@@ -45,7 +45,11 @@ export default function QRCodePage() {
     fetchRestaurantData();
   }, []);
 
-  const publicUrl = typeof window !== 'undefined' ? `${window.location.origin}/menu/${restaurantSlug}` : `https://your-domain.com/menu/${restaurantSlug}`;
+  // Ensure absolute HTTPS URL so mobile scanners detect it as a web link, not a text string
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://vionys.com';
+  const publicUrl = origin.startsWith('http://localhost') 
+    ? `${origin}/menu/${restaurantSlug}` 
+    : `https://${origin.replace(/^https?:\/\//, '')}/menu/${restaurantSlug}`;
 
   const downloadHighResQR = async () => {
     if (!printRef.current) return;

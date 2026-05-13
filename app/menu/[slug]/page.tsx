@@ -279,6 +279,17 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
           box-shadow: 0 0 0 2px ${restaurant?.theme_color || '#000000'} !important; 
           border-color: transparent !important; 
         }
+        /* Prevent mobile copy/selection overlay for a native app feel */
+        body {
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          user-select: none;
+        }
+        /* Allow selection only on inputs */
+        input, textarea {
+          -webkit-user-select: auto;
+          user-select: auto;
+        }
       `}</style>
       
       {/* Combined Top Header (Theme Background) */}
