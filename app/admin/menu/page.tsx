@@ -136,8 +136,10 @@ export default function MenuManagement() {
                           {dish.category}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-black text-gray-900">
-                        ₹{dish.price.toFixed(2)}
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-gray-900">
+                          ₹{dish.sizes && typeof dish.sizes === 'object' && Object.keys(dish.sizes).length > 0 ? Number(Object.values(dish.sizes)[0] ?? 0).toFixed(2) : Number(dish.price ?? 0).toFixed(2)}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-center">
                         <button onClick={() => handleToggle(dish)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${dish.is_available ? 'bg-green-500' : 'bg-gray-300'}`}>

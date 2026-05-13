@@ -503,7 +503,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                       {selectedDish.name}
                     </motion.h2>
                     <motion.span layoutId={`dish-price-${selectedDish.id}`} className="text-2xl sm:text-3xl font-black text-gray-900 shrink-0">
-                      ₹{selectedDish.price?.toFixed(2)}
+                      ₹{getDishPrice(selectedDish)}
                     </motion.span>
                   </div>
                   
@@ -525,9 +525,8 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                 >
                   <button 
                     onClick={() => {
-                      const num = restaurant?.whatsapp_number || restaurant?.whatsapp || '';
-                      const msg = `Hi! I'm checking whether this item is available for home delivery: ${selectedDish.name} (₹${selectedDish.price?.toFixed(2)})`;
-                      window.open(`https://wa.me/${num.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+                      const msg = `Hi! I'm checking whether this item is available for home delivery: ${selectedDish.name} (₹${getDishPrice(selectedDish)})`;
+                      window.open(`https://wa.me/${restaurant?.whatsapp_number?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
                     }}
                     className="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
                   >

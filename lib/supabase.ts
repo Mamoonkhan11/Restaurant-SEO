@@ -15,13 +15,16 @@ export interface Dish {
   id: string;
   created_at: string;
   name: string;
-  price: number;
+  price?: number;
   category: string;
   image_url: string | null;
   is_available: boolean;
   rating: number | null;
   order_count: number;
   restaurant_slug: string;
+  sizes?: Record<string, number>;
+  is_special_offer?: boolean;
+  offer_tag?: string | null;
 }
 
 /**

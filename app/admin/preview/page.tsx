@@ -2,7 +2,17 @@
 import React, { useState } from 'react';
 import { uploadDishImage, removeDishImage, updateDishImageInDb } from '@/lib/supabase';
 
-const initialDishes = [
+type PreviewDish = {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  isAvailable: boolean;
+  image: string;
+  sizes?: Record<string, number>;
+};
+
+const initialDishes: PreviewDish[] = [
   { id: 1, name: 'Truffle Parmesan Fries', category: 'Fast Food', price: 8.99, isAvailable: true, image: 'https://placehold.co/600x400/f8fafc/94a3b8?text=Fries' },
   { id: 2, name: 'Wagyu Beef Burger', category: 'Fast Food', price: 18.50, isAvailable: true, image: 'https://placehold.co/600x400/f8fafc/94a3b8?text=Burger' },
   { id: 3, name: 'Spicy Chicken Wrap', category: 'Fast Food', price: 12.50, isAvailable: false, image: 'https://placehold.co/600x400/f8fafc/94a3b8?text=Chicken+Wrap' },
@@ -169,7 +179,7 @@ export default function AdminPreview() {
                         </span>
                       </td>
                       <td className="p-4 font-semibold text-gray-900">
-                        ₹{dish.price.toFixed(2)}
+                        ₹{dish.sizes && typeof dish.sizes === 'object' && Object.keys(dish.sizes).length > 0 ? Number(Object.values(dish.sizes)[0] ?? 0).toFixed(2) : Number(dish.price ?? 0).toFixed(2)}
                       </td>
                       <td className="p-4">
                         {dish.isAvailable ? (
