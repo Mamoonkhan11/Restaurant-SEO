@@ -175,7 +175,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'restaurants' },
         (payload) => {
-          setRestaurant(prev => {
+          setRestaurant((prev: any) => {
             if (prev?.id === payload.new.id) {
               return { ...prev, ...payload.new };
             }
