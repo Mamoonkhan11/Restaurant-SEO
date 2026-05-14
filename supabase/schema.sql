@@ -14,3 +14,20 @@ CREATE TABLE IF NOT EXISTS dishes (
 
 -- Add an index on restaurant_slug for faster queries since we filter by it often
 CREATE INDEX IF NOT EXISTS idx_dishes_restaurant_slug ON dishes(restaurant_slug);
+
+-- Additional Columns for restaurants
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS plan_type TEXT DEFAULT 'free';
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS expiry_date TIMESTAMP WITH TIME ZONE;
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS subscription_status TEXT DEFAULT 'inactive';
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS pending_discounts INTEGER DEFAULT 0;
+
+-- Create Payments Table
+CREATE TABLE IF NOT EXISTS payments (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
+  amount DECIMAL(10, 2) NOT NULL,
+  plan_type TEXT NOT NULL,
+  status TEXT NOT NULL,
+  payment_method TEXT NOT NULL
+);

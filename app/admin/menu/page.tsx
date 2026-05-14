@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Loader2, AlertTriangle } from 'lucide-react';
 import DishForm from './DishForm';
 import { getDishesByRestaurantSlug, updateDishAvailability, deleteDishFromDb, removeDishImage, upsertDish, logAdminAction, broadcastMenuUpdate, Dish } from '@/lib/supabase';
+import { useRestaurant } from '@/lib/RestaurantContext';
 
 // We mock the session slug for now
 const RESTAURANT_SLUG = 'demo-restaurant'; 
@@ -13,6 +14,10 @@ export default function MenuManagement() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const [dishToDelete, setDishToDelete] = useState<Dish | null>(null);
+  const { restaurant } = useRestaurant();
+
+  const isFreePlan = restaurant?.plan_type === 'free' || !restaurant?.plan_type;
+  const isAddLocked = isFreePlan && dishes.length >= 20;
 
   useEffect(() => {
     fetchDishes();
@@ -89,10 +94,20 @@ export default function MenuManagement() {
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Menu Management</h1>
             <p className="mt-1 text-gray-500">Manage your dishes, pricing, and availability.</p>
           </div>
-          <button onClick={() => { setEditingDish(null); setIsFormOpen(true); }} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-sm flex items-center gap-2 transition-colors">
-            <Plus className="w-5 h-5" />
-            <span className="hidden sm:inline">Add Dish</span>
-          </button>
+          {isAddLocked ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-semibold text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 hidden md:block">Upgrade to Pro to add more dishes!</span>
+              <button disabled className="bg-gray-200 text-gray-400 px-6 py-3 rounded-xl font-bold shadow-sm flex items-center gap-2 cursor-not-allowed">
+                <Plus className="w-5 h-5" />
+                <span className="hidden sm:inline">Add Dish</span>
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => { setEditingDish(null); setIsFormOpen(true); }} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-sm flex items-center gap-2 transition-colors">
+              <Plus className="w-5 h-5" />
+              <span className="hidden sm:inline">Add Dish</span>
+            </button>
+          )}
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
-import { X, MessageCircle, Loader2, Search, Share2, MapPin } from 'lucide-react';
+import { X, MessageCircle, Loader2, Search, Share2, MapPin, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Helper to determine text contrast
@@ -232,6 +232,15 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
     );
   }
 
+  const isExpiredWithGrace = () => {
+    if (!restaurant?.expiry_date) return false;
+    const expiry = new Date(restaurant.expiry_date);
+    const graceEnd = new Date(expiry.getTime() + 2 * 24 * 60 * 60 * 1000);
+    return new Date() > graceEnd;
+  };
+
+  const menuBlocked = isExpiredWithGrace();
+
   return (
     <div className="min-h-screen bg-[#FDFBF7] pb-24 font-sans relative selection:bg-gray-200">
       {restaurant && (
@@ -328,7 +337,17 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         <p className="text-sm sm:text-base font-medium" style={{ color: getContrastYIQ(restaurant?.theme_color || '#000000') === 'dark' ? '#4B5563' : '#E5E7EB' }}>Digital Menu</p>
       </div>
 
-      {/* Special Offers Section */}
+      {menuBlocked ? (
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 mt-16 text-center animate-fade-in">
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-10 h-10 text-gray-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Menu Unavailable</h2>
+          <p className="text-gray-500 font-medium">This menu is temporarily unavailable. Please contact the restaurant owner.</p>
+        </div>
+      ) : (
+        <>
+          {/* Special Offers Section */}
       {dishes.filter(d => d.is_special_offer && d.is_available).length > 0 && (
         <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-12 pt-2">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -517,6 +536,8 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
           })
         )}
       </div>
+      </>
+      )}
 
       {/* Floating WhatsApp Share Button */}
       <button 

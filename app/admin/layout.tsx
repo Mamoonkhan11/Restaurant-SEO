@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { RestaurantProvider, useRestaurant } from '@/lib/RestaurantContext';
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const { restaurant, isLoading } = useRestaurant();
 
   // Client-Side Middleware / Guard
   useEffect(() => {
@@ -48,8 +50,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Dashboard', href: '/admin', paths: ['M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z'] },
     { name: 'Menu Management', href: '/admin/menu', paths: ['M12 6v6m0 0v6m0-6h6m-6 0H6'] },
     { name: 'QR Code', href: '/admin/qr', paths: ['M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z'] },
+    { name: 'Billing', href: '/admin/billing', paths: ['M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z'] },
     { name: 'Settings', href: '/admin/settings', paths: ['M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z', 'M15 12a3 3 0 11-6 0 3 3 0 016 0z'] },
   ];
+
+  const expiryDate = restaurant?.expiry_date ? new Date(restaurant.expiry_date) : null;
+  const isExpired = expiryDate ? new Date() > expiryDate : false;
+  const daysUntilExpiry = expiryDate ? Math.ceil((expiryDate.getTime() - new Date().getTime()) / (1000 * 3600 * 24)) : 999;
+  const showWarning = daysUntilExpiry <= 3 && !isExpired;
 
   return (
     <div className="min-h-screen bg-gray-50 flex font-sans">
@@ -126,11 +134,49 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="w-9" /> {/* Spacer */}
         </header>
 
+        {/* Sticky Notification Bar */}
+        {showWarning && (
+          <div className="bg-yellow-500 text-white px-4 py-2 text-center text-sm font-bold shadow-sm shrink-0 flex items-center justify-center gap-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            Your free trial expires in {daysUntilExpiry} days. <Link href="/admin/billing" className="underline hover:text-yellow-100">Upgrade now</Link>
+          </div>
+        )}
+        {isExpired && (
+          <div className="bg-red-600 text-white px-4 py-2 text-center text-sm font-bold shadow-sm shrink-0 flex items-center justify-center gap-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            Your subscription has expired. <Link href="/admin/billing" className="underline hover:text-red-100">Renew now</Link>
+          </div>
+        )}
+
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div className={`flex-1 overflow-y-auto bg-gray-50 relative ${isExpired ? 'blur-sm pointer-events-none' : ''}`}>
           {children}
         </div>
+
+        {/* Expired Modal */}
+        {isExpired && (
+          <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40">
+            <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-gray-100 animate-fade-in-up">
+              <div className="w-20 h-20 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              </div>
+              <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Subscription Expired</h2>
+              <p className="text-gray-500 mb-8 leading-relaxed">Your Free Trial has Expired. Please upgrade to continue using RestoOS and keep your menu online.</p>
+              <Link href="/admin/billing" className="block w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg">
+                Upgrade Now
+              </Link>
+            </div>
+          </div>
+        )}
       </main>
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <RestaurantProvider>
+      <AdminLayoutInner>{children}</AdminLayoutInner>
+    </RestaurantProvider>
   );
 }
