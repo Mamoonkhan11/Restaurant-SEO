@@ -4,7 +4,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { X } from 'lucide-react';
+import Link from 'next/link';
+import { X, Lock } from 'lucide-react';
 
 export default function AdminDashboardOverview() {
   const timeAgo = (dateString: string) => {
@@ -39,8 +40,11 @@ export default function AdminDashboardOverview() {
   const [newAov, setNewAov] = useState<number | string>('');
   const [activeModalTitle, setActiveModalTitle] = useState<string | null>(null);
   const [historicalStats, setHistoricalStats] = useState<any[]>([]);
+  const [planType, setPlanType] = useState('free');
 
   const router = useRouter();
+
+  const isFreePlan = planType === 'free';
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -56,7 +60,7 @@ export default function AdminDashboardOverview() {
       // 2. Profile Fetch
       const { data: restaurant, error } = await supabase
         .from('restaurants')
-        .select('id, slug, average_order_value')
+        .select('id, slug, average_order_value, plan_type')
         .eq('owner_id', user.id)
         .single();
         
@@ -68,6 +72,7 @@ export default function AdminDashboardOverview() {
 
       // 4. State Management: Store restaurantId
       setRestaurantId(restaurant.id);
+      setPlanType(restaurant.plan_type || 'free');
       
       if (restaurant.average_order_value) {
         setAov(restaurant.average_order_value);
@@ -276,7 +281,13 @@ export default function AdminDashboardOverview() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
           {/* Estimated Revenue Card */}
-          <div onClick={() => setActiveModalTitle('Estimated Revenue')} className="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col justify-between hover:shadow-md transition-shadow relative group cursor-pointer">
+          <div onClick={() => !isFreePlan && setActiveModalTitle('Estimated Revenue')} className={`bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreePlan ? 'opacity-90 pointer-events-none' : 'cursor-pointer'}`}>
+            {isFreePlan && (
+              <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center border border-white">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full shadow-sm mb-1 flex items-center gap-1"><Lock className="w-3 h-3"/> PRO</span>
+                <p className="text-[10px] text-emerald-900 font-bold uppercase tracking-wider mt-1">Upgrade to view</p>
+              </div>
+            )}
             <div className="flex justify-between items-start mb-2">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-bold text-emerald-800 uppercase tracking-wider">Estimated Revenue</p>
@@ -365,7 +376,21 @@ export default function AdminDashboardOverview() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Line Chart Section */}
-          <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+          <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col relative">
+            {isFreePlan && (
+              <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center">
+                <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center max-w-xs text-center border border-gray-100">
+                   <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                     <Lock className="w-6 h-6" />
+                   </div>
+                   <h3 className="text-gray-900 font-bold mb-2">Advanced Analytics</h3>
+                   <p className="text-sm text-gray-500 mb-6">Upgrade to Pro to track menu item views and identify your best sellers over time.</p>
+                   <Link href="/admin/billing" className="bg-blue-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-blue-700 transition-colors shadow-md">
+                     Upgrade to Pro
+                   </Link>
+                </div>
+              </div>
+            )}
             <div className="mb-6">
               <h3 className="text-lg font-bold text-gray-900">Menu Item Views</h3>
               <p className="text-sm text-gray-500">Track which dishes customers are looking at the most.</p>

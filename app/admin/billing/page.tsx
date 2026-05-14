@@ -1,14 +1,13 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRestaurant } from '@/lib/RestaurantContext';
-import { Check, CreditCard, QrCode, UploadCloud, X, AlertCircle } from 'lucide-react';
+import { Check, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function BillingPage() {
   const { restaurant, refreshRestaurant } = useRestaurant();
   const [isLoading, setIsLoading] = useState(false);
-  const [showUpiModal, setShowUpiModal] = useState(false);
   const [payments, setPayments] = useState<any[]>([]);
 
   useEffect(() => {
@@ -165,7 +164,7 @@ export default function BillingPage() {
           </div>
           <p className="text-sm text-gray-500 mb-6 font-medium">Perfect to get started and test the waters.</p>
           <ul className="space-y-4 flex-1 mb-8">
-            {['Up to 20 dishes', 'Basic QR Code', 'Standard Support'].map((feature, i) => (
+            {['Up to 10 dishes', 'Basic QR Code', 'Standard Support'].map((feature, i) => (
               <li key={i} className="flex items-start gap-3 text-sm text-gray-700 font-medium">
                 <Check className="w-5 h-5 text-green-500 shrink-0" /> {feature}
               </li>
@@ -181,7 +180,7 @@ export default function BillingPage() {
           <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">POPULAR</div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">Pro</h3>
           <div className="flex items-baseline gap-1 mb-6">
-            <span className="text-4xl font-extrabold text-gray-900">₹999</span>
+            <span className="text-4xl font-extrabold text-gray-900">₹499</span>
             <span className="text-gray-500 font-medium">/mo</span>
           </div>
           <p className="text-sm text-gray-500 mb-6 font-medium">Everything you need to run your digital menu.</p>
@@ -193,7 +192,7 @@ export default function BillingPage() {
             ))}
           </ul>
           <button 
-            onClick={() => handleUpgrade('pro', 999)}
+            onClick={() => handleUpgrade('pro', 499)}
             disabled={isLoading || currentPlan === 'pro'}
             className={`w-full py-3 rounded-xl font-bold text-white shadow-md transition-all ${currentPlan === 'pro' ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg'}`}
           >
@@ -205,7 +204,7 @@ export default function BillingPage() {
         <div className="bg-gray-900 rounded-3xl p-8 shadow-xl flex flex-col relative overflow-hidden text-white">
           <h3 className="text-xl font-bold text-gray-100 mb-2">Premium</h3>
           <div className="flex items-baseline gap-1 mb-6">
-            <span className="text-4xl font-extrabold text-white">₹9,999</span>
+            <span className="text-4xl font-extrabold text-white">₹5,499</span>
             <span className="text-gray-400 font-medium">/yr</span>
           </div>
           <p className="text-sm text-gray-400 mb-6 font-medium">For serious restaurants needing full branding.</p>
@@ -217,7 +216,7 @@ export default function BillingPage() {
             ))}
           </ul>
           <button 
-            onClick={() => handleUpgrade('premium', 9999)}
+            onClick={() => handleUpgrade('premium', 5499)}
             disabled={isLoading || currentPlan === 'premium'}
             className={`w-full py-3 rounded-xl font-bold text-gray-900 transition-all ${currentPlan === 'premium' ? 'bg-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-100 shadow-[0_0_15px_rgba(255,255,255,0.3)]'}`}
           >
@@ -226,20 +225,7 @@ export default function BillingPage() {
         </div>
       </div>
 
-      {/* Manual UPI Option */}
-      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-6">
-        <div>
-          <h3 className="text-lg font-bold text-gray-900">Prefer Direct Bank Transfer?</h3>
-          <p className="text-sm text-gray-500 mt-1">For local Jammu clients, pay via UPI QR and upload a screenshot.</p>
-        </div>
-        <button 
-          onClick={() => setShowUpiModal(true)}
-          className="flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-md whitespace-nowrap"
-        >
-          <QrCode className="w-5 h-5" />
-          Pay via UPI QR
-        </button>
-      </div>
+
 
       {/* Billing History */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -290,45 +276,7 @@ export default function BillingPage() {
         )}
       </div>
 
-      {/* UPI Modal */}
-      {showUpiModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up border border-gray-100">
-            <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <h3 className="text-xl font-bold text-gray-900">Pay via UPI</h3>
-              <button onClick={() => setShowUpiModal(false)} className="text-gray-400 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-200 transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-8 flex flex-col items-center text-center">
-              <div className="w-48 h-48 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center mb-6 overflow-hidden">
-                <QrCode className="w-20 h-20 text-gray-400" />
-                {/* Replace with actual QR Code image */}
-              </div>
-              <p className="text-gray-900 font-bold text-lg mb-1">Scan to Pay</p>
-              <p className="text-gray-500 text-sm mb-6">UPI ID: admin@okhdfcbank</p>
 
-              <div className="w-full">
-                <label className="block text-left text-sm font-bold text-gray-700 mb-2">Upload Transaction Screenshot</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                  <UploadCloud className="w-8 h-8 text-blue-500 mb-2" />
-                  <span className="text-sm font-medium text-gray-600">Click to browse or drag file here</span>
-                </div>
-              </div>
-
-              <button 
-                onClick={() => {
-                  toast.success('Screenshot uploaded! We will verify and update your plan shortly.');
-                  setShowUpiModal(false);
-                }}
-                className="w-full mt-6 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
-              >
-                Submit for Verification
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <style>{`
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

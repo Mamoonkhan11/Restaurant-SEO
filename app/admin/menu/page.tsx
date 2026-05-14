@@ -17,7 +17,7 @@ export default function MenuManagement() {
   const { restaurant } = useRestaurant();
 
   const isFreePlan = restaurant?.plan_type === 'free' || !restaurant?.plan_type;
-  const isAddLocked = isFreePlan && dishes.length >= 20;
+  const isAddLocked = isFreePlan && dishes.length >= 10;
 
   useEffect(() => {
     fetchDishes();

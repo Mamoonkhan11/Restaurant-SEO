@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Download, Link as LinkIcon, Loader2 } from 'lucide-react';
+import { Download, Link as LinkIcon, Loader2, Lock } from 'lucide-react';
+import Link from 'next/link';
 import html2canvas from 'html2canvas';
 import { Playfair_Display, Montserrat } from 'next/font/google';
 import { supabase } from '@/lib/supabase';
@@ -10,11 +11,13 @@ const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400', '600', '
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
 export default function QRCodePage() {
-  const [color, setColor] = useState('#0f172a');
+  const [color, setColor] = useState('#8B4513'); // Default to brown
   const [restaurantName, setRestaurantName] = useState('...');
   const [restaurantSlug, setRestaurantSlug] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [planType, setPlanType] = useState('free');
   
+  const isFreePlan = planType === 'free';
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   
@@ -27,7 +30,7 @@ export default function QRCodePage() {
 
       const { data: restaurant, error } = await supabase
         .from('restaurants')
-        .select('name, slug, logo_url, theme_color')
+        .select('name, slug, logo_url, theme_color, plan_type')
         .eq('owner_id', session.user.id)
         .single();
         
@@ -35,8 +38,17 @@ export default function QRCodePage() {
         setRestaurantName(restaurant.name || 'Your Restaurant');
         setRestaurantSlug(restaurant.slug || '');
         setLogoUrl(restaurant.logo_url || null);
-        if (restaurant.theme_color) {
-          setColor(restaurant.theme_color);
+        const fetchedPlan = restaurant.plan_type || 'free';
+        setPlanType(fetchedPlan);
+        
+        // Unlinked from global theme_color. Pro users can pick whatever color they want here.
+        // Free users will always have the default brown color.
+        if (fetchedPlan === 'free') {
+          setColor('#8B4513');
+        } else {
+          // You could optionally remember their last QR color in a different DB field later,
+          // but for now, it's just a free-floating color picker starting with brown.
+          setColor('#8B4513'); 
         }
       }
       setIsLoading(false);
@@ -100,9 +112,20 @@ export default function QRCodePage() {
               <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Configuration</h3>
               <div className="space-y-6">
                 
-                <div>
+                <div className="relative">
+                  {isFreePlan && (
+                    <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-[1px] rounded-xl flex items-center justify-between px-4 border border-gray-100 shadow-sm">
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Lock className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm font-bold">Custom branding is a Pro feature</span>
+                      </div>
+                      <Link href="/admin/billing" className="text-xs font-bold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors pointer-events-auto">
+                        Upgrade
+                      </Link>
+                    </div>
+                  )}
                   <label className="block text-sm font-bold text-gray-700 mb-2">Theme Color</label>
-                  <div className="flex items-center gap-4">
+                  <div className={`flex items-center gap-4 ${isFreePlan ? 'opacity-50 pointer-events-none' : ''}`}>
                     <input 
                       type="color" 
                       value={color} 
@@ -112,13 +135,12 @@ export default function QRCodePage() {
                     <div className="flex-1">
                       <input 
                         type="text" 
-                        value={color} 
-                        onChange={(e) => setColor(e.target.value)}
+                        value={isFreePlan ? '#8B4513' : color} 
+                        onChange={(e) => !isFreePlan && setColor(e.target.value)}
                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-gray-700 transition-all" 
                       />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">Go to Settings to permanently update your brand color and logo.</p>
                 </div>
 
               </div>
@@ -155,7 +177,7 @@ export default function QRCodePage() {
               }}
             >
               {/* Subtle top accent bar */}
-              <div className="h-2 w-full transition-colors duration-300" style={{ backgroundColor: color }}></div>
+              <div className="h-2 w-full transition-colors duration-300" style={{ backgroundColor: isFreePlan ? '#8B4513' : color }}></div>
 
               {/* Header / Logo Area */}
               <div className="pt-12 px-8 text-center flex flex-col items-center">
@@ -167,7 +189,7 @@ export default function QRCodePage() {
                     className="h-20 object-contain drop-shadow-md mb-6" 
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-full border border-gray-100 shadow-sm flex items-center justify-center mb-6" style={{ color: color }}>
+                  <div className="w-20 h-20 rounded-full border border-gray-100 shadow-sm flex items-center justify-center mb-6" style={{ color: isFreePlan ? '#8B4513' : color }}>
                     <span className={`text-4xl font-bold ${playfair.className}`}>{restaurantName.charAt(0)}</span>
                   </div>
                 )}
@@ -181,12 +203,12 @@ export default function QRCodePage() {
               <div className="flex-1 flex flex-col justify-center items-center px-12">
                 <div 
                   className="p-6 bg-white rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] transition-colors duration-300 relative"
-                  style={{ border: `1px solid ${color}20` }}
+                  style={{ border: `1px solid ${isFreePlan ? '#8B4513' : color}20` }}
                 >
                   <QRCodeSVG 
                     value={publicUrl} 
                     size={200} 
-                    fgColor={color} 
+                    fgColor={isFreePlan ? '#8B4513' : color} 
                     bgColor="#ffffff"
                     level="H"
                     includeMargin={false}
@@ -213,10 +235,10 @@ export default function QRCodePage() {
                   )}
 
                   {/* Small decorative corners */}
-                  <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 rounded-tl-xl m-2 transition-colors duration-300" style={{ borderColor: color }}></div>
-                  <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 rounded-tr-xl m-2 transition-colors duration-300" style={{ borderColor: color }}></div>
-                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 rounded-bl-xl m-2 transition-colors duration-300" style={{ borderColor: color }}></div>
-                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 rounded-br-xl m-2 transition-colors duration-300" style={{ borderColor: color }}></div>
+                  <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 rounded-tl-xl m-2 transition-colors duration-300" style={{ borderColor: isFreePlan ? '#8B4513' : color }}></div>
+                  <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 rounded-tr-xl m-2 transition-colors duration-300" style={{ borderColor: isFreePlan ? '#8B4513' : color }}></div>
+                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 rounded-bl-xl m-2 transition-colors duration-300" style={{ borderColor: isFreePlan ? '#8B4513' : color }}></div>
+                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 rounded-br-xl m-2 transition-colors duration-300" style={{ borderColor: isFreePlan ? '#8B4513' : color }}></div>
                 </div>
               </div>
 
@@ -225,7 +247,7 @@ export default function QRCodePage() {
                 <p className={`text-gray-400 uppercase tracking-[0.2em] text-xs font-semibold mb-3 ${montserrat.className}`}>
                   Contactless Dining
                 </p>
-                <h3 className={`text-[28px] text-gray-900 leading-none ${playfair.className}`} style={{ color: color }}>
+                <h3 className={`text-[28px] text-gray-900 leading-none ${playfair.className}`} style={{ color: isFreePlan ? '#8B4513' : color }}>
                   Scan for Digital Menu
                 </h3>
               </div>
