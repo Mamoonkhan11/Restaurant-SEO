@@ -395,9 +395,9 @@ export default function AdminDashboardOverview() {
               <h3 className="text-lg font-bold text-gray-900">Menu Item Views</h3>
               <p className="text-sm text-gray-500">Track which dishes customers are looking at the most.</p>
             </div>
-            <div className="flex-1 min-h-[300px] w-full">
+            <div className="h-[300px] w-full mt-4">
               {chartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                   <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 30, left: -20 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 11 }} dy={15} angle={-25} textAnchor="end" />

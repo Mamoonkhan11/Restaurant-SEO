@@ -36,7 +36,12 @@ export default function TermsAndConditions() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">5. Jurisdiction</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">5. Accuracy of Information & Liability</h2>
+            <p>It is the sole responsibility of the Restaurant Owner to provide accurate information regarding menu prices, dish names, and ingredients. QR-Crave acts merely as a digital display platform and holds <strong>no legal liability or responsibility</strong> for any disputes, customer grievances, or legal claims arising from incorrect pricing, misleading ingredient lists, or inaccurate menu descriptions provided by the restaurant.</p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">6. Jurisdiction</h2>
             <p>These terms and conditions are governed by and construed in accordance with the laws of India. All legal matters, disputes, or claims arising out of or in connection with the use of QR-Crave are subject exclusively to the courts of <strong>Srinagar, Jammu & Kashmir</strong>.</p>
           </section>
         </div>
