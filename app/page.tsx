@@ -124,16 +124,16 @@ export default function Home() {
 
             {/* Legal Links required by Razorpay */}
             <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
-              <Link href="/terms" className="text-sm font-medium hover:text-white transition-colors">
+              <Link href="/terms-and-conditions" className="text-sm font-medium hover:text-white transition-colors">
                 Terms & Conditions
               </Link>
-              <Link href="/privacy" className="text-sm font-medium hover:text-white transition-colors">
+              <Link href="/privacy-policy" className="text-sm font-medium hover:text-white transition-colors">
                 Privacy Policy
               </Link>
-              <Link href="/refund" className="text-sm font-medium hover:text-white transition-colors">
+              <Link href="/refund-policy" className="text-sm font-medium hover:text-white transition-colors">
                 Cancellation & Refund
               </Link>
-              <Link href="/contact" className="text-sm font-medium hover:text-white transition-colors">
+              <Link href="/contact-us" className="text-sm font-medium hover:text-white transition-colors">
                 Contact Us
               </Link>
             </div>
