@@ -4,7 +4,7 @@ import { QrCode, MessageCircle, RefreshCw, ChevronRight } from 'lucide-react';
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 selection:bg-blue-200">
-      
+
       {/* Navigation */}
       <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,14 +16,14 @@ export default function Home() {
               <span className="font-extrabold text-xl tracking-tight text-gray-900">QR-Crave</span>
             </div>
             <div className="flex items-center gap-4">
-              <Link 
-                href="/admin" 
+              <Link
+                href="/admin"
                 className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Admin Login
               </Link>
-              <Link 
-                href="/register" 
+              <Link
+                href="/register"
                 className="text-sm font-bold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-colors shadow-sm"
               >
                 Get Started
@@ -39,25 +39,25 @@ export default function Home() {
           <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
           The Future of Dining is Here
         </div>
-        
+
         <h1 className="max-w-4xl text-5xl sm:text-6xl md:text-7xl font-extrabold text-gray-900 tracking-tight leading-[1.1] mb-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-          QR-Crave: The Smart <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Digital Menu</span> for Srinagar's Best Restaurants
+          QR-Crave: The Smart <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Digital Menu</span> for Srinagar's Best Restaurant
         </h1>
-        
+
         <p className="max-w-2xl text-lg sm:text-xl text-gray-500 mb-10 font-medium animate-fade-in-up" style={{ animationDelay: '200ms' }}>
           Ditch the paper menus. Create a stunning, contactless digital menu that your customers can scan, browse, and order from directly via WhatsApp.
         </p>
-        
+
         <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
-          <Link 
-            href="/admin" 
+          <Link
+            href="/admin"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all bg-blue-600 rounded-full hover:bg-blue-700 hover:shadow-lg hover:-translate-y-1 group"
           >
             Get Started Now
             <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
-          <Link 
-            href="/menu/demo-restaurant" 
+          <Link
+            href="/menu/demo-restaurant"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-gray-700 transition-all bg-white border-2 border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300"
           >
             View Demo Menu
@@ -72,7 +72,7 @@ export default function Home() {
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Everything you need to succeed</h2>
             <p className="text-gray-500 font-medium max-w-2xl mx-auto">Powerful features designed specifically for modern restaurants and cafes.</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Feature 1 */}
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300">
@@ -114,7 +114,7 @@ export default function Home() {
       <footer className="bg-gray-900 text-gray-300 py-12 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            
+
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center transform -rotate-6">
                 <QrCode className="w-5 h-5 text-gray-400" />
@@ -124,21 +124,21 @@ export default function Home() {
 
             {/* Legal Links required by Razorpay */}
             <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
-              <Link href="/terms-and-conditions" className="text-sm font-medium hover:text-white transition-colors">
+              <Link href="/terms" className="text-sm font-medium hover:text-white transition-colors">
                 Terms & Conditions
               </Link>
-              <Link href="/privacy-policy" className="text-sm font-medium hover:text-white transition-colors">
+              <Link href="/privacy" className="text-sm font-medium hover:text-white transition-colors">
                 Privacy Policy
               </Link>
-              <Link href="/refund-policy" className="text-sm font-medium hover:text-white transition-colors">
+              <Link href="/refund" className="text-sm font-medium hover:text-white transition-colors">
                 Cancellation & Refund
               </Link>
-              <Link href="/contact-us" className="text-sm font-medium hover:text-white transition-colors">
+              <Link href="/contact" className="text-sm font-medium hover:text-white transition-colors">
                 Contact Us
               </Link>
             </div>
           </div>
-          
+
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
             <p className="mb-2">Address: Srinagar, J&K, India</p>
             <p>&copy; {new Date().getFullYear()} QR-Crave. All rights reserved. Built for modern restaurants.</p>
