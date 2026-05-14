@@ -11,9 +11,17 @@ export default function Home() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center transform -rotate-6 shadow-sm">
-                <QrCode className="w-5 h-5 text-white" />
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 4H5a2 2 0 0 0-2 2v3" />
+                  <path d="M16 4h3a2 2 0 0 1 2 2v3" />
+                  <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
+                  <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
+                  <path d="M7 14a5 5 0 0 1 10 0" />
+                  <path d="M6 14h12" />
+                  <path d="M12 9V7" />
+                </svg>
               </div>
-              <span className="font-extrabold text-xl tracking-tight text-gray-900">QR-Crave</span>
+              <span className="font-extrabold text-xl tracking-tight text-gray-900">QR-<span className="text-blue-600">Crave</span></span>
             </div>
             <div className="flex items-center gap-4">
               <Link
@@ -57,7 +65,7 @@ export default function Home() {
             <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
-            href="/menu/demo-restaurant"
+            href="/menu/gee-ech-bakery"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-gray-700 transition-all bg-white border-2 border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300"
           >
             View Demo Menu
@@ -117,9 +125,17 @@ export default function Home() {
 
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center transform -rotate-6">
-                <QrCode className="w-5 h-5 text-gray-400" />
+                <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 4H5a2 2 0 0 0-2 2v3" />
+                  <path d="M16 4h3a2 2 0 0 1 2 2v3" />
+                  <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
+                  <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
+                  <path d="M7 14a5 5 0 0 1 10 0" />
+                  <path d="M6 14h12" />
+                  <path d="M12 9V7" />
+                </svg>
               </div>
-              <span className="font-extrabold text-xl tracking-tight text-white">QR-Crave</span>
+              <span className="font-extrabold text-xl tracking-tight text-white">QR-<span className="text-gray-400">Crave</span></span>
             </div>
 
             {/* Legal Links required by Razorpay */}
