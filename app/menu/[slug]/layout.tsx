@@ -6,17 +6,30 @@ type Props = {
   children: React.ReactNode;
 };
 
+import { supabase } from '@/lib/supabase';
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  // Format the slug to a readable restaurant name (e.g., "the-great-burger-joint" -> "The Great Burger Joint")
-  const restaurantName = params.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  // Fetch actual restaurant details from Supabase
+  const { data: restaurant } = await supabase
+    .from('restaurants')
+    .select('name, address')
+    .eq('slug', params.slug)
+    .single();
+
+  const fallbackName = params.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  const restaurantName = restaurant?.name || fallbackName;
+  const location = restaurant?.address || 'Srinagar';
+
+  const seoTitle = `${restaurantName} Menu - Best Food in ${location}, Srinagar`;
+  const seoDescription = `Explore our delicious menu at ${restaurantName}. View our best sellers, pricing, and order directly! Located in ${location}, Srinagar. Built with QR-Crave.`;
 
   return {
-    title: `${restaurantName} - Digital Menu | QR-Crave`,
-    description: `Check out the delicious digital menu for ${restaurantName}. View our best sellers, pricing, and more!`,
+    title: seoTitle,
+    description: seoDescription,
     openGraph: {
-      title: `${restaurantName} - Digital Menu`,
-      description: `Check out the delicious digital menu for ${restaurantName}. View our best sellers, pricing, and more!`,
-      url: `https://your-saas-domain.com/menu/${params.slug}`,
+      title: seoTitle,
+      description: seoDescription,
+      url: `https://qr-crave.com/menu/${params.slug}`,
       siteName: 'QR-Crave',
       images: [
         {
@@ -31,9 +44,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${restaurantName} - Digital Menu`,
-      description: `Check out the delicious digital menu for ${restaurantName}. View our best sellers, pricing, and more!`,
-      images: [`https://placehold.co/1200x630/f8fafc/475569?text=${encodeURIComponent(restaurantName)}+Menu`], // Same dynamic image for Twitter
+      title: seoTitle,
+      description: seoDescription,
+      images: [`https://placehold.co/1200x630/f8fafc/475569?text=${encodeURIComponent(restaurantName)}+Menu`],
     },
   };
 }

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { QrCode, MessageCircle, RefreshCw, ChevronRight } from 'lucide-react';
+import { QrCode, MessageCircle, RefreshCw, ChevronRight, TrendingUp } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -81,7 +81,7 @@ export default function Home() {
             <p className="text-gray-500 font-medium max-w-2xl mx-auto">Powerful features designed specifically for modern restaurants and cafes.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Feature 1 */}
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300">
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
@@ -112,6 +112,19 @@ export default function Home() {
               <h3 className="text-xl font-bold text-gray-900 mb-3">Real-Time Updates</h3>
               <p className="text-gray-500 leading-relaxed">
                 86 an item? Need to change a price? Update your admin dashboard and it instantly reflects on all menus. No re-printing required.
+              </p>
+            </div>
+            {/* Feature 4 */}
+            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
+              <div className="absolute top-4 right-4 bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full border border-orange-200">
+                PRO FEATURE
+              </div>
+              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
+                <TrendingUp className="w-7 h-7 text-orange-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Dominate Local Search Results</h3>
+              <p className="text-gray-500 leading-relaxed">
+                Our menus are built with Schema Markup and Local SEO best practices to ensure your restaurant stays ahead on Google Maps and Search.
               </p>
             </div>
           </div>
