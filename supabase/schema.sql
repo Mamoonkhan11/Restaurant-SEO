@@ -20,6 +20,11 @@ ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS plan_type TEXT DEFAULT 'free';
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS expiry_date TIMESTAMP WITH TIME ZONE;
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS subscription_status TEXT DEFAULT 'inactive';
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS pending_discounts INTEGER DEFAULT 0;
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS terms_accepted BOOLEAN DEFAULT false;
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS digital_signature TEXT;
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS ip_address TEXT;
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS user_agent TEXT;
 
 -- Create Payments Table
 CREATE TABLE IF NOT EXISTS payments (
