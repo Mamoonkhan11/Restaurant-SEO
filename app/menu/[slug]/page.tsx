@@ -103,6 +103,11 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
           setDishes(processedDishes);
           updateCategories(processedDishes);
         }
+
+        // Increment the total scans for the restaurant asynchronously to avoid blocking the UI
+        supabase.rpc('increment_scans', { row_id: restData.id }).then(({ error }: { error: any }) => {
+          if (error) console.error('Failed to increment scan count:', error);
+        });
       }
       setIsLoading(false);
     };

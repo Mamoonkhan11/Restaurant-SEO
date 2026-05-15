@@ -60,7 +60,7 @@ export default function AdminDashboardOverview() {
       // 2. Profile Fetch
       const { data: restaurant, error } = await supabase
         .from('restaurants')
-        .select('id, slug, average_order_value, plan_type')
+        .select('id, slug, average_order_value, plan_type, total_scans')
         .eq('owner_id', user.id)
         .single();
         
@@ -73,10 +73,30 @@ export default function AdminDashboardOverview() {
       // 4. State Management: Store restaurantId
       setRestaurantId(restaurant.id);
       setPlanType(restaurant.plan_type || 'free');
+      setTotalScans(restaurant.total_scans || 0);
       
       if (restaurant.average_order_value) {
         setAov(restaurant.average_order_value);
       }
+
+      // Realtime listener for total_scans
+      const scansSubscription = supabase
+        .channel('schema-db-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'restaurants',
+            filter: `id=eq.${restaurant.id}`,
+          },
+          (payload) => {
+            if (payload.new && typeof payload.new.total_scans === 'number') {
+              setTotalScans(payload.new.total_scans);
+            }
+          }
+        )
+        .subscribe();
 
       // --- Weekly Reset Logic for Item Views ---
       const d = new Date();
@@ -114,14 +134,6 @@ export default function AdminDashboardOverview() {
 
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-
-      const { count: scansCount } = await supabase
-        .from('restaurant_views')
-        .select('*', { count: 'exact', head: true })
-        .eq('restaurant_slug', restaurant.slug)
-        .gte('created_at', firstDayOfMonth);
-      
-      setTotalScans(scansCount ?? 0);
 
       const { data: dishesData } = await supabase
         .from('dishes')
@@ -187,6 +199,7 @@ export default function AdminDashboardOverview() {
 
       return () => {
         supabase.removeChannel(subscription);
+        supabase.removeChannel(scansSubscription);
       };
     };
     
