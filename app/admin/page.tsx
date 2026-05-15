@@ -213,7 +213,10 @@ export default function AdminDashboardOverview() {
   useEffect(() => {
     if (typeof totalScans !== 'number') return;
     
-    const targetRev = totalScans * aov;
+    // Logic: Increment the effective AOV by 1 for every 5 scans
+    const effectiveAov = aov + Math.floor(totalScans / 5);
+    const targetRev = totalScans * effectiveAov;
+
     if (targetRev === 0) {
       setRevenueCounter(0);
       return;
@@ -293,12 +296,13 @@ export default function AdminDashboardOverview() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
-          {/* Estimated Revenue Card */}
-          <div onClick={() => !isFreePlan && setActiveModalTitle('Estimated Revenue')} className={`bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreePlan ? 'opacity-90 pointer-events-none' : 'cursor-pointer'}`}>
+          <div onClick={() => !isFreePlan && setActiveModalTitle('Estimated Revenue')} className={`bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreePlan ? 'cursor-default' : 'cursor-pointer'}`}>
             {isFreePlan && (
-              <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center border border-white">
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full shadow-sm mb-1 flex items-center gap-1"><Lock className="w-3 h-3"/> PRO</span>
-                <p className="text-[10px] text-emerald-900 font-bold uppercase tracking-wider mt-1">Upgrade to view</p>
+              <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-xl rounded-2xl flex flex-col items-center justify-center border border-white/20 shadow-inner">
+                <div className="bg-emerald-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest animate-pulse">
+                  <Lock className="w-3 h-3"/> Pro Feature
+                </div>
+                <p className="text-[11px] text-emerald-900 font-extrabold uppercase tracking-tighter">Growth Insights Locked</p>
               </div>
             )}
             <div className="flex justify-between items-start mb-2">
@@ -307,7 +311,7 @@ export default function AdminDashboardOverview() {
                 <div onClick={(e) => e.stopPropagation()} className="relative flex items-center justify-center cursor-help">
                   <div className="w-4 h-4 rounded-full bg-emerald-200 text-emerald-700 flex items-center justify-center text-[10px] font-bold shadow-sm hover:bg-emerald-300 transition-colors">?</div>
                   <div className="absolute bottom-full mb-2 hidden group-hover:block w-52 p-3 bg-gray-900 text-white text-xs font-medium rounded-xl shadow-xl z-10 text-center leading-relaxed">
-                    This is calculated by multiplying your total QR scans by your average bill amount.
+                    This is calculated by multiplying your total QR scans by your average bill amount (which increases by ₹1 every 5 scans).
                     <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
                   </div>
                 </div>
@@ -362,12 +366,13 @@ export default function AdminDashboardOverview() {
             <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalScans}</p>
           </div>
           
-          {/* Top Dish Card */}
-          <div onClick={() => !isFreePlan && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreePlan ? 'opacity-90 pointer-events-none' : 'cursor-pointer'}`}>
+          <div onClick={() => !isFreePlan && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreePlan ? 'cursor-default' : 'cursor-pointer'}`}>
             {isFreePlan && (
-              <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center border border-white">
-                <span className="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full shadow-sm mb-1 flex items-center gap-1"><Lock className="w-3 h-3"/> PRO</span>
-                <p className="text-[10px] text-orange-900 font-bold uppercase tracking-wider mt-1">Upgrade to view</p>
+              <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-xl rounded-2xl flex flex-col items-center justify-center border border-white/20 shadow-inner">
+                <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest animate-pulse">
+                  <Lock className="w-3 h-3"/> Pro Feature
+                </div>
+                <p className="text-[11px] text-orange-900 font-extrabold uppercase tracking-tighter">Dish Popularity Hidden</p>
               </div>
             )}
             <div className="flex justify-between items-start mb-2">
