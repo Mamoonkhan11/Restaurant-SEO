@@ -81,12 +81,12 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         .select('*')
         .eq('slug', params.slug)
         .single();
-        
+
       if (restData) {
         ownerId = restData.owner_id;
         restaurantId = restData.id;
         setRestaurant(restData);
-        
+
         const { data: dishesData } = await supabase
           .from('dishes')
           .select('*')
@@ -99,14 +99,14 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
             isBestSeller: (d.view_count || 0) > 60,
             view_count: d.view_count || 0
           }));
-          
+
           setDishes(processedDishes);
           updateCategories(processedDishes);
         }
       }
       setIsLoading(false);
     };
-    
+
     fetchMenu();
 
     // Native Postgres Realtime Subscriptions
@@ -134,7 +134,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
         (payload) => {
           setDishes(prev => {
             if (ownerId && payload.new.owner_id !== ownerId) return prev;
-            const newDishes = prev.map(d => 
+            const newDishes = prev.map(d =>
               d.id === payload.new.id ? {
                 ...payload.new,
                 isBestSeller: (payload.new.view_count || 0) > 60,
@@ -142,7 +142,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
               } : d
             );
             updateCategories(newDishes);
-            
+
             // Sync modal if open
             setSelectedDish((currentModal: any) => {
               if (currentModal?.id === payload.new.id) {
@@ -161,7 +161,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
           setDishes(prev => {
             const newDishes = prev.filter(d => d.id !== payload.old.id);
             updateCategories(newDishes);
-            
+
             // Close modal if deleted
             setSelectedDish((currentModal: any) => {
               if (currentModal?.id === payload.old.id) return null;
@@ -192,16 +192,16 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
 
   const handleDishClick = async (dish: any) => {
     if (!dish.is_available) return;
-    
+
     setSelectedDish(dish);
-    
-    setDishes(prev => prev.map(d => 
+
+    setDishes(prev => prev.map(d =>
       d.id === dish.id ? { ...d, view_count: d.view_count + 1 } : d
     ));
-    
+
     const { error } = await supabase.rpc('increment_view_count', { dish_id: dish.id });
     if (error) {
-       await supabase.from('dishes').update({ view_count: dish.view_count + 1 }).eq('id', dish.id);
+      await supabase.from('dishes').update({ view_count: dish.view_count + 1 }).eq('id', dish.id);
     }
   };
 
@@ -300,10 +300,10 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
           user-select: auto;
         }
       `}</style>
-      
+
       {/* Combined Top Header (Theme Background) */}
       <div className="pt-10 pb-12 px-4 flex flex-col items-center justify-center transition-colors duration-500 rounded-b-[40px] shadow-sm relative z-10" style={{ backgroundColor: restaurant?.theme_color || '#000000' }}>
-        
+
         {/* Description */}
         {restaurant?.description && (
           <p className="text-xs sm:text-sm italic max-w-md text-center leading-relaxed mb-4 animate-fade-in" style={{ color: getContrastYIQ(restaurant?.theme_color || '#000000') === 'dark' ? '#4B5563' : '#E5E7EB' }}>
@@ -348,199 +348,198 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
       ) : (
         <>
           {/* Special Offers Section */}
-      {dishes.filter(d => d.is_special_offer && d.is_available).length > 0 && (
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-12 pt-2">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="text-orange-500">✨</span> Offers for You
-          </h2>
-          <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x">
-            {dishes.filter(d => d.is_special_offer && d.is_available).map(item => (
-              <motion.div
-                key={`offer-${item.id}`}
-                onClick={() => handleDishClick(item)}
-                className="min-w-[260px] max-w-[260px] bg-white rounded-3xl p-3 flex gap-3 shadow-sm border border-orange-100 relative overflow-visible snap-center cursor-pointer hover:shadow-md transition-all shrink-0"
-              >
-                <div className="w-20 h-20 rounded-2xl bg-gray-100 shrink-0 overflow-hidden relative">
-                  <img src={item.image_url || `https://placehold.co/400x400/e2e8f0/94a3b8?text=${encodeURIComponent(item.name.charAt(0))}`} alt={item.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
-                  <h3 className="text-base font-bold text-gray-900 truncate">{item.name}</h3>
-                  <span className="text-sm font-black text-gray-900 mt-1 block">
-                    ₹{getDishPrice(item)}
-                  </span>
-                </div>
-                {item.offer_tag && (
-                  <div 
-                    className="absolute z-[50] -bottom-[10px] -right-[8px] -rotate-[3deg] whitespace-nowrap font-black text-[10px] sm:text-xs text-white px-3 py-1.5 shadow-xl border-2 border-white"
-                    style={{
-                      backgroundColor: restaurant?.theme_color || '#f97316',
-                      borderRadius: '12px 4px 12px 4px'
-                    }}
-                  >
-                    {item.offer_tag}
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Search Bar */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-6 mt-8">
-        <div className="relative group">
-          <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 group-focus-within:text-black transition-colors" />
-          </div>
-          <input
-            type="text"
-            className="block w-full pl-14 pr-10 py-4 sm:py-5 text-sm sm:text-base bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 theme-ring transition-all shadow-sm font-medium"
-            placeholder="Search for a dish..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
-            <button 
-              onClick={() => setSearchQuery('')}
-              className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-900 transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Quick Jump Bar */}
-      {categories.length > 0 && (
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-2 sticky top-0 z-40 bg-gray-50/95 backdrop-blur-md py-3 shadow-sm border-b border-gray-200">
-          <div className="flex space-x-2 overflow-x-auto scrollbar-hide snap-x">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => {
-                  setActiveCategory(cat);
-                  const el = document.getElementById(`category-${cat}`);
-                  if (el) {
-                    const y = el.getBoundingClientRect().top + window.scrollY - 80;
-                    window.scrollTo({ top: y, behavior: 'smooth' });
-                  }
-                }}
-                className={`whitespace-nowrap px-5 py-2 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${
-                  activeCategory === cat
-                    ? 'text-white'
-                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
-                }`}
-                style={activeCategory === cat ? { backgroundColor: restaurant?.theme_color || '#000000' } : {}}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Menu List by Categories */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-12">
-        {Object.keys(groupedDishes).length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="h-8 w-8 text-gray-400" />
-            </div>
-            <p className="text-gray-500 font-medium sm:text-lg">No dishes found matching your search.</p>
-          </div>
-        ) : (
-          categories.map((cat) => {
-            const categoryDishes = groupedDishes[cat];
-            if (!categoryDishes || categoryDishes.length === 0) return null;
-            
-            return (
-              <div key={cat} id={`category-${cat}`} className="scroll-mt-24">
-                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6 sticky top-[5rem] sm:top-[5.5rem] bg-gray-50/95 backdrop-blur-sm py-2 z-30">
-                  {cat}
-                </h2>
-                <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
-                  {categoryDishes.map((item: any, index: number) => (
-                  <motion.div 
-                    layoutId={`dish-${item.id}`}
-                    key={item.id} 
+          {dishes.filter(d => d.is_special_offer && d.is_available).length > 0 && (
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-12 pt-2">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <span className="text-orange-500">✨</span> Offers for You
+              </h2>
+              <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x">
+                {dishes.filter(d => d.is_special_offer && d.is_available).map(item => (
+                  <motion.div
+                    key={`offer-${item.id}`}
                     onClick={() => handleDishClick(item)}
-                    className={`bg-white rounded-3xl p-4 sm:p-5 flex flex-row gap-4 items-center relative group cursor-pointer hover:shadow-md transition-shadow shadow-sm border border-gray-100 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                    className="min-w-[260px] max-w-[260px] bg-white rounded-3xl p-3 flex gap-3 shadow-sm border border-orange-100 relative overflow-visible snap-center cursor-pointer hover:shadow-md transition-all shrink-0"
                   >
-                    {/* Image */}
-                    <motion.div layoutId={`dish-image-${item.id}`} className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gray-100 shrink-0 overflow-hidden relative">
-                      <img 
-                        src={item.image_url || `https://placehold.co/400x400/e2e8f0/94a3b8?text=${encodeURIComponent(item.name.charAt(0))}`}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </motion.div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
-                      <motion.h3 layoutId={`dish-title-${item.id}`} className="text-lg sm:text-xl font-bold text-gray-900 truncate">
-                        {item.name}
-                      </motion.h3>
-                      {item.description && (
-                        <p className="text-gray-500 text-xs sm:text-sm mt-1 line-clamp-2 leading-relaxed">
-                          {item.description}
-                        </p>
-                      )}
-                      
-                      {item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0 ? (
-                        <div className="mt-3">
-                          <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 block mb-2">
-                            ₹{getDishPrice(item)}
-                          </motion.span>
-                          <div className="flex flex-wrap gap-2" onClick={e => e.stopPropagation()}>
-                            {Object.entries(item.sizes).map(([label, _price], i: number) => {
-                              const isSelected = (selectedSizes[item.id] || 0) === i;
-                              return (
-                                <button
-                                  key={i}
-                                  onClick={() => setSelectedSizes({ ...selectedSizes, [item.id]: i })}
-                                  className={`px-3 py-1.5 text-[11px] uppercase tracking-wide font-bold rounded-xl transition-all ${isSelected ? 'bg-gray-900 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                                >
-                                  {label}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      ) : (
-                        <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 mt-2 block">
-                          ₹{getDishPrice(item)}
-                        </motion.span>
-                      )}
+                    <div className="w-20 h-20 rounded-2xl bg-gray-100 shrink-0 overflow-hidden relative">
+                      <img src={item.image_url || `https://placehold.co/400x400/e2e8f0/94a3b8?text=${encodeURIComponent(item.name.charAt(0))}`} alt={item.name} className="w-full h-full object-cover" />
                     </div>
-
-                    {item.is_special_offer && item.offer_tag && item.is_available && (
-                      <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-orange-500 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
+                    <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
+                      <h3 className="text-base font-bold text-gray-900 truncate">{item.name}</h3>
+                      <span className="text-sm font-black text-gray-900 mt-1 block">
+                        ₹{getDishPrice(item)}
+                      </span>
+                    </div>
+                    {item.offer_tag && (
+                      <div
+                        className="absolute z-[50] -bottom-[10px] -right-[8px] -rotate-[3deg] whitespace-nowrap font-black text-[10px] sm:text-xs text-white px-3 py-1.5 shadow-xl border-2 border-white"
+                        style={{
+                          backgroundColor: restaurant?.theme_color || '#f97316',
+                          borderRadius: '12px 4px 12px 4px'
+                        }}
+                      >
                         {item.offer_tag}
-                      </div>
-                    )}
-                    {item.isBestSeller && !item.is_special_offer && item.is_available && (
-                      <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-blue-600 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
-                        Bestseller
-                      </div>
-                    )}
-                    {!item.is_available && (
-                      <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-gray-700 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
-                        Out of stock
                       </div>
                     )}
                   </motion.div>
                 ))}
               </div>
             </div>
-            );
-          })
-        )}
-      </div>
-      </>
+          )}
+
+          {/* Search Bar */}
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-6 mt-8">
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 group-focus-within:text-black transition-colors" />
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-14 pr-10 py-4 sm:py-5 text-sm sm:text-base bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 theme-ring transition-all shadow-sm font-medium"
+                placeholder="Search for a dish..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-900 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Jump Bar */}
+          {categories.length > 0 && (
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-2 sticky top-0 z-40 bg-gray-50/95 backdrop-blur-md py-3 shadow-sm border-b border-gray-200">
+              <div className="flex space-x-2 overflow-x-auto scrollbar-hide snap-x">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setActiveCategory(cat);
+                      const el = document.getElementById(`category-${cat}`);
+                      if (el) {
+                        const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                        window.scrollTo({ top: y, behavior: 'smooth' });
+                      }
+                    }}
+                    className={`whitespace-nowrap px-5 py-2 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${activeCategory === cat
+                        ? 'text-white'
+                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
+                      }`}
+                    style={activeCategory === cat ? { backgroundColor: restaurant?.theme_color || '#000000' } : {}}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Menu List by Categories */}
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-12">
+            {Object.keys(groupedDishes).length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Search className="h-8 w-8 text-gray-400" />
+                </div>
+                <p className="text-gray-500 font-medium sm:text-lg">No dishes found matching your search.</p>
+              </div>
+            ) : (
+              categories.map((cat) => {
+                const categoryDishes = groupedDishes[cat];
+                if (!categoryDishes || categoryDishes.length === 0) return null;
+
+                return (
+                  <div key={cat} id={`category-${cat}`} className="scroll-mt-24">
+                    <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6 sticky top-[5rem] sm:top-[5.5rem] bg-gray-50/95 backdrop-blur-sm py-2 z-30">
+                      {cat}
+                    </h2>
+                    <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
+                      {categoryDishes.map((item: any, index: number) => (
+                        <motion.div
+                          layoutId={`dish-${item.id}`}
+                          key={item.id}
+                          onClick={() => handleDishClick(item)}
+                          className={`bg-white rounded-3xl p-4 sm:p-5 flex flex-row gap-4 items-center relative group cursor-pointer hover:shadow-md transition-shadow shadow-sm border border-gray-100 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                        >
+                          {/* Image */}
+                          <motion.div layoutId={`dish-image-${item.id}`} className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gray-100 shrink-0 overflow-hidden relative">
+                            <img
+                              src={item.image_url || `https://placehold.co/400x400/e2e8f0/94a3b8?text=${encodeURIComponent(item.name.charAt(0))}`}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </motion.div>
+
+                          {/* Info */}
+                          <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
+                            <motion.h3 layoutId={`dish-title-${item.id}`} className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+                              {item.name}
+                            </motion.h3>
+                            {item.description && (
+                              <p className="text-gray-500 text-xs sm:text-sm mt-1 line-clamp-2 leading-relaxed">
+                                {item.description}
+                              </p>
+                            )}
+
+                            {item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0 ? (
+                              <div className="mt-3">
+                                <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 block mb-2">
+                                  ₹{getDishPrice(item)}
+                                </motion.span>
+                                <div className="flex flex-wrap gap-2" onClick={e => e.stopPropagation()}>
+                                  {Object.entries(item.sizes).map(([label, _price], i: number) => {
+                                    const isSelected = (selectedSizes[item.id] || 0) === i;
+                                    return (
+                                      <button
+                                        key={i}
+                                        onClick={() => setSelectedSizes({ ...selectedSizes, [item.id]: i })}
+                                        className={`px-3 py-1.5 text-[11px] uppercase tracking-wide font-bold rounded-xl transition-all ${isSelected ? 'bg-gray-900 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                                      >
+                                        {label}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ) : (
+                              <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 mt-2 block">
+                                ₹{getDishPrice(item)}
+                              </motion.span>
+                            )}
+                          </div>
+
+                          {item.is_special_offer && item.offer_tag && item.is_available && (
+                            <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-orange-500 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
+                              {item.offer_tag}
+                            </div>
+                          )}
+                          {item.isBestSeller && !item.is_special_offer && item.is_available && (
+                            <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-blue-600 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
+                              Bestseller
+                            </div>
+                          )}
+                          {!item.is_available && (
+                            <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-gray-700 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
+                              Out of stock
+                            </div>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </>
       )}
 
       {/* Floating WhatsApp Share Button */}
-      <button 
+      <button
         onClick={handleWhatsAppShare}
         className="fixed bottom-14 right-4 sm:right-8 bg-[#25D366] text-white px-5 h-14 rounded-full shadow-[0_4px_14px_0_rgba(37,211,102,0.39)] flex items-center justify-center gap-2.5 hover:scale-105 active:scale-95 transition-transform z-40 font-bold"
       >
@@ -584,7 +583,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                 layoutId={`dish-${selectedDish.id}`}
                 className="bg-white w-full h-[85vh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg rounded-t-[2rem] sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl pointer-events-auto"
               >
-                <button 
+                <button
                   onClick={() => setSelectedDish(null)}
                   className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/50 hover:bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-900 shadow-sm transition-all"
                 >
@@ -592,7 +591,7 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                 </button>
 
                 <motion.div layoutId={`dish-image-${selectedDish.id}`} className="relative h-64 sm:h-80 w-full bg-gray-100 shrink-0">
-                  <img 
+                  <img
                     src={selectedDish.image_url || `https://placehold.co/600x400/e2e8f0/94a3b8?text=${encodeURIComponent(selectedDish.name)}`}
                     alt={selectedDish.name}
                     className="w-full h-full object-cover"
@@ -609,8 +608,8 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                       ₹{getDishPrice(selectedDish)}
                     </motion.span>
                   </div>
-                  
-                  <motion.p 
+
+                  <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
@@ -620,22 +619,32 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                   </motion.p>
                 </div>
 
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
                   className="p-4 sm:p-6 border-t border-gray-100 bg-white shrink-0"
                 >
-                  <button 
-                    onClick={() => {
-                      const msg = `Hi! I'm checking whether this item is available for home delivery: ${selectedDish.name} (₹${getDishPrice(selectedDish)})`;
-                      window.open(`https://wa.me/${restaurant?.whatsapp_number?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
-                    }}
-                    className="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
-                  >
-                    <MessageCircle className="w-6 h-6" />
-                    Order on WhatsApp
-                  </button>
+                  {(!restaurant?.plan_type || restaurant?.plan_type === 'free') ? (
+                    <button
+                      disabled
+                      className="w-full bg-gray-100 text-gray-400 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 cursor-not-allowed"
+                    >
+                      <MessageCircle className="w-6 h-6" />
+                      Ordering Unavailable
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        const msg = `Hello! I would like to order: ${selectedDish.name} (₹${getDishPrice(selectedDish)}). Could you please let me know if home delivery is available? If not, kindly share your exact address so I can arrange a takeaway. Thank you!`;
+                        window.open(`https://wa.me/${restaurant?.whatsapp_number?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+                      }}
+                      className="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
+                    >
+                      <MessageCircle className="w-6 h-6" />
+                      Order on WhatsApp
+                    </button>
+                  )}
                 </motion.div>
 
               </motion.div>

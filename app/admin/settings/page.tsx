@@ -1,8 +1,9 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { Save, Loader2, UploadCloud } from 'lucide-react';
+import { Save, Loader2, UploadCloud, Lock } from 'lucide-react';
 import { supabase, uploadDishImage, logAdminAction, broadcastMenuUpdate } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
+import Link from 'next/link';
 
 export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
@@ -13,6 +14,7 @@ export default function SettingsPage() {
     themeColor: '#000000',
     description: '',
     address: '',
+    planType: 'free',
   });
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -38,9 +40,10 @@ export default function SettingsPage() {
         setFormData({
           name: fetchedName,
           whatsapp_number: restaurant.whatsapp_number || restaurant.whatsapp || '',
-          themeColor: restaurant.theme_color || '#000000',
+          themeColor: restaurant.plan_type === 'free' ? '#000000' : (restaurant.theme_color || '#000000'),
           description: restaurant.description || '',
           address: restaurant.address || '',
+          planType: restaurant.plan_type || 'free',
         });
         setLogoPreview(restaurant.logo_url || null);
       }
@@ -199,14 +202,14 @@ export default function SettingsPage() {
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Business Description</label>
               <textarea 
-                maxLength={150}
+                maxLength={180}
                 value={formData.description} 
                 onChange={e => setFormData({...formData, description: e.target.value})}
-                placeholder="Briefly describe your restaurant (max 150 chars)"
+                placeholder="Briefly describe your restaurant (max 180 chars)"
                 rows={2}
                 className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900 resize-none" 
               />
-              <p className="text-xs text-gray-400 mt-1 text-right">{formData.description.length}/150</p>
+              <p className="text-xs text-gray-400 mt-1 text-right">{formData.description.length}/180</p>
             </div>
 
             <div>
@@ -240,16 +243,27 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div>
+            <div className="relative">
+              {formData.planType === 'free' && (
+                <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-[1px] rounded-xl flex items-center justify-between px-4 border border-gray-100 shadow-sm mt-7">
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Lock className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-bold">Custom branding is a Pro feature</span>
+                  </div>
+                  <Link href="/admin/billing" className="text-xs font-bold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors pointer-events-auto">
+                    Upgrade
+                  </Link>
+                </div>
+              )}
               <label className="block text-sm font-bold text-gray-700 mb-2">Primary Theme Color</label>
-              <div className="flex items-center gap-4">
+              <div className={`flex items-center gap-4 ${formData.planType === 'free' ? 'opacity-50 pointer-events-none' : ''}`}>
                 <input 
                   type="color" 
-                  value={formData.themeColor} 
+                  value={formData.planType === 'free' ? '#000000' : formData.themeColor} 
                   onChange={e => setFormData({...formData, themeColor: e.target.value})}
                   className="w-12 h-12 rounded-xl cursor-pointer border-0 p-0"
                 />
-                <span className="font-mono text-gray-500 font-medium uppercase">{formData.themeColor}</span>
+                <span className="font-mono text-gray-500 font-medium uppercase">{formData.planType === 'free' ? '#000000' : formData.themeColor}</span>
               </div>
             </div>
 

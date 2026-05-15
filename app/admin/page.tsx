@@ -350,7 +350,13 @@ export default function AdminDashboardOverview() {
           </div>
           
           {/* Top Dish Card */}
-          <div onClick={() => setActiveModalTitle('Top Selling Dish')} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer">
+          <div onClick={() => !isFreePlan && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreePlan ? 'opacity-90 pointer-events-none' : 'cursor-pointer'}`}>
+            {isFreePlan && (
+              <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center border border-white">
+                <span className="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full shadow-sm mb-1 flex items-center gap-1"><Lock className="w-3 h-3"/> PRO</span>
+                <p className="text-[10px] text-orange-900 font-bold uppercase tracking-wider mt-1">Upgrade to view</p>
+              </div>
+            )}
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Top Selling Dish</p>
               <div className="p-2 bg-orange-50 text-orange-600 rounded-xl">

@@ -65,7 +65,7 @@ export default function Home() {
             <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
-            href="/menu/gee-ech-bakery"
+            href="/menu/sweet-bliss-bakery"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-gray-700 transition-all bg-white border-2 border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300"
           >
             View Demo Menu
