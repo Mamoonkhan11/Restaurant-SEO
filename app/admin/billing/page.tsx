@@ -23,7 +23,7 @@ export default function BillingPage() {
         .select('*')
         .eq('restaurant_id', restaurant?.id)
         .order('created_at', { ascending: false });
-      
+
       if (data) setPayments(data);
     } catch (e) {
       console.error(e);
@@ -48,7 +48,7 @@ export default function BillingPage() {
   const handleUpgrade = async (plan: 'pro' | 'premium', price: number, useDiscount: boolean = false) => {
     setIsLoading(true);
     const res = await loadRazorpay();
-    
+
     if (!res) {
       toast.error('Razorpay SDK failed to load. Are you online?');
       setIsLoading(false);
@@ -63,7 +63,7 @@ export default function BillingPage() {
         body: JSON.stringify({ plan, price, useDiscount, restaurantId: restaurant.id })
       });
       const orderData = await orderRes.json();
-      
+
       if (!orderData.id) throw new Error('Order creation failed');
 
       const options = {
@@ -88,7 +88,7 @@ export default function BillingPage() {
                 useDiscount
               })
             });
-            
+
             const verifyData = await verifyRes.json();
             if (verifyData.success) {
               toast.success('Successfully upgraded!');
@@ -123,7 +123,7 @@ export default function BillingPage() {
   return (
     <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-8 animate-fade-in">
       <Toaster />
-      
+
       <div>
         <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Billing & Subscription</h1>
         <p className="mt-1 text-gray-500">Manage your subscription plan and view billing history.</p>
@@ -144,7 +144,7 @@ export default function BillingPage() {
             )}
           </div>
         </div>
-        
+
         {isExpired && (
           <div className="bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl flex items-center gap-3">
             <AlertCircle className="w-5 h-5 shrink-0" />
@@ -171,7 +171,7 @@ export default function BillingPage() {
             ))}
           </ul>
           <button disabled className="w-full py-3 rounded-xl font-bold text-gray-500 bg-gray-100 border border-gray-200 cursor-not-allowed">
-            {currentPlan === 'free' ? 'Current Plan' : 'Free Forever'}
+            {currentPlan === 'free' ? 'Current Plan' : 'Free For First Month'}
           </button>
         </div>
 
@@ -191,7 +191,7 @@ export default function BillingPage() {
               </li>
             ))}
           </ul>
-          <button 
+          <button
             onClick={() => handleUpgrade('pro', 499)}
             disabled={isLoading || currentPlan === 'pro'}
             className={`w-full py-3 rounded-xl font-bold text-white shadow-md transition-all ${currentPlan === 'pro' ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg'}`}
@@ -215,7 +215,7 @@ export default function BillingPage() {
               </li>
             ))}
           </ul>
-          <button 
+          <button
             onClick={() => handleUpgrade('premium', 5499)}
             disabled={isLoading || currentPlan === 'premium'}
             className={`w-full py-3 rounded-xl font-bold text-gray-900 transition-all ${currentPlan === 'premium' ? 'bg-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-100 shadow-[0_0_15px_rgba(255,255,255,0.3)]'}`}
