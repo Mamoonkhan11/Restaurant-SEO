@@ -6,6 +6,7 @@ import Link from 'next/link';
 import html2canvas from 'html2canvas';
 import { Playfair_Display, Montserrat } from 'next/font/google';
 import { supabase } from '@/lib/supabase';
+import { useSubscription } from '@/lib/useSubscription';
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400', '600', '700'] });
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
@@ -15,9 +16,8 @@ export default function QRCodePage() {
   const [restaurantName, setRestaurantName] = useState('...');
   const [restaurantSlug, setRestaurantSlug] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [planType, setPlanType] = useState('free');
-  
-  const isFreePlan = planType === 'free';
+  const { canCustomBrand, planType } = useSubscription();
+  const isFreePlan = !canCustomBrand;
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   
@@ -39,15 +39,11 @@ export default function QRCodePage() {
         setRestaurantSlug(restaurant.slug || '');
         setLogoUrl(restaurant.logo_url || null);
         const fetchedPlan = restaurant.plan_type || 'free';
-        setPlanType(fetchedPlan);
         
-        // Unlinked from global theme_color. Pro users can pick whatever color they want here.
-        // Free users will always have the default brown color.
-        if (fetchedPlan === 'free') {
+        // Unlinked from global theme_color.
+        if (fetchedPlan === 'free' && !canCustomBrand) {
           setColor('#8B4513');
         } else {
-          // You could optionally remember their last QR color in a different DB field later,
-          // but for now, it's just a free-floating color picker starting with brown.
           setColor('#8B4513'); 
         }
       }

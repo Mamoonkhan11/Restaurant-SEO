@@ -159,7 +159,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             ) : (
               <>
                 <Clock className="w-4 h-4" />
-                <span>Your free trial expires in {daysLeft} days. Upgrade to Pro for custom domains and advanced analytics!</span>
+                <span>Your free trial with pro features expires in {daysLeft} days. Upgrade to Pro for custom domains and advanced analytics!</span>
               </>
             )}
             <Link href="/admin/billing" className="bg-white text-blue-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors ml-4 shadow-sm">
