@@ -171,7 +171,7 @@ export default function BillingPage() {
             ))}
           </ul>
           <button disabled className="w-full py-3 rounded-xl font-bold text-gray-500 bg-gray-100 border border-gray-200 cursor-not-allowed">
-            {currentPlan === 'free' ? 'Current Plan' : 'Free For First Month'}
+            {currentPlan === 'free' ? 'Current Plan' : 'Free For Two Month'}
           </button>
         </div>
 
