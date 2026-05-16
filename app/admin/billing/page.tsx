@@ -162,7 +162,7 @@ export default function BillingPage() {
           <div className="flex items-baseline gap-1 mb-6">
             <span className="text-4xl font-extrabold text-gray-900">Free</span>
           </div>
-          <p className="text-sm text-gray-500 mb-6 font-medium">Perfect to get started and test the waters.</p>
+          <p className="text-sm text-gray-500 mb-6 font-medium">Perfect to get started and test the waters. Now available with Pro features for two months!</p>
           <ul className="space-y-4 flex-1 mb-8">
             {['Up to 10 dishes', 'Basic QR Code', 'Standard Support'].map((feature, i) => (
               <li key={i} className="flex items-start gap-3 text-sm text-gray-700 font-medium">
