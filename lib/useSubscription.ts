@@ -32,8 +32,8 @@ export const useSubscription = () => {
     planType,
     isTrial,
     daysLeft: Math.max(0, daysLeft),
-    canViewRevenue: planType === 'pro' || (isTrial && !isExpired),
-    canViewAllAnalytics: planType === 'pro' || (isTrial && !isExpired),
+    canViewRevenue: ['pro', 'premium'].includes(planType) || (isTrial && !isExpired),
+    canViewAllAnalytics: ['pro', 'premium'].includes(planType) || (isTrial && !isExpired),
     isExpired,
     isLoading
   };
