@@ -630,26 +630,37 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
                   transition={{ delay: 0.3 }}
                   className="p-4 sm:p-6 border-t border-gray-100 bg-white shrink-0"
                 >
-                  {(!restaurant?.plan_type || restaurant?.plan_type === 'free') ? (
-                    <button
-                      disabled
-                      className="w-full bg-gray-100 text-gray-400 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 cursor-not-allowed"
-                    >
-                      <MessageCircle className="w-6 h-6" />
-                      Ordering Unavailable
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        const msg = `Hello! I would like to order: ${selectedDish.name} (₹${getDishPrice(selectedDish)}). Could you please let me know if home delivery is available? If not, kindly share your exact address so I can arrange a takeaway. Thank you!`;
-                        window.open(`https://wa.me/${restaurant?.whatsapp_number?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
-                      }}
-                      className="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
-                    >
-                      <MessageCircle className="w-6 h-6" />
-                      Order on WhatsApp
-                    </button>
-                  )}
+                  {(() => {
+                    const planType = restaurant?.plan_type || 'free';
+                    const trialEndsAt = restaurant?.trial_ends_at ? new Date(restaurant.trial_ends_at) : null;
+                    const isTrialActive = planType === 'free' && trialEndsAt && new Date() < trialEndsAt;
+                    const canOrder = ['pro', 'premium'].includes(planType) || isTrialActive;
+
+                    if (!canOrder) {
+                      return (
+                        <button
+                          disabled
+                          className="w-full bg-gray-100 text-gray-400 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 cursor-not-allowed"
+                        >
+                          <MessageCircle className="w-6 h-6" />
+                          Ordering Unavailable
+                        </button>
+                      );
+                    }
+
+                    return (
+                      <button
+                        onClick={() => {
+                          const msg = `Hi! I would like to order: ${selectedDish.name} (₹${getDishPrice(selectedDish)}). Could you please let me know if home delivery is available? If not, kindly share your exact address so I can arrange a takeaway. Thank you!`;
+                          window.open(`https://wa.me/${restaurant?.whatsapp_number?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+                        }}
+                        className="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
+                      >
+                        <MessageCircle className="w-6 h-6" />
+                        Order on WhatsApp
+                      </button>
+                    );
+                  })()}
                 </motion.div>
 
               </motion.div>

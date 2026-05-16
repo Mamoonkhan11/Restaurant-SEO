@@ -4,10 +4,12 @@ import { Save, Loader2, UploadCloud, Lock } from 'lucide-react';
 import { supabase, uploadDishImage, logAdminAction, broadcastMenuUpdate } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 import Link from 'next/link';
+import { useSubscription } from '@/lib/useSubscription';
 
 export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
+  const { canCustomBrand, planType } = useSubscription();
   const [formData, setFormData] = useState({
     name: '',
     whatsapp_number: '',
@@ -47,7 +49,7 @@ export default function SettingsPage() {
         });
         setLogoPreview(restaurant.logo_url || null);
       }
-      setIsLoading(false);
+      setIsLoadingSettings(false);
     };
     fetchSettings();
   }, []);
@@ -244,11 +246,11 @@ export default function SettingsPage() {
             </div>
 
             <div className="relative">
-              {formData.planType === 'free' && (
+              {!canCustomBrand && (
                 <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-[1px] rounded-xl flex items-center justify-between px-4 border border-gray-100 shadow-sm mt-7">
                   <div className="flex items-center gap-2 text-gray-700">
                     <Lock className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-bold">Custom branding is a Pro feature</span>
+                    <span className="text-sm font-bold text-blue-900">Custom branding is a Pro/Premium feature</span>
                   </div>
                   <Link href="/admin/billing" className="text-xs font-bold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors pointer-events-auto">
                     Upgrade
@@ -256,14 +258,14 @@ export default function SettingsPage() {
                 </div>
               )}
               <label className="block text-sm font-bold text-gray-700 mb-2">Primary Theme Color</label>
-              <div className={`flex items-center gap-4 ${formData.planType === 'free' ? 'opacity-50 pointer-events-none' : ''}`}>
+              <div className={`flex items-center gap-4 ${!canCustomBrand ? 'opacity-50 pointer-events-none' : ''}`}>
                 <input 
                   type="color" 
-                  value={formData.planType === 'free' ? '#000000' : formData.themeColor} 
+                  value={!canCustomBrand ? '#000000' : formData.themeColor} 
                   onChange={e => setFormData({...formData, themeColor: e.target.value})}
                   className="w-12 h-12 rounded-xl cursor-pointer border-0 p-0"
                 />
-                <span className="font-mono text-gray-500 font-medium uppercase">{formData.planType === 'free' ? '#000000' : formData.themeColor}</span>
+                <span className="font-mono text-gray-500 font-medium uppercase">{!canCustomBrand ? '#000000' : formData.themeColor}</span>
               </div>
             </div>
 

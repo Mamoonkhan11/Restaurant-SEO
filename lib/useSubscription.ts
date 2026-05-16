@@ -34,6 +34,8 @@ export const useSubscription = () => {
     daysLeft: Math.max(0, daysLeft),
     canViewRevenue: ['pro', 'premium'].includes(planType) || (isTrial && !isExpired),
     canViewAllAnalytics: ['pro', 'premium'].includes(planType) || (isTrial && !isExpired),
+    canCustomBrand: ['pro', 'premium'].includes(planType) || (isTrial && !isExpired),
+    canWhatsAppOrder: ['pro', 'premium'].includes(planType) || (isTrial && !isExpired),
     isExpired,
     isLoading
   };

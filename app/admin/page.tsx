@@ -45,7 +45,6 @@ export default function AdminDashboardOverview() {
 
   const router = useRouter();
 
-  const isFreePlan = planType === 'free';
 
   useEffect(() => {
     const fetchDashboardData = async () => {
