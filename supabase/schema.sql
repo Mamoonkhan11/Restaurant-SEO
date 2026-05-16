@@ -26,6 +26,27 @@ ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMP WIT
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS ip_address TEXT;
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS user_agent TEXT;
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS total_scans INTEGER DEFAULT 0;
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS trial_started_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS trial_ends_at TIMESTAMP WITH TIME ZONE;
+
+-- Function to handle trial initialization
+CREATE OR REPLACE FUNCTION initialize_trial()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.trial_started_at IS NULL THEN
+    NEW.trial_started_at := timezone('utc'::text, now());
+    NEW.trial_ends_at := timezone('utc'::text, now() + interval '60 days');
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger for trial initialization
+DROP TRIGGER IF EXISTS tr_initialize_trial ON restaurants;
+CREATE TRIGGER tr_initialize_trial
+BEFORE INSERT ON restaurants
+FOR EACH ROW
+EXECUTE FUNCTION initialize_trial();
 
 -- Function to safely increment total_scans
 CREATE OR REPLACE FUNCTION increment_scans(row_id UUID)

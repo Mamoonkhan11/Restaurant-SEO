@@ -5,7 +5,8 @@ import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { X, Lock } from 'lucide-react';
+import { X, Lock, TrendingUp, Sparkles } from 'lucide-react';
+import { useSubscription } from '@/lib/useSubscription';
 
 export default function AdminDashboardOverview() {
   const timeAgo = (dateString: string) => {
@@ -40,7 +41,7 @@ export default function AdminDashboardOverview() {
   const [newAov, setNewAov] = useState<number | string>('');
   const [activeModalTitle, setActiveModalTitle] = useState<string | null>(null);
   const [historicalStats, setHistoricalStats] = useState<any[]>([]);
-  const [planType, setPlanType] = useState('free');
+  const { planType, canViewRevenue, canViewAllAnalytics } = useSubscription();
 
   const router = useRouter();
 
@@ -72,7 +73,7 @@ export default function AdminDashboardOverview() {
 
       // 4. State Management: Store restaurantId
       setRestaurantId(restaurant.id);
-      setPlanType(restaurant.plan_type || 'free');
+      // setPlanType(restaurant.plan_type || 'free'); // Removed, handled by useSubscription
       setTotalScans(restaurant.total_scans || 0);
       
       if (restaurant.average_order_value) {
@@ -144,12 +145,17 @@ export default function AdminDashboardOverview() {
       
       if (dishesData && dishesData.length > 0) {
         setTopDish(dishesData[0].name);
-        setChartData(dishesData.map(d => ({
+        
+        // Restriction: Free users see only 2 items in chart
+        const visibleDishes = canViewAllAnalytics ? dishesData : dishesData.slice(0, 2);
+        
+        setChartData(visibleDishes.map(d => ({
           name: d.name.length > 12 ? d.name.substring(0, 12) + '...' : d.name,
           views: d.view_count || 0
         })));
       } else {
         setTopDish('N/A');
+        setChartData([]);
       }
 
       const firstDayOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
@@ -296,13 +302,14 @@ export default function AdminDashboardOverview() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
-          <div onClick={() => !isFreePlan && setActiveModalTitle('Estimated Revenue')} className={`bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreePlan ? 'cursor-default' : 'cursor-pointer'}`}>
-            {isFreePlan && (
-              <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-xl rounded-2xl flex flex-col items-center justify-center border border-white/20 shadow-inner">
-                <div className="bg-emerald-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest animate-pulse">
-                  <Lock className="w-3 h-3"/> Pro Feature
+          <div onClick={() => canViewRevenue && setActiveModalTitle('Estimated Revenue')} className={`bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewRevenue ? 'cursor-default' : 'cursor-pointer'}`}>
+            {!canViewRevenue && (
+              <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[6px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
+                <div className="bg-emerald-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
+                  <Lock className="w-3 h-3"/> Locked
                 </div>
-                <p className="text-[11px] text-emerald-900 font-extrabold uppercase tracking-tighter">Growth Insights Locked</p>
+                <p className="text-[11px] text-emerald-900 font-extrabold leading-tight">Upgrade to Pro to unlock<br/>Estimated Earnings</p>
+                <Link href="/admin/billing" className="mt-3 text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-bold hover:bg-emerald-200 transition-colors pointer-events-auto">Upgrade Now</Link>
               </div>
             )}
             <div className="flex justify-between items-start mb-2">
@@ -321,9 +328,9 @@ export default function AdminDashboardOverview() {
               </div>
             </div>
 
-            <div>
+            <div className={`${!canViewRevenue ? 'blur-[4px]' : ''}`}>
               <p className="text-3xl font-extrabold text-emerald-900 mt-0.5 tracking-tight">
-                ₹{revenueCounter.toLocaleString('en-IN')}
+                {canViewRevenue ? `₹${revenueCounter.toLocaleString('en-IN')}` : '₹X,XXX'}
               </p>
               
               <div className="mt-3 flex items-center justify-between h-8">
@@ -366,13 +373,14 @@ export default function AdminDashboardOverview() {
             <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalScans}</p>
           </div>
           
-          <div onClick={() => !isFreePlan && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreePlan ? 'cursor-default' : 'cursor-pointer'}`}>
-            {isFreePlan && (
-              <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-xl rounded-2xl flex flex-col items-center justify-center border border-white/20 shadow-inner">
-                <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest animate-pulse">
-                  <Lock className="w-3 h-3"/> Pro Feature
+          <div onClick={() => canViewAllAnalytics && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewAllAnalytics ? 'cursor-default' : 'cursor-pointer'}`}>
+            {!canViewAllAnalytics && (
+              <div className="absolute inset-0 z-10 bg-white/75 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
+                <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
+                  <Lock className="w-3 h-3"/> Locked
                 </div>
-                <p className="text-[11px] text-orange-900 font-extrabold uppercase tracking-tighter">Dish Popularity Hidden</p>
+                <p className="text-[11px] text-orange-900 font-extrabold leading-tight">Advanced Analytics Required</p>
+                <Link href="/admin/billing" className="mt-2 text-[10px] bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-bold hover:bg-orange-200 transition-colors pointer-events-auto">Unlock with Pro</Link>
               </div>
             )}
             <div className="flex justify-between items-start mb-2">
@@ -381,7 +389,9 @@ export default function AdminDashboardOverview() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path></svg>
               </div>
             </div>
-            <p className="text-xl font-extrabold text-gray-900 mt-0.5 truncate max-w-[140px]" title={topDish}>{topDish}</p>
+            <p className={`text-xl font-extrabold text-gray-900 mt-0.5 truncate max-w-[140px] ${!canViewAllAnalytics ? 'blur-[4px]' : ''}`} title={topDish}>
+              {canViewAllAnalytics ? topDish : 'XXXXXXXXXX'}
+            </p>
           </div>
           
           {/* Total Items Card */}
@@ -401,16 +411,16 @@ export default function AdminDashboardOverview() {
           
           {/* Line Chart Section */}
           <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col relative">
-            {isFreePlan && (
-              <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center">
-                <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center max-w-xs text-center border border-gray-100">
+            {!canViewAllAnalytics && (
+              <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-end pb-12">
+                <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center max-w-xs text-center border border-gray-100 mb-4 animate-fade-in-up">
                    <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
                      <Lock className="w-6 h-6" />
                    </div>
-                   <h3 className="text-gray-900 font-bold mb-2">Advanced Analytics</h3>
-                   <p className="text-sm text-gray-500 mb-6">Upgrade to Pro to track menu item views and identify your best sellers over time.</p>
+                   <h3 className="text-gray-900 font-bold mb-2">Want to see your top-performing items?</h3>
+                   <p className="text-sm text-gray-500 mb-6">Unlock Advanced Analytics with Pro to track all dish views and growth trends.</p>
                    <Link href="/admin/billing" className="bg-blue-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-blue-700 transition-colors shadow-md">
-                     Upgrade to Pro
+                     Unlock All Insights
                    </Link>
                 </div>
               </div>
