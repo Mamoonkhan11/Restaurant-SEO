@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS payments (
 );
 
 -- Create Tables for Restaurant Table Management
-CREATE TABLE IF NOT EXISTS public.tables (
+CREATE TABLE IF NOT EXISTS tables (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
@@ -78,10 +78,8 @@ CREATE TABLE IF NOT EXISTS public.tables (
   qr_slug TEXT NOT NULL UNIQUE
 );
 
-ALTER TABLE public.tables DISABLE ROW LEVEL SECURITY;
-
 -- Create Orders Table for Live KOT
-CREATE TABLE IF NOT EXISTS public.orders (
+CREATE TABLE IF NOT EXISTS orders (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
@@ -90,5 +88,3 @@ CREATE TABLE IF NOT EXISTS public.orders (
   total DECIMAL(10, 2) NOT NULL,
   status TEXT DEFAULT 'pending' NOT NULL -- 'pending', 'preparing', 'served'
 );
-
-ALTER TABLE public.orders DISABLE ROW LEVEL SECURITY;
