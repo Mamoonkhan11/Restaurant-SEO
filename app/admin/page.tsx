@@ -301,25 +301,85 @@ export default function AdminDashboardOverview() {
           <p className="mt-1 text-gray-500">Here's what's happening with your digital menu today.</p>
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          
-          <div className="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between">
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-sm font-bold text-emerald-800 uppercase tracking-wider">Pending Orders</p>
-              <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl shadow-sm">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-              </div>
-            </div>
-            <p className="text-3xl font-extrabold text-emerald-900 mt-0.5 tracking-tight">
-              {liveOrders.filter(o => o.status === 'pending').length}
-            </p>
-            <div className="mt-3">
-              <p className="text-xs text-emerald-600 font-semibold bg-emerald-100/50 px-2 py-1 rounded-md inline-block">
-                Action required
-              </p>
+        {/* Live KOT Orders Queue Section */}
+        <div className="bg-white p-6 rounded-2xl border border-emerald-200 shadow-sm flex flex-col mb-8 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+          <div className="mb-6 flex justify-between items-center">
+            <div>
+              <h3 className="text-xl font-black text-gray-900 flex items-center gap-2">
+                Live Kitchen Orders (KOT) 
+                {liveOrders.filter(o => o.status === 'pending').length > 0 && (
+                   <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-bold animate-pulse">
+                     {liveOrders.filter(o => o.status === 'pending').length} Action Required
+                   </span>
+                )}
+              </h3>
+              <p className="text-sm font-medium text-gray-500 mt-1">Manage real-time incoming orders from your tables.</p>
             </div>
           </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {liveOrders.map(order => (
+              <div key={order.id} className={`p-5 rounded-xl border-2 ${order.status === 'pending' ? 'border-red-200 bg-red-50/50' : order.status === 'preparing' ? 'border-yellow-200 bg-yellow-50/50' : 'border-gray-200 bg-gray-50'} shadow-sm relative transition-colors`}>
+                <div className="flex justify-between items-start mb-4">
+                  <h4 className="font-black text-gray-900 text-xl">Table: {order.table_no}</h4>
+                  <span className="text-xs font-bold text-gray-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-gray-100">
+                    {timeAgo(order.created_at)}
+                  </span>
+                </div>
+                
+                <div className="space-y-2 mb-5 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                  {order.items?.map((item: any, idx: number) => (
+                    <div key={idx} className="flex justify-between text-base">
+                      <span className="font-bold text-gray-800 flex items-center gap-2">
+                        <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{item.quantity}x</span>
+                        {item.name}
+                        {item.size !== 'Standard' && <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded ml-1">{item.size}</span>}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex gap-3 mt-auto">
+                  {order.status === 'pending' && (
+                    <button 
+                      onClick={async () => {
+                        await supabase.from('orders').update({ status: 'preparing' }).eq('id', order.id);
+                        setLiveOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'preparing' } : o));
+                      }}
+                      className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-black py-3 px-4 rounded-xl shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      Start Preparing
+                    </button>
+                  )}
+                  {order.status === 'preparing' && (
+                    <button 
+                      onClick={async () => {
+                        await supabase.from('orders').update({ status: 'served' }).eq('id', order.id);
+                        setLiveOrders(prev => prev.filter(o => o.id !== order.id));
+                      }}
+                      className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 px-4 rounded-xl shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      Mark as Served
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+            {liveOrders.length === 0 && (
+              <div className="col-span-full py-16 flex flex-col items-center justify-center border-2 border-dashed border-emerald-100 bg-emerald-50/30 rounded-2xl">
+                <div className="w-20 h-20 bg-white shadow-sm text-emerald-300 rounded-full flex items-center justify-center mb-4">
+                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                </div>
+                <h3 className="text-emerald-800 font-black text-xl">No Active Orders</h3>
+                <p className="text-emerald-600/70 font-medium mt-1 text-base">Waiting for fresh KOT orders to arrive...</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
           {/* Total Scans Card */}
           <div onClick={() => setActiveModalTitle('Total Scans')} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer">
@@ -365,74 +425,7 @@ export default function AdminDashboardOverview() {
           </div>
         </div>
 
-        {/* Live KOT Orders Queue Section */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col mt-8">
-          <div className="mb-6 flex justify-between items-center">
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">Live KOT Orders Queue</h3>
-              <p className="text-sm text-gray-500 mt-1">Real-time incoming orders from tables.</p>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {liveOrders.map(order => (
-              <div key={order.id} className={`p-5 rounded-xl border ${order.status === 'pending' ? 'border-red-200 bg-red-50' : order.status === 'preparing' ? 'border-yellow-200 bg-yellow-50' : 'border-gray-200 bg-gray-50'} shadow-sm relative transition-colors`}>
-                <div className="flex justify-between items-start mb-3">
-                  <h4 className="font-extrabold text-gray-900 text-lg">Table: {order.table_no}</h4>
-                  <span className="text-xs font-semibold text-gray-500 bg-white px-2 py-1 rounded-md shadow-sm">
-                    {timeAgo(order.created_at)}
-                  </span>
-                </div>
-                
-                <div className="space-y-2 mb-4 bg-white/60 p-3 rounded-lg border border-black/5">
-                  {order.items?.map((item: any, idx: number) => (
-                    <div key={idx} className="flex justify-between text-sm">
-                      <span className="font-medium text-gray-800">
-                        <span className="font-bold text-blue-600 mr-2">{item.quantity}x</span>
-                        {item.name}
-                        {item.size !== 'Standard' && <span className="text-xs text-gray-500 ml-1">({item.size})</span>}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="flex gap-2 mt-auto">
-                  {order.status === 'pending' && (
-                    <button 
-                      onClick={async () => {
-                        await supabase.from('orders').update({ status: 'preparing' }).eq('id', order.id);
-                        setLiveOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'preparing' } : o));
-                      }}
-                      className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-3 rounded-lg text-sm shadow-sm transition-colors"
-                    >
-                      Start Preparing
-                    </button>
-                  )}
-                  {order.status === 'preparing' && (
-                    <button 
-                      onClick={async () => {
-                        await supabase.from('orders').update({ status: 'served' }).eq('id', order.id);
-                        setLiveOrders(prev => prev.filter(o => o.id !== order.id));
-                      }}
-                      className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-3 rounded-lg text-sm shadow-sm transition-colors"
-                    >
-                      Mark as Served
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-            {liveOrders.length === 0 && (
-              <div className="col-span-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl">
-                <div className="w-16 h-16 bg-gray-50 text-gray-300 rounded-full flex items-center justify-center mb-3">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                </div>
-                <h3 className="text-gray-500 font-bold text-lg">No Active Orders</h3>
-                <p className="text-gray-400 text-sm mt-1">Waiting for KOT orders to arrive...</p>
-              </div>
-            )}
-          </div>
-        </div>
+
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">

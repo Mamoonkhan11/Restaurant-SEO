@@ -22,11 +22,11 @@ export default function TablesPage() {
     if (!restaurant) return;
     setIsLoading(true);
     const { data, error } = await supabase
-      .from('dining_tables')
+      .from('public.tables')
       .select('*')
       .eq('restaurant_id', restaurant.id)
       .order('created_at', { ascending: true });
-      
+
     if (error) {
       toast.error('Failed to load tables');
     } else {
@@ -38,15 +38,15 @@ export default function TablesPage() {
   const handleAddTable = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTableName.trim() || !restaurant) return;
-    
+
     setIsAdding(true);
-    
+
     // Generate a slug-friendly table name
     const tableSlugPart = newTableName.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
     const qrSlug = `${restaurant.slug}-${tableSlugPart}`;
-    
+
     const { data, error } = await supabase
-      .from('dining_tables')
+      .from('public.tables')
       .insert({
         restaurant_id: restaurant.id,
         table_name: newTableName.trim(),
@@ -54,7 +54,7 @@ export default function TablesPage() {
       })
       .select()
       .single();
-      
+
     if (error) {
       toast.error('Failed to add table or table already exists.');
     } else if (data) {
@@ -62,18 +62,18 @@ export default function TablesPage() {
       setTables([...tables, data]);
       setNewTableName('');
     }
-    
+
     setIsAdding(false);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this table?')) return;
-    
+
     const { error } = await supabase
-      .from('dining_tables')
+      .from('public.tables')
       .delete()
       .eq('id', id);
-      
+
     if (error) {
       toast.error('Failed to delete table');
     } else {
@@ -96,8 +96,8 @@ export default function TablesPage() {
     <div className="p-4 sm:p-8 max-w-5xl mx-auto min-h-screen">
       <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Table Management</h1>
-          <p className="mt-1 text-gray-500">Add tables to generate specific ordering links and track orders.</p>
+          <h1 className="text-3xl font-black text-black tracking-tight">Table Management</h1>
+          <p className="mt-1 text-gray-700 font-medium">Add tables to generate specific ordering links and track orders.</p>
         </div>
       </div>
 
@@ -108,7 +108,7 @@ export default function TablesPage() {
             placeholder="e.g. Table 1, VIP Room, Patio A"
             value={newTableName}
             onChange={(e) => setNewTableName(e.target.value)}
-            className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+            className="flex-1 px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-black font-medium placeholder:text-gray-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             required
           />
           <button
@@ -132,7 +132,7 @@ export default function TablesPage() {
                   <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
                     <QrCode className="w-5 h-5" />
                   </div>
-                  <h3 className="font-bold text-gray-900 text-lg">{table.table_name}</h3>
+                  <h3 className="font-extrabold text-black text-lg">{table.table_name}</h3>
                 </div>
                 <button onClick={() => handleDelete(table.id)} className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded-lg hover:bg-red-50">
                   <Trash2 className="w-4 h-4" />
@@ -149,7 +149,7 @@ export default function TablesPage() {
             </div>
           );
         })}
-        
+
         {tables.length === 0 && (
           <div className="col-span-full py-12 text-center border-2 border-dashed border-gray-200 rounded-2xl">
             <h3 className="text-gray-500 font-medium">No tables added yet</h3>
