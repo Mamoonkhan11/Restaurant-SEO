@@ -1,6 +1,14 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import dynamic from 'next/dynamic';
+
+const LineChart = dynamic(() => import('recharts').then((mod) => mod.LineChart), { ssr: false });
+const Line = dynamic(() => import('recharts').then((mod) => mod.Line), { ssr: false });
+const XAxis = dynamic(() => import('recharts').then((mod) => mod.XAxis), { ssr: false });
+const YAxis = dynamic(() => import('recharts').then((mod) => mod.YAxis), { ssr: false });
+const CartesianGrid = dynamic(() => import('recharts').then((mod) => mod.CartesianGrid), { ssr: false });
+const Tooltip = dynamic(() => import('recharts').then((mod) => mod.Tooltip), { ssr: false });
+const ResponsiveContainer = dynamic(() => import('recharts').then((mod) => mod.ResponsiveContainer), { ssr: false });
 import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -8,20 +16,170 @@ import Link from 'next/link';
 import { X, Lock, TrendingUp, Sparkles } from 'lucide-react';
 import { useSubscription } from '@/lib/useSubscription';
 
+const timeAgo = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} day${days > 1 ? 's' : ''} ago`;
+  return date.toLocaleDateString();
+};
+
+function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
+  const [liveOrders, setLiveOrders] = useState<any[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      audioRef.current = new Audio('/sounds/order-notification.mp3');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!restaurantId) return;
+
+    const fetchOrders = async () => {
+      const { data: initialOrders } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('restaurant_id', restaurantId)
+        .in('status', ['pending', 'preparing'])
+        .order('created_at', { ascending: false });
+        
+      if (initialOrders) setLiveOrders(initialOrders);
+    };
+    fetchOrders();
+
+    const ordersSubscription = supabase
+      .channel('live-orders')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'orders',
+          filter: `restaurant_id=eq.${restaurantId}`,
+        },
+        (payload) => {
+          if (payload.new) {
+            setLiveOrders(prev => [payload.new, ...prev]);
+            toast.success(`New order received from ${payload.new.table_no}!`, { icon: '🔔' });
+            if (audioRef.current) {
+              audioRef.current.play().catch((e: any) => console.error("Audio play blocked", e));
+            }
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `restaurant_id=eq.${restaurantId}`,
+        },
+        (payload) => {
+          if (payload.new) {
+            setLiveOrders(prev => {
+              if (payload.new.status === 'served') {
+                return prev.filter(o => o.id !== payload.new.id);
+              }
+              return prev.map(o => o.id === payload.new.id ? payload.new : o);
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(ordersSubscription);
+    };
+  }, [restaurantId]);
+
+  return (
+    <div className="bg-white p-6 rounded-2xl border border-emerald-200 shadow-sm flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
+      <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h3 className="text-xl font-black text-gray-900 flex items-center gap-2">
+            Live Kitchen Orders (KOT) 
+            {liveOrders.filter(o => o.status === 'pending').length > 0 && (
+               <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-bold animate-pulse">
+                 {liveOrders.filter(o => o.status === 'pending').length} Action Required
+               </span>
+            )}
+          </h3>
+          <p className="text-sm font-medium text-gray-500 mt-1">Manage real-time incoming orders from your tables.</p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {liveOrders.map(order => (
+          <div key={order.id} className={`p-5 rounded-xl border-2 ${order.status === 'pending' ? 'border-red-200 bg-red-50/50' : order.status === 'preparing' ? 'border-yellow-200 bg-yellow-50/50' : 'border-gray-200 bg-gray-50'} shadow-sm relative transition-colors`}>
+            <div className="flex justify-between items-start mb-4">
+              <h4 className="font-black text-gray-900 text-xl">Table: {order.table_no}</h4>
+              <span className="text-xs font-bold text-gray-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-gray-100">
+                {timeAgo(order.created_at)}
+              </span>
+            </div>
+            
+            <div className="space-y-2 mb-5 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+              {order.items?.map((item: any, idx: number) => (
+                <div key={idx} className="flex justify-between text-base">
+                  <span className="font-bold text-gray-800 flex items-center gap-2">
+                    <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{item.quantity}x</span>
+                    {item.name}
+                    {item.size !== 'Standard' && <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded ml-1">{item.size}</span>}
+                  </span>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex gap-3 mt-auto">
+              {order.status === 'pending' && (
+                <button 
+                  onClick={async () => {
+                    await supabase.from('orders').update({ status: 'preparing' }).eq('id', order.id);
+                  }}
+                  className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-black py-3 px-4 rounded-xl shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Start Preparing
+                </button>
+              )}
+              {order.status === 'preparing' && (
+                <button 
+                  onClick={async () => {
+                    await supabase.from('orders').update({ status: 'served' }).eq('id', order.id);
+                  }}
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 px-4 rounded-xl shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Mark as Served
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+        {liveOrders.length === 0 && (
+          <div className="col-span-full py-16 flex flex-col items-center justify-center border-2 border-dashed border-emerald-100 bg-emerald-50/30 rounded-2xl">
+            <div className="w-20 h-20 bg-white shadow-sm text-emerald-300 rounded-full flex items-center justify-center mb-4">
+              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            </div>
+            <h3 className="text-emerald-800 font-black text-xl">No Active Orders</h3>
+            <p className="text-emerald-600/70 font-medium mt-1 text-base">Waiting for fresh KOT orders to arrive...</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboardOverview() {
-  const timeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    if (seconds < 60) return 'Just now';
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 30) return `${days} day${days > 1 ? 's' : ''} ago`;
-    return date.toLocaleDateString();
-  };
+
 
   const [isLoading, setIsLoading] = useState(true);
   const [ownerName, setOwnerName] = useState('...');
@@ -38,19 +196,7 @@ export default function AdminDashboardOverview() {
   const [historicalStats, setHistoricalStats] = useState<any[]>([]);
   const { planType, canViewRevenue, canViewAllAnalytics } = useSubscription();
 
-  // KOT Live Orders State
-  const [liveOrders, setLiveOrders] = useState<any[]>([]);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
   const router = useRouter();
-
-  useEffect(() => {
-    // Initialize audio object
-    if (typeof window !== 'undefined') {
-      audioRef.current = new Audio('/sounds/order-notification.mp3');
-    }
-  }, []);
-
   useEffect(() => {
     const fetchDashboardData = async () => {
       // 1. Auth Check
@@ -98,62 +244,7 @@ export default function AdminDashboardOverview() {
         )
         .subscribe();
 
-      // Fetch initial live orders
-      const { data: initialOrders } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('restaurant_id', restaurant.id)
-        .in('status', ['pending', 'preparing'])
-        .order('created_at', { ascending: false });
-        
-      if (initialOrders) {
-        setLiveOrders(initialOrders);
-      }
 
-      // Realtime listener for new orders
-      const ordersSubscription = supabase
-        .channel('live-orders')
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'orders',
-            filter: `restaurant_id=eq.${restaurant.id}`,
-          },
-          (payload) => {
-            if (payload.new) {
-              setLiveOrders(prev => [payload.new, ...prev]);
-              toast.success(`New order received from ${payload.new.table_no}!`, { icon: '🔔' });
-              
-              // Play notification sound
-              if (audioRef.current) {
-                audioRef.current.play().catch((e: any) => console.error("Audio play blocked", e));
-              }
-            }
-          }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'orders',
-            filter: `restaurant_id=eq.${restaurant.id}`,
-          },
-          (payload) => {
-            if (payload.new) {
-              setLiveOrders(prev => {
-                // If it's served, remove from queue, else update status
-                if (payload.new.status === 'served') {
-                  return prev.filter(o => o.id !== payload.new.id);
-                }
-                return prev.map(o => o.id === payload.new.id ? payload.new : o);
-              });
-            }
-          }
-        )
-        .subscribe();
 
       // --- Weekly Reset Logic for Item Views ---
       const d = new Date();
@@ -301,82 +392,7 @@ export default function AdminDashboardOverview() {
           <p className="mt-1 text-gray-500">Here's what's happening with your digital menu today.</p>
         </div>
 
-        {/* Live KOT Orders Queue Section */}
-        <div className="bg-white p-6 rounded-2xl border border-emerald-200 shadow-sm flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
-          <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
-          <div className="mb-6 flex justify-between items-center">
-            <div>
-              <h3 className="text-xl font-black text-gray-900 flex items-center gap-2">
-                Live Kitchen Orders (KOT) 
-                {liveOrders.filter(o => o.status === 'pending').length > 0 && (
-                   <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-bold animate-pulse">
-                     {liveOrders.filter(o => o.status === 'pending').length} Action Required
-                   </span>
-                )}
-              </h3>
-              <p className="text-sm font-medium text-gray-500 mt-1">Manage real-time incoming orders from your tables.</p>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {liveOrders.map(order => (
-              <div key={order.id} className={`p-5 rounded-xl border-2 ${order.status === 'pending' ? 'border-red-200 bg-red-50/50' : order.status === 'preparing' ? 'border-yellow-200 bg-yellow-50/50' : 'border-gray-200 bg-gray-50'} shadow-sm relative transition-colors`}>
-                <div className="flex justify-between items-start mb-4">
-                  <h4 className="font-black text-gray-900 text-xl">Table: {order.table_no}</h4>
-                  <span className="text-xs font-bold text-gray-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-gray-100">
-                    {timeAgo(order.created_at)}
-                  </span>
-                </div>
-                
-                <div className="space-y-2 mb-5 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                  {order.items?.map((item: any, idx: number) => (
-                    <div key={idx} className="flex justify-between text-base">
-                      <span className="font-bold text-gray-800 flex items-center gap-2">
-                        <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{item.quantity}x</span>
-                        {item.name}
-                        {item.size !== 'Standard' && <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded ml-1">{item.size}</span>}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="flex gap-3 mt-auto">
-                  {order.status === 'pending' && (
-                    <button 
-                      onClick={async () => {
-                        await supabase.from('orders').update({ status: 'preparing' }).eq('id', order.id);
-                        setLiveOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'preparing' } : o));
-                      }}
-                      className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-black py-3 px-4 rounded-xl shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                      Start Preparing
-                    </button>
-                  )}
-                  {order.status === 'preparing' && (
-                    <button 
-                      onClick={async () => {
-                        await supabase.from('orders').update({ status: 'served' }).eq('id', order.id);
-                        setLiveOrders(prev => prev.filter(o => o.id !== order.id));
-                      }}
-                      className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 px-4 rounded-xl shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                      Mark as Served
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-            {liveOrders.length === 0 && (
-              <div className="col-span-full py-16 flex flex-col items-center justify-center border-2 border-dashed border-emerald-100 bg-emerald-50/30 rounded-2xl">
-                <div className="w-20 h-20 bg-white shadow-sm text-emerald-300 rounded-full flex items-center justify-center mb-4">
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                </div>
-                <h3 className="text-emerald-800 font-black text-xl">No Active Orders</h3>
-                <p className="text-emerald-600/70 font-medium mt-1 text-base">Waiting for fresh KOT orders to arrive...</p>
-              </div>
-            )}
-          </div>
-        </div>
+        {restaurantId && <LiveOrderQueue restaurantId={restaurantId} />}
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

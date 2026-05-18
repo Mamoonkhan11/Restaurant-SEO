@@ -13,9 +13,6 @@ export default function SettingsPage() {
   const [formData, setFormData] = useState({
     name: '',
     whatsapp_number: '',
-    themeColor: '#000000',
-    description: '',
-    address: '',
     planType: 'free',
   });
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -42,9 +39,6 @@ export default function SettingsPage() {
         setFormData({
           name: fetchedName,
           whatsapp_number: restaurant.whatsapp_number || restaurant.whatsapp || '',
-          themeColor: restaurant.plan_type === 'free' ? '#000000' : (restaurant.theme_color || '#000000'),
-          description: restaurant.description || '',
-          address: restaurant.address || '',
           planType: restaurant.plan_type || 'free',
         });
         setLogoPreview(restaurant.logo_url || null);
@@ -122,10 +116,7 @@ export default function SettingsPage() {
           name: formData.name,
           slug: generatedSlug,
           whatsapp_number: formData.whatsapp_number,
-          theme_color: formData.themeColor,
-          logo_url: finalLogoUrl,
-          description: formData.description,
-          address: formData.address
+          logo_url: finalLogoUrl
         })
         .eq('owner_id', session.user.id)
         .select()
@@ -201,73 +192,7 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Business Description</label>
-              <textarea 
-                maxLength={180}
-                value={formData.description} 
-                onChange={e => setFormData({...formData, description: e.target.value})}
-                placeholder="Briefly describe your restaurant (max 180 chars)"
-                rows={2}
-                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900 resize-none" 
-              />
-              <p className="text-xs text-gray-400 mt-1 text-right">{formData.description.length}/180</p>
-            </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Store Address</label>
-              <input 
-                type="text" 
-                value={formData.address} 
-                onChange={e => setFormData({...formData, address: e.target.value})}
-                placeholder="123 Main Street, City"
-                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900" 
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Brand Logo</label>
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                  {logoPreview ? (
-                    <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-xl font-bold text-gray-400">
-                      {formData.name ? formData.name.charAt(0) : '?'}
-                    </span>
-                  )}
-                </div>
-                <label className="cursor-pointer bg-blue-50 text-blue-600 px-4 py-2 rounded-xl font-bold hover:bg-blue-100 transition-colors flex items-center gap-2">
-                  <UploadCloud className="w-4 h-4" />
-                  Upload New
-                  <input type="file" className="sr-only" onChange={handleLogoUpload} accept="image/*" />
-                </label>
-              </div>
-            </div>
-
-            <div className="relative">
-              {!canCustomBrand && (
-                <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-[1px] rounded-xl flex items-center justify-between px-4 border border-gray-100 shadow-sm mt-7">
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <Lock className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-bold text-blue-900">Custom branding is a Pro/Premium feature</span>
-                  </div>
-                  <Link href="/admin/billing" className="text-xs font-bold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors pointer-events-auto">
-                    Upgrade
-                  </Link>
-                </div>
-              )}
-              <label className="block text-sm font-bold text-gray-700 mb-2">Primary Theme Color</label>
-              <div className={`flex items-center gap-4 ${!canCustomBrand ? 'opacity-50 pointer-events-none' : ''}`}>
-                <input 
-                  type="color" 
-                  value={!canCustomBrand ? '#000000' : formData.themeColor} 
-                  onChange={e => setFormData({...formData, themeColor: e.target.value})}
-                  className="w-12 h-12 rounded-xl cursor-pointer border-0 p-0"
-                />
-                <span className="font-mono text-gray-500 font-medium uppercase">{!canCustomBrand ? '#000000' : formData.themeColor}</span>
-              </div>
-            </div>
 
             <div className="pt-4 border-t border-gray-100">
               <button type="submit" disabled={isSaving} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70">
@@ -284,7 +209,7 @@ export default function SettingsPage() {
               <div className="absolute top-0 inset-x-0 h-6 bg-gray-900 rounded-b-3xl w-40 mx-auto z-20"></div>
               
               {/* App Header */}
-              <div className="h-48 relative transition-colors duration-300" style={{ backgroundColor: formData.themeColor }}>
+              <div className="h-40 relative transition-colors duration-300 bg-white border-b border-gray-100">
                 <div className="absolute bottom-6 inset-x-0 flex justify-center">
                   <div className="w-24 h-24 bg-white rounded-full p-1.5 shadow-lg">
                     {logoPreview ? (

@@ -70,21 +70,25 @@ CREATE TABLE IF NOT EXISTS payments (
 );
 
 -- Create Tables for Restaurant Table Management
-CREATE TABLE IF NOT EXISTS tables (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
-  table_name TEXT NOT NULL,
-  qr_slug TEXT NOT NULL UNIQUE
+CREATE TABLE public.tables (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE NOT NULL,
+    table_no VARCHAR(50) NOT NULL,
+    qr_slug VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    UNIQUE (restaurant_id, table_no)
 );
 
 -- Create Orders Table for Live KOT
-CREATE TABLE IF NOT EXISTS orders (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
-  table_no TEXT NOT NULL,
-  items JSONB NOT NULL,
-  total DECIMAL(10, 2) NOT NULL,
-  status TEXT DEFAULT 'pending' NOT NULL -- 'pending', 'preparing', 'served'
+CREATE TABLE public.orders (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE CASCADE NOT NULL,
+    items JSONB NOT NULL,
+    total_amount NUMERIC(10, 2) NOT NULL,
+    table_no VARCHAR(50) DEFAULT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
+
+-- Enable realtime replication
+ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
