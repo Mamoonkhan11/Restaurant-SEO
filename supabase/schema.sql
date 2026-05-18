@@ -78,6 +78,8 @@ CREATE TABLE IF NOT EXISTS public.tables (
   qr_slug TEXT NOT NULL UNIQUE
 );
 
+ALTER TABLE public.tables DISABLE ROW LEVEL SECURITY;
+
 -- Create Orders Table for Live KOT
 CREATE TABLE IF NOT EXISTS public.orders (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -88,3 +90,5 @@ CREATE TABLE IF NOT EXISTS public.orders (
   total DECIMAL(10, 2) NOT NULL,
   status TEXT DEFAULT 'pending' NOT NULL -- 'pending', 'preparing', 'served'
 );
+
+ALTER TABLE public.orders DISABLE ROW LEVEL SECURITY;

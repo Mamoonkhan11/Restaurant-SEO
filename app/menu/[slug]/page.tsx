@@ -3,7 +3,7 @@ import React, { useEffect, useState, Suspense } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { X, MessageCircle, Loader2, Search, Share2, MapPin, AlertCircle } from 'lucide-react';
+import { X, MessageCircle, Loader2, Search, Share2, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Helper to determine text contrast
@@ -44,6 +44,10 @@ function MenuContent({ params }: { params: { slug: string } }) {
   // Size Selector State
   const [selectedSizes, setSelectedSizes] = useState<Record<string, number>>({});
 
+  // KOT Order Status Lifecycle State
+  const [orderStatus, setOrderStatus] = useState<'idle' | 'pending' | 'preparing' | 'served'>('idle');
+  const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
+
   const getDishPrice = (item: any) => {
     if (item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0) {
       const prices = Object.values(item.sizes);
@@ -70,6 +74,40 @@ function MenuContent({ params }: { params: { slug: string } }) {
       }
     }
   }, [activeCategory, restaurant]);
+
+  // Realtime KOT Order Status Listener
+  useEffect(() => {
+    if (!activeOrderId) return;
+
+    const subscription = supabase
+      .channel(`customer-order-${activeOrderId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${activeOrderId}` },
+        (payload) => {
+          if (payload.new && payload.new.status) {
+            setOrderStatus(payload.new.status as any);
+          }
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(subscription);
+    }
+  }, [activeOrderId]);
+
+  // Auto-Reset Timer for Served Status
+  useEffect(() => {
+    if (orderStatus === 'served') {
+      const timer = setTimeout(() => {
+        setOrderStatus('idle');
+        setActiveOrderId(null);
+        setSelectedDish(null);
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [orderStatus]);
 
   useEffect(() => {
     let ownerId: string | null = null;
@@ -659,10 +697,40 @@ function MenuContent({ params }: { params: { slug: string } }) {
                       );
                     }
 
+                    if (orderStatus === 'pending') {
+                      return (
+                        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full bg-yellow-100 border border-yellow-300 text-yellow-800 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-sm">
+                          <Loader2 className="w-8 h-8 animate-spin text-yellow-600" />
+                          <p className="font-bold text-center leading-tight">⏳ Order Sent!</p>
+                          <p className="text-sm text-yellow-700 text-center">Waiting for restaurant confirmation...</p>
+                        </motion.div>
+                      );
+                    }
+
+                    if (orderStatus === 'preparing') {
+                      return (
+                        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full bg-orange-100 border border-orange-300 text-orange-800 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-sm animate-pulse">
+                          <div className="text-3xl">🍳</div>
+                          <p className="font-bold text-center leading-tight">Chef is preparing your delicious meal...</p>
+                        </motion.div>
+                      );
+                    }
+
+                    if (orderStatus === 'served') {
+                      return (
+                        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full bg-green-100 border border-green-300 text-green-800 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-sm">
+                          <CheckCircle className="w-10 h-10 text-green-600" />
+                          <p className="font-bold text-center text-lg leading-tight">🎉 Food Served!</p>
+                          <p className="text-sm text-green-700 text-center">Enjoy your meal! (Resetting shortly...)</p>
+                        </motion.div>
+                      );
+                    }
+
                     return (
                       <button
                         onClick={async () => {
                           if (tableNo) {
+                            setOrderStatus('pending');
                             // Place KOT order
                             const price = Number(getDishPrice(selectedDish));
                             const sizeKey = selectedDish.sizes && Object.keys(selectedDish.sizes).length > 0 
@@ -682,12 +750,12 @@ function MenuContent({ params }: { params: { slug: string } }) {
                               status: 'pending'
                             };
                             
-                            const { error } = await supabase.from('orders').insert(orderData);
+                            const { data, error } = await supabase.from('orders').insert(orderData).select().single();
                             if (error) {
+                              setOrderStatus('idle');
                               alert('Failed to place order. Please try again.');
                             } else {
-                              alert('Order placed successfully! The kitchen is preparing your dish.');
-                              setSelectedDish(null); // Close modal
+                              setActiveOrderId(data.id);
                             }
                           } else {
                             // Fallback to WhatsApp
@@ -698,7 +766,7 @@ function MenuContent({ params }: { params: { slug: string } }) {
                         className={`w-full ${tableNo ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#25D366] hover:bg-[#1ebd5a]'} text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg`}
                       >
                         {tableNo ? <Loader2 className="w-6 h-6 hidden" /> : <MessageCircle className="w-6 h-6" />}
-                        {tableNo ? 'Place Order' : 'Order on WhatsApp'}
+                        {tableNo ? 'Place Order 🛒' : 'Order on WhatsApp'}
                       </button>
                     );
                   })()}

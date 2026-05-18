@@ -302,7 +302,7 @@ export default function AdminDashboardOverview() {
         </div>
 
         {/* Live KOT Orders Queue Section */}
-        <div className="bg-white p-6 rounded-2xl border border-emerald-200 shadow-sm flex flex-col mb-8 relative overflow-hidden">
+        <div className="bg-white p-6 rounded-2xl border border-emerald-200 shadow-sm flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
           <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
           <div className="mb-6 flex justify-between items-center">
             <div>

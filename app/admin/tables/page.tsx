@@ -22,7 +22,7 @@ export default function TablesPage() {
     if (!restaurant) return;
     setIsLoading(true);
     const { data, error } = await supabase
-      .from('public.tables')
+      .from('tables')
       .select('*')
       .eq('restaurant_id', restaurant.id)
       .order('created_at', { ascending: true });
@@ -46,7 +46,7 @@ export default function TablesPage() {
     const qrSlug = `${restaurant.slug}-${tableSlugPart}`;
 
     const { data, error } = await supabase
-      .from('public.tables')
+      .from('tables')
       .insert({
         restaurant_id: restaurant.id,
         table_name: newTableName.trim(),
@@ -56,7 +56,8 @@ export default function TablesPage() {
       .single();
 
     if (error) {
-      toast.error('Failed to add table or table already exists.');
+      console.error(error);
+      toast.error(`Failed to add table: ${error.message}`);
     } else if (data) {
       toast.success('Table added!');
       setTables([...tables, data]);
@@ -70,7 +71,7 @@ export default function TablesPage() {
     if (!confirm('Are you sure you want to delete this table?')) return;
 
     const { error } = await supabase
-      .from('public.tables')
+      .from('tables')
       .delete()
       .eq('id', id);
 
