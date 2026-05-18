@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
@@ -33,18 +33,23 @@ export default function AdminDashboardOverview() {
   const [chartData, setChartData] = useState<any[]>([]);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
-  // Estimated Revenue States
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
-  const [aov, setAov] = useState<number>(500);
-  const [revenueCounter, setRevenueCounter] = useState(0);
-  const [isEditingAov, setIsEditingAov] = useState(false);
-  const [newAov, setNewAov] = useState<number | string>('');
   const [activeModalTitle, setActiveModalTitle] = useState<string | null>(null);
   const [historicalStats, setHistoricalStats] = useState<any[]>([]);
   const { planType, canViewRevenue, canViewAllAnalytics } = useSubscription();
 
+  // KOT Live Orders State
+  const [liveOrders, setLiveOrders] = useState<any[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const router = useRouter();
 
+  useEffect(() => {
+    // Initialize audio object
+    if (typeof window !== 'undefined') {
+      audioRef.current = new Audio('/sounds/order-notification.mp3');
+    }
+  }, []);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -72,12 +77,7 @@ export default function AdminDashboardOverview() {
 
       // 4. State Management: Store restaurantId
       setRestaurantId(restaurant.id);
-      // setPlanType(restaurant.plan_type || 'free'); // Removed, handled by useSubscription
       setTotalScans(restaurant.total_scans || 0);
-      
-      if (restaurant.average_order_value) {
-        setAov(restaurant.average_order_value);
-      }
 
       // Realtime listener for total_scans
       const scansSubscription = supabase
@@ -93,6 +93,63 @@ export default function AdminDashboardOverview() {
           (payload) => {
             if (payload.new && typeof payload.new.total_scans === 'number') {
               setTotalScans(payload.new.total_scans);
+            }
+          }
+        )
+        .subscribe();
+
+      // Fetch initial live orders
+      const { data: initialOrders } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('restaurant_id', restaurant.id)
+        .in('status', ['pending', 'preparing'])
+        .order('created_at', { ascending: false });
+        
+      if (initialOrders) {
+        setLiveOrders(initialOrders);
+      }
+
+      // Realtime listener for new orders
+      const ordersSubscription = supabase
+        .channel('live-orders')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'orders',
+            filter: `restaurant_id=eq.${restaurant.id}`,
+          },
+          (payload) => {
+            if (payload.new) {
+              setLiveOrders(prev => [payload.new, ...prev]);
+              toast.success(`New order received from ${payload.new.table_no}!`, { icon: '🔔' });
+              
+              // Play notification sound
+              if (audioRef.current) {
+                audioRef.current.play().catch((e: any) => console.error("Audio play blocked", e));
+              }
+            }
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'orders',
+            filter: `restaurant_id=eq.${restaurant.id}`,
+          },
+          (payload) => {
+            if (payload.new) {
+              setLiveOrders(prev => {
+                // If it's served, remove from queue, else update status
+                if (payload.new.status === 'served') {
+                  return prev.filter(o => o.id !== payload.new.id);
+                }
+                return prev.map(o => o.id === payload.new.id ? payload.new : o);
+              });
             }
           }
         )
@@ -214,61 +271,7 @@ export default function AdminDashboardOverview() {
     };
   }, [router]);
 
-  // Animated Count-Up for Revenue
-  useEffect(() => {
-    if (typeof totalScans !== 'number') return;
-    
-    // Logic: Increment the effective AOV by 1 for every 5 scans
-    const effectiveAov = aov + Math.floor(totalScans / 5);
-    const targetRev = totalScans * effectiveAov;
 
-    if (targetRev === 0) {
-      setRevenueCounter(0);
-      return;
-    }
-
-    let currentRev = 0;
-    const duration = 1500;
-    const interval = 20;
-    const step = Math.max(targetRev / (duration / interval), 1);
-    
-    const timer = setInterval(() => {
-      currentRev += step;
-      if (currentRev >= targetRev) {
-        setRevenueCounter(targetRev);
-        clearInterval(timer);
-      } else {
-        setRevenueCounter(Math.floor(currentRev));
-      }
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [totalScans, aov]);
-
-  const handleSaveAov = async () => {
-    if (!restaurantId || !newAov) return;
-    
-    const parsedAov = Number(newAov);
-    if (isNaN(parsedAov) || parsedAov < 0) {
-      toast.error('Please enter a valid amount');
-      return;
-    }
-
-    const { error } = await supabase
-      .from('restaurants')
-      .update({ average_order_value: parsedAov })
-      .eq('id', restaurantId);
-
-    if (error) {
-      toast.error('Failed to update AOV');
-    } else {
-      setAov(parsedAov);
-      setIsEditingAov(false);
-      toast.success('Average Order Value updated!', { style: { background: '#000', color: '#fff' }});
-    }
-  };
-
-  // Modern Skeleton Loading State
   if (isLoading) {
     return (
       <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-8 min-h-screen">
@@ -301,63 +304,20 @@ export default function AdminDashboardOverview() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
-          <div onClick={() => canViewRevenue && setActiveModalTitle('Estimated Revenue')} className={`bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)] flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewRevenue ? 'cursor-default' : 'cursor-pointer'}`}>
-            {!canViewRevenue && (
-              <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[6px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
-                <div className="bg-emerald-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
-                  <Lock className="w-3 h-3"/> Locked
-                </div>
-                <p className="text-[11px] text-emerald-900 font-extrabold leading-tight">Upgrade to Pro to unlock<br/>Estimated Earnings</p>
-                <Link href="/admin/billing" className="mt-3 text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-bold hover:bg-emerald-200 transition-colors pointer-events-auto">Upgrade Now</Link>
-              </div>
-            )}
+          <div className="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-sm flex flex-col justify-between">
             <div className="flex justify-between items-start mb-2">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-bold text-emerald-800 uppercase tracking-wider">Estimated Revenue</p>
-                <div onClick={(e) => e.stopPropagation()} className="relative flex items-center justify-center cursor-help">
-                  <div className="w-4 h-4 rounded-full bg-emerald-200 text-emerald-700 flex items-center justify-center text-[10px] font-bold shadow-sm hover:bg-emerald-300 transition-colors">?</div>
-                  <div className="absolute bottom-full mb-2 hidden group-hover:block w-52 p-3 bg-gray-900 text-white text-xs font-medium rounded-xl shadow-xl z-10 text-center leading-relaxed">
-                    This is calculated by multiplying your total QR scans by your average bill amount (which increases by ₹1 every 5 scans).
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                  </div>
-                </div>
-              </div>
+              <p className="text-sm font-bold text-emerald-800 uppercase tracking-wider">Pending Orders</p>
               <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl shadow-sm">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
               </div>
             </div>
-
-            <div className={`${!canViewRevenue ? 'blur-[4px]' : ''}`}>
-              <p className="text-3xl font-extrabold text-emerald-900 mt-0.5 tracking-tight">
-                {canViewRevenue ? `₹${revenueCounter.toLocaleString('en-IN')}` : '₹X,XXX'}
+            <p className="text-3xl font-extrabold text-emerald-900 mt-0.5 tracking-tight">
+              {liveOrders.filter(o => o.status === 'pending').length}
+            </p>
+            <div className="mt-3">
+              <p className="text-xs text-emerald-600 font-semibold bg-emerald-100/50 px-2 py-1 rounded-md inline-block">
+                Action required
               </p>
-              
-              <div className="mt-3 flex items-center justify-between h-8">
-                <p className="text-xs text-emerald-600 font-semibold bg-emerald-100/50 px-2 py-1 rounded-md">
-                  Based on {totalScans} scans
-                </p>
-                
-                {isEditingAov ? (
-                  <div className="flex items-center gap-1.5 animate-fade-in-up">
-                    <span className="text-xs font-bold text-emerald-700">₹</span>
-                    <input 
-                      onClick={e => e.stopPropagation()}
-                      type="number" 
-                      value={newAov} 
-                      onChange={e => setNewAov(e.target.value)}
-                      placeholder="AOV"
-                      className="w-14 px-2 py-1 text-xs font-bold border border-emerald-300 rounded-lg bg-white text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm text-center"
-                      autoFocus
-                    />
-                    <button onClick={(e) => { e.stopPropagation(); handleSaveAov(); }} className="text-xs font-bold text-white bg-emerald-600 px-3 py-1 rounded-lg hover:bg-emerald-700 shadow-sm transition-colors">Save</button>
-                  </div>
-                ) : (
-                  <button onClick={(e) => { e.stopPropagation(); setIsEditingAov(true); setNewAov(aov); }} className="text-xs font-bold text-emerald-700 hover:text-emerald-900 transition-colors flex items-center gap-1 hover:bg-emerald-100/50 px-2 py-1 rounded-md">
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                    Edit AOV
-                  </button>
-                )}
-              </div>
             </div>
           </div>
 
@@ -405,8 +365,77 @@ export default function AdminDashboardOverview() {
           </div>
         </div>
 
+        {/* Live KOT Orders Queue Section */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col mt-8">
+          <div className="mb-6 flex justify-between items-center">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">Live KOT Orders Queue</h3>
+              <p className="text-sm text-gray-500 mt-1">Real-time incoming orders from tables.</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {liveOrders.map(order => (
+              <div key={order.id} className={`p-5 rounded-xl border ${order.status === 'pending' ? 'border-red-200 bg-red-50' : order.status === 'preparing' ? 'border-yellow-200 bg-yellow-50' : 'border-gray-200 bg-gray-50'} shadow-sm relative transition-colors`}>
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="font-extrabold text-gray-900 text-lg">Table: {order.table_no}</h4>
+                  <span className="text-xs font-semibold text-gray-500 bg-white px-2 py-1 rounded-md shadow-sm">
+                    {timeAgo(order.created_at)}
+                  </span>
+                </div>
+                
+                <div className="space-y-2 mb-4 bg-white/60 p-3 rounded-lg border border-black/5">
+                  {order.items?.map((item: any, idx: number) => (
+                    <div key={idx} className="flex justify-between text-sm">
+                      <span className="font-medium text-gray-800">
+                        <span className="font-bold text-blue-600 mr-2">{item.quantity}x</span>
+                        {item.name}
+                        {item.size !== 'Standard' && <span className="text-xs text-gray-500 ml-1">({item.size})</span>}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex gap-2 mt-auto">
+                  {order.status === 'pending' && (
+                    <button 
+                      onClick={async () => {
+                        await supabase.from('orders').update({ status: 'preparing' }).eq('id', order.id);
+                        setLiveOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'preparing' } : o));
+                      }}
+                      className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-3 rounded-lg text-sm shadow-sm transition-colors"
+                    >
+                      Start Preparing
+                    </button>
+                  )}
+                  {order.status === 'preparing' && (
+                    <button 
+                      onClick={async () => {
+                        await supabase.from('orders').update({ status: 'served' }).eq('id', order.id);
+                        setLiveOrders(prev => prev.filter(o => o.id !== order.id));
+                      }}
+                      className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-3 rounded-lg text-sm shadow-sm transition-colors"
+                    >
+                      Mark as Served
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+            {liveOrders.length === 0 && (
+              <div className="col-span-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl">
+                <div className="w-16 h-16 bg-gray-50 text-gray-300 rounded-full flex items-center justify-center mb-3">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                </div>
+                <h3 className="text-gray-500 font-bold text-lg">No Active Orders</h3>
+                <p className="text-gray-400 text-sm mt-1">Waiting for KOT orders to arrive...</p>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
           
           {/* Line Chart Section */}
           <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col relative">
@@ -528,7 +557,7 @@ export default function AdminDashboardOverview() {
             </div>
             <div className="p-6 overflow-y-auto flex-1">
               <div className="space-y-6">
-                {(activeModalTitle === 'Estimated Revenue' || activeModalTitle === 'Total Scans') ? (
+                {activeModalTitle === 'Total Scans' ? (
                   historicalStats.length === 0 ? (
                     <p className="text-sm font-medium text-gray-500 text-center py-4">No historical data available.</p>
                   ) : (
@@ -537,13 +566,13 @@ export default function AdminDashboardOverview() {
                         {index !== historicalStats.length - 1 && (
                           <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
                         )}
-                        <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white ${activeModalTitle === 'Estimated Revenue' ? 'bg-emerald-500' : 'bg-purple-500'} shadow-sm flex items-center justify-center`}>
-                          <span className="text-[10px]">{activeModalTitle === 'Estimated Revenue' ? '💰' : '📊'}</span>
+                        <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white bg-purple-500 shadow-sm flex items-center justify-center`}>
+                          <span className="text-[10px]">📊</span>
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-gray-900">{stat.label}</p>
                           <p className="text-xs text-gray-500 mt-0.5 font-bold">
-                            {activeModalTitle === 'Total Scans' ? `${stat.scans} Scans` : `₹${(stat.scans * aov).toLocaleString('en-IN')} Est. Revenue`}
+                            {stat.scans} Scans
                           </p>
                         </div>
                       </div>

@@ -68,3 +68,23 @@ CREATE TABLE IF NOT EXISTS payments (
   status TEXT NOT NULL,
   payment_method TEXT NOT NULL
 );
+
+-- Create Tables for Restaurant Table Management
+CREATE TABLE IF NOT EXISTS public.tables (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
+  table_name TEXT NOT NULL,
+  qr_slug TEXT NOT NULL UNIQUE
+);
+
+-- Create Orders Table for Live KOT
+CREATE TABLE IF NOT EXISTS public.orders (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
+  table_no TEXT NOT NULL,
+  items JSONB NOT NULL,
+  total DECIMAL(10, 2) NOT NULL,
+  status TEXT DEFAULT 'pending' NOT NULL -- 'pending', 'preparing', 'served'
+);

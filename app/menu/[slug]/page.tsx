@@ -1,6 +1,7 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { X, MessageCircle, Loader2, Search, Share2, MapPin, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,6 +21,16 @@ const getContrastYIQ = (hexcolor: string) => {
 };
 
 export default function DigitalMenu({ params }: { params: { slug: string } }) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <MenuContent params={params} />
+    </Suspense>
+  );
+}
+
+function MenuContent({ params }: { params: { slug: string } }) {
+  const searchParams = useSearchParams();
+  const tableNo = searchParams.get('table');
   const [restaurant, setRestaurant] = useState<any>(null);
   const [dishes, setDishes] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
@@ -650,14 +661,44 @@ export default function DigitalMenu({ params }: { params: { slug: string } }) {
 
                     return (
                       <button
-                        onClick={() => {
-                          const msg = `Hi! I would like to order: ${selectedDish.name} (₹${getDishPrice(selectedDish)}). Could you please let me know if home delivery is available? If not, kindly share your exact address so I can arrange a takeaway. Thank you!`;
-                          window.open(`https://wa.me/${restaurant?.whatsapp_number?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+                        onClick={async () => {
+                          if (tableNo) {
+                            // Place KOT order
+                            const price = Number(getDishPrice(selectedDish));
+                            const sizeKey = selectedDish.sizes && Object.keys(selectedDish.sizes).length > 0 
+                                          ? Object.keys(selectedDish.sizes)[selectedSizes[selectedDish.id] || 0] 
+                                          : 'Standard';
+                            const orderData = {
+                              restaurant_id: restaurant.id,
+                              table_no: tableNo,
+                              items: [{
+                                id: selectedDish.id,
+                                name: selectedDish.name,
+                                quantity: 1, // Currently UI only supports ordering 1 at a time from detail view
+                                price: price,
+                                size: sizeKey
+                              }],
+                              total: price,
+                              status: 'pending'
+                            };
+                            
+                            const { error } = await supabase.from('orders').insert(orderData);
+                            if (error) {
+                              alert('Failed to place order. Please try again.');
+                            } else {
+                              alert('Order placed successfully! The kitchen is preparing your dish.');
+                              setSelectedDish(null); // Close modal
+                            }
+                          } else {
+                            // Fallback to WhatsApp
+                            const msg = `Hi! I would like to order: ${selectedDish.name} (₹${getDishPrice(selectedDish)}). Could you please let me know if home delivery is available? If not, kindly share your exact address so I can arrange a takeaway. Thank you!`;
+                            window.open(`https://wa.me/${restaurant?.whatsapp_number?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+                          }
                         }}
-                        className="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
+                        className={`w-full ${tableNo ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#25D366] hover:bg-[#1ebd5a]'} text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg`}
                       >
-                        <MessageCircle className="w-6 h-6" />
-                        Order on WhatsApp
+                        {tableNo ? <Loader2 className="w-6 h-6 hidden" /> : <MessageCircle className="w-6 h-6" />}
+                        {tableNo ? 'Place Order' : 'Order on WhatsApp'}
                       </button>
                     );
                   })()}
