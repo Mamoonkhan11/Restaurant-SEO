@@ -21,12 +21,14 @@ export default async function DigitalMenu({ params }: { params: { slug: string }
   }
 
   // Fetch Dishes
-  const { data: dishesData } = await supabase
+  const { data: dishesData, error: dishesError } = await supabase
     .from('dishes')
-    .select('id, name, price, category, image_url, description, is_available, is_special_offer, offer_tag, view_count, sizes')
-    .eq('restaurant_id', restaurant.id)
-    .order('view_count', { ascending: false });
+    .select('*')
+    .eq('restaurant_id', restaurant.id);
 
+  if (dishesError) {
+    console.error('Error fetching dishes:', dishesError);
+  }
   console.log('Fetched dishes count:', dishesData?.length || 0);
   console.log('Dishes array:', dishesData);
 

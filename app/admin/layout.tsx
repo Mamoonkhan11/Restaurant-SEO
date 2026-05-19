@@ -5,7 +5,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { RestaurantProvider, useRestaurant } from '@/lib/RestaurantContext';
 import { useSubscription } from '@/lib/useSubscription';
-import { AlertTriangle, Clock } from 'lucide-react';
 
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -178,25 +177,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           <div className="w-9" /> {/* Spacer */}
         </header>
 
-        {/* Subscription / Trial Banner */}
-        {planType === 'free' && (
-          <div className={`${isExpired ? 'bg-red-600' : 'bg-blue-600'} text-white px-4 py-2 flex items-center justify-center gap-3 text-sm font-medium z-40 relative shadow-sm`}>
-            {isExpired ? (
-              <>
-                <AlertTriangle className="w-4 h-4" />
-                <span>Your free trial has expired. Upgrade to Pro to keep your digital menu active!</span>
-              </>
-            ) : (
-              <>
-                <Clock className="w-4 h-4" />
-                <span>Your free trial with pro features expires in {daysLeft} days. Upgrade to Pro for custom domains and advanced analytics!</span>
-              </>
-            )}
-            <Link href="/admin/billing" className="bg-white text-blue-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors ml-4 shadow-sm">
-              Upgrade Now
-            </Link>
-          </div>
-        )}
+
 
 
         {/* Page Content */}
