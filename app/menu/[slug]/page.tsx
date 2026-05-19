@@ -24,8 +24,11 @@ export default async function DigitalMenu({ params }: { params: { slug: string }
   const { data: dishesData } = await supabase
     .from('dishes')
     .select('id, name, price, category, image_url, description, is_available, is_special_offer, offer_tag, view_count, sizes')
-    .eq('owner_id', restaurant.owner_id)
+    .eq('restaurant_id', restaurant.id)
     .order('view_count', { ascending: false });
+
+  console.log('Fetched dishes count:', dishesData?.length || 0);
+  console.log('Dishes array:', dishesData);
 
   let initialDishes: any[] = [];
   let initialCategories: string[] = [];

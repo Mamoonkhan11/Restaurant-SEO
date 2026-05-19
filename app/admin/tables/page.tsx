@@ -120,6 +120,10 @@ export default function TablesPage() {
   return (
     <div className="p-4 sm:p-8 max-w-6xl mx-auto min-h-screen bg-[#F9FAFB] font-sans">
       <style dangerouslySetInnerHTML={{__html: `
+        @page {
+          size: auto;
+          margin: 0mm;
+        }
         @media print {
           body * {
             visibility: hidden;
@@ -128,13 +132,31 @@ export default function TablesPage() {
             visibility: visible;
           }
           #qr-container {
-            position: absolute !important;
-            left: 50% !important;
-            top: 50% !important;
-            transform: translate(-50%, -50%) scale(1.5) !important;
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            background: white !important;
             border: none !important;
             box-shadow: none !important;
             margin: 0 !important;
+            padding: 0 !important;
+            transform: none !important;
+          }
+          .qr-print-frame {
+            padding: 3rem !important;
+            border: 2px solid #f3f4f6 !important;
+            border-radius: 1.5rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            width: 400px !important;
+            background: white !important;
           }
         }
       `}} />
@@ -209,25 +231,27 @@ export default function TablesPage() {
           <div className="bg-white p-6 md:p-12 rounded-2xl border border-gray-100 shadow-sm sticky top-8 flex flex-col items-center">
             {selectedTable ? (
               <>
-                <div id="qr-container" className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm inline-flex flex-col items-center mb-8 w-[320px] shrink-0 print:border-none print:shadow-none print:w-auto">
-                  <div className="mb-8 text-center">
-                    <h3 className="text-xl font-bold text-[#111827] tracking-tight uppercase">{restaurant?.name || 'Restaurant Name'}</h3>
-                    <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">{selectedTable.table_no}</p>
-                  </div>
-                  
-                  <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8">
-                    <QRCodeSVG
-                      value={`${origin}/menu/${restaurant?.slug}?table=${encodeURIComponent(selectedTable.table_no)}`}
-                      size={200}
-                      fgColor="#111827"
-                      bgColor="#FFFFFF"
-                      level="H"
-                    />
-                  </div>
-                  
-                  <div className="text-center">
-                    <p className="text-sm font-bold text-[#111827] tracking-widest uppercase">Contactless Dining</p>
-                    <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest">Scan for Menu</p>
+                <div id="qr-container" className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm inline-flex flex-col items-center mb-8 w-[320px] shrink-0 print:border-none print:shadow-none print:w-[100vw]">
+                  <div className="qr-print-frame">
+                    <div className="mb-8 text-center">
+                      <h3 className="text-xl font-bold text-[#111827] tracking-tight uppercase">{restaurant?.name || 'Restaurant Name'}</h3>
+                      <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">{selectedTable.table_no}</p>
+                    </div>
+                    
+                    <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8">
+                      <QRCodeSVG
+                        value={`${origin}/menu/${restaurant?.slug}?table=${encodeURIComponent(selectedTable.table_no)}`}
+                        size={200}
+                        fgColor="#111827"
+                        bgColor="#FFFFFF"
+                        level="H"
+                      />
+                    </div>
+                    
+                    <div className="text-center">
+                      <p className="text-sm font-bold text-[#111827] tracking-widest uppercase">Contactless Dining</p>
+                      <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest">Scan for Menu</p>
+                    </div>
                   </div>
                 </div>
                 

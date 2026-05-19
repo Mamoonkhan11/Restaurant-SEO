@@ -97,9 +97,9 @@ export default function MenuClient({
   // Dynamic SEO: Update Title and Meta Description
   useEffect(() => {
     if (restaurant && activeCategory) {
-      document.title = `${activeCategory} at ${restaurant.name} | Order Online`;
+      document.title = `${activeCategory} at ${restaurant?.name || 'Restaurant'} | Order Online`;
       const metaDescription = document.querySelector('meta[name="description"]');
-      const descText = `Explore our delicious ${activeCategory} menu at ${restaurant.name}. View prices, details, and order online via WhatsApp!`;
+      const descText = `Explore our delicious ${activeCategory} menu at ${restaurant?.name || 'Restaurant'}. View prices, details, and order online via WhatsApp!`;
       if (metaDescription) {
         metaDescription.setAttribute('content', descText);
       } else {
@@ -298,15 +298,15 @@ export default function MenuClient({
               {
                 "@context": "https://schema.org",
                 "@type": "Restaurant",
-                "name": restaurant.name,
-                "image": restaurant.logo_url || undefined,
-                "telephone": restaurant.whatsapp_number,
+                "name": restaurant?.name || 'Restaurant',
+                "image": restaurant?.logo_url || undefined,
+                "telephone": restaurant?.whatsapp_number || undefined,
                 "menu": typeof window !== 'undefined' ? window.location.href : '',
               },
               {
                 "@context": "https://schema.org",
                 "@type": "Menu",
-                "name": `Digital Menu for ${restaurant.name}`,
+                "name": `Digital Menu for ${restaurant?.name || 'Restaurant'}`,
                 "hasMenuSection": Object.keys(groupedDishes).map(category => ({
                   "@type": "MenuSection",
                   "name": category,
@@ -454,7 +454,14 @@ export default function MenuClient({
 
           {/* Menu List by Categories */}
           <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-12">
-            {Object.keys(groupedDishes).length === 0 ? (
+            {dishes.length === 0 ? (
+              <div className="text-center py-20">
+                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-dashed border-gray-200">
+                  <AlertCircle className="h-8 w-8 text-gray-400" />
+                </div>
+                <p className="text-gray-500 font-medium sm:text-lg">No items available</p>
+              </div>
+            ) : Object.keys(groupedDishes).length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search className="h-8 w-8 text-gray-400" />
