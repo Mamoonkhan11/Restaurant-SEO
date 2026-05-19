@@ -17,8 +17,8 @@ export default function TablesPage() {
 
   const handleDownloadPDF = () => {
     if (!selectedTable || !restaurant) return;
-    const printContent = document.getElementById('printable-qr-frame')?.innerHTML;
-    if (!printContent) return;
+    const printElement = document.getElementById('printable-qr-frame');
+    if (!printElement) return;
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -29,10 +29,23 @@ export default function TablesPage() {
     const sanitizedRestaurantName = (restaurant.name || 'Restaurant').replace(/[^a-z0-9]/gi, '_');
     const sanitizedTableNo = (selectedTable.table_no || 'Table').replace(/[^a-z0-9]/gi, '_');
 
+    // Clone all document style tags and stylesheet links to preserve Tailwind styles
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+      .map(el => {
+        if (el.tagName.toLowerCase() === 'link') {
+          const cloned = el.cloneNode(true) as HTMLLinkElement;
+          cloned.href = cloned.href; // Resolves relative href to absolute URL
+          return cloned.outerHTML;
+        }
+        return el.outerHTML;
+      })
+      .join('\n');
+
     printWindow.document.write(`
       <html>
         <head>
           <title>${sanitizedRestaurantName}_${sanitizedTableNo}</title>
+          ${styles}
           <style>
             @page {
               size: portrait;
@@ -46,58 +59,32 @@ export default function TablesPage() {
               align-items: center;
               min-height: 100vh;
               background-color: #ffffff;
-              font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             }
-            .qr-print-frame {
-              padding: 3rem;
-              border: 2px solid #f3f4f6;
-              border-radius: 1.5rem;
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              width: 360px;
-              background: white;
-              box-sizing: border-box;
-              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            #printable-qr-frame {
+              border: 2px solid #000000 !important;
+              box-shadow: none !important;
+              display: inline-flex !important;
+              visibility: visible !important;
             }
-            .text-center { text-align: center; }
-            .mb-8 { margin-bottom: 2rem; }
-            .text-xl { font-size: 1.25rem; font-weight: 900; color: #000000; }
-            .font-bold { font-weight: 700; }
-            .uppercase { text-transform: uppercase; }
-            .text-xs { font-size: 0.75rem; color: #000000; }
-            .text-gray-400 { color: #000000; }
-            .text-sm { font-size: 0.875rem; color: #000000; }
-            .text-[10px] { font-size: 10px; color: #000000; }
-            h3, p, span { color: #000000 !important; }
-            .mt-1 { margin-top: 0.25rem; }
-            .tracking-widest { letter-spacing: 0.1em; }
-            .tracking-tight { letter-spacing: -0.025em; }
-            .bg-white { background-color: #ffffff; }
-            .p-2 { padding: 0.5rem; }
-            .border { border: 1px solid #000000; }
-            .border-gray-100 { border-color: #000000; }
-            .rounded-lg { border-radius: 0.5rem; }
-            .leading-tight { line-height: 1.25; }
-            .flex { display: flex; }
-            .justify-center { justify-content: center; }
-            .items-center { align-items: center; }
+            #printable-qr-frame * {
+              color: #000000 !important;
+              border-color: #000000 !important;
+            }
           </style>
         </head>
         <body>
-          <div class="qr-print-frame">
-            ${printContent}
-          </div>
-          <script>
-            window.onload = function() {
-              window.print();
-              setTimeout(function() { window.close(); }, 500);
-            };
-          </script>
+          ${printElement.outerHTML}
         </body>
       </html>
     `);
     printWindow.document.close();
+    printWindow.focus();
+
+    // Give browser a short window to process and paint the SVG/styles
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 300);
   };
 
   useEffect(() => {
@@ -213,10 +200,10 @@ export default function TablesPage() {
           body * {
             visibility: hidden;
           }
-          #qr-container, #qr-container * {
+          #printable-qr-frame, #printable-qr-frame * {
             visibility: visible;
           }
-          #qr-container {
+          #printable-qr-frame {
             position: fixed !important;
             left: 0 !important;
             top: 0 !important;
@@ -318,8 +305,8 @@ export default function TablesPage() {
           <div className="bg-white p-6 md:p-12 rounded-2xl border border-gray-100 shadow-sm sticky top-8 flex flex-col items-center">
             {selectedTable ? (
               <>
-                <div id="qr-container" className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm inline-flex flex-col items-center mb-8 w-[320px] shrink-0 print:border-none print:shadow-none print:w-[100vw]">
-                  <div id="printable-qr-frame" className="qr-print-frame">
+                <div id="printable-qr-frame" className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm inline-flex flex-col items-center mb-8 w-[320px] shrink-0 print:border-none print:shadow-none print:w-[100vw]">
+                  <div className="qr-print-frame">
                     <div className="mb-8 text-center">
                       <h3 className="text-xl font-bold text-[#111827] tracking-tight uppercase leading-tight">{restaurant?.name || 'Restaurant Name'}</h3>
                       <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest leading-tight">{selectedTable.table_no}</p>

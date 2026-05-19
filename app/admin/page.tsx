@@ -32,13 +32,51 @@ const timeAgo = (dateString: string) => {
 
 function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
+  const [audioMuted, setAudioMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      audioRef.current = new Audio('/sounds/order-notification.mp3');
+      const audio = new Audio('/order_tune.mp3');
+      audio.preload = 'auto';
+      audio.volume = 0.6;
+      audioRef.current = audio;
+
+      // Autoplay precheck/unlocker trigger
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            audio.pause();
+            audio.currentTime = 0;
+          })
+          .catch((err) => {
+            console.warn("Autoplay blocked initially, notifying user", err);
+            setAudioMuted(true);
+          });
+      }
     }
   }, []);
+
+  useEffect(() => {
+    const handleUnlock = () => {
+      if (audioMuted && audioRef.current) {
+        audioRef.current.play()
+          .then(() => {
+            setAudioMuted(false);
+            audioRef.current!.pause();
+            audioRef.current!.currentTime = 0;
+          })
+          .catch((e) => {
+            console.error("Unlock failed", e);
+          });
+      }
+    };
+    window.addEventListener('click', handleUnlock);
+    return () => {
+      window.removeEventListener('click', handleUnlock);
+    };
+  }, [audioMuted]);
 
   useEffect(() => {
     if (!restaurantId) return;
@@ -70,7 +108,11 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             setLiveOrders(prev => [payload.new, ...prev]);
             toast.success(`New order received from ${payload.new.table_no}!`, { icon: '🔔' });
             if (audioRef.current) {
-              audioRef.current.play().catch((e: any) => console.error("Audio play blocked", e));
+              audioRef.current.currentTime = 0;
+              audioRef.current.play().catch((e: any) => {
+                console.error("Audio play blocked", e);
+                setAudioMuted(true);
+              });
             }
           }
         }
@@ -106,12 +148,17 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-black text-gray-900 flex items-center gap-2">
-            Live Kitchen Orders (KOT) 
+          <h3 className="text-xl font-black text-gray-900 flex flex-wrap items-center gap-2">
+            <span>Live Kitchen Orders (KOT)</span>
             {liveOrders.filter(o => o.status === 'pending').length > 0 && (
                <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-bold animate-pulse">
                  {liveOrders.filter(o => o.status === 'pending').length} Action Required
                </span>
+            )}
+            {audioMuted && (
+              <span className="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-amber-200 animate-pulse">
+                🔊 Notifications Muted — Click Anywhere to Enable Audio
+              </span>
             )}
           </h3>
           <p className="text-sm font-medium text-gray-500 mt-1">Manage real-time incoming orders from your tables.</p>
