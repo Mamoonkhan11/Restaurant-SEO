@@ -5,6 +5,7 @@ import { Loader2, Plus, Trash2, Link as LinkIcon, QrCode, Download } from 'lucid
 import toast from 'react-hot-toast';
 import { useRestaurant } from '@/lib/RestaurantContext';
 import { QRCodeSVG } from 'qrcode.react';
+import html2canvas from 'html2canvas';
 
 export default function TablesPage() {
   const { restaurant, isLoading: isRestaurantLoading } = useRestaurant();
@@ -14,6 +15,42 @@ export default function TablesPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [selectedTable, setSelectedTable] = useState<any>(null);
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
+
+  const handleDownloadJPG = async () => {
+    if (!selectedTable || !restaurant) return;
+    const targetId = `print-frame-${selectedTable.id}`;
+    const element = document.getElementById(targetId);
+    if (!element) {
+      toast.error('QR container not found');
+      return;
+    }
+
+    const toastId = toast.loading('Generating high-res JPG...');
+    try {
+      // Force white background and render canvas
+      const canvas = await html2canvas(element, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#FFFFFF',
+        logging: false
+      });
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      
+      const link = document.createElement('a');
+      const sanitizedRestaurantName = (restaurant.name || 'Restaurant').replace(/[^a-z0-9]/gi, '_');
+      const sanitizedTableNo = (selectedTable.table_no || 'Table').replace(/[^a-z0-9]/gi, '_');
+      link.download = `${sanitizedRestaurantName}_${sanitizedTableNo}.jpg`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('JPG Downloaded!', { id: toastId });
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to export JPG', { id: toastId });
+    }
+  };
 
   useEffect(() => {
     if (restaurant) {
@@ -191,7 +228,7 @@ export default function TablesPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-3">
-            {tables.map(table => {
+            {tables.filter(table => table && table.table_no).map(table => {
               const isSelected = selectedTable?.id === table.id;
               const isLive = liveOrders.some(o => o.table_no === table.table_no);
               return (
@@ -203,8 +240,10 @@ export default function TablesPage() {
                   <div className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full ${isLive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-gray-200'}`}></div>
                     <div className="flex flex-col">
-                      <h3 className="font-bold text-[#111827] text-sm tracking-tight">{table.table_no}</h3>
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400">{isLive ? 'Occupied' : 'Empty'}</span>
+                      <h3 className="font-bold text-[#111827] text-sm tracking-tight leading-tight">{table.table_no}</h3>
+                      {isLive !== undefined && (
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400 leading-tight mt-0.5">{isLive ? 'Occupied' : 'Empty'}</span>
+                      )}
                     </div>
                   </div>
                   <button 
@@ -232,13 +271,13 @@ export default function TablesPage() {
             {selectedTable ? (
               <>
                 <div id="qr-container" className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm inline-flex flex-col items-center mb-8 w-[320px] shrink-0 print:border-none print:shadow-none print:w-[100vw]">
-                  <div className="qr-print-frame">
+                  <div id={`print-frame-${selectedTable.id}`} className="qr-print-frame">
                     <div className="mb-8 text-center">
-                      <h3 className="text-xl font-bold text-[#111827] tracking-tight uppercase">{restaurant?.name || 'Restaurant Name'}</h3>
-                      <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">{selectedTable.table_no}</p>
+                      <h3 className="text-xl font-bold text-[#111827] tracking-tight uppercase leading-tight">{restaurant?.name || 'Restaurant Name'}</h3>
+                      <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest leading-tight">{selectedTable.table_no}</p>
                     </div>
                     
-                    <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8">
+                    <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8 flex justify-center items-center">
                       <QRCodeSVG
                         value={`${origin}/menu/${restaurant?.slug}?table=${encodeURIComponent(selectedTable.table_no)}`}
                         size={200}
@@ -249,8 +288,8 @@ export default function TablesPage() {
                     </div>
                     
                     <div className="text-center">
-                      <p className="text-sm font-bold text-[#111827] tracking-widest uppercase">Contactless Dining</p>
-                      <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest">Scan for Menu</p>
+                      <p className="text-sm font-bold text-[#111827] tracking-widest uppercase leading-tight">Contactless Dining</p>
+                      <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest leading-tight">Scan for Menu</p>
                     </div>
                   </div>
                 </div>
@@ -265,10 +304,17 @@ export default function TablesPage() {
                     <LinkIcon className="w-4 h-4" /> Live Preview
                   </a>
                   <button
+                    onClick={handleDownloadJPG}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 text-sm"
+                  >
+                    <Download className="w-4 h-4" /> Download JPG
+                  </button>
+                  <button
                     onClick={() => window.print()}
                     className="w-full bg-[#111827] hover:bg-black text-white font-bold py-3 px-6 rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 text-sm"
                   >
-                    <Download className="w-4 h-4" /> Print Frame
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Print Frame
                   </button>
                 </div>
               </>
