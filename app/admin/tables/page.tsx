@@ -5,7 +5,6 @@ import { Loader2, Plus, Trash2, Link as LinkIcon, QrCode, Download } from 'lucid
 import toast from 'react-hot-toast';
 import { useRestaurant } from '@/lib/RestaurantContext';
 import { QRCodeSVG } from 'qrcode.react';
-import html2canvas from 'html2canvas';
 
 export default function TablesPage() {
   const { restaurant, isLoading: isRestaurantLoading } = useRestaurant();
@@ -16,40 +15,89 @@ export default function TablesPage() {
   const [selectedTable, setSelectedTable] = useState<any>(null);
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
 
-  const handleDownloadJPG = async () => {
+  const handleDownloadPDF = () => {
     if (!selectedTable || !restaurant) return;
-    const targetId = `print-frame-${selectedTable.id}`;
-    const element = document.getElementById(targetId);
-    if (!element) {
-      toast.error('QR container not found');
+    const printContent = document.getElementById('printable-qr-frame')?.innerHTML;
+    if (!printContent) return;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error('Popup blocked! Please allow popups to export PDF.');
       return;
     }
 
-    const toastId = toast.loading('Generating high-res JPG...');
-    try {
-      // Force white background and render canvas
-      const canvas = await html2canvas(element, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: '#FFFFFF',
-        logging: false
-      });
+    const sanitizedRestaurantName = (restaurant.name || 'Restaurant').replace(/[^a-z0-9]/gi, '_');
+    const sanitizedTableNo = (selectedTable.table_no || 'Table').replace(/[^a-z0-9]/gi, '_');
 
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-      
-      const link = document.createElement('a');
-      const sanitizedRestaurantName = (restaurant.name || 'Restaurant').replace(/[^a-z0-9]/gi, '_');
-      const sanitizedTableNo = (selectedTable.table_no || 'Table').replace(/[^a-z0-9]/gi, '_');
-      link.download = `${sanitizedRestaurantName}_${sanitizedTableNo}.jpg`;
-      link.href = dataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success('JPG Downloaded!', { id: toastId });
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to export JPG', { id: toastId });
-    }
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${sanitizedRestaurantName}_${sanitizedTableNo}</title>
+          <style>
+            @page {
+              size: portrait;
+              margin: 0;
+            }
+            body {
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              min-height: 100vh;
+              background-color: #ffffff;
+              font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            }
+            .qr-print-frame {
+              padding: 3rem;
+              border: 2px solid #f3f4f6;
+              border-radius: 1.5rem;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              width: 360px;
+              background: white;
+              box-sizing: border-box;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .text-center { text-align: center; }
+            .mb-8 { margin-bottom: 2rem; }
+            .text-xl { font-size: 1.25rem; font-weight: 900; color: #000000; }
+            .font-bold { font-weight: 700; }
+            .uppercase { text-transform: uppercase; }
+            .text-xs { font-size: 0.75rem; color: #000000; }
+            .text-gray-400 { color: #000000; }
+            .text-sm { font-size: 0.875rem; color: #000000; }
+            .text-[10px] { font-size: 10px; color: #000000; }
+            h3, p, span { color: #000000 !important; }
+            .mt-1 { margin-top: 0.25rem; }
+            .tracking-widest { letter-spacing: 0.1em; }
+            .tracking-tight { letter-spacing: -0.025em; }
+            .bg-white { background-color: #ffffff; }
+            .p-2 { padding: 0.5rem; }
+            .border { border: 1px solid #000000; }
+            .border-gray-100 { border-color: #000000; }
+            .rounded-lg { border-radius: 0.5rem; }
+            .leading-tight { line-height: 1.25; }
+            .flex { display: flex; }
+            .justify-center { justify-content: center; }
+            .items-center { align-items: center; }
+          </style>
+        </head>
+        <body>
+          <div class="qr-print-frame">
+            ${printContent}
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   useEffect(() => {
@@ -241,8 +289,8 @@ export default function TablesPage() {
                     <div className={`w-3 h-3 rounded-full ${isLive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-gray-200'}`}></div>
                     <div className="flex flex-col">
                       <h3 className="font-bold text-[#111827] text-sm tracking-tight leading-tight">{table.table_no}</h3>
-                      {isLive !== undefined && (
-                        <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400 leading-tight mt-0.5">{isLive ? 'Occupied' : 'Empty'}</span>
+                      {isLive && (
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400 leading-tight mt-0.5">Occupied</span>
                       )}
                     </div>
                   </div>
@@ -271,7 +319,7 @@ export default function TablesPage() {
             {selectedTable ? (
               <>
                 <div id="qr-container" className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm inline-flex flex-col items-center mb-8 w-[320px] shrink-0 print:border-none print:shadow-none print:w-[100vw]">
-                  <div id={`print-frame-${selectedTable.id}`} className="qr-print-frame">
+                  <div id="printable-qr-frame" className="qr-print-frame">
                     <div className="mb-8 text-center">
                       <h3 className="text-xl font-bold text-[#111827] tracking-tight uppercase leading-tight">{restaurant?.name || 'Restaurant Name'}</h3>
                       <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest leading-tight">{selectedTable.table_no}</p>
@@ -281,7 +329,7 @@ export default function TablesPage() {
                       <QRCodeSVG
                         value={`${origin}/menu/${restaurant?.slug}?table=${encodeURIComponent(selectedTable.table_no)}`}
                         size={200}
-                        fgColor="#111827"
+                        fgColor="#000000"
                         bgColor="#FFFFFF"
                         level="H"
                       />
@@ -304,17 +352,10 @@ export default function TablesPage() {
                     <LinkIcon className="w-4 h-4" /> Live Preview
                   </a>
                   <button
-                    onClick={handleDownloadJPG}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 text-sm"
-                  >
-                    <Download className="w-4 h-4" /> Download JPG
-                  </button>
-                  <button
-                    onClick={() => window.print()}
+                    onClick={handleDownloadPDF}
                     className="w-full bg-[#111827] hover:bg-black text-white font-bold py-3 px-6 rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 text-sm"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    Print Frame
+                    <Download className="w-4 h-4" /> Download PDF
                   </button>
                 </div>
               </>

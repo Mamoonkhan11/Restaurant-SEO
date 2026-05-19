@@ -12,6 +12,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { restaurant, isLoading } = useRestaurant();
   const { isTrial, daysLeft, isExpired, planType } = useSubscription();
+  const isUrgent = daysLeft !== null && daysLeft <= 5;
 
   // Client-Side Middleware / Guard
   useEffect(() => {
@@ -85,12 +86,11 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         {planType === 'free' && daysLeft !== null && !isExpired && (
           <div className="bg-[#FEF3C7] text-[#111827] p-4 shrink-0 flex flex-col items-center border-b border-amber-200/50">
             <span className="text-xs font-bold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
-            {daysLeft > 5 ? (
-              <Link href="/admin/billing" className="mt-2 bg-[#111827] text-white px-3 py-1.5 text-xs rounded-lg font-medium hover:bg-black transition-colors">
-                Upgrade Now
-              </Link>
-            ) : (
-              <Link href="/admin/billing" className="mt-2 w-full py-3 text-sm font-semibold rounded-xl shadow-md bg-[#111827] text-white flex items-center justify-center transform hover:scale-[1.02] transition-all hover:bg-black">
+            {isUrgent && (
+              <Link 
+                href="/admin/billing" 
+                className="mt-3 w-full py-3 text-center text-xs font-bold uppercase tracking-wider rounded-xl shadow-md bg-[#111827] text-white hover:bg-black transition-all duration-300 ease-in-out"
+              >
                 Upgrade Now
               </Link>
             )}
@@ -142,14 +142,13 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {planType === 'free' && daysLeft !== null && !isExpired && (
-          <div className="md:hidden bg-[#FEF3C7] text-[#111827] p-3 shrink-0 flex flex-col items-center justify-center border-b border-amber-200">
+          <div className="md:hidden bg-[#FEF3C7] text-[#111827] p-4 shrink-0 flex flex-col items-center justify-center border-b border-amber-200">
             <span className="text-xs font-bold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
-            {daysLeft > 5 ? (
-              <Link href="/admin/billing" className="mt-2 bg-[#111827] text-white px-3 py-1.5 text-xs rounded-lg font-medium hover:bg-black transition-colors">
-                Upgrade Now
-              </Link>
-            ) : (
-              <Link href="/admin/billing" className="mt-2 w-full py-3 text-sm font-semibold rounded-xl shadow-md bg-[#111827] text-white flex items-center justify-center transform hover:scale-[1.02] transition-all hover:bg-black">
+            {isUrgent && (
+              <Link 
+                href="/admin/billing" 
+                className="mt-3 w-full py-3 text-center text-xs font-bold uppercase tracking-wider rounded-xl shadow-md bg-[#111827] text-white hover:bg-black transition-all duration-300 ease-in-out"
+              >
                 Upgrade Now
               </Link>
             )}
