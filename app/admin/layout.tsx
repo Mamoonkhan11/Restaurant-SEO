@@ -91,7 +91,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                 Upgrade Now
               </Link>
             ) : (
-              <Link href="/admin/billing" className="mt-2 w-full py-3 text-sm font-semibold rounded-xl shadow-md bg-purple-600 text-white flex items-center justify-center transform hover:scale-[1.02] transition-all">
+              <Link href="/admin/billing" className="mt-2 w-full py-3 text-sm font-semibold rounded-xl shadow-md bg-[#111827] text-white flex items-center justify-center transform hover:scale-[1.02] transition-all hover:bg-black">
                 Upgrade Now
               </Link>
             )}
@@ -150,7 +150,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                 Upgrade Now
               </Link>
             ) : (
-              <Link href="/admin/billing" className="mt-2 w-full py-3 text-sm font-semibold rounded-xl shadow-md bg-purple-600 text-white flex items-center justify-center transform hover:scale-[1.02] transition-all">
+              <Link href="/admin/billing" className="mt-2 w-full py-3 text-sm font-semibold rounded-xl shadow-md bg-[#111827] text-white flex items-center justify-center transform hover:scale-[1.02] transition-all hover:bg-black">
                 Upgrade Now
               </Link>
             )}
