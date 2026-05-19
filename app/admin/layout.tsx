@@ -81,7 +81,23 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Dark Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-gray-300 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#111827] text-gray-300 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        
+        {planType === 'free' && daysLeft !== null && !isExpired && (
+          <div className="bg-[#FEF3C7] text-[#111827] p-4 shrink-0 flex flex-col items-center border-b border-amber-200/50">
+            <span className="text-xs font-bold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
+            {daysLeft > 5 ? (
+              <Link href="/admin/billing" className="mt-2 bg-[#111827] text-white px-3 py-1.5 text-xs rounded-lg font-medium hover:bg-black transition-colors">
+                Upgrade Now
+              </Link>
+            ) : (
+              <Link href="/admin/billing" className="mt-2 w-full py-3 text-sm font-semibold rounded-xl shadow-md bg-purple-600 text-white flex items-center justify-center transform hover:scale-[1.02] transition-all">
+                Upgrade Now
+              </Link>
+            )}
+          </div>
+        )}
+
         <div className="h-20 flex items-center px-6 border-b border-gray-800 shrink-0">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
             <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -126,9 +142,23 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
+        {planType === 'free' && daysLeft !== null && !isExpired && (
+          <div className="md:hidden bg-[#FEF3C7] text-[#111827] p-3 shrink-0 flex flex-col items-center justify-center border-b border-amber-200">
+            <span className="text-xs font-bold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
+            {daysLeft > 5 ? (
+              <Link href="/admin/billing" className="mt-2 bg-[#111827] text-white px-3 py-1.5 text-xs rounded-lg font-medium hover:bg-black transition-colors">
+                Upgrade Now
+              </Link>
+            ) : (
+              <Link href="/admin/billing" className="mt-2 w-full py-3 text-sm font-semibold rounded-xl shadow-md bg-purple-600 text-white flex items-center justify-center transform hover:scale-[1.02] transition-all">
+                Upgrade Now
+              </Link>
+            )}
+          </div>
+        )}
         {/* Mobile Header */}
         <header className="bg-white shadow-sm border-b border-gray-200 p-4 flex justify-between items-center md:hidden z-30 shrink-0">
-          <button onClick={() => setIsSidebarOpen(true)} className="text-gray-600 hover:text-gray-900 focus:outline-none p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+          <button onClick={() => setIsSidebarOpen(true)} className="text-[#111827] hover:text-black focus:outline-none p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
             <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </button>
           <div className="flex items-center gap-2">

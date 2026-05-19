@@ -8,7 +8,7 @@ export default async function DigitalMenu({ params }: { params: { slug: string }
   // Fetch Restaurant
   const { data: restaurant } = await supabase
     .from('restaurants')
-    .select('*')
+    .select('id, name, logo_url, owner_id, plan_type, whatsapp_number, expiry_date, trial_ends_at, slug')
     .eq('slug', params.slug)
     .single();
 
@@ -23,11 +23,11 @@ export default async function DigitalMenu({ params }: { params: { slug: string }
   // Fetch Dishes
   const { data: dishesData } = await supabase
     .from('dishes')
-    .select('*')
+    .select('id, name, price, category, image_url, description, is_available, is_special_offer, offer_tag, view_count, sizes')
     .eq('owner_id', restaurant.owner_id)
     .order('view_count', { ascending: false });
 
-  let initialDishes = [];
+  let initialDishes: any[] = [];
   let initialCategories: string[] = [];
 
   if (dishesData) {

@@ -194,6 +194,34 @@ export default function SettingsPage() {
 
 
 
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Restaurant Logo</label>
+              <div className="flex items-center gap-6">
+                <div className="w-20 h-20 rounded-full bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center relative overflow-hidden group hover:border-gray-400 transition-colors cursor-pointer shrink-0">
+                  {logoPreview ? (
+                    <>
+                      <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <UploadCloud className="w-6 h-6 text-white" />
+                      </div>
+                    </>
+                  ) : (
+                    <UploadCloud className="w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                  )}
+                  <input 
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </div>
+                <div className="text-sm text-gray-500">
+                  <p className="font-bold text-gray-700">Upload a logo</p>
+                  <p>Recommended size: 256x256px. PNG or JPG.</p>
+                </div>
+              </div>
+            </div>
+
             <div className="pt-4 border-t border-gray-100">
               <button type="submit" disabled={isSaving} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70">
                 {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}

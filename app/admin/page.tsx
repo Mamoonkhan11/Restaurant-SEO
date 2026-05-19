@@ -120,24 +120,40 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {liveOrders.map(order => (
-          <div key={order.id} className={`p-5 rounded-xl border-2 ${order.status === 'pending' ? 'border-red-200 bg-red-50/50' : order.status === 'preparing' ? 'border-yellow-200 bg-yellow-50/50' : 'border-gray-200 bg-gray-50'} shadow-sm relative transition-colors`}>
-            <div className="flex justify-between items-start mb-4">
-              <h4 className="font-black text-gray-900 text-xl">Table: {order.table_no}</h4>
-              <span className="text-xs font-bold text-gray-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-gray-100">
-                {timeAgo(order.created_at)}
-              </span>
+          <div key={order.id} className={`p-6 rounded-2xl border ${order.status === 'pending' ? 'border-amber-200 bg-amber-50/30' : order.status === 'preparing' ? 'border-orange-200 bg-orange-50/30' : 'border-gray-100 bg-white'} shadow-sm relative transition-all duration-200 ease-in-out hover:shadow-md flex flex-col`}>
+            <div className="flex justify-between items-start mb-4 border-b border-gray-100 pb-4">
+              <div>
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1 block">Table</span>
+                <h4 className="font-black text-[#111827] text-2xl leading-none">{order.table_no}</h4>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded">
+                  {timeAgo(order.created_at)}
+                </span>
+                {order.status === 'pending' && <span className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending</span>}
+                {order.status === 'preparing' && <span className="flex items-center gap-1.5 text-xs font-bold text-orange-700 bg-orange-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Preparing</span>}
+                {order.status === 'served' && <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
+              </div>
             </div>
             
-            <div className="space-y-2 mb-5 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+            <div className="space-y-4 mb-6 flex-1">
               {order.items?.map((item: any, idx: number) => (
-                <div key={idx} className="flex justify-between text-base">
-                  <span className="font-bold text-gray-800 flex items-center gap-2">
-                    <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{item.quantity}x</span>
-                    {item.name}
-                    {item.size !== 'Standard' && <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded ml-1">{item.size}</span>}
-                  </span>
+                <div key={idx} className="flex justify-between items-start text-sm group transition-all duration-200">
+                  <div className="flex items-start gap-3">
+                    <span className="text-[#111827] font-black bg-gray-100 px-2 py-1 rounded-md text-xs">{item.quantity}x</span>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-[#111827] leading-tight">{item.name}</span>
+                      {item.size && item.size !== 'Standard' && <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mt-0.5">{item.size}</span>}
+                    </div>
+                  </div>
+                  <span className="font-bold text-gray-600 tabular-nums">₹{(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
+            </div>
+
+            <div className="pt-4 border-t border-dashed border-gray-200 flex justify-between items-center mb-6">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Amount</span>
+              <span className="text-xl font-black text-[#111827] tabular-nums">₹{Number(order.total_amount || 0).toFixed(2)}</span>
             </div>
             
             <div className="flex gap-3 mt-auto">
@@ -146,7 +162,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                   onClick={async () => {
                     await supabase.from('orders').update({ status: 'preparing' }).eq('id', order.id);
                   }}
-                  className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-black py-3 px-4 rounded-xl shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="flex-1 bg-[#111827] hover:bg-black text-white text-sm font-bold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Start Preparing
                 </button>
@@ -156,7 +172,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                   onClick={async () => {
                     await supabase.from('orders').update({ status: 'served' }).eq('id', order.id);
                   }}
-                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 px-4 rounded-xl shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Mark as Served
                 </button>

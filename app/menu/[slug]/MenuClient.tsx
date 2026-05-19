@@ -3,8 +3,48 @@ import React, { useEffect, useState, Suspense } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { X, MessageCircle, Loader2, Search, Share2, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
+import { X, MessageCircle, Loader2, Search, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const MenuHeader = React.memo(({ restaurant, menuBlocked }: { restaurant: any, menuBlocked: boolean }) => (
+  <div className="pt-8 pb-6 px-4 flex flex-col items-center justify-center bg-[#F9FAFB] relative z-10">
+    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-full border border-gray-100 flex items-center justify-center overflow-hidden mb-3 relative shadow-sm">
+      {restaurant?.logo_url ? (
+        <Image src={restaurant.logo_url} fill sizes="96px" alt="Logo" className="object-cover" />
+      ) : (
+        <span className="text-3xl font-black text-[#111827]">
+          {restaurant?.name?.charAt(0) || 'L'}
+        </span>
+      )}
+    </div>
+    <h1 className="text-xl sm:text-2xl font-black text-[#111827] tracking-tight text-center">
+      {restaurant?.name || 'Restaurant Name'}
+    </h1>
+  </div>
+));
+MenuHeader.displayName = 'MenuHeader';
+
+const MenuFooter = React.memo(() => (
+  <div className="fixed bottom-0 inset-x-0 h-10 bg-[#FDFBF7]/90 backdrop-blur-sm border-t border-gray-200 flex items-center justify-center z-30">
+    <div className="flex items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
+      <div className="w-4 h-4 bg-gray-400 rounded flex items-center justify-center">
+        <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 4H5a2 2 0 0 0-2 2v3" />
+          <path d="M16 4h3a2 2 0 0 1 2 2v3" />
+          <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
+          <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
+          <path d="M7 14a5 5 0 0 1 10 0" />
+          <path d="M6 14h12" />
+          <path d="M12 9V7" />
+        </svg>
+      </div>
+      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+        Powered by QR-Crave
+      </p>
+    </div>
+  </div>
+));
+MenuFooter.displayName = 'MenuFooter';
 
 export default function MenuClient({ 
   params, 
@@ -35,6 +75,14 @@ export default function MenuClient({
   // KOT Order Status Lifecycle State
   const [orderStatus, setOrderStatus] = useState<'idle' | 'pending' | 'preparing' | 'served'>('idle');
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
+
+  // Cart State
+  const [cart, setCart] = useState<any[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [dishQuantity, setDishQuantity] = useState(1);
+
+  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const getDishPrice = (item: any) => {
     if (item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0) {
@@ -197,6 +245,7 @@ export default function MenuClient({
     if (!dish.is_available) return;
 
     setSelectedDish(dish);
+    setDishQuantity(1);
 
     setDishes(prev => prev.map(d =>
       d.id === dish.id ? { ...d, view_count: d.view_count + 1 } : d
@@ -208,11 +257,6 @@ export default function MenuClient({
     }
   };
 
-  const handleWhatsAppShare = () => {
-    const url = typeof window !== 'undefined' ? window.location.href : '';
-    const msg = `Check out the digital menu for ${restaurant?.name || 'this restaurant'}! Order delicious food here: ${url}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-  };
 
   const searchedDishes = dishes.filter(dish => {
     const query = searchQuery.toLowerCase().trim();
@@ -305,25 +349,7 @@ export default function MenuClient({
       `}</style>
 
       {/* Minimal Top Header */}
-      <div className="pt-8 pb-8 px-4 flex flex-col items-center justify-center bg-white border-b border-gray-100 shadow-sm relative z-10">
-        
-        {/* Logo */}
-        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-50 rounded-full border border-gray-100 flex items-center justify-center overflow-hidden mb-3 relative">
-          {restaurant?.logo_url ? (
-            <Image src={restaurant.logo_url} fill sizes="96px" alt="Logo" className="object-cover" />
-          ) : (
-            <span className="text-3xl font-black text-gray-900">
-              {restaurant?.name?.charAt(0) || 'L'}
-            </span>
-          )}
-        </div>
-
-        {/* Name */}
-        <h1 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight text-center">
-          {restaurant?.name || 'Restaurant Name'}
-        </h1>
-        <p className="text-sm font-medium text-gray-500 mt-1">Digital Menu</p>
-      </div>
+      <MenuHeader restaurant={restaurant} menuBlocked={menuBlocked} />
 
       {menuBlocked ? (
         <div className="max-w-3xl mx-auto px-4 sm:px-6 mt-16 text-center animate-fade-in">
@@ -400,8 +426,8 @@ export default function MenuClient({
 
           {/* Quick Jump Bar */}
           {categories.length > 0 && (
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-2 sticky top-0 z-40 bg-gray-50/95 backdrop-blur-md py-3 shadow-sm border-b border-gray-200">
-              <div className="flex space-x-2 overflow-x-auto scrollbar-hide snap-x">
+            <div className="sticky top-0 z-50 w-full bg-[#F9FAFB] border-b border-gray-200 shadow-sm">
+              <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex space-x-2 overflow-x-auto scrollbar-hide snap-x">
                 {categories.map((cat) => (
                   <button
                     key={cat}
@@ -441,84 +467,155 @@ export default function MenuClient({
                 if (!categoryDishes || categoryDishes.length === 0) return null;
 
                 return (
-                  <div key={cat} id={`category-${cat}`} className="scroll-mt-24">
-                    <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6 sticky top-[5rem] sm:top-[5.5rem] bg-gray-50/95 backdrop-blur-sm py-2 z-30">
+                  <div key={cat} id={`category-${cat}`} className="scroll-mt-24 pt-4">
+                    <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6">
                       {cat}
                     </h2>
                     <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
-                      {categoryDishes.map((item: any, index: number) => (
-                        <motion.div
-                          layoutId={`dish-${item.id}`}
-                          key={item.id}
-                          onClick={() => handleDishClick(item)}
-                          className={`bg-white rounded-3xl p-4 sm:p-5 flex flex-row gap-4 items-center relative group cursor-pointer hover:shadow-md transition-shadow shadow-sm border border-gray-100 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
-                        >
-                          {/* Image */}
-                          <motion.div layoutId={`dish-image-${item.id}`} className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gray-100 shrink-0 overflow-hidden relative">
-                            <Image
-                              src={item.image_url || `https://placehold.co/400x400/e2e8f0/94a3b8?text=${encodeURIComponent(item.name.charAt(0))}`}
-                              fill
-                              sizes="(max-width: 640px) 96px, 112px"
-                              alt={item.name}
-                              className="object-cover"
-                            />
-                          </motion.div>
+                      {categoryDishes.map((item: any, index: number) => {
+                        const sizeKey = item.sizes && Object.keys(item.sizes).length > 0
+                          ? Object.keys(item.sizes)[selectedSizes[item.id] || 0]
+                          : 'Standard';
+                        
+                        const cartItem = cart.find(c => c.dish_id === item.id && c.size === sizeKey);
+                        const quantity = cartItem ? cartItem.quantity : 0;
+                        const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
 
-                          {/* Info */}
-                          <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
-                            <motion.h3 layoutId={`dish-title-${item.id}`} className="text-lg sm:text-xl font-bold text-gray-900 truncate">
-                              {item.name}
-                            </motion.h3>
-                            {item.description && (
-                              <p className="text-gray-500 text-xs sm:text-sm mt-1 line-clamp-2 leading-relaxed">
-                                {item.description}
-                              </p>
-                            )}
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => {
+                              if (item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0) {
+                                handleDishClick(item);
+                              }
+                            }}
+                            className={`bg-white rounded-2xl p-3 sm:p-4 flex flex-row gap-4 items-center relative group shadow-sm border border-gray-100 transition-all duration-200 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-gray-200 hover:shadow-md'}`}
+                          >
+                            {/* Image */}
+                            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gray-50 shrink-0 overflow-hidden relative border border-gray-100">
+                              <Image
+                                src={item.image_url || `https://placehold.co/400x400/F9FAFB/111827?text=${encodeURIComponent(item.name.charAt(0))}`}
+                                fill
+                                sizes="(max-width: 640px) 96px, 112px"
+                                alt={item.name}
+                                className="object-cover"
+                              />
+                            </div>
 
-                            {item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0 ? (
-                              <div className="mt-3">
-                                <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 block mb-2">
-                                  ₹{getDishPrice(item)}
-                                </motion.span>
-                                <div className="flex flex-wrap gap-2" onClick={e => e.stopPropagation()}>
+                            {/* Info */}
+                            <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className={`w-3 h-3 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0`}>
+                                  <div className={`w-1.5 h-1.5 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}></div>
+                                </div>
+                                <h3 className="text-base sm:text-lg font-bold text-[#111827] truncate">
+                                  {item.name}
+                                </h3>
+                              </div>
+                              {item.description && (
+                                <p className="text-gray-500 text-xs sm:text-sm mt-0.5 line-clamp-2 leading-relaxed">
+                                  {item.description}
+                                </p>
+                              )}
+
+                              {item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-1.5" onClick={e => e.stopPropagation()}>
                                   {Object.entries(item.sizes).map(([label, _price], i: number) => {
                                     const isSelected = (selectedSizes[item.id] || 0) === i;
                                     return (
                                       <button
                                         key={i}
-                                        onClick={() => setSelectedSizes({ ...selectedSizes, [item.id]: i })}
-                                        className={`px-3 py-1.5 text-[11px] uppercase tracking-wide font-bold rounded-xl transition-all ${isSelected ? 'bg-gray-900 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                                        onClick={(e) => { e.stopPropagation(); setSelectedSizes({ ...selectedSizes, [item.id]: i }); }}
+                                        className={`px-2 py-1 text-[10px] uppercase tracking-wide font-bold rounded-lg transition-all ${isSelected ? 'bg-[#111827] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                                       >
                                         {label}
                                       </button>
                                     );
                                   })}
                                 </div>
+                              )}
+
+                              <div className="mt-3 flex items-center justify-between">
+                                <span className="text-base sm:text-lg font-black text-[#111827] tabular-nums">
+                                  ₹{getDishPrice(item)}
+                                </span>
+
+                                {/* Add to Cart logic */}
+                                {item.is_available && (
+                                  <div className="shrink-0 ml-4">
+                                    {quantity > 0 ? (
+                                      <div className="flex items-center gap-3 bg-[#111827] text-white px-1 py-1 rounded-full shadow-md animate-fade-in">
+                                        <button 
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setCart(prev => {
+                                              const newCart = [...prev];
+                                              const idx = newCart.findIndex(c => c.dish_id === item.id && c.size === sizeKey);
+                                              if (idx >= 0) {
+                                                newCart[idx].quantity -= 1;
+                                                if (newCart[idx].quantity <= 0) newCart.splice(idx, 1);
+                                              }
+                                              return newCart;
+                                            });
+                                          }}
+                                          className="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full font-bold active:scale-95 transition-transform"
+                                        >
+                                          -
+                                        </button>
+                                        <span className="font-bold text-sm w-4 text-center">{quantity}</span>
+                                        <button 
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (quantity < 10) {
+                                              setCart(prev => {
+                                                const newCart = [...prev];
+                                                const idx = newCart.findIndex(c => c.dish_id === item.id && c.size === sizeKey);
+                                                if (idx >= 0) newCart[idx].quantity += 1;
+                                                return newCart;
+                                              });
+                                            }
+                                          }}
+                                          className="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full font-bold active:scale-95 transition-transform"
+                                        >
+                                          +
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <button 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setCart(prev => [...prev, {
+                                            dish_id: item.id,
+                                            name: item.name,
+                                            price: Number(getDishPrice(item)),
+                                            quantity: 1,
+                                            size: sizeKey,
+                                            img: item.image_url
+                                          }]);
+                                        }}
+                                        className="bg-[#F9FAFB] hover:bg-gray-100 text-[#111827] border border-gray-200 px-5 py-1.5 rounded-full font-bold text-sm transition-colors active:scale-95 shadow-sm"
+                                      >
+                                        ADD
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                            ) : (
-                              <motion.span layoutId={`dish-price-${item.id}`} className="text-base sm:text-lg font-black text-gray-900 mt-2 block">
-                                ₹{getDishPrice(item)}
-                              </motion.span>
+                            </div>
+
+                            {item.is_special_offer && item.offer_tag && item.is_available && (
+                              <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-[#111827] text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase">
+                                {item.offer_tag}
+                              </div>
+                            )}
+                            {!item.is_available && (
+                              <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-gray-500 text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase">
+                                Out of stock
+                              </div>
                             )}
                           </div>
-
-                          {item.is_special_offer && item.offer_tag && item.is_available && (
-                            <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-orange-500 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
-                              {item.offer_tag}
-                            </div>
-                          )}
-                          {item.isBestSeller && !item.is_special_offer && item.is_available && (
-                            <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-blue-600 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
-                              Bestseller
-                            </div>
-                          )}
-                          {!item.is_available && (
-                            <div className="absolute top-0 right-0 rounded-bl-3xl rounded-tr-3xl bg-gray-700 text-white text-[10px] font-black px-3 py-1.5 shadow-sm flex items-center gap-1 tracking-wider z-10 uppercase">
-                              Out of stock
-                            </div>
-                          )}
-                        </motion.div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 );
@@ -528,34 +625,39 @@ export default function MenuClient({
         </>
       )}
 
-      {/* Floating WhatsApp Share Button */}
-      <button
-        onClick={handleWhatsAppShare}
-        className="fixed bottom-14 right-4 sm:right-8 bg-[#25D366] text-white px-5 h-14 rounded-full shadow-[0_4px_14px_0_rgba(37,211,102,0.39)] flex items-center justify-center gap-2.5 hover:scale-105 active:scale-95 transition-transform z-40 font-bold"
-      >
-        <Share2 className="w-5 h-5" />
-        <span className="text-sm tracking-wide">Share Menu</span>
-      </button>
+      {/* Sticky Bottom Bar for Cart */}
+      {cartItemCount > 0 && orderStatus === 'idle' && (
+        <div className="fixed bottom-4 left-4 right-4 z-50 animate-slide-up sm:max-w-md sm:mx-auto">
+          <div className="bg-[#111827] text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between border border-gray-800">
+            <div className="flex flex-col">
+              <span className="font-bold text-sm text-gray-300 uppercase tracking-widest">{cartItemCount} Items Added</span>
+              <span className="font-black text-xl tabular-nums">₹{cartTotal.toFixed(2)}</span>
+            </div>
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="bg-white text-[#111827] px-6 py-3 rounded-xl font-black shadow-md hover:bg-gray-100 active:scale-95 transition-all"
+            >
+              View Cart & Order 🛒
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Floating Buttons */}
+      <div className={`fixed right-4 sm:right-8 flex flex-col gap-3 z-40 transition-all duration-300 ${cartItemCount > 0 ? 'bottom-28' : 'bottom-14'}`}>
+        {orderStatus !== 'idle' && (
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="bg-[#111827] text-white px-5 h-14 rounded-full shadow-lg flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-transform font-bold"
+          >
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span className="text-sm tracking-wide">Track Order</span>
+          </button>
+        )}
+      </div>
 
       {/* Fixed Footer */}
-      <div className="fixed bottom-0 inset-x-0 h-10 bg-[#FDFBF7]/90 backdrop-blur-sm border-t border-gray-200 flex items-center justify-center z-30">
-        <div className="flex items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
-          <div className="w-4 h-4 bg-gray-400 rounded flex items-center justify-center">
-            <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M8 4H5a2 2 0 0 0-2 2v3" />
-              <path d="M16 4h3a2 2 0 0 1 2 2v3" />
-              <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
-              <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
-              <path d="M7 14a5 5 0 0 1 10 0" />
-              <path d="M6 14h12" />
-              <path d="M12 9V7" />
-            </svg>
-          </div>
-          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-            Powered by QR-Crave
-          </p>
-        </div>
-      </div>
+      <MenuFooter />
       {/* Deep Detail Organic Full-Screen Expansion (Retained) */}
       <AnimatePresence>
         {selectedDish && (
@@ -618,100 +720,208 @@ export default function MenuClient({
                   className="p-4 sm:p-6 border-t border-gray-100 bg-white shrink-0"
                 >
                   {(() => {
-                    const planType = restaurant?.plan_type || 'free';
-                    const trialEndsAt = restaurant?.trial_ends_at ? new Date(restaurant.trial_ends_at) : null;
-                    const isTrialActive = planType === 'free' && trialEndsAt && new Date() < trialEndsAt;
-                    const canOrder = ['pro', 'premium'].includes(planType) || isTrialActive;
-
-                    if (!canOrder) {
-                      return (
-                        <button
-                          disabled
-                          className="w-full bg-gray-100 text-gray-400 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 cursor-not-allowed"
-                        >
-                          <MessageCircle className="w-6 h-6" />
-                          Ordering Unavailable
-                        </button>
-                      );
-                    }
-
-                    if (orderStatus === 'pending') {
-                      return (
-                        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full bg-yellow-100 border border-yellow-300 text-yellow-800 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-sm">
-                          <Loader2 className="w-8 h-8 animate-spin text-yellow-600" />
-                          <p className="font-bold text-center leading-tight">⏳ Order Sent!</p>
-                          <p className="text-sm text-yellow-700 text-center">Waiting for restaurant confirmation...</p>
-                        </motion.div>
-                      );
-                    }
-
-                    if (orderStatus === 'preparing') {
-                      return (
-                        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full bg-orange-100 border border-orange-300 text-orange-800 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-sm animate-pulse">
-                          <div className="text-3xl">🍳</div>
-                          <p className="font-bold text-center leading-tight">Chef is preparing your delicious meal...</p>
-                        </motion.div>
-                      );
-                    }
-
-                    if (orderStatus === 'served') {
-                      return (
-                        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full bg-green-100 border border-green-300 text-green-800 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-sm">
-                          <CheckCircle className="w-10 h-10 text-green-600" />
-                          <p className="font-bold text-center text-lg leading-tight">🎉 Food Served!</p>
-                          <p className="text-sm text-green-700 text-center">Enjoy your meal! (Resetting shortly...)</p>
-                        </motion.div>
-                      );
-                    }
+                    const price = Number(getDishPrice(selectedDish));
+                    const sizeKey = selectedDish.sizes && Object.keys(selectedDish.sizes).length > 0 
+                                  ? Object.keys(selectedDish.sizes)[selectedSizes[selectedDish.id] || 0] 
+                                  : 'Standard';
 
                     return (
-                      <button
-                        onClick={async () => {
-                          if (tableNo) {
-                            setOrderStatus('pending');
-                            // Place KOT order
-                            const price = Number(getDishPrice(selectedDish));
-                            const sizeKey = selectedDish.sizes && Object.keys(selectedDish.sizes).length > 0 
-                                          ? Object.keys(selectedDish.sizes)[selectedSizes[selectedDish.id] || 0] 
-                                          : 'Standard';
-                            const orderData = {
-                              restaurant_id: restaurant.id,
-                              table_no: tableNo,
-                              items: [{
-                                id: selectedDish.id,
+                      <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-between bg-gray-50 p-2 rounded-2xl border border-gray-100">
+                          <button 
+                            onClick={() => setDishQuantity(Math.max(1, dishQuantity - 1))}
+                            className="w-12 h-12 flex items-center justify-center bg-white rounded-xl font-bold text-xl text-gray-900 shadow-sm border border-gray-200"
+                          >
+                            -
+                          </button>
+                          <span className="font-black text-xl w-12 text-center">{dishQuantity}</span>
+                          <button 
+                            onClick={() => setDishQuantity(Math.min(10, dishQuantity + 1))}
+                            className="w-12 h-12 flex items-center justify-center bg-white rounded-xl font-bold text-xl text-gray-900 shadow-sm border border-gray-200"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setCart(prev => {
+                              const existing = prev.findIndex(item => item.dish_id === selectedDish.id && item.size === sizeKey);
+                              if (existing >= 0) {
+                                const newCart = [...prev];
+                                newCart[existing].quantity = Math.min(10, newCart[existing].quantity + dishQuantity);
+                                return newCart;
+                              }
+                              return [...prev, {
+                                dish_id: selectedDish.id,
                                 name: selectedDish.name,
-                                quantity: 1, // Currently UI only supports ordering 1 at a time from detail view
                                 price: price,
-                                size: sizeKey
-                              }],
-                              total_amount: price,
-                              status: 'pending'
-                            };
-                            
-                            const { data, error } = await supabase.from('orders').insert(orderData).select().single();
-                            if (error) {
-                              setOrderStatus('idle');
-                              alert('Failed to place order. Please try again.');
-                            } else {
-                              setActiveOrderId(data.id);
-                            }
-                          } else {
-                            // Fallback to WhatsApp
-                            const msg = `Hi! I would like to order: ${selectedDish.name} (₹${getDishPrice(selectedDish)}). Could you please let me know if home delivery is available? If not, kindly share your exact address so I can arrange a takeaway. Thank you!`;
-                            window.open(`https://wa.me/${restaurant?.whatsapp_number?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
-                          }
-                        }}
-                        className={`w-full ${tableNo ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#25D366] hover:bg-[#1ebd5a]'} text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg`}
-                      >
-                        {tableNo ? <Loader2 className="w-6 h-6 hidden" /> : <MessageCircle className="w-6 h-6" />}
-                        {tableNo ? 'Place Order 🛒' : 'Order on WhatsApp'}
-                      </button>
+                                quantity: dishQuantity,
+                                size: sizeKey,
+                                img: selectedDish.image_url
+                              }];
+                            });
+                            setSelectedDish(null);
+                          }}
+                          className="w-full bg-gray-900 hover:bg-black text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-between px-6 shadow-lg"
+                        >
+                          <span>Add to Cart</span>
+                          <span>₹{(price * dishQuantity).toFixed(2)}</span>
+                        </button>
+                      </div>
                     );
                   })()}
                 </motion.div>
 
               </motion.div>
             </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Cart Drawer */}
+      <AnimatePresence>
+        {isCartOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsCartOpen(false)}
+              className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm cursor-pointer"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed bottom-0 inset-x-0 z-[70] bg-white rounded-t-[2rem] shadow-2xl flex flex-col max-h-[90vh] sm:max-w-md sm:mx-auto"
+            >
+              <div className="p-4 flex justify-center shrink-0">
+                <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
+              </div>
+              
+              <div className="px-6 pb-4 flex justify-between items-center border-b border-gray-100 shrink-0">
+                <h2 className="text-2xl font-black text-gray-900">Your Order</h2>
+                <button onClick={() => setIsCartOpen(false)} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6 overflow-y-auto flex-1 bg-gray-50/50">
+                {orderStatus !== 'idle' ? (
+                  <div className="flex flex-col items-center justify-center py-12 gap-4">
+                    {orderStatus === 'pending' && (
+                      <>
+                        <Loader2 className="w-12 h-12 animate-spin text-yellow-500" />
+                        <p className="font-black text-xl">Order Sent!</p>
+                        <p className="text-gray-500 text-center">Waiting for kitchen confirmation...</p>
+                      </>
+                    )}
+                    {orderStatus === 'preparing' && (
+                      <>
+                        <div className="text-5xl animate-bounce">🍳</div>
+                        <p className="font-black text-xl">Chef is preparing!</p>
+                        <p className="text-gray-500 text-center">Your delicious meal is in the works.</p>
+                      </>
+                    )}
+                    {orderStatus === 'served' && (
+                      <>
+                        <CheckCircle className="w-16 h-16 text-green-500" />
+                        <p className="font-black text-2xl text-green-600">Food Served! 🎉</p>
+                        <p className="text-gray-500 text-center">Enjoy your meal.</p>
+                      </>
+                    )}
+                  </div>
+                ) : cart.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                    <MessageCircle className="w-12 h-12 mb-4 opacity-50" />
+                    <p className="font-bold text-lg text-gray-900">Cart is empty</p>
+                    <p className="text-sm">Add some delicious dishes!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {cart.map((item, idx) => (
+                      <div key={idx} className="flex gap-4 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm items-center">
+                        <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden relative shrink-0">
+                          {item.img && <Image src={item.img} fill sizes="64px" alt={item.name} className="object-cover" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-gray-900 truncate">{item.name}</h4>
+                          <div className="flex items-center justify-between mt-1">
+                            <span className="font-black text-gray-900">₹{item.price}</span>
+                            {item.size !== 'Standard' && <span className="text-xs text-gray-500">{item.size}</span>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-100 shrink-0">
+                           <button onClick={() => {
+                             setCart(prev => {
+                               const newCart = [...prev];
+                               newCart[idx].quantity -= 1;
+                               if (newCart[idx].quantity <= 0) newCart.splice(idx, 1);
+                               return newCart;
+                             });
+                           }} className="w-7 h-7 flex items-center justify-center font-bold bg-white rounded shadow-sm text-gray-600">-</button>
+                           <span className="font-bold w-4 text-center text-sm">{item.quantity}</span>
+                           <button onClick={() => {
+                             setCart(prev => {
+                               const newCart = [...prev];
+                               newCart[idx].quantity = Math.min(10, newCart[idx].quantity + 1);
+                               return newCart;
+                             });
+                           }} className="w-7 h-7 flex items-center justify-center font-bold bg-white rounded shadow-sm text-gray-600">+</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {orderStatus === 'idle' && cart.length > 0 && (
+                <div className="p-6 bg-white border-t border-gray-100 shrink-0">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="font-bold text-gray-500">Total Amount</span>
+                    <span className="font-black text-2xl text-gray-900">₹{cartTotal.toFixed(2)}</span>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      if (!tableNo) {
+                        const itemsList = cart.map(i => `${i.quantity}x ${i.name}`).join('%0A');
+                        const msg = `Hi! I would like to order:%0A${itemsList}%0ATotal: ₹${cartTotal.toFixed(2)}%0ACould you let me know if delivery is available?`;
+                        window.open(`https://wa.me/${restaurant?.whatsapp_number?.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
+                        return;
+                      }
+                      
+                      setOrderStatus('pending');
+                      const payload = {
+                        restaurant_id: restaurant.id,
+                        table_no: tableNo,
+                        status: 'pending',
+                        items: cart.map(item => ({
+                          dish_id: item.dish_id,
+                          name: item.name,
+                          price: item.price,
+                          quantity: item.quantity,
+                          size: item.size
+                        })),
+                        total_amount: cartTotal
+                      };
+                      
+                      const { data, error } = await supabase.from('orders').insert(payload).select().single();
+                      if (error) {
+                        setOrderStatus('idle');
+                        alert('Failed to place order. Please try again.');
+                      } else {
+                        setActiveOrderId(data.id);
+                        setCart([]); // Clear cart on success
+                      }
+                    }}
+                    className={`w-full py-4 rounded-2xl font-bold text-lg transition-transform active:scale-95 flex items-center justify-center gap-2 shadow-lg text-white ${tableNo ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#25D366] hover:bg-[#1ebd5a]'}`}
+                  >
+                    {tableNo ? 'Place KOT Order' : 'Order on WhatsApp'}
+                  </button>
+                </div>
+              )}
+            </motion.div>
           </>
         )}
       </AnimatePresence>
