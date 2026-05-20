@@ -530,20 +530,18 @@ export default function AdminDashboardOverview() {
             </div>
             <div className="h-[300px] w-full mt-4">
               {chartData.length > 0 ? (
-                <div style={{ width: '100%', height: 300 }}>
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                    <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 30, left: -20 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 11 }} dy={15} angle={-25} textAnchor="end" />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                      <Tooltip
-                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                        itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
-                      />
-                      <Line type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
+                <ResponsiveContainer width="99%" height={300}>
+                  <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 30, left: -20 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 11 }} dy={15} angle={-25} textAnchor="end" />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                    <Tooltip
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                      itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
+                    />
+                    <Line type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+                  </LineChart>
+                </ResponsiveContainer>
               ) : (
                 <div className="h-full flex items-center justify-center border-2 border-dashed border-gray-100 rounded-xl">
                   <p className="text-gray-400 font-medium text-sm">No view data available yet.</p>
