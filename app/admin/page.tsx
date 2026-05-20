@@ -52,18 +52,17 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
 
   const handleToggleAudio = () => {
     if (audioMuted) {
+      setAudioMuted(false);
       if (audioRef.current) {
         audioRef.current.playbackRate = 0.5;
         audioRef.current.play()
           .then(() => {
-            setAudioMuted(false);
             audioRef.current!.pause();
             audioRef.current!.currentTime = 0;
           })
           .catch((err: any) => {
             console.warn('Audio decoding anomaly intercepted gracefully:', err.message || err);
             console.warn('Tip: Please verify that order_tune.mp3 exists exactly in the /public/sounds/ folder and is not a corrupted file.');
-            setAudioMuted(true);
           });
       }
     } else {
