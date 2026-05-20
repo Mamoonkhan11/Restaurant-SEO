@@ -37,30 +37,30 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const audio = new Audio('/public/order_tune.mp3');
+      const audio = new Audio('/order_tune.mp3');
       audio.preload = 'auto';
       audio.volume = 0.6;
       audioRef.current = audio;
 
       // Interaction unlock handler
       const unlock = () => {
+        setAudioMuted(false);
         if (audioRef.current) {
           audioRef.current.play()
             .then(() => {
-              setAudioMuted(false);
               audioRef.current!.pause();
               audioRef.current!.currentTime = 0;
-              window.removeEventListener('click', unlock);
-              window.removeEventListener('touchstart', unlock);
             })
             .catch((err) => {
               console.warn("Audio unlock failed on interaction", err);
             });
         }
+        window.removeEventListener('click', unlock, true);
+        window.removeEventListener('touchstart', unlock, true);
       };
 
-      window.addEventListener('click', unlock);
-      window.addEventListener('touchstart', unlock);
+      window.addEventListener('click', unlock, true);
+      window.addEventListener('touchstart', unlock, true);
 
       // Attempt immediate silent play (just in case browser already has permission)
       const playPromise = audio.play();
@@ -70,8 +70,8 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             setAudioMuted(false);
             audio.pause();
             audio.currentTime = 0;
-            window.removeEventListener('click', unlock);
-            window.removeEventListener('touchstart', unlock);
+            window.removeEventListener('click', unlock, true);
+            window.removeEventListener('touchstart', unlock, true);
           })
           .catch(() => {
             // Stay muted until interaction click
@@ -79,8 +79,8 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       }
 
       return () => {
-        window.removeEventListener('click', unlock);
-        window.removeEventListener('touchstart', unlock);
+        window.removeEventListener('click', unlock, true);
+        window.removeEventListener('touchstart', unlock, true);
       };
     }
   }, []);
