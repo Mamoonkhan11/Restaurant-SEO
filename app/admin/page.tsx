@@ -32,7 +32,7 @@ const timeAgo = (dateString: string) => {
 
 function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
-  const [audioMuted, setAudioMuted] = useState(false);
+  const [audioMuted, setAudioMuted] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -42,41 +42,48 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       audio.volume = 0.6;
       audioRef.current = audio;
 
-      // Autoplay precheck/unlocker trigger
+      // Interaction unlock handler
+      const unlock = () => {
+        if (audioRef.current) {
+          audioRef.current.play()
+            .then(() => {
+              setAudioMuted(false);
+              audioRef.current!.pause();
+              audioRef.current!.currentTime = 0;
+              window.removeEventListener('click', unlock);
+              window.removeEventListener('touchstart', unlock);
+            })
+            .catch((err) => {
+              console.warn("Audio unlock failed on interaction", err);
+            });
+        }
+      };
+
+      window.addEventListener('click', unlock);
+      window.addEventListener('touchstart', unlock);
+
+      // Attempt immediate silent play (just in case browser already has permission)
       const playPromise = audio.play();
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
+            setAudioMuted(false);
             audio.pause();
             audio.currentTime = 0;
+            window.removeEventListener('click', unlock);
+            window.removeEventListener('touchstart', unlock);
           })
-          .catch((err) => {
-            console.warn("Autoplay blocked initially, notifying user", err);
-            setAudioMuted(true);
+          .catch(() => {
+            // Stay muted until interaction click
           });
       }
+
+      return () => {
+        window.removeEventListener('click', unlock);
+        window.removeEventListener('touchstart', unlock);
+      };
     }
   }, []);
-
-  useEffect(() => {
-    const handleUnlock = () => {
-      if (audioMuted && audioRef.current) {
-        audioRef.current.play()
-          .then(() => {
-            setAudioMuted(false);
-            audioRef.current!.pause();
-            audioRef.current!.currentTime = 0;
-          })
-          .catch((e) => {
-            console.error("Unlock failed", e);
-          });
-      }
-    };
-    window.addEventListener('click', handleUnlock);
-    return () => {
-      window.removeEventListener('click', handleUnlock);
-    };
-  }, [audioMuted]);
 
   useEffect(() => {
     if (!restaurantId) return;
@@ -106,7 +113,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         (payload) => {
           if (payload.new) {
             setLiveOrders(prev => [payload.new, ...prev]);
-            toast.success(`New order received from ${payload.new.table_no}!`, { icon: '🔔' });
+            toast.success(`New order received from ${payload.new.table_no}!`);
             if (audioRef.current) {
               audioRef.current.currentTime = 0;
               audioRef.current.play().catch((e: any) => {
@@ -157,7 +164,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             )}
             {audioMuted && (
               <span className="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-amber-200 animate-pulse">
-                🔊 Notifications Muted — Click Anywhere to Enable Audio
+                Notifications Muted - Click Anywhere to Enable Audio
               </span>
             )}
           </h3>

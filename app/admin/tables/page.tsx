@@ -20,71 +20,64 @@ export default function TablesPage() {
     const printElement = document.getElementById('printable-qr-frame');
     if (!printElement) return;
 
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      toast.error('Popup blocked! Please allow popups to export PDF.');
-      return;
-    }
+    // Create a temporary container at body root
+    const printRoot = document.createElement('div');
+    printRoot.id = 'print-root';
+    
+    // Clone the printable frame
+    const clone = printElement.cloneNode(true) as HTMLElement;
+    // Remove dynamic attributes/classes that interfere with print bounds
+    clone.style.border = '2px solid #000000';
+    clone.style.boxShadow = 'none';
+    clone.style.color = '#000000';
+    clone.style.display = 'inline-flex';
+    clone.querySelectorAll('*').forEach(el => {
+      (el as HTMLElement).style.color = '#000000';
+      (el as HTMLElement).style.borderColor = '#000000';
+    });
 
+    printRoot.appendChild(clone);
+    document.body.appendChild(printRoot);
+
+    // Create a print-only style block
+    const printStyle = document.createElement('style');
+    printStyle.id = 'print-style';
+    printStyle.innerHTML = `
+      @media print {
+        body > *:not(#print-root) {
+          display: none !important;
+        }
+        #print-root {
+          display: flex !important;
+          justify-content: center !important;
+          align-items: center !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          background: #ffffff !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        @page {
+          size: portrait;
+          margin: 0;
+        }
+      }
+    `;
+    document.head.appendChild(printStyle);
+
+    // Set page title for output file naming
+    const originalTitle = document.title;
     const sanitizedRestaurantName = (restaurant.name || 'Restaurant').replace(/[^a-z0-9]/gi, '_');
     const sanitizedTableNo = (selectedTable.table_no || 'Table').replace(/[^a-z0-9]/gi, '_');
+    document.title = `${sanitizedRestaurantName}_${sanitizedTableNo}`;
 
-    // Clone all document style tags and stylesheet links to preserve Tailwind styles
-    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-      .map(el => {
-        if (el.tagName.toLowerCase() === 'link') {
-          const cloned = el.cloneNode(true) as HTMLLinkElement;
-          cloned.href = cloned.href; // Resolves relative href to absolute URL
-          return cloned.outerHTML;
-        }
-        return el.outerHTML;
-      })
-      .join('\n');
+    // Print the page using native dialog
+    window.print();
 
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>${sanitizedRestaurantName}_${sanitizedTableNo}</title>
-          ${styles}
-          <style>
-            @page {
-              size: portrait;
-              margin: 0;
-            }
-            body {
-              margin: 0;
-              padding: 0;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              min-height: 100vh;
-              background-color: #ffffff;
-            }
-            #printable-qr-frame {
-              border: 2px solid #000000 !important;
-              box-shadow: none !important;
-              display: inline-flex !important;
-              visibility: visible !important;
-            }
-            #printable-qr-frame * {
-              color: #000000 !important;
-              border-color: #000000 !important;
-            }
-          </style>
-        </head>
-        <body>
-          ${printElement.outerHTML}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-
-    // Give browser a short window to process and paint the SVG/styles
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 300);
+    // Restore page title and clean up DOM immediately
+    document.title = originalTitle;
+    document.body.removeChild(printRoot);
+    document.head.removeChild(printStyle);
   };
 
   useEffect(() => {
