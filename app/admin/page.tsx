@@ -34,18 +34,30 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
   const [audioMuted, setAudioMuted] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioMutedRef = useRef(audioMuted);
+
+  // Synchronize ref with audioMuted state to prevent stale closures
+  useEffect(() => {
+    audioMutedRef.current = audioMuted;
+  }, [audioMuted]);
+
+  // Load the initial audio preference from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('admin_audio_muted');
+    if (saved !== null) {
+      setAudioMuted(saved === 'true');
+    } else {
+      // Default to false (audio enabled) if never set
+      setAudioMuted(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !audioRef.current) {
-      const audio = new Audio();
-      const source = document.createElement('source');
-      source.src = '/sounds/order_tune.mp3';
-      source.type = 'audio/mpeg'; // Explicitly forces the browser to treat it as standard MPEG layer-3
-      audio.appendChild(source);
+      const audio = new Audio('/sounds/order_tune.mp3');
       audio.preload = 'auto';
       audio.volume = 1.0; // Maximum volume for high alert visibility
       audio.playbackRate = 0.5; // Set playback speed to 0.5
-      audio.load(); // Explicitly force reload the schema cache
       audioRef.current = audio;
     }
   }, []);
@@ -54,34 +66,32 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     if (audioRef.current) {
       audioRef.current.pause(); // Stop any incomplete execution thread
       audioRef.current.currentTime = 0; // Absolute reset to start line
-
-      // Dynamic Double-Strike Loop (Optional safety fallback for ultra-short clips)
+      audioRef.current.playbackRate = 0.5; // Explicitly ensure play speed
       audioRef.current.play()
         .catch(err => console.log("Realtime Audio Playback Intercepted:", err.message));
     }
   };
 
   const handleToggleAudio = () => {
-    if (audioMuted) {
-      setAudioMuted(false);
-      if (audioRef.current) {
-        audioRef.current.playbackRate = 0.5;
-        audioRef.current.play()
-          .then(() => {
-            audioRef.current!.pause();
-            audioRef.current!.currentTime = 0;
-          })
-          .catch((err: any) => {
-            const errMsg = err.message || String(err);
-            if (errMsg.includes('interrupted by a call to pause')) {
-              return; // Ignore standard user interaction play-pause interruption
-            }
-            console.warn('Audio decoding anomaly intercepted gracefully:', errMsg);
-            console.warn('Tip: Please verify that order_tune.mp3 exists exactly in the /public/sounds/ folder and is not a corrupted file.');
-          });
-      }
-    } else {
-      setAudioMuted(true);
+    const nextMuted = !audioMuted;
+    setAudioMuted(nextMuted);
+    localStorage.setItem('admin_audio_muted', String(nextMuted));
+
+    if (!nextMuted && audioRef.current) {
+      audioRef.current.playbackRate = 0.5;
+      audioRef.current.play()
+        .then(() => {
+          audioRef.current!.pause();
+          audioRef.current!.currentTime = 0;
+        })
+        .catch((err: any) => {
+          const errMsg = err.message || String(err);
+          if (errMsg.includes('interrupted by a call to pause')) {
+            return; // Ignore standard user interaction play-pause interruption
+          }
+          console.warn('Audio decoding anomaly intercepted gracefully:', errMsg);
+          console.warn('Tip: Please verify that order_tune.mp3 exists exactly in the /public/sounds/ folder and is not a corrupted file.');
+        });
     }
   };
 
@@ -113,7 +123,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         (payload) => {
           if (payload.new) {
             console.log("🟢 REALTIME NEW ORDER DETECTED FOR TABLE:", payload.new.table_no);
-            if (!audioMuted) {
+            if (!audioMutedRef.current) {
               playNotification();
             }
             setLiveOrders(prev => [payload.new, ...prev]);
@@ -145,7 +155,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     return () => {
       supabase.removeChannel(ordersSubscription);
     };
-  }, [restaurantId, audioMuted]);
+  }, [restaurantId]);
 
   return (
     <div className="bg-white p-6 rounded-2xl border border-emerald-200 shadow-sm flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
