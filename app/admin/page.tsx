@@ -32,35 +32,42 @@ const timeAgo = (dateString: string) => {
 
 function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
-  const [audioEnabled, setAudioEnabled] = useState(false);
+  const [audioMuted, setAudioMuted] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !audioRef.current) {
-      const audio = new Audio('/order_tune.mp3');
+      const audio = new Audio();
+      const source = document.createElement('source');
+      source.src = '/sounds/order_tune.mp3';
+      source.type = 'audio/mpeg'; // Explicitly forces the browser to treat it as standard MPEG layer-3
+      audio.appendChild(source);
       audio.preload = 'auto';
       audio.volume = 1.0; // Maximum volume for high alert visibility
       audio.playbackRate = 0.5; // Set playback speed to 0.5
+      audio.load(); // Explicitly force reload the schema cache
       audioRef.current = audio;
     }
   }, []);
 
   const handleToggleAudio = () => {
-    if (!audioEnabled) {
-      setAudioEnabled(true);
+    if (audioMuted) {
       if (audioRef.current) {
         audioRef.current.playbackRate = 0.5;
         audioRef.current.play()
           .then(() => {
+            setAudioMuted(false);
             audioRef.current!.pause();
             audioRef.current!.currentTime = 0;
           })
-          .catch((err) => {
-            console.warn("Audio unlock failed on interaction", err);
+          .catch((err: any) => {
+            console.warn('Audio decoding anomaly intercepted gracefully:', err.message || err);
+            console.warn('Tip: Please verify that order_tune.mp3 exists exactly in the /public/sounds/ folder and is not a corrupted file.');
+            setAudioMuted(true);
           });
       }
     } else {
-      setAudioEnabled(false);
+      setAudioMuted(true);
     }
   };
 
@@ -93,13 +100,15 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           if (payload.new) {
             setLiveOrders(prev => [payload.new, ...prev]);
             toast.success(`New order received from ${payload.new.table_no}!`);
-            if (audioRef.current && audioEnabled) {
+            if (audioRef.current && !audioMuted) {
               audioRef.current.currentTime = 0;
               audioRef.current.playbackRate = 0.5;
-              audioRef.current.play().catch((e: any) => {
-                console.error("Audio play blocked", e);
-                // Do not change audioEnabled state on playback failure
-              });
+              audioRef.current.play()
+                .catch((e: any) => {
+                  console.warn('Audio decoding anomaly intercepted gracefully:', e.message || e);
+                  console.warn('Tip: Please verify that order_tune.mp3 exists exactly in the /public/sounds/ folder and is not a corrupted file.');
+                  // Do not change audioMuted state on playback failure
+                });
             }
           }
         }
@@ -128,7 +137,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     return () => {
       supabase.removeChannel(ordersSubscription);
     };
-  }, [restaurantId, audioEnabled]);
+  }, [restaurantId, audioMuted]);
 
   return (
     <div className="bg-white p-6 rounded-2xl border border-emerald-200 shadow-sm flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
@@ -142,7 +151,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 {liveOrders.filter(o => o.status === 'pending').length} Action Required
               </span>
             )}
-            {audioEnabled ? (
+            {!audioMuted ? (
               <button
                 onClick={handleToggleAudio}
                 className="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-emerald-200 transition-colors cursor-pointer"
