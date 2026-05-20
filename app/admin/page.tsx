@@ -40,16 +40,16 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       const audio = new Audio('/order_tune.mp3');
       audio.preload = 'auto';
       audio.volume = 1.0; // Maximum volume for high alert visibility
+      audio.playbackRate = 0.5; // Set playback speed to 0.5
       audioRef.current = audio;
     }
   }, []);
 
-  useEffect(() => {
-    if (audioEnabled) return; // Unlocked and active, no global listeners required
-
-    const unlock = () => {
+  const handleToggleAudio = () => {
+    if (!audioEnabled) {
       setAudioEnabled(true);
       if (audioRef.current) {
+        audioRef.current.playbackRate = 0.5;
         audioRef.current.play()
           .then(() => {
             audioRef.current!.pause();
@@ -59,16 +59,10 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             console.warn("Audio unlock failed on interaction", err);
           });
       }
-    };
-
-    window.addEventListener('click', unlock, true);
-    window.addEventListener('touchstart', unlock, true);
-
-    return () => {
-      window.removeEventListener('click', unlock, true);
-      window.removeEventListener('touchstart', unlock, true);
-    };
-  }, [audioEnabled]);
+    } else {
+      setAudioEnabled(false);
+    }
+  };
 
   useEffect(() => {
     if (!restaurantId) return;
@@ -101,9 +95,10 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             toast.success(`New order received from ${payload.new.table_no}!`);
             if (audioRef.current && audioEnabled) {
               audioRef.current.currentTime = 0;
+              audioRef.current.playbackRate = 0.5;
               audioRef.current.play().catch((e: any) => {
                 console.error("Audio play blocked", e);
-                setAudioEnabled(false);
+                // Do not change audioEnabled state on playback failure
               });
             }
           }
@@ -149,19 +144,20 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             )}
             {audioEnabled ? (
               <button
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent event bubbling from immediately re-enabling audio
-                  setAudioEnabled(false);
-                }}
-                className="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-emerald-200 transition-colors"
+                onClick={handleToggleAudio}
+                className="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-emerald-200 transition-colors cursor-pointer"
                 title="Click to Mute Notifications"
               >
-                Notifications Active - Click to Mute
+                Tap Here to Disable Audio
               </button>
             ) : (
-              <span className="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-amber-200 animate-pulse">
-                Notifications Muted - Click Anywhere to Enable Audio
-              </span>
+              <button
+                onClick={handleToggleAudio}
+                className="bg-amber-100 hover:bg-amber-200 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-amber-200 transition-colors animate-pulse cursor-pointer"
+                title="Click to Enable Audio"
+              >
+                Tap Here to Enable Audio
+              </button>
             )}
           </h3>
           <p className="text-sm font-medium text-gray-500 mt-1">Manage real-time incoming orders from your tables.</p>
