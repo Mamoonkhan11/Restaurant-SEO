@@ -50,6 +50,17 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     }
   }, []);
 
+  const playNotification = () => {
+    if (audioRef.current) {
+      audioRef.current.pause(); // Stop any incomplete execution thread
+      audioRef.current.currentTime = 0; // Absolute reset to start line
+
+      // Dynamic Double-Strike Loop (Optional safety fallback for ultra-short clips)
+      audioRef.current.play()
+        .catch(err => console.log("Realtime Audio Playback Intercepted:", err.message));
+    }
+  };
+
   const handleToggleAudio = () => {
     if (audioMuted) {
       setAudioMuted(false);
@@ -97,18 +108,12 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         },
         (payload) => {
           if (payload.new) {
+            console.log("🟢 REALTIME NEW ORDER DETECTED FOR TABLE:", payload.new.table_no);
+            if (!audioMuted) {
+              playNotification();
+            }
             setLiveOrders(prev => [payload.new, ...prev]);
             toast.success(`New order received from ${payload.new.table_no}!`);
-            if (audioRef.current && !audioMuted) {
-              audioRef.current.currentTime = 0;
-              audioRef.current.playbackRate = 0.5;
-              audioRef.current.play()
-                .catch((e: any) => {
-                  console.warn('Audio decoding anomaly intercepted gracefully:', e.message || e);
-                  console.warn('Tip: Please verify that order_tune.mp3 exists exactly in the /public/sounds/ folder and is not a corrupted file.');
-                  // Do not change audioMuted state on playback failure
-                });
-            }
           }
         }
       )
