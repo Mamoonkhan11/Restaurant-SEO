@@ -5,6 +5,7 @@ import { Loader2, Plus, Trash2, Link as LinkIcon, QrCode, Download } from 'lucid
 import toast from 'react-hot-toast';
 import { useRestaurant } from '@/lib/RestaurantContext';
 import { QRCodeSVG } from 'qrcode.react';
+import html2canvas from 'html2canvas';
 
 export default function TablesPage() {
   const { restaurant, isLoading: isRestaurantLoading } = useRestaurant();
@@ -15,69 +16,39 @@ export default function TablesPage() {
   const [selectedTable, setSelectedTable] = useState<any>(null);
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPNG = async () => {
     if (!selectedTable || !restaurant) return;
-    const printElement = document.getElementById('printable-qr-frame');
-    if (!printElement) return;
+    const element = document.getElementById('printable-qr-frame');
+    if (!element) {
+      toast.error('QR frame not found');
+      return;
+    }
 
-    // Create a temporary container at body root
-    const printRoot = document.createElement('div');
-    printRoot.id = 'print-root';
-    
-    // Clone the printable frame
-    const clone = printElement.cloneNode(true) as HTMLElement;
-    // Remove dynamic attributes/classes that interfere with print bounds
-    clone.style.border = '2px solid #000000';
-    clone.style.boxShadow = 'none';
-    clone.style.color = '#000000';
-    clone.style.display = 'inline-flex';
-    clone.querySelectorAll('*').forEach(el => {
-      (el as HTMLElement).style.color = '#000000';
-      (el as HTMLElement).style.borderColor = '#000000';
-    });
+    const toastId = toast.loading('Generating PNG image...');
+    try {
+      // Force white background and render high-res canvas (scale 3 for crisp print output)
+      const canvas = await html2canvas(element, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#FFFFFF',
+        logging: false
+      });
 
-    printRoot.appendChild(clone);
-    document.body.appendChild(printRoot);
-
-    // Create a print-only style block
-    const printStyle = document.createElement('style');
-    printStyle.id = 'print-style';
-    printStyle.innerHTML = `
-      @media print {
-        body > *:not(#print-root) {
-          display: none !important;
-        }
-        #print-root {
-          display: flex !important;
-          justify-content: center !important;
-          align-items: center !important;
-          width: 100vw !important;
-          height: 100vh !important;
-          background: #ffffff !important;
-          margin: 0 !important;
-          padding: 0 !important;
-        }
-        @page {
-          size: portrait;
-          margin: 0;
-        }
-      }
-    `;
-    document.head.appendChild(printStyle);
-
-    // Set page title for output file naming
-    const originalTitle = document.title;
-    const sanitizedRestaurantName = (restaurant.name || 'Restaurant').replace(/[^a-z0-9]/gi, '_');
-    const sanitizedTableNo = (selectedTable.table_no || 'Table').replace(/[^a-z0-9]/gi, '_');
-    document.title = `${sanitizedRestaurantName}_${sanitizedTableNo}`;
-
-    // Print the page using native dialog
-    window.print();
-
-    // Restore page title and clean up DOM immediately
-    document.title = originalTitle;
-    document.body.removeChild(printRoot);
-    document.head.removeChild(printStyle);
+      const dataUrl = canvas.toDataURL('image/png');
+      
+      const link = document.createElement('a');
+      const sanitizedRestaurantName = (restaurant.name || 'Restaurant').replace(/[^a-z0-9]/gi, '_');
+      const sanitizedTableNo = (selectedTable.table_no || 'Table').replace(/[^a-z0-9]/gi, '_');
+      link.download = `${sanitizedRestaurantName}_${sanitizedTableNo}.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('PNG Downloaded!', { id: toastId });
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to export PNG', { id: toastId });
+    }
   };
 
   useEffect(() => {
@@ -332,10 +303,10 @@ export default function TablesPage() {
                     <LinkIcon className="w-4 h-4" /> Live Preview
                   </a>
                   <button
-                    onClick={handleDownloadPDF}
+                    onClick={handleDownloadPNG}
                     className="w-full bg-[#111827] hover:bg-black text-white font-bold py-3 px-6 rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 text-sm"
                   >
-                    <Download className="w-4 h-4" /> Download PDF
+                    <Download className="w-4 h-4" /> Download PNG
                   </button>
                 </div>
               </>

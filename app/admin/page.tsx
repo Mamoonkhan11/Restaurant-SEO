@@ -37,7 +37,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const audio = new Audio('/order_tune.mp3');
+      const audio = new Audio('/public/order_tune.mp3');
       audio.preload = 'auto';
       audio.volume = 0.6;
       audioRef.current = audio;
@@ -95,7 +95,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         .eq('restaurant_id', restaurantId)
         .in('status', ['pending', 'preparing'])
         .order('created_at', { ascending: false });
-        
+
       if (initialOrders) setLiveOrders(initialOrders);
     };
     fetchOrders();
@@ -158,9 +158,9 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           <h3 className="text-xl font-black text-gray-900 flex flex-wrap items-center gap-2">
             <span>Live Kitchen Orders (KOT)</span>
             {liveOrders.filter(o => o.status === 'pending').length > 0 && (
-               <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-bold animate-pulse">
-                 {liveOrders.filter(o => o.status === 'pending').length} Action Required
-               </span>
+              <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-bold animate-pulse">
+                {liveOrders.filter(o => o.status === 'pending').length} Action Required
+              </span>
             )}
             {audioMuted && (
               <span className="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-amber-200 animate-pulse">
@@ -171,7 +171,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           <p className="text-sm font-medium text-gray-500 mt-1">Manage real-time incoming orders from your tables.</p>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {liveOrders.map(order => (
           <div key={order.id} className={`p-6 rounded-2xl border ${order.status === 'pending' ? 'border-amber-200 bg-amber-50/30' : order.status === 'preparing' ? 'border-orange-200 bg-orange-50/30' : 'border-gray-100 bg-white'} shadow-sm relative transition-all duration-200 ease-in-out hover:shadow-md flex flex-col`}>
@@ -189,7 +189,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 {order.status === 'served' && <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
               </div>
             </div>
-            
+
             <div className="space-y-4 mb-6 flex-1">
               {order.items?.map((item: any, idx: number) => (
                 <div key={idx} className="flex justify-between items-start text-sm group transition-all duration-200">
@@ -209,10 +209,10 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
               <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Amount</span>
               <span className="text-xl font-black text-[#111827] tabular-nums">₹{Number(order.total_amount || 0).toFixed(2)}</span>
             </div>
-            
+
             <div className="flex gap-3 mt-auto">
               {order.status === 'pending' && (
-                <button 
+                <button
                   onClick={async () => {
                     await supabase.from('orders').update({ status: 'preparing' }).eq('id', order.id);
                   }}
@@ -222,7 +222,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 </button>
               )}
               {order.status === 'preparing' && (
-                <button 
+                <button
                   onClick={async () => {
                     await supabase.from('orders').update({ status: 'served' }).eq('id', order.id);
                   }}
@@ -256,7 +256,7 @@ export default function AdminDashboardOverview() {
   const [totalItems, setTotalItems] = useState<number | string>('-');
   const [totalScans, setTotalScans] = useState<number | string>('-');
   const [topDish, setTopDish] = useState<string>('-');
-  
+
   // Real Data States
   const [chartData, setChartData] = useState<any[]>([]);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
@@ -275,7 +275,7 @@ export default function AdminDashboardOverview() {
         router.push('/login');
         return;
       }
-      
+
       setOwnerName(user.user_metadata?.full_name || 'Owner');
 
       // 2. Profile Fetch
@@ -284,7 +284,7 @@ export default function AdminDashboardOverview() {
         .select('id, slug, average_order_value, plan_type, total_scans')
         .eq('owner_id', user.id)
         .single();
-        
+
       if (error || !restaurant) {
         // 5. Loading UI: Redirect if no restaurant found
         router.push('/admin/settings');
@@ -321,7 +321,7 @@ export default function AdminDashboardOverview() {
       const day = d.getDay();
       const diff = d.getDate() - day + (day === 0 ? -6 : 1);
       const monday = new Date(d.setDate(diff));
-      monday.setHours(0,0,0,0);
+      monday.setHours(0, 0, 0, 0);
 
       const { data: resetLog } = await supabase
         .from('activity_logs')
@@ -347,7 +347,7 @@ export default function AdminDashboardOverview() {
         .from('dishes')
         .select('*', { count: 'exact', head: true })
         .eq('owner_id', user.id);
-      
+
       setTotalItems(dishCount ?? 0);
 
       const now = new Date();
@@ -359,13 +359,13 @@ export default function AdminDashboardOverview() {
         .eq('owner_id', user.id)
         .order('view_count', { ascending: false })
         .limit(7);
-      
+
       if (dishesData && dishesData.length > 0) {
         setTopDish(dishesData[0].name);
-        
+
         // Restriction: Free users see only 2 items in chart
         const visibleDishes = canViewAllAnalytics ? dishesData : dishesData.slice(0, 2);
-        
+
         setChartData(visibleDishes.map(d => ({
           name: d.name.length > 12 ? d.name.substring(0, 12) + '...' : d.name,
           views: d.view_count || 0
@@ -417,7 +417,7 @@ export default function AdminDashboardOverview() {
           }
         )
         .subscribe();
-      
+
       setIsLoading(false);
 
       return () => {
@@ -425,7 +425,7 @@ export default function AdminDashboardOverview() {
         supabase.removeChannel(scansSubscription);
       };
     };
-    
+
     const cleanup = fetchDashboardData();
     return () => {
       cleanup.then(fn => fn && fn());
@@ -455,7 +455,7 @@ export default function AdminDashboardOverview() {
     <div className="p-4 sm:p-8 relative animate-fade-in">
       <Toaster />
       <div className="max-w-6xl mx-auto space-y-8">
-        
+
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Welcome, {ownerName}</h1>
@@ -477,12 +477,12 @@ export default function AdminDashboardOverview() {
             </div>
             <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalScans}</p>
           </div>
-          
+
           <div onClick={() => canViewAllAnalytics && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewAllAnalytics ? 'cursor-default' : 'cursor-pointer'}`}>
             {!canViewAllAnalytics && (
               <div className="absolute inset-0 z-10 bg-white/75 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
                 <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
-                  <Lock className="w-3 h-3"/> Locked
+                  <Lock className="w-3 h-3" /> Locked
                 </div>
                 <p className="text-[11px] text-orange-900 font-extrabold leading-tight">Advanced Analytics Required</p>
                 <Link href="/admin/billing" className="mt-2 text-[10px] bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-bold hover:bg-orange-200 transition-colors pointer-events-auto">Unlock with Pro</Link>
@@ -498,7 +498,7 @@ export default function AdminDashboardOverview() {
               {canViewAllAnalytics ? topDish : 'XXXXXXXXXX'}
             </p>
           </div>
-          
+
           {/* Total Items Card */}
           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-2">
@@ -515,20 +515,20 @@ export default function AdminDashboardOverview() {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-          
+
           {/* Line Chart Section */}
           <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col relative">
             {!canViewAllAnalytics && (
               <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-end pb-12">
                 <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center max-w-xs text-center border border-gray-100 mb-4 animate-fade-in-up">
-                   <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
-                     <Lock className="w-6 h-6" />
-                   </div>
-                   <h3 className="text-gray-900 font-bold mb-2">Want to see your top-performing items?</h3>
-                   <p className="text-sm text-gray-500 mb-6">Unlock Advanced Analytics with Pro to track all dish views and growth trends.</p>
-                   <Link href="/admin/billing" className="bg-blue-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-blue-700 transition-colors shadow-md">
-                     Unlock All Insights
-                   </Link>
+                  <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                    <Lock className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-gray-900 font-bold mb-2">Want to see your top-performing items?</h3>
+                  <p className="text-sm text-gray-500 mb-6">Unlock Advanced Analytics with Pro to track all dish views and growth trends.</p>
+                  <Link href="/admin/billing" className="bg-blue-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-blue-700 transition-colors shadow-md">
+                    Unlock All Insights
+                  </Link>
                 </div>
               </div>
             )}
@@ -541,20 +541,20 @@ export default function AdminDashboardOverview() {
                 <div style={{ width: '100%', height: 300 }}>
                   <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 30, left: -20 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 11 }} dy={15} angle={-25} textAnchor="end" />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                    <Tooltip 
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                      itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
-                    />
-                    <Line type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 11 }} dy={15} angle={-25} textAnchor="end" />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                      <Tooltip
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                        itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
+                      />
+                      <Line type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               ) : (
                 <div className="h-full flex items-center justify-center border-2 border-dashed border-gray-100 rounded-xl">
-                   <p className="text-gray-400 font-medium text-sm">No view data available yet.</p>
+                  <p className="text-gray-400 font-medium text-sm">No view data available yet.</p>
                 </div>
               )}
             </div>
@@ -563,7 +563,7 @@ export default function AdminDashboardOverview() {
           {/* Recent Activity Section */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
             <div className="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-               <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
+              <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
             </div>
             <div className="p-6 flex-1 overflow-y-auto max-h-[350px]">
               <div className="space-y-6">
@@ -576,7 +576,7 @@ export default function AdminDashboardOverview() {
                   recentActivity.map((activity, index) => {
                     let Icon = <span className="text-[10px]">📝</span>;
                     let bgColor = "bg-blue-500";
-                    
+
                     if (activity.action_type === 'STOCK_UPDATE') {
                       Icon = <span className="text-[10px]">📦</span>;
                       bgColor = "bg-orange-500";
@@ -587,7 +587,7 @@ export default function AdminDashboardOverview() {
                       Icon = <span className="text-[10px]">🍔</span>;
                       bgColor = "bg-green-500";
                     }
-                    
+
                     return (
                       <div key={activity.id || index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
                         {/* Timeline line */}
@@ -598,7 +598,7 @@ export default function AdminDashboardOverview() {
                         <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white ${bgColor} shadow-sm flex items-center justify-center`}>
                           {Icon}
                         </div>
-                        
+
                         <div>
                           <p className="text-sm font-semibold text-gray-900">{activity.description || activity.action}</p>
                           {activity.item_name && !activity.description && <p className="text-sm text-gray-500 mt-0.5">{activity.item_name}</p>}
