@@ -72,7 +72,11 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             audioRef.current!.currentTime = 0;
           })
           .catch((err: any) => {
-            console.warn('Audio decoding anomaly intercepted gracefully:', err.message || err);
+            const errMsg = err.message || String(err);
+            if (errMsg.includes('interrupted by a call to pause')) {
+              return; // Ignore standard user interaction play-pause interruption
+            }
+            console.warn('Audio decoding anomaly intercepted gracefully:', errMsg);
             console.warn('Tip: Please verify that order_tune.mp3 exists exactly in the /public/sounds/ folder and is not a corrupted file.');
           });
       }
