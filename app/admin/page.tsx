@@ -32,58 +32,43 @@ const timeAgo = (dateString: string) => {
 
 function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
-  const [audioMuted, setAudioMuted] = useState(true);
+  const [audioEnabled, setAudioEnabled] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !audioRef.current) {
       const audio = new Audio('/order_tune.mp3');
       audio.preload = 'auto';
-      audio.volume = 0.6;
+      audio.volume = 1.0; // Maximum volume for high alert visibility
       audioRef.current = audio;
-
-      // Interaction unlock handler
-      const unlock = () => {
-        setAudioMuted(false);
-        if (audioRef.current) {
-          audioRef.current.play()
-            .then(() => {
-              audioRef.current!.pause();
-              audioRef.current!.currentTime = 0;
-            })
-            .catch((err) => {
-              console.warn("Audio unlock failed on interaction", err);
-            });
-        }
-        window.removeEventListener('click', unlock, true);
-        window.removeEventListener('touchstart', unlock, true);
-      };
-
-      window.addEventListener('click', unlock, true);
-      window.addEventListener('touchstart', unlock, true);
-
-      // Attempt immediate silent play (just in case browser already has permission)
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setAudioMuted(false);
-            audio.pause();
-            audio.currentTime = 0;
-            window.removeEventListener('click', unlock, true);
-            window.removeEventListener('touchstart', unlock, true);
-          })
-          .catch(() => {
-            // Stay muted until interaction click
-          });
-      }
-
-      return () => {
-        window.removeEventListener('click', unlock, true);
-        window.removeEventListener('touchstart', unlock, true);
-      };
     }
   }, []);
+
+  useEffect(() => {
+    if (audioEnabled) return; // Unlocked and active, no global listeners required
+
+    const unlock = () => {
+      setAudioEnabled(true);
+      if (audioRef.current) {
+        audioRef.current.play()
+          .then(() => {
+            audioRef.current!.pause();
+            audioRef.current!.currentTime = 0;
+          })
+          .catch((err) => {
+            console.warn("Audio unlock failed on interaction", err);
+          });
+      }
+    };
+
+    window.addEventListener('click', unlock, true);
+    window.addEventListener('touchstart', unlock, true);
+
+    return () => {
+      window.removeEventListener('click', unlock, true);
+      window.removeEventListener('touchstart', unlock, true);
+    };
+  }, [audioEnabled]);
 
   useEffect(() => {
     if (!restaurantId) return;
@@ -114,11 +99,11 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           if (payload.new) {
             setLiveOrders(prev => [payload.new, ...prev]);
             toast.success(`New order received from ${payload.new.table_no}!`);
-            if (audioRef.current) {
+            if (audioRef.current && audioEnabled) {
               audioRef.current.currentTime = 0;
               audioRef.current.play().catch((e: any) => {
                 console.error("Audio play blocked", e);
-                setAudioMuted(true);
+                setAudioEnabled(false);
               });
             }
           }
@@ -148,7 +133,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     return () => {
       supabase.removeChannel(ordersSubscription);
     };
-  }, [restaurantId]);
+  }, [restaurantId, audioEnabled]);
 
   return (
     <div className="bg-white p-6 rounded-2xl border border-emerald-200 shadow-sm flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
@@ -162,7 +147,18 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 {liveOrders.filter(o => o.status === 'pending').length} Action Required
               </span>
             )}
-            {audioMuted && (
+            {audioEnabled ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent event bubbling from immediately re-enabling audio
+                  setAudioEnabled(false);
+                }}
+                className="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-emerald-200 transition-colors"
+                title="Click to Mute Notifications"
+              >
+                Notifications Active - Click to Mute
+              </button>
+            ) : (
               <span className="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-amber-200 animate-pulse">
                 Notifications Muted - Click Anywhere to Enable Audio
               </span>
