@@ -111,23 +111,34 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     fetchOrders();
 
     const ordersSubscription = supabase
-      .channel('live-orders')
+      .channel('any-filter-kot-stream')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'orders',
-          filter: `restaurant_id=eq.${restaurantId}`,
         },
         (payload) => {
           if (payload.new) {
-            console.log("🟢 REALTIME NEW ORDER DETECTED FOR TABLE:", payload.new.table_no);
-            if (!audioMutedRef.current) {
-              playNotification();
+            if (payload.new.restaurant_id === restaurantId) {
+              console.log("🎯 SUCCESS: Realtime payload matched current restaurant ID!");
+
+              // Force blast the audio clip immediately
+              if (!audioMutedRef.current && audioRef.current) {
+                audioRef.current.currentTime = 0;
+                audioRef.current.playbackRate = 0.5;
+                audioRef.current.play()
+                  .then(() => console.log("🔊 TUNE PLAYED SUCCESSFULLY!"))
+                  .catch(err => console.error("⚠️ AUDIO SUB-SYSTEM BLOCKED:", err.message));
+              }
+
+              // Update your UI queue state
+              setLiveOrders(prev => [payload.new, ...prev]);
+              toast.success(`New order received from ${payload.new.table_no}!`);
+            } else {
+              console.log("🌐 Received order payload for a different restaurant ID, ignoring.");
             }
-            setLiveOrders(prev => [payload.new, ...prev]);
-            toast.success(`New order received from ${payload.new.table_no}!`);
           }
         }
       )
@@ -137,20 +148,26 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           event: 'UPDATE',
           schema: 'public',
           table: 'orders',
-          filter: `restaurant_id=eq.${restaurantId}`,
         },
         (payload) => {
           if (payload.new) {
-            setLiveOrders(prev => {
-              if (payload.new.status === 'served') {
-                return prev.filter(o => o.id !== payload.new.id);
-              }
-              return prev.map(o => o.id === payload.new.id ? payload.new : o);
-            });
+            if (payload.new.restaurant_id === restaurantId) {
+              setLiveOrders(prev => {
+                if (payload.new.status === 'served') {
+                  return prev.filter(o => o.id !== payload.new.id);
+                }
+                return prev.map(o => o.id === payload.new.id ? payload.new : o);
+              });
+            } else {
+              console.log("🌐 Received order payload for a different restaurant ID, ignoring.");
+            }
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        // Subscription State Telemetry Log
+        console.log("📡 KOT Supabase Stream Status Connection Check:", status);
+      });
 
     return () => {
       supabase.removeChannel(ordersSubscription);
