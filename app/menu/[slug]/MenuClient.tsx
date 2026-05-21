@@ -49,12 +49,12 @@ const MenuFooter = React.memo(() => (
 ));
 MenuFooter.displayName = 'MenuFooter';
 
-export default function MenuClient({ 
-  params, 
-  initialRestaurant, 
-  initialDishes, 
-  initialCategories 
-}: { 
+export default function MenuClient({
+  params,
+  initialRestaurant,
+  initialDishes,
+  initialCategories
+}: {
   params: { slug: string },
   initialRestaurant: any,
   initialDishes: any[],
@@ -138,7 +138,7 @@ export default function MenuClient({
         }
       )
       .subscribe();
-      
+
     return () => {
       supabase.removeChannel(subscription);
     }
@@ -453,8 +453,8 @@ export default function MenuClient({
                       }
                     }}
                     className={`whitespace-nowrap px-5 py-2 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${activeCategory === cat
-                        ? 'text-white'
-                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
+                      ? 'text-white'
+                      : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
                       }`}
                     style={activeCategory === cat ? { backgroundColor: '#000000' } : {}}
                   >
@@ -496,7 +496,7 @@ export default function MenuClient({
                         const sizeKey = item.sizes && Object.keys(item.sizes).length > 0
                           ? Object.keys(item.sizes)[selectedSizes[item.id] || 0]
                           : 'Standard';
-                        
+
                         const cartItem = cart.find(c => c.dish_id === item.id && c.size === sizeKey);
                         const quantity = cartItem ? cartItem.quantity : 0;
                         const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
@@ -563,7 +563,7 @@ export default function MenuClient({
                                   <div className="shrink-0 ml-4">
                                     {quantity > 0 ? (
                                       <div className="flex items-center gap-3 bg-gray-100 border border-gray-200 px-1 py-1 rounded-full shadow-sm animate-fade-in">
-                                        <button 
+                                        <button
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             setCart(prev => {
@@ -581,7 +581,7 @@ export default function MenuClient({
                                           -
                                         </button>
                                         <span className="font-bold text-gray-900 text-sm w-4 text-center">{quantity}</span>
-                                        <button 
+                                        <button
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             if (quantity < 10) {
@@ -599,7 +599,7 @@ export default function MenuClient({
                                         </button>
                                       </div>
                                     ) : (
-                                      <button 
+                                      <button
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           setCart(prev => [...prev, {
@@ -663,7 +663,7 @@ export default function MenuClient({
           </div>
         </div>
       )}
-      
+
       {/* Floating Buttons */}
       <div className="fixed right-4 sm:right-8 flex flex-col gap-3 z-40 bottom-28">
         {activeOrderId && !isCartOpen && (
@@ -745,21 +745,21 @@ export default function MenuClient({
                 >
                   {(() => {
                     const price = Number(getDishPrice(selectedDish));
-                    const sizeKey = selectedDish.sizes && Object.keys(selectedDish.sizes).length > 0 
-                                  ? Object.keys(selectedDish.sizes)[selectedSizes[selectedDish.id] || 0] 
-                                  : 'Standard';
+                    const sizeKey = selectedDish.sizes && Object.keys(selectedDish.sizes).length > 0
+                      ? Object.keys(selectedDish.sizes)[selectedSizes[selectedDish.id] || 0]
+                      : 'Standard';
 
                     return (
                       <div className="flex flex-col gap-4">
                         <div className="flex items-center justify-between bg-gray-50 p-2 rounded-2xl border border-gray-100">
-                          <button 
+                          <button
                             onClick={() => setDishQuantity(Math.max(1, dishQuantity - 1))}
                             className="w-12 h-12 flex items-center justify-center bg-white rounded-xl font-bold text-xl text-gray-900 shadow-sm border border-gray-200"
                           >
                             -
                           </button>
                           <span className="font-black text-xl w-12 text-center text-black">{dishQuantity}</span>
-                          <button 
+                          <button
                             onClick={() => setDishQuantity(Math.min(10, dishQuantity + 1))}
                             className="w-12 h-12 flex items-center justify-center bg-white rounded-xl font-bold text-xl text-gray-900 shadow-sm border border-gray-200"
                           >
@@ -823,7 +823,7 @@ export default function MenuClient({
               <div className="p-4 flex justify-center shrink-0">
                 <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
               </div>
-              
+
               <div className="px-6 pb-4 flex justify-between items-center border-b border-gray-100 shrink-0">
                 <h2 className="text-2xl font-black text-gray-900">Your Order</h2>
                 <button onClick={() => setIsCartOpen(false)} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
@@ -839,7 +839,7 @@ export default function MenuClient({
                         <Loader2 className="w-12 h-12 animate-spin text-yellow-500" />
                         <p className="font-black text-xl">Order Sent!</p>
                         <p className="text-gray-500 text-center">Waiting for kitchen confirmation...</p>
-                        
+
                         <button
                           onClick={async () => {
                             if (confirm("Are you sure you want to cancel this order?")) {
@@ -849,7 +849,7 @@ export default function MenuClient({
                                   .update({ status: 'cancelled' })
                                   .eq('id', activeOrderId);
                                 if (error) throw error;
-                                
+
                                 setOrderStatus('cancelled');
                                 alert("Order cancelled successfully.");
                               } catch (err: any) {
@@ -873,7 +873,7 @@ export default function MenuClient({
                     {orderStatus === 'served' && (
                       <>
                         <CheckCircle className="w-16 h-16 text-green-500" />
-                        <p className="font-black text-2xl text-green-600">Food Served! 🎉</p>
+                        <p className="font-black text-2xl text-green-600">Food Served!</p>
                         <p className="text-gray-500 text-center">Enjoy your meal.</p>
                       </>
                     )}
@@ -886,7 +886,7 @@ export default function MenuClient({
                         <p className="text-gray-500 text-center font-medium">You cancelled your order or it was cancelled by the restaurant.</p>
                       </>
                     )}
-                    
+
                     <button
                       onClick={() => {
                         setShowTracking(false);
@@ -894,7 +894,7 @@ export default function MenuClient({
                       }}
                       className="mt-6 bg-[#111827] hover:bg-black text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md active:scale-95 cursor-pointer text-sm"
                     >
-                      Add More Items / Order More
+                      Order More Items
                     </button>
                   </div>
                 ) : cart.length === 0 ? (
@@ -918,22 +918,22 @@ export default function MenuClient({
                           </div>
                         </div>
                         <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-100 shrink-0">
-                           <button onClick={() => {
-                             setCart(prev => {
-                               const newCart = [...prev];
-                               newCart[idx].quantity -= 1;
-                               if (newCart[idx].quantity <= 0) newCart.splice(idx, 1);
-                               return newCart;
-                             });
-                           }} className="w-7 h-7 flex items-center justify-center font-bold bg-white rounded shadow-sm text-gray-600">-</button>
-                           <span className="font-bold w-4 text-center text-sm text-black">{item.quantity}</span>
-                           <button onClick={() => {
-                             setCart(prev => {
-                               const newCart = [...prev];
-                               newCart[idx].quantity = Math.min(10, newCart[idx].quantity + 1);
-                               return newCart;
-                             });
-                           }} className="w-7 h-7 flex items-center justify-center font-bold bg-white rounded shadow-sm text-gray-600">+</button>
+                          <button onClick={() => {
+                            setCart(prev => {
+                              const newCart = [...prev];
+                              newCart[idx].quantity -= 1;
+                              if (newCart[idx].quantity <= 0) newCart.splice(idx, 1);
+                              return newCart;
+                            });
+                          }} className="w-7 h-7 flex items-center justify-center font-bold bg-white rounded shadow-sm text-gray-600">-</button>
+                          <span className="font-bold w-4 text-center text-sm text-black">{item.quantity}</span>
+                          <button onClick={() => {
+                            setCart(prev => {
+                              const newCart = [...prev];
+                              newCart[idx].quantity = Math.min(10, newCart[idx].quantity + 1);
+                              return newCart;
+                            });
+                          }} className="w-7 h-7 flex items-center justify-center font-bold bg-white rounded shadow-sm text-gray-600">+</button>
                         </div>
                       </div>
                     ))}
@@ -955,7 +955,7 @@ export default function MenuClient({
                         window.open(`https://wa.me/${restaurant?.whatsapp_number?.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
                         return;
                       }
-                      
+
                       setOrderStatus('pending');
                       const payload = {
                         restaurant_id: restaurant.id,
@@ -970,7 +970,7 @@ export default function MenuClient({
                         })),
                         total_amount: cartTotal
                       };
-                      
+
                       const { data, error } = await supabase.from('orders').insert(payload).select().single();
                       if (error) {
                         setOrderStatus('idle');
