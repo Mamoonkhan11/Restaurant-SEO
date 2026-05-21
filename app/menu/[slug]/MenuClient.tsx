@@ -75,6 +75,7 @@ export default function MenuClient({
   // KOT Order Status Lifecycle State
   const [orderStatus, setOrderStatus] = useState<'idle' | 'pending' | 'preparing' | 'served'>('idle');
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
+  const [showTracking, setShowTracking] = useState(false);
 
   // Cart State
   const [cart, setCart] = useState<any[]>([]);
@@ -140,6 +141,7 @@ export default function MenuClient({
         setOrderStatus('idle');
         setActiveOrderId(null);
         setSelectedDish(null);
+        setShowTracking(false);
       }, 10000);
       return () => clearTimeout(timer);
     }
@@ -551,7 +553,7 @@ export default function MenuClient({
                                 {item.is_available && (
                                   <div className="shrink-0 ml-4">
                                     {quantity > 0 ? (
-                                      <div className="flex items-center gap-3 bg-[#111827] text-white px-1 py-1 rounded-full shadow-md animate-fade-in">
+                                      <div className="flex items-center gap-3 bg-gray-100 border border-gray-200 px-1 py-1 rounded-full shadow-sm animate-fade-in">
                                         <button 
                                           onClick={(e) => {
                                             e.stopPropagation();
@@ -565,11 +567,11 @@ export default function MenuClient({
                                               return newCart;
                                             });
                                           }}
-                                          className="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full font-bold active:scale-95 transition-transform"
+                                          className="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 text-gray-500 rounded-full font-bold active:scale-95 transition-transform hover:bg-gray-50"
                                         >
                                           -
                                         </button>
-                                        <span className="font-bold text-sm w-4 text-center">{quantity}</span>
+                                        <span className="font-bold text-gray-900 text-sm w-4 text-center">{quantity}</span>
                                         <button 
                                           onClick={(e) => {
                                             e.stopPropagation();
@@ -582,7 +584,7 @@ export default function MenuClient({
                                               });
                                             }
                                           }}
-                                          className="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full font-bold active:scale-95 transition-transform"
+                                          className="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 text-gray-500 rounded-full font-bold active:scale-95 transition-transform hover:bg-gray-50"
                                         >
                                           +
                                         </button>
@@ -633,7 +635,7 @@ export default function MenuClient({
       )}
 
       {/* Sticky Bottom Bar for Cart */}
-      {cartItemCount > 0 && orderStatus === 'idle' && (
+      {cartItemCount > 0 && !showTracking && (
         <div className="fixed bottom-4 left-4 right-4 z-50 animate-slide-up sm:max-w-md sm:mx-auto">
           <div className="bg-[#111827] text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between border border-gray-800">
             <div className="flex flex-col">
@@ -641,8 +643,11 @@ export default function MenuClient({
               <span className="font-black text-xl tabular-nums">₹{cartTotal.toFixed(2)}</span>
             </div>
             <button
-              onClick={() => setIsCartOpen(true)}
-              className="bg-white text-[#111827] px-6 py-3 rounded-xl font-black shadow-md hover:bg-gray-100 active:scale-95 transition-all"
+              onClick={() => {
+                setShowTracking(false);
+                setIsCartOpen(true);
+              }}
+              className="bg-white text-[#111827] px-6 py-3 rounded-xl font-black shadow-md hover:bg-gray-100 active:scale-95 transition-all cursor-pointer"
             >
               View Cart & Order 🛒
             </button>
@@ -651,13 +656,16 @@ export default function MenuClient({
       )}
       
       {/* Floating Buttons */}
-      <div className={`fixed right-4 sm:right-8 flex flex-col gap-3 z-40 transition-all duration-300 ${cartItemCount > 0 ? 'bottom-28' : 'bottom-14'}`}>
-        {orderStatus !== 'idle' && (
+      <div className={`fixed right-4 sm:right-8 flex flex-col gap-3 z-40 transition-all duration-300 ${cartItemCount > 0 && !showTracking ? 'bottom-28' : 'bottom-14'}`}>
+        {activeOrderId && !showTracking && (
           <button
-            onClick={() => setIsCartOpen(true)}
-            className="bg-[#111827] text-white px-5 h-14 rounded-full shadow-lg flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-transform font-bold"
+            onClick={() => {
+              setShowTracking(true);
+              setIsCartOpen(true);
+            }}
+            className="bg-[#111827] text-white px-5 h-14 rounded-full shadow-lg flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-transform font-bold cursor-pointer"
           >
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <span className="text-sm tracking-wide">Track Order</span>
           </button>
         )}
@@ -815,13 +823,38 @@ export default function MenuClient({
               </div>
 
               <div className="p-6 overflow-y-auto flex-1 bg-gray-50/50">
-                {orderStatus !== 'idle' ? (
+                {showTracking && activeOrderId ? (
                   <div className="flex flex-col items-center justify-center py-12 gap-4">
                     {orderStatus === 'pending' && (
                       <>
                         <Loader2 className="w-12 h-12 animate-spin text-yellow-500" />
                         <p className="font-black text-xl">Order Sent!</p>
                         <p className="text-gray-500 text-center">Waiting for kitchen confirmation...</p>
+                        
+                        <button
+                          onClick={async () => {
+                            if (confirm("Are you sure you want to cancel this order?")) {
+                              try {
+                                const { error } = await supabase
+                                  .from('orders')
+                                  .update({ status: 'cancelled' })
+                                  .eq('id', activeOrderId);
+                                if (error) throw error;
+                                
+                                setOrderStatus('idle');
+                                setActiveOrderId(null);
+                                setShowTracking(false);
+                                setIsCartOpen(false);
+                                alert("Order cancelled successfully.");
+                              } catch (err: any) {
+                                alert("Failed to cancel order: " + err.message);
+                              }
+                            }
+                          }}
+                          className="mt-4 text-xs font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-wider cursor-pointer bg-transparent border-none outline-none"
+                        >
+                          Cancel Order
+                        </button>
                       </>
                     )}
                     {orderStatus === 'preparing' && (
@@ -838,6 +871,16 @@ export default function MenuClient({
                         <p className="text-gray-500 text-center">Enjoy your meal.</p>
                       </>
                     )}
+                    
+                    <button
+                      onClick={() => {
+                        setShowTracking(false);
+                        setIsCartOpen(false);
+                      }}
+                      className="mt-6 bg-[#111827] hover:bg-black text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md active:scale-95 cursor-pointer text-sm"
+                    >
+                      Add More Items / Order More
+                    </button>
                   </div>
                 ) : cart.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-gray-400">
@@ -883,7 +926,7 @@ export default function MenuClient({
                 )}
               </div>
 
-              {orderStatus === 'idle' && cart.length > 0 && (
+              {!showTracking && cart.length > 0 && (
                 <div className="p-6 bg-white border-t border-gray-100 shrink-0">
                   <div className="flex justify-between items-center mb-4">
                     <span className="font-bold text-gray-500">Total Amount</span>
@@ -919,10 +962,12 @@ export default function MenuClient({
                         alert('Failed to place order. Please try again.');
                       } else {
                         setActiveOrderId(data.id);
+                        setOrderStatus('pending');
+                        setShowTracking(true);
                         setCart([]); // Clear cart on success
                       }
                     }}
-                    className={`w-full py-4 rounded-2xl font-bold text-lg transition-transform active:scale-95 flex items-center justify-center gap-2 shadow-lg text-white ${tableNo ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#25D366] hover:bg-[#1ebd5a]'}`}
+                    className={`w-full py-4 rounded-2xl font-bold text-lg transition-transform active:scale-95 flex items-center justify-center gap-2 shadow-lg text-white cursor-pointer ${tableNo ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#25D366] hover:bg-[#1ebd5a]'}`}
                   >
                     {tableNo ? 'Place KOT Order' : 'Order on WhatsApp'}
                   </button>

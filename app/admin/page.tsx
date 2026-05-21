@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { X, Lock, TrendingUp, Sparkles } from 'lucide-react';
+import { X, Lock, TrendingUp, Sparkles, Trash2 } from 'lucide-react';
 import { useSubscription } from '@/lib/useSubscription';
 
 const timeAgo = (dateString: string) => {
@@ -33,8 +33,8 @@ const timeAgo = (dateString: string) => {
 function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
   const [audioMuted, setAudioMuted] = useState(true);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioMutedRef = useRef(audioMuted);
+  const alertIntervalRef = useRef<any>(null);
 
   // Synchronize ref with audioMuted state to prevent stale closures
   useEffect(() => {
@@ -52,22 +52,10 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     }
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !audioRef.current) {
-      const audio = new Audio();
-      audio.src = '/sounds/order_tune.mp3';
-      audio.preload = 'auto';
-      audio.volume = 1.0; // Maximum volume for high alert visibility
-      audio.playbackRate = 0.5; // Set playback speed to 0.5
-      audioRef.current = audio;
-    }
-  }, []);
-
-  const playFallbackBeep = () => {
+  const playHighVolumeAlert = () => {
     try {
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
 
-      // Generate a pleasant two-tone electronic notification chime
       const playTone = (frequency: number, startTime: number, duration: number) => {
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
@@ -75,7 +63,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(frequency, startTime);
 
-        gainNode.gain.setValueAtTime(0.3, startTime); // Volume
+        gainNode.gain.setValueAtTime(0.8, startTime); // Hard, high-volume alert threshold
         gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration); // Soft fade out
 
         oscillator.connect(gainNode);
@@ -88,49 +76,47 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       // Two continuous high-fidelity tones (Chime effect)
       playTone(587.33, audioCtx.currentTime, 0.15); // D5 note
       playTone(880.00, audioCtx.currentTime + 0.12, 0.25); // A5 note
-
-      console.log(" Web Audio API fallback chime played successfully!");
     } catch (err) {
-      console.error("Audio Context completely blocked:", err);
+      // Silent catch for production environment
     }
   };
 
-  const playNotification = () => {
-    if (audioRef.current) {
-      audioRef.current.pause(); // Stop any incomplete execution thread
-      audioRef.current.currentTime = 0; // Absolute reset to start line
-      audioRef.current.playbackRate = 0.5; // Explicitly ensure play speed
-      audioRef.current.play()
-        .catch(err => {
-          console.log("Realtime Audio Playback Intercepted:", err.message);
-          playFallbackBeep();
-        });
-    } else {
-      playFallbackBeep();
+  const startAlertLoop = () => {
+    if (audioMutedRef.current) return;
+    if (alertIntervalRef.current) return;
+
+    playHighVolumeAlert();
+    alertIntervalRef.current = setInterval(playHighVolumeAlert, 2000);
+  };
+
+  const stopAlertLoop = () => {
+    if (alertIntervalRef.current) {
+      clearInterval(alertIntervalRef.current);
+      alertIntervalRef.current = null;
     }
   };
+
+  // Cleanup loop timer on component unmount
+  useEffect(() => {
+    return () => {
+      stopAlertLoop();
+    };
+  }, []);
 
   const handleToggleAudio = () => {
     const nextMuted = !audioMuted;
     setAudioMuted(nextMuted);
     localStorage.setItem('admin_audio_muted', String(nextMuted));
 
-    if (!nextMuted && audioRef.current) {
-      audioRef.current.playbackRate = 0.5;
-      audioRef.current.play()
-        .then(() => {
-          audioRef.current!.pause();
-          audioRef.current!.currentTime = 0;
-        })
-        .catch((err: any) => {
-          const errMsg = err.message || String(err);
-          if (errMsg.includes('interrupted by a call to pause')) {
-            return; // Ignore standard user interaction play-pause interruption
-          }
-          console.warn('Audio decoding anomaly intercepted gracefully:', errMsg);
-          console.warn('Tip: Please verify that order_tune.mp3 exists exactly in the /public/sounds/ folder and is not a corrupted file.');
-          playFallbackBeep();
-        });
+    if (nextMuted) {
+      stopAlertLoop();
+    } else {
+      const hasPending = liveOrders.some(o => o.status === 'pending');
+      if (hasPending) {
+        startAlertLoop();
+      } else {
+        playHighVolumeAlert();
+      }
     }
   };
 
@@ -145,7 +131,13 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         .in('status', ['pending', 'preparing'])
         .order('created_at', { ascending: false });
 
-      if (initialOrders) setLiveOrders(initialOrders);
+      if (initialOrders) {
+        setLiveOrders(initialOrders);
+        const hasPending = initialOrders.some(o => o.status === 'pending');
+        if (hasPending && !audioMutedRef.current) {
+          startAlertLoop();
+        }
+      }
     };
     fetchOrders();
 
@@ -161,27 +153,12 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         (payload) => {
           if (payload.new) {
             if (payload.new.restaurant_id === restaurantId) {
-              console.log("🎯 SUCCESS: Realtime payload matched current restaurant ID!");
-
-              // Force blast the audio clip immediately
-              if (!audioMutedRef.current && audioRef.current) {
-                audioRef.current.currentTime = 0;
-                audioRef.current.playbackRate = 0.5;
-                audioRef.current.play()
-                  .then(() => console.log("🔊 TUNE PLAYED SUCCESSFULLY!"))
-                  .catch(err => {
-                    console.error("⚠️ AUDIO SUB-SYSTEM BLOCKED:", err.message);
-                    playFallbackBeep();
-                  });
-              } else if (!audioMutedRef.current) {
-                playFallbackBeep();
-              }
-
-              // Update your UI queue state
               setLiveOrders(prev => [payload.new, ...prev]);
               toast.success(`New order received from ${payload.new.table_no}!`);
-            } else {
-              console.log("🌐 Received order payload for a different restaurant ID, ignoring.");
+              
+              if (!audioMutedRef.current) {
+                startAlertLoop();
+              }
             }
           }
         }
@@ -197,21 +174,42 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           if (payload.new) {
             if (payload.new.restaurant_id === restaurantId) {
               setLiveOrders(prev => {
-                if (payload.new.status === 'served') {
+                if (payload.new.status === 'served' || payload.new.status === 'cancelled') {
                   return prev.filter(o => o.id !== payload.new.id);
                 }
                 return prev.map(o => o.id === payload.new.id ? payload.new : o);
               });
-            } else {
-              console.log("🌐 Received order payload for a different restaurant ID, ignoring.");
+
+              if (payload.new.status !== 'pending') {
+                stopAlertLoop();
+              }
             }
           }
         }
       )
-      .subscribe((status) => {
-        // Subscription State Telemetry Log
-        console.log("📡 KOT Supabase Stream Status Connection Check:", status);
-      });
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'orders',
+        },
+        (payload) => {
+          if (payload.old) {
+            setLiveOrders(prev => {
+              const deletedOrder = prev.find(o => o.id === payload.old.id);
+              if (deletedOrder && deletedOrder.status === 'pending') {
+                if (alertIntervalRef.current) {
+                  clearInterval(alertIntervalRef.current);
+                  alertIntervalRef.current = null;
+                }
+              }
+              return prev.filter(o => o.id !== payload.old.id);
+            });
+          }
+        }
+      )
+      .subscribe();
 
     return () => {
       supabase.removeChannel(ordersSubscription);
@@ -264,9 +262,39 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded">
                   {timeAgo(order.created_at)}
                 </span>
-                {order.status === 'pending' && <span className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending</span>}
-                {order.status === 'preparing' && <span className="flex items-center gap-1.5 text-xs font-bold text-orange-700 bg-orange-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Preparing</span>}
-                {order.status === 'served' && <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
+                <div className="flex items-center gap-2">
+                  {order.status === 'pending' && <span className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending</span>}
+                  {order.status === 'preparing' && <span className="flex items-center gap-1.5 text-xs font-bold text-orange-700 bg-orange-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Preparing</span>}
+                  {order.status === 'served' && <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
+                  
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (confirm("Are you sure you want to delete this order?")) {
+                        try {
+                          const { error } = await supabase.from('orders').delete().eq('id', order.id);
+                          if (error) throw error;
+                          
+                          if (order.status === 'pending') {
+                            if (alertIntervalRef.current) {
+                              clearInterval(alertIntervalRef.current);
+                              alertIntervalRef.current = null;
+                            }
+                          }
+                          
+                          setLiveOrders(prev => prev.filter(o => o.id !== order.id));
+                          toast.success("Order deleted successfully");
+                        } catch (err: any) {
+                          toast.error(err.message || "Failed to delete order");
+                        }
+                      }
+                    }}
+                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                    title="Delete Order"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -294,6 +322,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
               {order.status === 'pending' && (
                 <button
                   onClick={async () => {
+                    stopAlertLoop();
                     await supabase.from('orders').update({ status: 'preparing' }).eq('id', order.id);
                   }}
                   className="flex-1 bg-[#111827] hover:bg-black text-white text-sm font-bold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
@@ -304,6 +333,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
               {order.status === 'preparing' && (
                 <button
                   onClick={async () => {
+                    stopAlertLoop();
                     await supabase.from('orders').update({ status: 'served' }).eq('id', order.id);
                   }}
                   className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
