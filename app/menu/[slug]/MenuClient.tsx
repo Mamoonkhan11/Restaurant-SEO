@@ -20,6 +20,9 @@ const MenuHeader = React.memo(({ restaurant, menuBlocked }: { restaurant: any, m
     <h1 className="text-xl sm:text-2xl font-black text-[#111827] tracking-tight text-center">
       {restaurant?.name || 'Restaurant Name'}
     </h1>
+    <p className="text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-widest mt-1 text-center">
+      Digital Menu
+    </p>
   </div>
 ));
 MenuHeader.displayName = 'MenuHeader';
@@ -141,15 +144,16 @@ export default function MenuClient({
     }
   }, [activeOrderId]);
 
-  // Auto-Reset Timer for Served Status
+  // Auto-Reset Timer for Served or Cancelled Status
   useEffect(() => {
-    if (orderStatus === 'served') {
+    if (orderStatus === 'served' || orderStatus === 'cancelled') {
       const timer = setTimeout(() => {
         setOrderStatus('idle');
         setActiveOrderId(null);
         setSelectedDish(null);
         setShowTracking(false);
-      }, 10000);
+        setIsCartOpen(false);
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [orderStatus]);
