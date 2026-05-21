@@ -73,7 +73,7 @@ export default function MenuClient({
   const [selectedSizes, setSelectedSizes] = useState<Record<string, number>>({});
 
   // KOT Order Status Lifecycle State
-  const [orderStatus, setOrderStatus] = useState<'idle' | 'pending' | 'preparing' | 'served'>('idle');
+  const [orderStatus, setOrderStatus] = useState<'idle' | 'pending' | 'preparing' | 'served' | 'cancelled'>('idle');
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
   const [showTracking, setShowTracking] = useState(false);
 
@@ -125,6 +125,13 @@ export default function MenuClient({
           if (payload.new && payload.new.status) {
             setOrderStatus(payload.new.status as any);
           }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'orders', filter: `id=eq.${activeOrderId}` },
+        () => {
+          setOrderStatus('cancelled');
         }
       )
       .subscribe();
@@ -494,9 +501,7 @@ export default function MenuClient({
                           <div
                             key={item.id}
                             onClick={() => {
-                              if (item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0) {
-                                handleDishClick(item);
-                              }
+                              handleDishClick(item);
                             }}
                             className={`bg-white rounded-2xl p-3 sm:p-4 flex flex-row gap-4 items-center relative group shadow-sm border border-gray-100 transition-all duration-200 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-gray-200 hover:shadow-md'}`}
                           >
@@ -656,8 +661,8 @@ export default function MenuClient({
       )}
       
       {/* Floating Buttons */}
-      <div className={`fixed right-4 sm:right-8 flex flex-col gap-3 z-40 transition-all duration-300 ${cartItemCount > 0 && !showTracking ? 'bottom-28' : 'bottom-14'}`}>
-        {activeOrderId && !showTracking && (
+      <div className="fixed right-4 sm:right-8 flex flex-col gap-3 z-40 bottom-28">
+        {activeOrderId && !isCartOpen && (
           <button
             onClick={() => {
               setShowTracking(true);
@@ -749,7 +754,7 @@ export default function MenuClient({
                           >
                             -
                           </button>
-                          <span className="font-black text-xl w-12 text-center">{dishQuantity}</span>
+                          <span className="font-black text-xl w-12 text-center text-black">{dishQuantity}</span>
                           <button 
                             onClick={() => setDishQuantity(Math.min(10, dishQuantity + 1))}
                             className="w-12 h-12 flex items-center justify-center bg-white rounded-xl font-bold text-xl text-gray-900 shadow-sm border border-gray-200"
@@ -841,10 +846,7 @@ export default function MenuClient({
                                   .eq('id', activeOrderId);
                                 if (error) throw error;
                                 
-                                setOrderStatus('idle');
-                                setActiveOrderId(null);
-                                setShowTracking(false);
-                                setIsCartOpen(false);
+                                setOrderStatus('cancelled');
                                 alert("Order cancelled successfully.");
                               } catch (err: any) {
                                 alert("Failed to cancel order: " + err.message);
@@ -869,6 +871,15 @@ export default function MenuClient({
                         <CheckCircle className="w-16 h-16 text-green-500" />
                         <p className="font-black text-2xl text-green-600">Food Served! 🎉</p>
                         <p className="text-gray-500 text-center">Enjoy your meal.</p>
+                      </>
+                    )}
+                    {orderStatus === 'cancelled' && (
+                      <>
+                        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center animate-fade-in">
+                          <X className="w-8 h-8 text-red-500" />
+                        </div>
+                        <p className="font-black text-xl text-red-600">Order Cancelled</p>
+                        <p className="text-gray-500 text-center font-medium">You cancelled your order or it was cancelled by the restaurant.</p>
                       </>
                     )}
                     
@@ -911,7 +922,7 @@ export default function MenuClient({
                                return newCart;
                              });
                            }} className="w-7 h-7 flex items-center justify-center font-bold bg-white rounded shadow-sm text-gray-600">-</button>
-                           <span className="font-bold w-4 text-center text-sm">{item.quantity}</span>
+                           <span className="font-bold w-4 text-center text-sm text-black">{item.quantity}</span>
                            <button onClick={() => {
                              setCart(prev => {
                                const newCart = [...prev];
