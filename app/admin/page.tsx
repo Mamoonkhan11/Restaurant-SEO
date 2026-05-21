@@ -54,7 +54,8 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !audioRef.current) {
-      const audio = new Audio('/sounds/order_tune.mp3');
+      const audio = new Audio();
+      audio.src = '/sounds/order_tune.mp3';
       audio.preload = 'auto';
       audio.volume = 1.0; // Maximum volume for high alert visibility
       audio.playbackRate = 0.5; // Set playback speed to 0.5
@@ -62,13 +63,50 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     }
   }, []);
 
+  const playFallbackBeep = () => {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+      // Generate a pleasant two-tone electronic notification chime
+      const playTone = (frequency: number, startTime: number, duration: number) => {
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(frequency, startTime);
+
+        gainNode.gain.setValueAtTime(0.3, startTime); // Volume
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration); // Soft fade out
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + duration);
+      };
+
+      // Two continuous high-fidelity tones (Chime effect)
+      playTone(587.33, audioCtx.currentTime, 0.15); // D5 note
+      playTone(880.00, audioCtx.currentTime + 0.12, 0.25); // A5 note
+
+      console.log(" Web Audio API fallback chime played successfully!");
+    } catch (err) {
+      console.error("Audio Context completely blocked:", err);
+    }
+  };
+
   const playNotification = () => {
     if (audioRef.current) {
       audioRef.current.pause(); // Stop any incomplete execution thread
       audioRef.current.currentTime = 0; // Absolute reset to start line
       audioRef.current.playbackRate = 0.5; // Explicitly ensure play speed
       audioRef.current.play()
-        .catch(err => console.log("Realtime Audio Playback Intercepted:", err.message));
+        .catch(err => {
+          console.log("Realtime Audio Playback Intercepted:", err.message);
+          playFallbackBeep();
+        });
+    } else {
+      playFallbackBeep();
     }
   };
 
@@ -91,6 +129,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           }
           console.warn('Audio decoding anomaly intercepted gracefully:', errMsg);
           console.warn('Tip: Please verify that order_tune.mp3 exists exactly in the /public/sounds/ folder and is not a corrupted file.');
+          playFallbackBeep();
         });
     }
   };
@@ -130,7 +169,12 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 audioRef.current.playbackRate = 0.5;
                 audioRef.current.play()
                   .then(() => console.log("🔊 TUNE PLAYED SUCCESSFULLY!"))
-                  .catch(err => console.error("⚠️ AUDIO SUB-SYSTEM BLOCKED:", err.message));
+                  .catch(err => {
+                    console.error("⚠️ AUDIO SUB-SYSTEM BLOCKED:", err.message);
+                    playFallbackBeep();
+                  });
+              } else if (!audioMutedRef.current) {
+                playFallbackBeep();
               }
 
               // Update your UI queue state
