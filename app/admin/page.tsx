@@ -155,7 +155,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             if (payload.new.restaurant_id === restaurantId) {
               setLiveOrders(prev => [payload.new, ...prev]);
               toast.success(`New order received from ${payload.new.table_no}!`);
-              
+
               if (!audioMutedRef.current) {
                 startAlertLoop();
               }
@@ -266,7 +266,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                   {order.status === 'pending' && <span className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending</span>}
                   {order.status === 'preparing' && <span className="flex items-center gap-1.5 text-xs font-bold text-orange-700 bg-orange-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Preparing</span>}
                   {order.status === 'served' && <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
-                  
+
                   <button
                     onClick={async (e) => {
                       e.stopPropagation();
@@ -274,14 +274,14 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                         try {
                           const { error } = await supabase.from('orders').delete().eq('id', order.id);
                           if (error) throw error;
-                          
+
                           if (order.status === 'pending') {
                             if (alertIntervalRef.current) {
                               clearInterval(alertIntervalRef.current);
                               alertIntervalRef.current = null;
                             }
                           }
-                          
+
                           setLiveOrders(prev => prev.filter(o => o.id !== order.id));
                           toast.success("Order deleted successfully");
                         } catch (err: any) {
@@ -603,12 +603,10 @@ export default function AdminDashboardOverview() {
           {/* Total Scans Card */}
           <div onClick={() => canViewAllAnalytics && setActiveModalTitle('Total Scans')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewAllAnalytics ? 'cursor-default' : 'cursor-pointer'}`}>
             {!canViewAllAnalytics && (
-              <div className="absolute inset-0 z-10 bg-white/75 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
-                <div className="bg-purple-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
-                  <Lock className="w-3 h-3" /> Locked
-                </div>
-                <p className="text-[11px] text-purple-900 font-extrabold leading-tight">Scan Tracking Required</p>
-                <Link href="/admin/billing" className="mt-2 text-[10px] bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-bold hover:bg-purple-200 transition-colors pointer-events-auto">Unlock with Pro</Link>
+              <div className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[6px] rounded-2xl flex items-center justify-center p-4">
+                <Link href="/admin/billing" className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-lg px-6 py-3 rounded-xl shadow-md hover:scale-105 transition-all pointer-events-auto text-center">
+                  Unlock with Pro
+                </Link>
               </div>
             )}
             <div className="flex justify-between items-start mb-2">
@@ -625,12 +623,10 @@ export default function AdminDashboardOverview() {
           {/* Top Selling Dish Card */}
           <div onClick={() => canViewAllAnalytics && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewAllAnalytics ? 'cursor-default' : 'cursor-pointer'}`}>
             {!canViewAllAnalytics && (
-              <div className="absolute inset-0 z-10 bg-white/75 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
-                <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
-                  <Lock className="w-3 h-3" /> Locked
-                </div>
-                <p className="text-[11px] text-orange-900 font-extrabold leading-tight">Advanced Analytics Required</p>
-                <Link href="/admin/billing" className="mt-2 text-[10px] bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-bold hover:bg-orange-200 transition-colors pointer-events-auto">Unlock with Pro</Link>
+              <div className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[6px] rounded-2xl flex items-center justify-center p-4">
+                <Link href="/admin/billing" className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-lg px-6 py-3 rounded-xl shadow-md hover:scale-105 transition-all pointer-events-auto text-center">
+                  Unlock with Pro
+                </Link>
               </div>
             )}
             <div className="flex justify-between items-start mb-2">
@@ -685,7 +681,7 @@ export default function AdminDashboardOverview() {
                   <h3 className="text-gray-900 font-bold mb-2">Want to see your top-performing items?</h3>
                   <p className="text-sm text-gray-500 mb-6">Unlock Advanced Analytics with Pro to track all dish views and growth trends.</p>
                   <Link href="/admin/billing" className="bg-blue-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-blue-700 transition-colors shadow-md">
-                    Unlock All Insights
+                    Unlock All Insights With Premium Plan
                   </Link>
                 </div>
               </div>
