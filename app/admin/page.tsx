@@ -375,7 +375,7 @@ export default function AdminDashboardOverview() {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [activeModalTitle, setActiveModalTitle] = useState<string | null>(null);
   const [historicalStats, setHistoricalStats] = useState<any[]>([]);
-  const { planType, canViewRevenue, canViewAllAnalytics } = useSubscription();
+  const { planType, daysLeft, isExpired, canViewRevenue, canViewAllAnalytics } = useSubscription();
 
   const router = useRouter();
   useEffect(() => {
@@ -594,6 +594,43 @@ export default function AdminDashboardOverview() {
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Welcome, {ownerName}</h1>
           <p className="mt-1 text-gray-500">Here's what's happening with your digital menu today.</p>
         </div>
+
+        {/* Trial Countdown Banner */}
+        {planType === 'free' && (
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 p-6 text-white shadow-lg border border-orange-400/20">
+            {/* Background decorative blobs */}
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+            
+            <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/20 backdrop-blur-md rounded-xl shrink-0">
+                  <Sparkles className="w-6 h-6 text-amber-100 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-lg leading-tight">
+                    {isExpired ? 'Your Free Trial Has Expired' : 'Free Trial Active'}
+                  </h3>
+                  <p className="text-sm text-white/90 font-medium mt-0.5">
+                    {isExpired 
+                      ? 'Upgrade your plan now to keep your digital menu active and unlock premium features.' 
+                      : `You have ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} remaining in your free trial. Explore all features!`
+                    }
+                  </p>
+                </div>
+              </div>
+              
+              {(daysLeft <= 5 || isExpired) && (
+                <Link 
+                  href="/admin/billing" 
+                  className="bg-white text-orange-600 hover:bg-orange-50 font-black text-sm px-6 py-3 rounded-xl shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shrink-0 w-full md:w-auto text-center cursor-pointer font-bold"
+                >
+                  Upgrade Now
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
 
         {restaurantId && <LiveOrderQueue restaurantId={restaurantId} />}
 

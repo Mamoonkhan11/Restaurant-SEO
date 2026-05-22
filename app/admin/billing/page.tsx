@@ -59,6 +59,10 @@ export default function BillingPage() {
   const daysRemaining = expiryDate ? Math.max(0, Math.ceil((expiryDate.getTime() - new Date().getTime()) / (1000 * 3600 * 24))) : 0;
   const isExpired = expiryDate ? new Date() > expiryDate : false;
 
+  const isBasicTrial = currentPlan === 'basic' && 
+    payments.some(p => p.plan_type === 'basic' && p.payment_method === 'free_trial') &&
+    !payments.some(p => p.plan_type === 'basic' && p.payment_method === 'razorpay' && p.status === 'success');
+
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement('script');
@@ -69,7 +73,7 @@ export default function BillingPage() {
     });
   };
 
-  const handleUpgrade = async (plan: 'pro' | 'premium', price: number, isAnnual: boolean, useDiscount: boolean = false) => {
+  const handleUpgrade = async (plan: 'basic' | 'pro' | 'premium', price: number, isAnnual: boolean, useDiscount: boolean = false) => {
     setIsLoading(true);
     const res = await loadRazorpay();
 
@@ -259,6 +263,9 @@ export default function BillingPage() {
   ];
 
   const getCtaLabel = (planId: string) => {
+    if (planId === 'basic' && isBasicTrial) {
+      return 'Upgrade Plan';
+    }
     if (currentPlan === planId) return 'Current Plan';
 
     if (planId === 'basic') {
@@ -360,7 +367,7 @@ export default function BillingPage() {
       {/* 4-Tier Grid Subscription Matrix */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
         {plans.map((plan) => {
-          const isCurrent = currentPlan === plan.id;
+          const isCurrent = currentPlan === plan.id && !(plan.id === 'basic' && isBasicTrial);
           return (
             <div
               id={plan.id}
@@ -429,11 +436,15 @@ export default function BillingPage() {
                 <button
                   onClick={() => {
                     if (plan.id === 'basic') {
-                      handleStartFreeTrial();
+                      if (isBasicTrial) {
+                        handleUpgrade('basic', plan.price as number, isAnnual);
+                      } else {
+                        handleStartFreeTrial();
+                      }
                     } else if (plan.id === 'enterprise') {
                       window.open(whatsappUrl, '_blank');
                     } else {
-                      handleUpgrade(plan.id as 'pro' | 'premium', plan.price as number, isAnnual);
+                      handleUpgrade(plan.id as 'basic' | 'pro' | 'premium', plan.price as number, isAnnual);
                     }
                   }}
                   disabled={isLoading || isCurrent}
