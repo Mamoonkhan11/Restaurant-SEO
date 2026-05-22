@@ -66,6 +66,7 @@ export default function MenuClient({
   const [dishes, setDishes] = useState<any[]>(initialDishes);
   const [categories, setCategories] = useState<string[]>(initialCategories);
   const [activeCategory, setActiveCategory] = useState<string>(initialCategories.length > 0 ? initialCategories[0] : '');
+  const [hasTappedCategory, setHasTappedCategory] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -100,10 +101,18 @@ export default function MenuClient({
 
   // Dynamic SEO: Update Title and Meta Description
   useEffect(() => {
-    if (restaurant && activeCategory) {
-      document.title = `${activeCategory} at ${restaurant?.name || 'Restaurant'} | Order Online`;
+    if (restaurant) {
+      const businessName = restaurant.name || 'Restaurant';
+      if (hasTappedCategory && activeCategory) {
+        document.title = `${activeCategory} at ${businessName} | Order Online`;
+      } else {
+        document.title = `${businessName} | Order Online`;
+      }
+      
+      const categoryDesc = hasTappedCategory && activeCategory ? `${activeCategory} menu at ` : '';
+      const descText = `Explore our delicious ${categoryDesc}${businessName}. View prices, details, and order instantly from your browser!`;
+      
       const metaDescription = document.querySelector('meta[name="description"]');
-      const descText = `Explore our delicious ${activeCategory} menu at ${restaurant?.name || 'Restaurant'}. View prices, details, and order instantly from your browser!`;
       if (metaDescription) {
         metaDescription.setAttribute('content', descText);
       } else {
@@ -113,7 +122,7 @@ export default function MenuClient({
         document.head.appendChild(meta);
       }
     }
-  }, [activeCategory, restaurant]);
+  }, [activeCategory, restaurant, hasTappedCategory]);
 
   // Realtime KOT Order Status Listener
   useEffect(() => {
@@ -446,6 +455,7 @@ export default function MenuClient({
                     key={cat}
                     onClick={() => {
                       setActiveCategory(cat);
+                      setHasTappedCategory(true);
                       const el = document.getElementById(`category-${cat}`);
                       if (el) {
                         const y = el.getBoundingClientRect().top + window.scrollY - 80;
