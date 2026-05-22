@@ -11,28 +11,31 @@ export default function RefundPolicy() {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
           </Link>
           <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">Cancellation & Refund Policy</h1>
-          <p className="text-gray-500 font-medium">Last Updated: {new Date().toLocaleDateString()}</p>
+          <p className="text-sm text-gray-400">Last Updated: May 2026</p>
         </div>
 
         <div className="space-y-8 text-gray-700 leading-relaxed">
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">1. Subscription Policy</h2>
-            <p>Mendigi operates on a Software-as-a-Service (SaaS) model. All premium subscriptions (Pro and Premium) are pre-paid and grant access to advanced digital menu features for the duration of the billing cycle (monthly or yearly).</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-3">1. Merchant SaaS Subscriptions</h2>
+            <p>
+              Mendigi operates on clean SaaS pricing tiers (Basic, Pro, Premium, Enterprise) with dynamic Monthly and Annual cycles. 
+              As outlined in our introductory campaigns, the first 6 registered businesses receive an absolute <strong>1-Month Free Trial</strong> with Basic tier functionalities. 
+              Subscribers can cancel their renewals at any point directly from the account portal before the next billing cycle triggers.
+            </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">2. 7-Day Satisfaction Guarantee</h2>
-            <p>We stand by the quality of our platform. We offer a <strong>7-day Satisfaction Guarantee</strong> for all new subscriptions. If Mendigi doesn't meet your expectations within the first 7 days of your initial purchase, you may request a full refund.</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-3">2. No-Refund Policy for Digital Services</h2>
+            <p>
+              Because Mendigi instantly unlocks database quotas, limits configurations (up to 12, 20, or 23 items/tables), automated real-time KOT audio channels, and SEO mapping resources immediately upon payment confirmation, <strong>all processed subscription fees are strictly non-refundable</strong>.
+            </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">3. Non-Refundable Period</h2>
-            <p>After the initial 7-day window has passed, the subscription amount becomes strictly non-refundable. We do not provide prorated refunds for partial months or years of service.</p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">4. Cancellation</h2>
-            <p>Restaurant owners can cancel their subscription at any time directly from the Admin Dashboard. Canceling your subscription will stop the next billing cycle, and you will retain access to your premium features until the end of your current paid period.</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-3">3. End-Diner Order Cancellations</h2>
+            <p>
+              The decision to process refunds or void transactions for food/beverages placed by a Diner rests entirely with the respective Merchant's management panel. Mendigi provides a digital 'Delete/Cancel' button control on the interface that operates strictly when an order status is marked as <strong>Pending</strong>. Once a Merchant accepts an order into preparation status, the system locks modification rules.
+            </p>
           </section>
         </div>
       </div>

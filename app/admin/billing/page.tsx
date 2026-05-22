@@ -17,6 +17,29 @@ export default function BillingPage() {
     }
   }, [restaurant]);
 
+  useEffect(() => {
+    const handleHashHighlight = () => {
+      const hash = window.location.hash;
+      if (hash) {
+        const id = hash.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+          setTimeout(() => {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.classList.add('pulse-highlight');
+            setTimeout(() => {
+              element.classList.remove('pulse-highlight');
+            }, 3000);
+          }, 200);
+        }
+      }
+    };
+
+    handleHashHighlight();
+    window.addEventListener('hashchange', handleHashHighlight);
+    return () => window.removeEventListener('hashchange', handleHashHighlight);
+  }, []);
+
   const fetchPayments = async () => {
     try {
       const { data, error } = await supabase
@@ -340,6 +363,7 @@ export default function BillingPage() {
           const isCurrent = currentPlan === plan.id;
           return (
             <div
+              id={plan.id}
               key={plan.id}
               className={`bg-white rounded-3xl p-8 border flex flex-col relative overflow-hidden transition-all duration-300 ${plan.highlight
                   ? 'border-blue-500 ring-2 ring-blue-500 shadow-lg md:-translate-y-2'
@@ -482,6 +506,15 @@ export default function BillingPage() {
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .animate-fade-in-up { animation: fadeInUp 0.4s ease forwards; }
         .animate-fade-in { animation: fadeIn 0.4s ease forwards; }
+        @keyframes pulseHighlight {
+          0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); border-color: #3b82f6; }
+          50% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(37, 99, 235, 0.2); border-color: #2563eb; }
+          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+        .pulse-highlight {
+          animation: pulseHighlight 1.5s ease-in-out 2;
+          z-index: 20;
+        }
       `}</style>
     </div>
   );

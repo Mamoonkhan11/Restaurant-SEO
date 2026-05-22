@@ -679,7 +679,7 @@ export default function AdminDashboardOverview() {
                     <Lock className="w-6 h-6" />
                   </div>
                   <h3 className="text-gray-900 font-bold mb-2">Want to see your top-performing items?</h3>
-                  <p className="text-sm text-gray-500 mb-6">Unlock Advanced Analytics with Pro to track all dish views and growth trends.</p>
+                  <p className="text-sm text-gray-500 mb-6">Unlock Advanced Analytics with Premium to track all dish views and growth trends.</p>
                   <Link href="/admin/billing" className="bg-blue-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-blue-700 transition-colors shadow-md">
                     Unlock All Insights With Premium Plan
                   </Link>

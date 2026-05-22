@@ -103,7 +103,7 @@ export default function MenuClient({
     if (restaurant && activeCategory) {
       document.title = `${activeCategory} at ${restaurant?.name || 'Restaurant'} | Order Online`;
       const metaDescription = document.querySelector('meta[name="description"]');
-      const descText = `Explore our delicious ${activeCategory} menu at ${restaurant?.name || 'Restaurant'}. View prices, details, and order online via WhatsApp!`;
+      const descText = `Explore our delicious ${activeCategory} menu at ${restaurant?.name || 'Restaurant'}. View prices, details, and order instantly from your browser!`;
       if (metaDescription) {
         metaDescription.setAttribute('content', descText);
       } else {
