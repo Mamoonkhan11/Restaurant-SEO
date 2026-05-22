@@ -99,7 +99,17 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         )}
 
         <div className="h-20 flex items-center px-6 border-b border-gray-800 shrink-0">
-          <img src="/favicon.ico" alt="Restdigi Logo" className="w-8 h-8 rounded-lg mr-3" />
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 4H5a2 2 0 0 0-2 2v3" />
+              <path d="M16 4h3a2 2 0 0 1 2 2v3" />
+              <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
+              <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
+              <path d="M7 14a5 5 0 0 1 10 0" />
+              <path d="M6 14h12" />
+              <path d="M12 9V7" />
+            </svg>
+          </div>
           <h2 className="text-xl font-bold text-white tracking-tight">Rest<span className="text-blue-500">digi</span></h2>
         </div>
         
@@ -151,7 +161,17 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </button>
           <div className="flex items-center gap-2">
-            <img src="/favicon.ico" alt="Restdigi Logo" className="w-7 h-7 rounded-md" />
+            <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 4H5a2 2 0 0 0-2 2v3" />
+                <path d="M16 4h3a2 2 0 0 1 2 2v3" />
+                <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
+                <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
+                <path d="M7 14a5 5 0 0 1 10 0" />
+                <path d="M6 14h12" />
+                <path d="M12 9V7" />
+              </svg>
+            </div>
             <h2 className="text-xl font-bold text-gray-900 tracking-tight">Rest<span className="text-blue-600">digi</span></h2>
           </div>
           <div className="w-9" /> {/* Spacer */}
