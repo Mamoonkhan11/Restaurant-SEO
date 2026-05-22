@@ -21,7 +21,7 @@ export default function ContactUs() {
             </div>
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-1">Registered Address</h3>
-              <p className="text-gray-600 font-medium">Mendigi<br />Srinagar, Jammu & Kashmir<br />India - 190001</p>
+              <p className="text-gray-600 font-medium">Restdigi<br />Srinagar, Jammu & Kashmir<br />India - 190001</p>
             </div>
           </div>
 

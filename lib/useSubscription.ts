@@ -17,6 +17,7 @@ export const useSubscription = () => {
 
   const planType = restaurant.plan_type || 'free';
   const trialEndsAt = restaurant.trial_ends_at ? new Date(restaurant.trial_ends_at) : null;
+  const expiryDate = restaurant.expiry_date ? new Date(restaurant.expiry_date) : null;
   const now = new Date();
 
   const isBasicTrial = planType === 'basic' && (
@@ -25,17 +26,14 @@ export const useSubscription = () => {
   );
 
   const isTrial = (planType === 'free' && !!trialEndsAt) || isBasicTrial;
-  const isExpired = isBasicTrial
-    ? (restaurant.expiry_date ? now > new Date(restaurant.expiry_date) : (trialEndsAt ? now > trialEndsAt : false))
-    : (planType === 'free' && trialEndsAt ? now > trialEndsAt : false);
+  const isExpired = planType !== 'free' && expiryDate
+    ? now > expiryDate
+    : (trialEndsAt ? now > trialEndsAt : false);
 
-  let daysLeft = 0;
-  if (isBasicTrial) {
-    const targetDate = restaurant.expiry_date ? new Date(restaurant.expiry_date) : trialEndsAt;
-    if (targetDate) {
-      const diffTime = targetDate.getTime() - now.getTime();
-      daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    }
+  let daysLeft: number | null = null;
+  if (planType !== 'free' && expiryDate) {
+    const diffTime = expiryDate.getTime() - now.getTime();
+    daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   } else if (trialEndsAt) {
     const diffTime = trialEndsAt.getTime() - now.getTime();
     daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -44,7 +42,7 @@ export const useSubscription = () => {
   return {
     planType,
     isTrial,
-    daysLeft: Math.max(0, daysLeft),
+    daysLeft: daysLeft !== null ? Math.max(0, daysLeft) : null,
     canViewRevenue: ['pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired),
     canViewAllAnalytics: ['pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired),
     canCustomBrand: ['pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired),

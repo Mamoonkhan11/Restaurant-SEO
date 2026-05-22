@@ -21,7 +21,7 @@ export default function Home() {
                   <path d="M12 9V7" />
                 </svg>
               </div>
-              <span className="font-extrabold text-xl tracking-tight text-gray-900">Mendi<span className="text-blue-600">gi</span></span>
+              <span className="font-extrabold text-xl tracking-tight text-gray-900">Rest<span className="text-blue-600">digi</span></span>
             </div>
             <div className="flex items-center gap-4">
               <Link
@@ -53,7 +53,7 @@ export default function Home() {
         </h1>
 
         <p className="max-w-3xl text-lg sm:text-xl text-gray-500 mb-10 font-medium animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-          Don't let long queues and short staff kill your restaurant's sales. With Mendigi, customers simply Scan, View, and Place Orders Instantly right from their tables. No apps. No waiting. Just pure speed.
+          Don't let long queues and short staff kill your restaurant's sales. With Restdigi, customers simply Scan, View, and Place Orders Instantly right from their tables. No apps. No waiting. Just pure speed.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
@@ -143,7 +143,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-3">Automated Local SEO Boost</h3>
               <p className="text-gray-500 leading-relaxed">
-                Mendigi dynamically optimizes your restaurant’s online presence, pushing your physical location to the top of local Google search maps and discoverability indexes automatically.
+                Restdigi dynamically optimizes your restaurant’s online presence, pushing your physical location to the top of local Google search maps and discoverability indexes automatically.
               </p>
             </div>
 
@@ -181,7 +181,7 @@ export default function Home() {
                   <path d="M12 9V7" />
                 </svg>
               </div>
-              <span className="font-extrabold text-xl tracking-tight text-white">Mendi<span className="text-gray-400">gi</span></span>
+              <span className="font-extrabold text-xl tracking-tight text-white">Rest<span className="text-gray-400">digi</span></span>
             </div>
 
             {/* Legal Links required by Razorpay */}
@@ -203,7 +203,7 @@ export default function Home() {
 
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
             <p className="mb-2">Address: Srinagar, J&K, India</p>
-            <p>&copy; {new Date().getFullYear()} Mendigi. All rights reserved. Built for modern restaurants.</p>
+            <p>&copy; {new Date().getFullYear()} Restdigi. All rights reserved. Built for modern restaurants.</p>
           </div>
         </div>
       </footer>

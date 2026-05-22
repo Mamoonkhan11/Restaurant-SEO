@@ -589,14 +589,8 @@ export default function AdminDashboardOverview() {
       <Toaster />
       <div className="max-w-6xl mx-auto space-y-8">
 
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Welcome, {ownerName}</h1>
-          <p className="mt-1 text-gray-500">Here's what's happening with your digital menu today.</p>
-        </div>
-
-        {/* Trial Countdown Banner */}
-        {isTrial && (
+        {/* Expiring Soon Banner */}
+        {daysLeft !== null && daysLeft <= 5 && !isExpired && (
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 p-6 text-white shadow-lg border border-orange-400/20">
             {/* Background decorative blobs */}
             <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
@@ -609,28 +603,29 @@ export default function AdminDashboardOverview() {
                 </div>
                 <div>
                   <h3 className="font-extrabold text-lg leading-tight">
-                    {isExpired ? 'Your Free Trial Has Expired' : 'Free Trial Active'}
+                    Subscription Expiring Soon
                   </h3>
                   <p className="text-sm text-white/90 font-medium mt-0.5">
-                    {isExpired 
-                      ? 'Upgrade your plan now to keep your digital menu active and unlock premium features.' 
-                      : `You have ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} remaining in your free trial. Explore all features!`
-                    }
+                    Your {planType === 'free' ? 'Free Trial' : `${planType.toUpperCase()} Plan`} is expiring in {daysLeft} {daysLeft === 1 ? 'day' : 'days'}. Upgrade or renew your subscription now to avoid any service interruption.
                   </p>
                 </div>
               </div>
               
-              {(daysLeft <= 5 || isExpired) && (
-                <Link 
-                  href="/admin/billing" 
-                  className="bg-white text-orange-600 hover:bg-orange-50 font-black text-sm px-6 py-3 rounded-xl shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shrink-0 w-full md:w-auto text-center cursor-pointer font-bold"
-                >
-                  Upgrade Now
-                </Link>
-              )}
+              <Link 
+                href="/admin/billing" 
+                className="bg-white text-orange-600 hover:bg-orange-50 font-black text-sm px-6 py-3 rounded-xl shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shrink-0 w-full md:w-auto text-center cursor-pointer font-bold"
+              >
+                Upgrade Now
+              </Link>
             </div>
           </div>
         )}
+
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Welcome, {ownerName}</h1>
+          <p className="mt-1 text-gray-500">Here's what's happening with your digital menu today.</p>
+        </div>
 
         {restaurantId && <LiveOrderQueue restaurantId={restaurantId} />}
 

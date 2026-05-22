@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const location = restaurant?.address || 'Srinagar';
 
   const seoTitle = `${restaurantName} Menu - Best Food in ${location}, Srinagar`;
-  const seoDescription = `Explore our delicious menu at ${restaurantName}. View our best sellers, pricing, and order directly! Located in ${location}, Srinagar. Built with Mendigi.`;
+  const seoDescription = `Explore our delicious menu at ${restaurantName}. View our best sellers, pricing, and order directly! Located in ${location}, Srinagar. Built with Restdigi.`;
 
   return {
     title: seoTitle,
@@ -29,8 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: seoTitle,
       description: seoDescription,
-      url: `https://mendigi.com/menu/${params.slug}`,
-      siteName: 'Mendigi',
+      url: `https://restdigi.com/menu/${params.slug}`,
+      siteName: 'Restdigi',
       images: [
         {
           // Dynamic image placeholder based on restaurant name

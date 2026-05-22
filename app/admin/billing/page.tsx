@@ -56,12 +56,21 @@ export default function BillingPage() {
 
   const currentPlan = restaurant?.plan_type || 'free';
   const expiryDate = restaurant?.expiry_date ? new Date(restaurant.expiry_date) : null;
-  const daysRemaining = expiryDate ? Math.max(0, Math.ceil((expiryDate.getTime() - new Date().getTime()) / (1000 * 3600 * 24))) : 0;
-  const isExpired = expiryDate ? new Date() > expiryDate : false;
+  const trialEndsAt = restaurant?.trial_ends_at ? new Date(restaurant.trial_ends_at) : null;
+  const now = new Date();
 
-  const isBasicTrial = currentPlan === 'basic' && 
-    payments.some(p => p.plan_type === 'basic' && p.payment_method === 'free_trial') &&
-    !payments.some(p => p.plan_type === 'basic' && p.payment_method === 'razorpay' && p.status === 'success');
+  const daysRemaining = currentPlan === 'free' && trialEndsAt
+    ? Math.max(0, Math.ceil((trialEndsAt.getTime() - now.getTime()) / (1000 * 3600 * 24)))
+    : (expiryDate ? Math.max(0, Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 3600 * 24))) : 0);
+
+  const isExpired = currentPlan === 'free' && trialEndsAt
+    ? now > trialEndsAt
+    : (expiryDate ? now > expiryDate : false);
+
+  const isBasicTrial = currentPlan === 'basic' && (
+    payments.some(p => p.plan_type === 'basic' && p.payment_method === 'free_trial') ||
+    (!!trialEndsAt && !payments.some(p => p.plan_type === 'basic' && p.payment_method === 'razorpay' && p.status === 'success'))
+  );
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -98,7 +107,7 @@ export default function BillingPage() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_YOUR_KEY_HERE",
         amount: orderData.amount,
         currency: orderData.currency,
-        name: restaurant?.name || "RestoOS",
+        name: restaurant?.name || "Restdigi",
         description: `${plan.toUpperCase()} Plan Subscription`,
         order_id: orderData.id,
         handler: async function (response: any) {
@@ -263,13 +272,17 @@ export default function BillingPage() {
   ];
 
   const getCtaLabel = (planId: string) => {
+    if (currentPlan === planId && daysRemaining <= 5) {
+      return 'Upgrade Now';
+    }
     if (planId === 'basic' && isBasicTrial) {
       return 'Upgrade Plan';
     }
     if (currentPlan === planId) return 'Current Plan';
 
     if (planId === 'basic') {
-      return currentPlan === 'free' ? 'Start Free Month' : 'Switch to Basic';
+      const hasUsedTrial = payments.length > 0;
+      return (currentPlan === 'free' && !hasUsedTrial) ? 'Start Free Month' : 'Switch to Basic';
     }
     if (planId === 'pro') {
       return (currentPlan === 'premium' || currentPlan === 'enterprise') ? 'Switch to Pro' : 'Upgrade to Pro';
@@ -368,6 +381,7 @@ export default function BillingPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
         {plans.map((plan) => {
           const isCurrent = currentPlan === plan.id && !(plan.id === 'basic' && isBasicTrial);
+          const isCurrentExpiring = currentPlan === plan.id && daysRemaining <= 5;
           return (
             <div
               id={plan.id}
@@ -436,10 +450,11 @@ export default function BillingPage() {
                 <button
                   onClick={() => {
                     if (plan.id === 'basic') {
-                      if (isBasicTrial) {
-                        handleUpgrade('basic', plan.price as number, isAnnual);
-                      } else {
+                      const hasUsedTrial = payments.length > 0;
+                      if (currentPlan === 'free' && !hasUsedTrial) {
                         handleStartFreeTrial();
+                      } else {
+                        handleUpgrade('basic', plan.price as number, isAnnual);
                       }
                     } else if (plan.id === 'enterprise') {
                       window.open(whatsappUrl, '_blank');
@@ -447,8 +462,8 @@ export default function BillingPage() {
                       handleUpgrade(plan.id as 'basic' | 'pro' | 'premium', plan.price as number, isAnnual);
                     }
                   }}
-                  disabled={isLoading || isCurrent}
-                  className={`w-full py-3 rounded-xl font-bold transition-all ${isCurrent
+                  disabled={isLoading || (isCurrent && !isCurrentExpiring)}
+                  className={`w-full py-3 rounded-xl font-bold transition-all ${(isCurrent && !isCurrentExpiring)
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                       : plan.highlight
                         ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg'

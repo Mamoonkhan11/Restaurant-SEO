@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mendigi.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://restdigi.com';
 
   // Base routes
   const routes: MetadataRoute.Sitemap = [

@@ -32,7 +32,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-3">3. Third-Party Data Disclosures</h2>
             <p>
-              Mendigi does not share, lease, sell, or disclose food menu metrics, transaction histories, or location logs to external monetization brokers or advertising channels. All platform telemetry is handled directly through encrypted database layers.
+              Restdigi does not share, lease, sell, or disclose food menu metrics, transaction histories, or location logs to external monetization brokers or advertising channels. All platform telemetry is handled directly through encrypted database layers.
             </p>
           </section>
         </div>
