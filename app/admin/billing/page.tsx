@@ -331,24 +331,24 @@ export default function BillingPage() {
 
       {/* Premium Sliding Billing Cycle Toggle */}
       <div className="flex flex-col items-center justify-center space-y-3 py-4">
-        <div className="relative bg-gray-100 p-1 rounded-full inline-flex border border-gray-200 shadow-inner">
+        <div className="relative bg-gray-100 p-1 rounded-full grid grid-cols-2 w-72 border border-gray-200 shadow-inner">
           <div
             className="absolute top-1 bottom-1 bg-white rounded-full shadow-md transition-all duration-300 ease-out"
             style={{
-              left: isAnnual ? 'calc(50% + 2px)' : '4px',
-              width: 'calc(50% - 6px)',
+              left: isAnnual ? 'calc(50% + 1px)' : '4px',
+              width: 'calc(50% - 5px)',
             }}
           />
           <button
             onClick={() => setIsAnnual(false)}
-            className={`relative z-10 px-6 py-2 text-sm font-bold rounded-full transition-colors duration-200 ${!isAnnual ? 'text-gray-950' : 'text-gray-400 hover:text-gray-700'
+            className={`relative z-10 py-2 text-sm font-bold rounded-full transition-colors duration-200 flex justify-center items-center ${!isAnnual ? 'text-gray-950' : 'text-gray-400 hover:text-gray-700'
               }`}
           >
             Monthly
           </button>
           <button
             onClick={() => setIsAnnual(true)}
-            className={`relative z-10 px-6 py-2 text-sm font-bold rounded-full transition-colors duration-200 flex items-center gap-1.5 ${isAnnual ? 'text-gray-950' : 'text-gray-400 hover:text-gray-700'
+            className={`relative z-10 py-2 text-sm font-bold rounded-full transition-colors duration-200 flex justify-center items-center gap-1.5 ${isAnnual ? 'text-gray-950' : 'text-gray-400 hover:text-gray-700'
               }`}
           >
             Annually

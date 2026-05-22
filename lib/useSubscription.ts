@@ -19,20 +19,23 @@ export const useSubscription = () => {
   const trialEndsAt = restaurant.trial_ends_at ? new Date(restaurant.trial_ends_at) : null;
   const now = new Date();
 
-  const isBasicTrial = planType === 'basic' && 
-    payments && payments.some(p => p.plan_type === 'basic' && p.payment_method === 'free_trial') &&
-    !payments.some(p => p.plan_type === 'basic' && p.payment_method === 'razorpay' && p.status === 'success');
+  const isBasicTrial = planType === 'basic' && (
+    (payments && payments.some(p => p.plan_type === 'basic' && p.payment_method === 'free_trial')) ||
+    (!!trialEndsAt && (!payments || !payments.some(p => p.plan_type === 'basic' && p.payment_method === 'razorpay' && p.status === 'success')))
+  );
 
   const isTrial = (planType === 'free' && !!trialEndsAt) || isBasicTrial;
-  const isExpired = isBasicTrial && restaurant.expiry_date
-    ? now > new Date(restaurant.expiry_date)
+  const isExpired = isBasicTrial
+    ? (restaurant.expiry_date ? now > new Date(restaurant.expiry_date) : (trialEndsAt ? now > trialEndsAt : false))
     : (planType === 'free' && trialEndsAt ? now > trialEndsAt : false);
 
   let daysLeft = 0;
-  if (isBasicTrial && restaurant.expiry_date) {
-    const expiry = new Date(restaurant.expiry_date);
-    const diffTime = expiry.getTime() - now.getTime();
-    daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (isBasicTrial) {
+    const targetDate = restaurant.expiry_date ? new Date(restaurant.expiry_date) : trialEndsAt;
+    if (targetDate) {
+      const diffTime = targetDate.getTime() - now.getTime();
+      daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
   } else if (trialEndsAt) {
     const diffTime = trialEndsAt.getTime() - now.getTime();
     daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
