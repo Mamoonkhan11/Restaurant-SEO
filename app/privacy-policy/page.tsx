@@ -17,7 +17,7 @@ export default function PrivacyPolicy() {
         <div className="space-y-8 text-gray-700 leading-relaxed">
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">1. Data Collection</h2>
-            <p>At QR-Crave, we collect essential information to provide a seamless ordering experience. This includes collecting customer phone numbers (specifically for WhatsApp ordering functionality) and necessary restaurant details from owners during registration.</p>
+            <p>At Mendigi, we collect essential information to provide a seamless ordering experience. This includes collecting customer phone numbers (specifically for WhatsApp ordering functionality) and necessary restaurant details from owners during registration.</p>
           </section>
 
           <section>
@@ -27,7 +27,7 @@ export default function PrivacyPolicy() {
 
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">3. Local Storage & Third Parties</h2>
-            <p>We deeply respect the privacy of our users across J&K and beyond. <strong>QR-Crave does not sell, rent, or trade your personal data to third parties under any circumstances.</strong> Your data is stored securely and locally where applicable.</p>
+            <p>We deeply respect the privacy of our users across J&K and beyond. <strong>Mendigi does not sell, rent, or trade your personal data to third parties under any circumstances.</strong> Your data is stored securely and locally where applicable.</p>
           </section>
 
           <section>

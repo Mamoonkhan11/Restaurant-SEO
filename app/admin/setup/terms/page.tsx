@@ -95,29 +95,29 @@ export default function TermsAcceptancePage() {
         {/* Scrollable Terms Content */}
         <div className="p-8 overflow-y-auto flex-1 bg-white">
           <div className="prose prose-sm max-w-none text-gray-600 space-y-6">
-            <h3 className="text-lg font-bold text-gray-900">QR-Crave Platform Agreement</h3>
+            <h3 className="text-lg font-bold text-gray-900">Mendigi Platform Agreement</h3>
             
-            <p>Welcome to QR-Crave. By proceeding, you agree to the following terms which govern your use of our digital menu infrastructure.</p>
+            <p>Welcome to Mendigi. By proceeding, you agree to the following terms which govern your use of our digital menu infrastructure.</p>
             
             <h4 className="text-gray-900 font-bold">1. Food Quality & SEO Ranking</h4>
             <p>
               As a Restaurant Owner, you are strictly responsible for maintaining high food quality and hygiene standards. 
-              <strong> User feedback, ratings, and food quality are direct factors in our internal "SEO Ranking" and "Customer Satisfaction Rate" within the QR-Crave ecosystem.</strong>
+              <strong> User feedback, ratings, and food quality are direct factors in our internal "SEO Ranking" and "Customer Satisfaction Rate" within the Mendigi ecosystem.</strong>
             </p>
             
             <h4 className="text-gray-900 font-bold">2. Quality Standards & Visibility</h4>
             <p>
-              To ensure a premium dining experience, QR-Crave reserves the right to lower the ranking, reduce the visibility, or suspend the accounts of restaurants with consistently low Customer Satisfaction Rates.
+              To ensure a premium dining experience, Mendigi reserves the right to lower the ranking, reduce the visibility, or suspend the accounts of restaurants with consistently low Customer Satisfaction Rates.
             </p>
 
             <h4 className="text-gray-900 font-bold">3. Accuracy of Information</h4>
             <p>
-              It is your responsibility to provide accurate menu prices, ingredients, and availability. QR-Crave holds no legal liability for any disputes or customer grievances arising from incorrect menu descriptions or pricing.
+              It is your responsibility to provide accurate menu prices, ingredients, and availability. Mendigi holds no legal liability for any disputes or customer grievances arising from incorrect menu descriptions or pricing.
             </p>
 
             <h4 className="text-gray-900 font-bold">4. Order Fulfillment</h4>
             <p>
-              QR-Crave is solely a digital display and communication platform. Food preparation, delivery fulfillment, and direct payment collection remain strictly the restaurant's responsibility.
+              Mendigi is solely a digital display and communication platform. Food preparation, delivery fulfillment, and direct payment collection remain strictly the restaurant's responsibility.
             </p>
 
             <hr className="my-8 border-gray-200" />
@@ -126,7 +126,7 @@ export default function TermsAcceptancePage() {
             
             <h4 className="text-gray-900 font-bold">1. Data Collection</h4>
             <p>
-              At QR-Crave, we collect essential information to provide a seamless ordering experience. This includes collecting customer phone numbers (specifically for WhatsApp ordering functionality) and necessary restaurant details from owners during registration.
+              At Mendigi, we collect essential information to provide a seamless ordering experience. This includes collecting customer phone numbers (specifically for WhatsApp ordering functionality) and necessary restaurant details from owners during registration.
             </p>
 
             <h4 className="text-gray-900 font-bold">2. How We Use Your Data</h4>
@@ -136,7 +136,7 @@ export default function TermsAcceptancePage() {
 
             <h4 className="text-gray-900 font-bold">3. Local Storage & Third Parties</h4>
             <p>
-              We deeply respect the privacy of our users across J&K and beyond. <strong>QR-Crave does not sell, rent, or trade your personal data to third parties under any circumstances.</strong> Your data is stored securely and locally where applicable.
+              We deeply respect the privacy of our users across J&K and beyond. <strong>Mendigi does not sell, rent, or trade your personal data to third parties under any circumstances.</strong> Your data is stored securely and locally where applicable.
             </p>
 
             <h4 className="text-gray-900 font-bold">4. Cookies</h4>

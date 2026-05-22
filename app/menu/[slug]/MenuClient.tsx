@@ -42,7 +42,7 @@ const MenuFooter = React.memo(() => (
         </svg>
       </div>
       <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-        Powered by QR-Crave
+        Powered by Mendigi
       </p>
     </div>
   </div>

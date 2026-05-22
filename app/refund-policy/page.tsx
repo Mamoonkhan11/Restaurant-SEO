@@ -17,12 +17,12 @@ export default function RefundPolicy() {
         <div className="space-y-8 text-gray-700 leading-relaxed">
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">1. Subscription Policy</h2>
-            <p>QR-Crave operates on a Software-as-a-Service (SaaS) model. All premium subscriptions (Pro and Premium) are pre-paid and grant access to advanced digital menu features for the duration of the billing cycle (monthly or yearly).</p>
+            <p>Mendigi operates on a Software-as-a-Service (SaaS) model. All premium subscriptions (Pro and Premium) are pre-paid and grant access to advanced digital menu features for the duration of the billing cycle (monthly or yearly).</p>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">2. 7-Day Satisfaction Guarantee</h2>
-            <p>We stand by the quality of our platform. We offer a <strong>7-day Satisfaction Guarantee</strong> for all new subscriptions. If QR-Crave doesn't meet your expectations within the first 7 days of your initial purchase, you may request a full refund.</p>
+            <p>We stand by the quality of our platform. We offer a <strong>7-day Satisfaction Guarantee</strong> for all new subscriptions. If Mendigi doesn't meet your expectations within the first 7 days of your initial purchase, you may request a full refund.</p>
           </section>
 
           <section>

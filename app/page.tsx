@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { QrCode, MessageCircle, RefreshCw, ChevronRight, TrendingUp } from 'lucide-react';
+import { QrCode, ChevronRight, TrendingUp } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -21,7 +21,7 @@ export default function Home() {
                   <path d="M12 9V7" />
                 </svg>
               </div>
-              <span className="font-extrabold text-xl tracking-tight text-gray-900">QR-<span className="text-blue-600">Crave</span></span>
+              <span className="font-extrabold text-xl tracking-tight text-gray-900">Mendi<span className="text-blue-600">gi</span></span>
             </div>
             <div className="flex items-center gap-4">
               <Link
@@ -49,11 +49,11 @@ export default function Home() {
         </div>
 
         <h1 className="max-w-4xl text-5xl sm:text-6xl md:text-7xl font-extrabold text-gray-900 tracking-tight leading-[1.1] mb-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-          QR-Crave: The Smart <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Digital Menu</span> for Srinagar's Best Restaurant
+          Stop Making Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Customers Wait</span> to Order.
         </h1>
 
-        <p className="max-w-2xl text-lg sm:text-xl text-gray-500 mb-10 font-medium animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-          Ditch the paper menus. Create a stunning, contactless digital menu that your customers can scan, browse, and order from directly via WhatsApp.
+        <p className="max-w-3xl text-lg sm:text-xl text-gray-500 mb-10 font-medium animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+          Don't let long queues and short staff kill your restaurant's sales. With Mendigi, customers simply Scan, View, and Place Orders Instantly right from their tables. No apps. No waiting. Just pure speed.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
@@ -61,7 +61,7 @@ export default function Home() {
             href="/admin"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all bg-blue-600 rounded-full hover:bg-blue-700 hover:shadow-lg hover:-translate-y-1 group"
           >
-            Get Started Now
+            Launch Your Digital Menu Free
             <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
@@ -73,58 +73,91 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Features Section */}
+      {/* Frictionless 3-Step Dining Journey */}
       <section className="bg-white py-24 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Everything you need to succeed</h2>
-            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Powerful features designed specifically for modern restaurants and cafes.</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Frictionless 3-Step Dining Journey</h2>
+            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Give your customers a fast, zero-wait self-ordering experience.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300">
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Step 1: Scan */}
+            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
+              <div className="absolute top-6 right-6 text-6xl font-black text-blue-100 select-none">01</div>
+              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 relative z-10">
                 <QrCode className="w-7 h-7 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">QR Code Menu</h3>
-              <p className="text-gray-500 leading-relaxed">
-                Generate high-resolution, beautifully branded QR codes for every table. Customers simply scan and browse without downloading any apps.
+              <h3 className="text-xl font-bold text-gray-900 mb-3 relative z-10">Scan</h3>
+              <p className="text-gray-500 leading-relaxed relative z-10">
+                Customer scans the crisp, custom table-specific QR frame on arrival.
               </p>
             </div>
 
-            {/* Feature 2 */}
-            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300">
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
-                <MessageCircle className="w-7 h-7 text-green-500" />
+            {/* Step 2: View */}
+            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
+              <div className="absolute top-6 right-6 text-6xl font-black text-blue-100 select-none">02</div>
+              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 relative z-10">
+                <svg className="w-7 h-7 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">WhatsApp Ordering</h3>
-              <p className="text-gray-500 leading-relaxed">
-                Receive orders directly on your restaurant's WhatsApp. Perfectly formatted, easy to read, and frictionless for your customers.
+              <h3 className="text-xl font-bold text-gray-900 mb-3 relative z-10">View</h3>
+              <p className="text-gray-500 leading-relaxed relative z-10">
+                A lightning-fast digital menu renders on any mobile browser in under 1 second.
               </p>
             </div>
 
-            {/* Feature 3 */}
-            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300">
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
-                <RefreshCw className="w-7 h-7 text-purple-500" />
+            {/* Step 3: Order Instantly */}
+            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
+              <div className="absolute top-6 right-6 text-6xl font-black text-blue-100 select-none">03</div>
+              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 relative z-10">
+                <svg className="w-7 h-7 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m5 12 5-5L20 17" />
+                </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Real-Time Updates</h3>
-              <p className="text-gray-500 leading-relaxed">
-                86 an item? Need to change a price? Update your admin dashboard and it instantly reflects on all menus. No re-printing required.
+              <h3 className="text-xl font-bold text-gray-900 mb-3 relative z-10">Order Instantly</h3>
+              <p className="text-gray-500 leading-relaxed relative z-10">
+                Multi-item cart selection with quantities lets them send orders straight to the live KOT dashboard without chasing waiters.
               </p>
             </div>
-            {/* Feature 4 */}
-            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
-              <div className="absolute top-4 right-4 bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full border border-orange-200">
-                PRO FEATURE
+          </div>
+        </div>
+      </section>
+
+      {/* Premium Growth Features */}
+      <section className="bg-slate-50 py-24 border-t border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <span className="text-xs font-bold tracking-wider text-blue-600 uppercase bg-blue-50 px-3 py-1 rounded-full border border-blue-100">Premium Capabilities</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-4 mb-4">Engineered for Restaurant Success</h2>
+            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Unlock next-level performance and automation designed to scale your operations.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Automated Local SEO Boost */}
+            <div className="bg-white p-8 rounded-3xl border border-gray-100 hover:shadow-xl transition-shadow duration-300 relative">
+              <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6">
+                <TrendingUp className="w-7 h-7 text-blue-600" />
               </div>
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
-                <TrendingUp className="w-7 h-7 text-orange-500" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Dominate Local Search Results</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Automated Local SEO Boost</h3>
               <p className="text-gray-500 leading-relaxed">
-                Our menus are built with Schema Markup and Local SEO best practices to ensure your restaurant stays ahead on Google Maps and Search.
+                Mendigi dynamically optimizes your restaurant’s online presence, pushing your physical location to the top of local Google search maps and discoverability indexes automatically.
+              </p>
+            </div>
+
+            {/* Live KOT Automation Matrix */}
+            <div className="bg-white p-8 rounded-3xl border border-gray-100 hover:shadow-xl transition-shadow duration-300 relative">
+              <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-6">
+                <svg className="w-7 h-7 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M3 9h18M9 21V9" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Live KOT Automation Matrix</h3>
+              <p className="text-gray-500 leading-relaxed">
+                High-volume programmatic looping chime alerts keep your kitchen instantly updated on incoming table modifications.
               </p>
             </div>
           </div>
@@ -148,7 +181,7 @@ export default function Home() {
                   <path d="M12 9V7" />
                 </svg>
               </div>
-              <span className="font-extrabold text-xl tracking-tight text-white">QR-<span className="text-gray-400">Crave</span></span>
+              <span className="font-extrabold text-xl tracking-tight text-white">Mendi<span className="text-gray-400">gi</span></span>
             </div>
 
             {/* Legal Links required by Razorpay */}
@@ -170,7 +203,7 @@ export default function Home() {
 
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
             <p className="mb-2">Address: Srinagar, J&K, India</p>
-            <p>&copy; {new Date().getFullYear()} QR-Crave. All rights reserved. Built for modern restaurants.</p>
+            <p>&copy; {new Date().getFullYear()} Mendigi. All rights reserved. Built for modern restaurants.</p>
           </div>
         </div>
       </footer>

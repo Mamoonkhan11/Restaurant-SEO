@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const location = restaurant?.address || 'Srinagar';
 
   const seoTitle = `${restaurantName} Menu - Best Food in ${location}, Srinagar`;
-  const seoDescription = `Explore our delicious menu at ${restaurantName}. View our best sellers, pricing, and order directly! Located in ${location}, Srinagar. Built with QR-Crave.`;
+  const seoDescription = `Explore our delicious menu at ${restaurantName}. View our best sellers, pricing, and order directly! Located in ${location}, Srinagar. Built with Mendigi.`;
 
   return {
     title: seoTitle,
@@ -29,8 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: seoTitle,
       description: seoDescription,
-      url: `https://qr-crave.com/menu/${params.slug}`,
-      siteName: 'QR-Crave',
+      url: `https://mendigi.com/menu/${params.slug}`,
+      siteName: 'Mendigi',
       images: [
         {
           // Dynamic image placeholder based on restaurant name

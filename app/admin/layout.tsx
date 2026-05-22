@@ -109,7 +109,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
               <path d="M12 9V7" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-white tracking-tight">QR-<span className="text-blue-500">Crave</span></h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">Mendi<span className="text-blue-500">gi</span></h2>
         </div>
         
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -171,7 +171,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                 <path d="M12 9V7" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-gray-900 tracking-tight">QR-<span className="text-blue-600">Crave</span></h2>
+            <h2 className="text-xl font-bold text-gray-900 tracking-tight">Mendi<span className="text-blue-600">gi</span></h2>
           </div>
           <div className="w-9" /> {/* Spacer */}
         </header>
