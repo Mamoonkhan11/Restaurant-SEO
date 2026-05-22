@@ -603,11 +603,15 @@ export default function AdminDashboardOverview() {
           {/* Total Scans Card */}
           <div onClick={() => canViewAllAnalytics && setActiveModalTitle('Total Scans')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewAllAnalytics ? 'cursor-default' : 'cursor-pointer'}`}>
             {!canViewAllAnalytics && (
-              <div className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[6px] rounded-2xl flex items-center justify-center p-4">
-                <Link href="/admin/billing" className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-lg px-6 py-3 rounded-xl shadow-md hover:scale-105 transition-all pointer-events-auto text-center">
+              <Link 
+                href="/admin/billing#pro" 
+                onClick={(e) => e.stopPropagation()} 
+                className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[4px] rounded-2xl flex items-center justify-center p-3 pointer-events-auto cursor-pointer"
+              >
+                <span className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-md hover:scale-105 transition-all text-center">
                   Unlock with Pro
-                </Link>
-              </div>
+                </span>
+              </Link>
             )}
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Scans</p>
@@ -623,11 +627,15 @@ export default function AdminDashboardOverview() {
           {/* Top Selling Dish Card */}
           <div onClick={() => canViewAllAnalytics && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewAllAnalytics ? 'cursor-default' : 'cursor-pointer'}`}>
             {!canViewAllAnalytics && (
-              <div className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[6px] rounded-2xl flex items-center justify-center p-4">
-                <Link href="/admin/billing" className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-lg px-6 py-3 rounded-xl shadow-md hover:scale-105 transition-all pointer-events-auto text-center">
+              <Link 
+                href="/admin/billing#pro" 
+                onClick={(e) => e.stopPropagation()} 
+                className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[4px] rounded-2xl flex items-center justify-center p-3 pointer-events-auto cursor-pointer"
+              >
+                <span className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-md hover:scale-105 transition-all text-center">
                   Unlock with Pro
-                </Link>
-              </div>
+                </span>
+              </Link>
             )}
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Top Selling Dish</p>
@@ -680,7 +688,11 @@ export default function AdminDashboardOverview() {
                   </div>
                   <h3 className="text-gray-900 font-bold mb-2">Want to see your top-performing items?</h3>
                   <p className="text-sm text-gray-500 mb-6">Unlock Advanced Analytics with Premium to track all dish views and growth trends.</p>
-                  <Link href="/admin/billing" className="bg-blue-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-blue-700 transition-colors shadow-md">
+                  <Link 
+                    href="/admin/billing#premium" 
+                    onClick={(e) => e.stopPropagation()} 
+                    className="bg-blue-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-blue-700 transition-colors shadow-md text-center"
+                  >
                     Unlock All Insights With Premium Plan
                   </Link>
                 </div>
