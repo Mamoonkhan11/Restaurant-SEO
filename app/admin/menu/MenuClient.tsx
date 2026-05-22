@@ -5,8 +5,8 @@ import DishForm from './DishForm';
 import { getDishesByRestaurantSlug, updateDishAvailability, deleteDishFromDb, removeDishImage, upsertDish, logAdminAction, broadcastMenuUpdate, Dish } from '@/lib/supabase';
 import { useRestaurant } from '@/lib/RestaurantContext';
 
-// We mock the session slug for now
-const RESTAURANT_SLUG = 'demo-restaurant'; 
+// We fallback to a default slug if the context is still loading
+const FALLBACK_SLUG = 'demo-restaurant'; 
 
 export default function MenuManagement() {
   const [dishes, setDishes] = useState<Dish[]>([]);
@@ -15,6 +15,8 @@ export default function MenuManagement() {
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const [dishToDelete, setDishToDelete] = useState<Dish | null>(null);
   const { restaurant } = useRestaurant();
+
+  const activeSlug = restaurant?.slug || FALLBACK_SLUG;
 
   const planType = restaurant?.plan_type || 'free';
   const getPlanLimits = (plan: string) => {
@@ -32,12 +34,16 @@ export default function MenuManagement() {
   const isAddLocked = dishes.length >= limits.items;
 
   useEffect(() => {
-    fetchDishes();
-  }, []);
+    if (restaurant?.slug) {
+      fetchDishes(restaurant.slug);
+    } else {
+      fetchDishes(FALLBACK_SLUG);
+    }
+  }, [restaurant?.slug]);
 
-  const fetchDishes = async () => {
+  const fetchDishes = async (slugToFetch: string) => {
     try {
-      const data = await getDishesByRestaurantSlug(RESTAURANT_SLUG);
+      const data = await getDishesByRestaurantSlug(slugToFetch);
       setDishes(data);
     } catch (err) {
       console.error(err);
@@ -53,7 +59,7 @@ export default function MenuManagement() {
     try {
       await updateDishAvailability(dish.id, newValue);
       await logAdminAction('STOCK_UPDATE', `Item "${dish.name}" status changed to ${newValue ? 'In Stock' : 'Out of Stock'}`);
-      await broadcastMenuUpdate(RESTAURANT_SLUG);
+      await broadcastMenuUpdate(activeSlug);
     } catch (err) {
       // Revert if failed
       setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, is_available: !newValue } : d));
@@ -74,7 +80,7 @@ export default function MenuManagement() {
         await removeDishImage(dishToDelete.image_url, 'dishes');
       }
       await logAdminAction('MENU_CHANGE', `Deleted dish "${dishToDelete.name}"`);
-      await broadcastMenuUpdate(RESTAURANT_SLUG);
+      await broadcastMenuUpdate(activeSlug);
     } catch (err) {
       setDishes(prevDishes);
       alert('Failed to delete dish');
@@ -85,14 +91,14 @@ export default function MenuManagement() {
     try {
       await upsertDish({
         ...data,
-        restaurant_slug: RESTAURANT_SLUG,
+        restaurant_slug: activeSlug,
         is_available: data.id ? dishes.find(d => d.id === data.id)?.is_available : true,
       });
       setIsFormOpen(false);
       setEditingDish(null);
-      fetchDishes(); // Refresh list to get accurate DB state
+      fetchDishes(activeSlug); // Refresh list to get accurate DB state
       await logAdminAction('MENU_CHANGE', `${data.id ? 'Edited' : 'Added'} dish "${data.name}"`);
-      await broadcastMenuUpdate(RESTAURANT_SLUG);
+      await broadcastMenuUpdate(activeSlug);
     } catch (err) {
       throw err;
     }

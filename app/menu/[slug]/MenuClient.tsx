@@ -10,7 +10,7 @@ const MenuHeader = React.memo(({ restaurant, menuBlocked }: { restaurant: any, m
   <div className="pt-8 pb-6 px-4 flex flex-col items-center justify-center bg-[#F9FAFB] relative z-10">
     <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-full border border-gray-100 flex items-center justify-center overflow-hidden mb-3 relative shadow-sm">
       {restaurant?.logo_url ? (
-        <Image src={restaurant.logo_url} fill sizes="96px" alt="Logo" className="object-cover" />
+        <Image src={restaurant.logo_url} fill sizes="96px" alt="Logo" className="object-cover" priority />
       ) : (
         <span className="text-3xl font-black text-[#111827]">
           {restaurant?.name?.charAt(0) || 'L'}
@@ -184,6 +184,39 @@ export default function MenuClient({
 
     // Native Postgres Realtime Subscriptions
     const realtimeChannel = supabase.channel(`public-data-${params.slug}`)
+      .on(
+        'broadcast',
+        { event: 'refresh-menu' },
+        async () => {
+          console.log('Received menu update broadcast event!');
+          
+          // 1. Fetch latest restaurant details to update immediately (logo, brand name, color, etc.)
+          const { data: freshRestaurant } = await supabase
+            .from('restaurants')
+            .select('*')
+            .eq('slug', params.slug)
+            .single();
+          if (freshRestaurant) {
+            setRestaurant(freshRestaurant);
+          }
+
+          // 2. Fetch latest dishes to keep client fully in sync
+          const { data: freshDishes } = await supabase
+            .from('dishes')
+            .select('*')
+            .eq('restaurant_slug', params.slug)
+            .order('category', { ascending: true })
+            .order('name', { ascending: true });
+          if (freshDishes) {
+            setDishes(freshDishes.map(d => ({
+              ...d,
+              isBestSeller: (d.view_count || 0) > 60,
+              view_count: d.view_count || 0
+            })));
+            updateCategories(freshDishes);
+          }
+        }
+      )
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'dishes' },
@@ -396,8 +429,12 @@ export default function MenuClient({
                     onClick={() => handleDishClick(item)}
                     className="min-w-[260px] max-w-[260px] bg-white rounded-3xl p-3 flex gap-3 shadow-sm border border-orange-100 relative overflow-visible snap-center cursor-pointer hover:shadow-md transition-all shrink-0"
                   >
-                    <div className="w-20 h-20 rounded-2xl bg-gray-100 shrink-0 overflow-hidden relative">
-                      <Image src={item.image_url || `https://placehold.co/400x400/e2e8f0/94a3b8?text=${encodeURIComponent(item.name.charAt(0))}`} fill sizes="80px" alt={item.name} className="object-cover" />
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100/50 shrink-0 overflow-hidden relative border border-orange-50/50 flex items-center justify-center">
+                      {item.image_url ? (
+                        <Image src={item.image_url} fill sizes="80px" alt={item.name} className="object-cover" />
+                      ) : (
+                        <span className="text-xl font-black text-orange-400 uppercase select-none">{item.name.charAt(0)}</span>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
                       <h3 className="text-base font-bold text-gray-900 truncate">{item.name}</h3>
@@ -520,14 +557,19 @@ export default function MenuClient({
                             className={`bg-white rounded-2xl p-3 sm:p-4 flex flex-row gap-4 items-center relative group shadow-sm border border-gray-100 transition-all duration-200 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-gray-200 hover:shadow-md'}`}
                           >
                             {/* Image */}
-                            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gray-50 shrink-0 overflow-hidden relative border border-gray-100">
-                              <Image
-                                src={item.image_url || `https://placehold.co/400x400/F9FAFB/111827?text=${encodeURIComponent(item.name.charAt(0))}`}
-                                fill
-                                sizes="(max-width: 640px) 96px, 112px"
-                                alt={item.name}
-                                className="object-cover"
-                              />
+                            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 shrink-0 overflow-hidden relative border border-gray-100 flex items-center justify-center">
+                              {item.image_url ? (
+                                <Image
+                                  src={item.image_url}
+                                  fill
+                                  sizes="(max-width: 640px) 96px, 112px"
+                                  alt={item.name}
+                                  className="object-cover"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <span className="text-2xl font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
+                              )}
                             </div>
 
                             {/* Info */}
@@ -716,15 +758,21 @@ export default function MenuClient({
                   <X className="w-5 h-5" />
                 </button>
 
-                <motion.div layoutId={`dish-image-${selectedDish.id}`} className="relative h-64 sm:h-80 w-full bg-gray-100 shrink-0">
-                  <Image
-                    src={selectedDish.image_url || `https://placehold.co/600x400/e2e8f0/94a3b8?text=${encodeURIComponent(selectedDish.name)}`}
-                    fill
-                    sizes="(max-width: 640px) 100vw, 512px"
-                    alt={selectedDish.name}
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                <motion.div layoutId={`dish-image-${selectedDish.id}`} className="relative h-64 sm:h-80 w-full bg-gradient-to-br from-gray-50 to-gray-100 shrink-0 flex items-center justify-center border-b border-gray-100">
+                  {selectedDish.image_url ? (
+                    <>
+                      <Image
+                        src={selectedDish.image_url}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 512px"
+                        alt={selectedDish.name}
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                    </>
+                  ) : (
+                    <span className="text-6xl font-black text-gray-300 uppercase select-none">{selectedDish.name.charAt(0)}</span>
+                  )}
                 </motion.div>
 
                 <div className="p-6 sm:p-8 overflow-y-auto flex-1 bg-white">

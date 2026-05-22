@@ -225,7 +225,7 @@ export async function logAdminAction(actionType: string, description: string) {
  * Broadcasts an update to connected clients so the digital menu refreshes immediately.
  */
 export async function broadcastMenuUpdate(slug: string) {
-  const channel = supabase.channel(`menu-updates-${slug}`);
+  const channel = supabase.channel(`public-data-${slug}`);
   channel.subscribe((status) => {
     if (status === 'SUBSCRIBED') {
       channel.send({
