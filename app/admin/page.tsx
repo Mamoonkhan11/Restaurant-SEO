@@ -375,7 +375,7 @@ export default function AdminDashboardOverview() {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [activeModalTitle, setActiveModalTitle] = useState<string | null>(null);
   const [historicalStats, setHistoricalStats] = useState<any[]>([]);
-  const { planType, daysLeft, isExpired, canViewRevenue, canViewAllAnalytics } = useSubscription();
+  const { planType, isTrial, daysLeft, isExpired, canViewRevenue, canViewAllAnalytics } = useSubscription();
 
   const router = useRouter();
   useEffect(() => {
@@ -596,7 +596,7 @@ export default function AdminDashboardOverview() {
         </div>
 
         {/* Trial Countdown Banner */}
-        {planType === 'free' && (
+        {isTrial && (
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 p-6 text-white shadow-lg border border-orange-400/20">
             {/* Background decorative blobs */}
             <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />

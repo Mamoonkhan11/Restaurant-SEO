@@ -83,7 +83,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       {/* Dark Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#111827] text-gray-300 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         
-        {planType === 'free' && daysLeft !== null && !isExpired && (
+        {isTrial && daysLeft !== null && !isExpired && (
           <div className="bg-[#FEF3C7] text-[#111827] p-4 shrink-0 flex flex-col items-center border-b border-amber-200/50">
             <span className="text-xs font-bold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
             {isUrgent && (
@@ -141,7 +141,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        {planType === 'free' && daysLeft !== null && !isExpired && (
+        {isTrial && daysLeft !== null && !isExpired && (
           <div className="md:hidden bg-[#FEF3C7] text-[#111827] p-4 shrink-0 flex flex-col items-center justify-center border-b border-amber-200">
             <span className="text-xs font-bold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
             {isUrgent && (
