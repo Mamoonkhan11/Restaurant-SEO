@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(req: Request) {
   try {
-    const { payment_id, order_id, signature, restaurantId, plan, amount, useDiscount } = await req.json();
+    const { payment_id, order_id, signature, restaurantId, plan, amount, useDiscount, isAnnual } = await req.json();
 
     const secret = process.env.RAZORPAY_KEY_SECRET || 'dummy_secret';
 
@@ -20,8 +20,12 @@ export async function POST(req: Request) {
 
     // Verified! Update Database
     const newExpiry = new Date();
-    if (plan === 'pro') newExpiry.setDate(newExpiry.getDate() + 30);
-    if (plan === 'premium') newExpiry.setFullYear(newExpiry.getFullYear() + 1);
+    const isYearly = isAnnual !== undefined ? isAnnual : (plan === 'premium');
+    if (isYearly) {
+      newExpiry.setFullYear(newExpiry.getFullYear() + 1);
+    } else {
+      newExpiry.setDate(newExpiry.getDate() + 30);
+    }
 
     // Update restaurant
     await supabase

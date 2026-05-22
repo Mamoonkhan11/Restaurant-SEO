@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRestaurant } from '@/lib/RestaurantContext';
-import { Check, AlertCircle } from 'lucide-react';
+import { Check, X, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -9,6 +9,7 @@ export default function BillingPage() {
   const { restaurant, refreshRestaurant } = useRestaurant();
   const [isLoading, setIsLoading] = useState(false);
   const [payments, setPayments] = useState<any[]>([]);
+  const [isAnnual, setIsAnnual] = useState(false);
 
   useEffect(() => {
     if (restaurant) {
@@ -45,7 +46,7 @@ export default function BillingPage() {
     });
   };
 
-  const handleUpgrade = async (plan: 'pro' | 'premium', price: number, useDiscount: boolean = false) => {
+  const handleUpgrade = async (plan: 'pro' | 'premium', price: number, isAnnual: boolean, useDiscount: boolean = false) => {
     setIsLoading(true);
     const res = await loadRazorpay();
 
@@ -85,7 +86,8 @@ export default function BillingPage() {
                 restaurantId: restaurant.id,
                 plan,
                 amount: orderData.amount / 100,
-                useDiscount
+                useDiscount,
+                isAnnual
               })
             });
 
@@ -119,14 +121,149 @@ export default function BillingPage() {
     }
   };
 
+  const handleStartFreeTrial = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    try {
+      const newExpiry = new Date();
+      newExpiry.setDate(newExpiry.getDate() + 30); // 30 days trial
+
+      const { error } = await supabase
+        .from('restaurants')
+        .update({
+          plan_type: 'basic',
+          subscription_status: 'active',
+          expiry_date: newExpiry.toISOString()
+        })
+        .eq('id', restaurant?.id);
+
+      if (error) throw error;
+
+      // Insert billing payment record
+      await supabase.from('payments').insert({
+        restaurant_id: restaurant?.id,
+        amount: 0,
+        plan_type: 'basic',
+        status: 'success',
+        payment_method: 'free_trial'
+      });
+
+      toast.success('Successfully activated your 1-Month Free Trial of Basic Plan!');
+      await refreshRestaurant();
+      await fetchPayments();
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Failed to activate free trial: ' + err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const plans = [
+    {
+      id: 'basic',
+      name: 'Basic Plan',
+      price: isAnnual ? 1499 : 149,
+      period: isAnnual ? '/yr' : '/mo',
+      savings: isAnnual ? 'Save ~16%' : null,
+      description: 'Perfect to get started and test the waters with your digital menu.',
+      banner: 'First 5 Registered Businesses Get 1 Month Free! (Basic Tier Features Locked)',
+      features: [
+        { name: 'Up to 12 Menu Items', included: true },
+        { name: 'Up to 5 Digital Tables', included: true },
+        { name: 'SEO Ranking Optimization', included: false },
+        { name: 'Top Selling Dish Analytics', included: false },
+        { name: 'Total QR Scans Metric Counter', included: false },
+        { name: 'Menu Item View Performance Graphs', included: false },
+        { name: 'Direct 24/7 Support & Assistance', included: false }
+      ],
+      highlight: false
+    },
+    {
+      id: 'pro',
+      name: 'Pro Plan',
+      price: isAnnual ? 7899 : 699,
+      period: isAnnual ? '/yr' : '/mo',
+      savings: isAnnual ? 'Save ~6%' : null,
+      description: 'Everything you need to run and optimize your active digital menu.',
+      features: [
+        { name: 'Up to 20 Menu Items', included: true },
+        { name: 'Up to 15 Digital Tables', included: true },
+        { name: 'SEO Ranking Optimization', included: true },
+        { name: 'Top Selling Dish Analytics', included: true },
+        { name: 'Total QR Scans Metric Counter', included: true },
+        { name: 'Menu Item View Performance Graphs', included: false },
+        { name: 'Direct 24/7 Support & Assistance', included: false }
+      ],
+      highlight: true
+    },
+    {
+      id: 'premium',
+      name: 'Premium Plan',
+      price: isAnnual ? 10499 : 999,
+      period: isAnnual ? '/yr' : '/mo',
+      savings: isAnnual ? 'Save ~12%' : null,
+      description: 'For growing brands looking for deeper data and direct metrics.',
+      features: [
+        { name: 'Up to 23 Menu Items', included: true },
+        { name: 'Up to 17 Digital Tables', included: true },
+        { name: 'SEO Ranking Optimization', included: true },
+        { name: 'Top Selling Dish Analytics', included: true },
+        { name: 'Total QR Scans Metric Counter', included: true },
+        { name: 'Menu Item View Performance Graphs', included: true },
+        { name: 'Direct 24/7 Support & Assistance', included: false }
+      ],
+      highlight: false
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise Plan',
+      price: 'Custom / Contact Us',
+      period: '',
+      savings: null,
+      description: 'Fully tailored setup limits and direct enterprise priority support.',
+      features: [
+        { name: 'Manual Scalable Items (As per your custom need)', included: true },
+        { name: 'Unlimited Digital Tables', included: true },
+        { name: 'SEO Ranking Optimization', included: true },
+        { name: 'Top Selling Dish Analytics', included: true },
+        { name: 'Total QR Scans Metric Counter', included: true },
+        { name: 'Menu Item View Performance Graphs', included: true },
+        { name: 'Direct 24/7 Support & Assistance', included: true }
+      ],
+      highlight: false
+    }
+  ];
+
+  const getCtaLabel = (planId: string) => {
+    if (currentPlan === planId) return 'Current Plan';
+
+    if (planId === 'basic') {
+      return currentPlan === 'free' ? 'Start Free Month' : 'Switch to Basic';
+    }
+    if (planId === 'pro') {
+      return (currentPlan === 'premium' || currentPlan === 'enterprise') ? 'Switch to Pro' : 'Upgrade to Pro';
+    }
+    if (planId === 'premium') {
+      return currentPlan === 'enterprise' ? 'Switch to Premium' : 'Upgrade to Premium';
+    }
+    if (planId === 'enterprise') {
+      return 'Contact Sales';
+    }
+    return 'Upgrade';
+  };
+
+  const whatsappUrl = `https://wa.me/919999999999?text=${encodeURIComponent(
+    `Hi! I'm interested in the Enterprise Plan for my restaurant "${restaurant?.name || ''}" (ID: ${restaurant?.id || ''}). Please contact me with details.`
+  )}`;
 
   return (
-    <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-8 animate-fade-in">
+    <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-8 animate-fade-in">
       <Toaster />
 
       <div>
         <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Billing & Subscription</h1>
-        <p className="mt-1 text-gray-500">Manage your subscription plan and view billing history.</p>
+        <p className="mt-1 text-gray-500 font-medium">Manage your subscription plan, pricing options, and view payment history.</p>
       </div>
 
       {/* Current Status Card */}
@@ -134,8 +271,17 @@ export default function BillingPage() {
         <div>
           <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Current Plan</p>
           <div className="flex items-center gap-3">
-            <span className={`px-4 py-1.5 rounded-full text-sm font-bold capitalize ${currentPlan === 'free' ? 'bg-gray-100 text-gray-700' : currentPlan === 'pro' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
-              {currentPlan}
+            <span className={`px-4 py-1.5 rounded-full text-sm font-bold capitalize ${currentPlan === 'free'
+                ? 'bg-gray-100 text-gray-700'
+                : currentPlan === 'basic'
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : currentPlan === 'pro'
+                    ? 'bg-blue-100 text-blue-700'
+                    : currentPlan === 'premium'
+                      ? 'bg-purple-100 text-purple-700'
+                      : 'bg-indigo-100 text-indigo-700'
+              }`}>
+              {currentPlan} plan
             </span>
             {currentPlan !== 'free' && (
               <span className={`text-sm font-medium ${isExpired ? 'text-red-600 font-bold' : 'text-gray-600'}`}>
@@ -153,79 +299,134 @@ export default function BillingPage() {
         )}
       </div>
 
-      {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Basic */}
-        <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm flex flex-col relative overflow-hidden">
-          {currentPlan === 'free' && <div className="absolute top-0 left-0 right-0 h-1 bg-gray-400"></div>}
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Basic</h3>
-          <div className="flex items-baseline gap-1 mb-6">
-            <span className="text-4xl font-extrabold text-gray-900">Free</span>
-          </div>
-          <p className="text-sm text-gray-500 mb-6 font-medium">Perfect to get started and test the waters. Now available with Pro features for two months!</p>
-          <ul className="space-y-4 flex-1 mb-8">
-            {['Up to 10 dishes', 'Basic QR Code', 'Standard Support'].map((feature, i) => (
-              <li key={i} className="flex items-start gap-3 text-sm text-gray-700 font-medium">
-                <Check className="w-5 h-5 text-green-500 shrink-0" /> {feature}
-              </li>
-            ))}
-          </ul>
-          <button disabled className="w-full py-3 rounded-xl font-bold text-gray-500 bg-gray-100 border border-gray-200 cursor-not-allowed">
-            {currentPlan === 'free' ? 'Current Plan' : 'Free For Two Month'}
-          </button>
-        </div>
-
-        {/* Pro */}
-        <div className="bg-white rounded-3xl p-8 border-2 border-blue-500 shadow-xl flex flex-col relative overflow-hidden transform md:-translate-y-4">
-          <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">POPULAR</div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Pro</h3>
-          <div className="flex items-baseline gap-1 mb-6">
-            <span className="text-4xl font-extrabold text-gray-900">₹499</span>
-            <span className="text-gray-500 font-medium">/mo</span>
-          </div>
-          <p className="text-sm text-gray-500 mb-6 font-medium">Everything you need to run your digital menu.</p>
-          <ul className="space-y-4 flex-1 mb-8">
-            {['Unlimited dishes', 'Real-time updates', 'WhatsApp ordering', 'Priority Support'].map((feature, i) => (
-              <li key={i} className="flex items-start gap-3 text-sm text-gray-700 font-medium">
-                <Check className="w-5 h-5 text-blue-500 shrink-0" /> {feature}
-              </li>
-            ))}
-          </ul>
+      {/* Premium Sliding Billing Cycle Toggle */}
+      <div className="flex flex-col items-center justify-center space-y-3 py-4">
+        <div className="relative bg-gray-100 p-1 rounded-full inline-flex border border-gray-200 shadow-inner">
+          <div
+            className="absolute top-1 bottom-1 bg-white rounded-full shadow-md transition-all duration-300 ease-out"
+            style={{
+              left: isAnnual ? 'calc(50% + 2px)' : '4px',
+              width: 'calc(50% - 6px)',
+            }}
+          />
           <button
-            onClick={() => handleUpgrade('pro', 499)}
-            disabled={isLoading || currentPlan === 'pro'}
-            className={`w-full py-3 rounded-xl font-bold text-white shadow-md transition-all ${currentPlan === 'pro' ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg'}`}
+            onClick={() => setIsAnnual(false)}
+            className={`relative z-10 px-6 py-2 text-sm font-bold rounded-full transition-colors duration-200 ${!isAnnual ? 'text-gray-950' : 'text-gray-400 hover:text-gray-700'
+              }`}
           >
-            {currentPlan === 'pro' ? 'Current Plan' : 'Upgrade to Pro'}
+            Monthly
           </button>
-        </div>
-
-        {/* Premium */}
-        <div className="bg-gray-900 rounded-3xl p-8 shadow-xl flex flex-col relative overflow-hidden text-white">
-          <h3 className="text-xl font-bold text-gray-100 mb-2">Premium</h3>
-          <div className="flex items-baseline gap-1 mb-6">
-            <span className="text-4xl font-extrabold text-white">₹5,499</span>
-            <span className="text-gray-400 font-medium">/yr</span>
-          </div>
-          <p className="text-sm text-gray-400 mb-6 font-medium">For serious restaurants needing full branding.</p>
-          <ul className="space-y-4 flex-1 mb-8">
-            {['Everything in Pro', 'Custom Domain', 'Advanced Analytics', 'Dedicated Account Manager'].map((feature, i) => (
-              <li key={i} className="flex items-start gap-3 text-sm text-gray-300 font-medium">
-                <Check className="w-5 h-5 text-purple-400 shrink-0" /> {feature}
-              </li>
-            ))}
-          </ul>
           <button
-            onClick={() => handleUpgrade('premium', 5499)}
-            disabled={isLoading || currentPlan === 'premium'}
-            className={`w-full py-3 rounded-xl font-bold text-gray-900 transition-all ${currentPlan === 'premium' ? 'bg-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-100 shadow-[0_0_15px_rgba(255,255,255,0.3)]'}`}
+            onClick={() => setIsAnnual(true)}
+            className={`relative z-10 px-6 py-2 text-sm font-bold rounded-full transition-colors duration-200 flex items-center gap-1.5 ${isAnnual ? 'text-gray-950' : 'text-gray-400 hover:text-gray-700'
+              }`}
           >
-            {currentPlan === 'premium' ? 'Current Plan' : 'Upgrade to Premium'}
+            Annually
+            <span className="text-[10px] bg-emerald-500 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider scale-95">
+              Save
+            </span>
           </button>
         </div>
+        {isAnnual && (
+          <p className="text-xs font-semibold text-emerald-600 animate-fade-in">
+            🎉 Smart choice! Saving up to 16% on annual packages.
+          </p>
+        )}
       </div>
 
+      {/* 4-Tier Grid Subscription Matrix */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
+        {plans.map((plan) => {
+          const isCurrent = currentPlan === plan.id;
+          return (
+            <div
+              key={plan.id}
+              className={`bg-white rounded-3xl p-8 border flex flex-col relative overflow-hidden transition-all duration-300 ${plan.highlight
+                  ? 'border-blue-500 ring-2 ring-blue-500 shadow-lg md:-translate-y-2'
+                  : 'border-gray-100 shadow-sm hover:shadow-md'
+                }`}
+            >
+              {plan.banner && (
+                <div className="absolute top-0 left-0 right-0 bg-blue-600 text-white text-[9px] font-bold py-2 px-4 text-center tracking-wide uppercase leading-tight z-10">
+                  {plan.banner}
+                </div>
+              )}
+              {plan.highlight && (
+                <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
+                  Popular
+                </div>
+              )}
 
+              <div className={`flex-1 flex flex-col ${plan.banner ? 'pt-6' : ''}`}>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+
+                <div className="flex items-baseline gap-1 mb-1">
+                  {typeof plan.price === 'number' ? (
+                    <>
+                      <span className="text-4xl font-extrabold text-gray-900">₹{plan.price}</span>
+                      <span className="text-gray-500 font-medium text-sm">{plan.period}</span>
+                    </>
+                  ) : (
+                    <span className="text-xl font-extrabold text-gray-900 leading-tight">{plan.price}</span>
+                  )}
+                </div>
+
+                {isAnnual && plan.savings ? (
+                  <div className="mb-4">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      {plan.savings}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="mb-4 h-[22px]" />
+                )}
+
+                <p className="text-sm text-gray-500 mb-6 font-medium leading-relaxed">{plan.description}</p>
+
+                <ul className="space-y-4 flex-1 mb-8">
+                  {plan.features.map((feature, i) => (
+                    <li
+                      key={i}
+                      className={`flex items-start gap-2.5 text-sm font-medium transition-all ${feature.included
+                          ? 'text-gray-700'
+                          : 'text-rose-400 line-through text-opacity-50 text-gray-400'
+                        }`}
+                    >
+                      {feature.included ? (
+                        <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                      ) : (
+                        <X className="w-5 h-5 text-rose-400 shrink-0" />
+                      )}
+                      <span>{feature.name}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => {
+                    if (plan.id === 'basic') {
+                      handleStartFreeTrial();
+                    } else if (plan.id === 'enterprise') {
+                      window.open(whatsappUrl, '_blank');
+                    } else {
+                      handleUpgrade(plan.id as 'pro' | 'premium', plan.price as number, isAnnual);
+                    }
+                  }}
+                  disabled={isLoading || isCurrent}
+                  className={`w-full py-3 rounded-xl font-bold transition-all ${isCurrent
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                      : plan.highlight
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg'
+                        : 'bg-gray-900 hover:bg-gray-800 text-white shadow-sm hover:shadow-md'
+                    }`}
+                >
+                  {getCtaLabel(plan.id)}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       {/* Billing History */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -275,8 +476,6 @@ export default function BillingPage() {
           </div>
         )}
       </div>
-
-
 
       <style>{`
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
