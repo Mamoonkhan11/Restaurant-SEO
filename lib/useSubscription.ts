@@ -32,10 +32,10 @@ export const useSubscription = () => {
     planType,
     isTrial,
     daysLeft: Math.max(0, daysLeft),
-    canViewRevenue: ['pro', 'premium'].includes(planType) || (isTrial && !isExpired),
-    canViewAllAnalytics: ['pro', 'premium'].includes(planType) || (isTrial && !isExpired),
-    canCustomBrand: ['pro', 'premium'].includes(planType) || (isTrial && !isExpired),
-    canWhatsAppOrder: ['pro', 'premium'].includes(planType) || (isTrial && !isExpired),
+    canViewRevenue: ['pro', 'premium', 'enterprise'].includes(planType) || (isTrial && !isExpired),
+    canViewAllAnalytics: ['pro', 'premium', 'enterprise'].includes(planType) || (isTrial && !isExpired),
+    canCustomBrand: ['pro', 'premium', 'enterprise'].includes(planType) || (isTrial && !isExpired),
+    canWhatsAppOrder: ['pro', 'premium', 'enterprise'].includes(planType) || (isTrial && !isExpired),
     isExpired,
     isLoading
   };

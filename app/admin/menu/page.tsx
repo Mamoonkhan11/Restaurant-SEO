@@ -16,8 +16,20 @@ export default function MenuManagement() {
   const [dishToDelete, setDishToDelete] = useState<Dish | null>(null);
   const { restaurant } = useRestaurant();
 
-  const isFreePlan = restaurant?.plan_type === 'free' || !restaurant?.plan_type;
-  const isAddLocked = isFreePlan && dishes.length >= 10;
+  const planType = restaurant?.plan_type || 'free';
+  const getPlanLimits = (plan: string) => {
+    const limits: Record<string, { items: number; tables: number }> = {
+      free: { items: 12, tables: 5 },
+      basic: { items: 12, tables: 5 },
+      pro: { items: 20, tables: 15 },
+      premium: { items: 23, tables: 17 },
+      enterprise: { items: 999999, tables: 999999 }
+    };
+    return limits[plan] || limits.free;
+  };
+
+  const limits = getPlanLimits(planType);
+  const isAddLocked = dishes.length >= limits.items;
 
   useEffect(() => {
     fetchDishes();
@@ -92,11 +104,15 @@ export default function MenuManagement() {
         <div className="flex justify-between items-end">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Menu Management</h1>
-            <p className="mt-1 text-gray-500">Manage your dishes, pricing, and availability.</p>
+            <p className="mt-1 text-gray-500">
+              Manage your dishes, pricing, and availability (used {dishes.length} of {limits.items === 999999 ? 'unlimited' : limits.items} items).
+            </p>
           </div>
           {isAddLocked ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 hidden md:block">Upgrade to Pro to add more dishes!</span>
+              <span className="text-sm font-semibold text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 hidden md:block">
+                Item limit reached. Upgrade plan to add more dishes!
+              </span>
               <button disabled className="bg-gray-200 text-gray-400 px-6 py-3 rounded-xl font-bold shadow-sm flex items-center gap-2 cursor-not-allowed">
                 <Plus className="w-5 h-5" />
                 <span className="hidden sm:inline">Add Dish</span>

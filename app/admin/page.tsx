@@ -364,6 +364,7 @@ export default function AdminDashboardOverview() {
   const [isLoading, setIsLoading] = useState(true);
   const [ownerName, setOwnerName] = useState('...');
   const [totalItems, setTotalItems] = useState<number | string>('-');
+  const [totalTables, setTotalTables] = useState<number | string>('-');
   const [totalScans, setTotalScans] = useState<number | string>('-');
   const [topDish, setTopDish] = useState<string>('-');
 
@@ -459,6 +460,13 @@ export default function AdminDashboardOverview() {
         .eq('owner_id', user.id);
 
       setTotalItems(dishCount ?? 0);
+
+      const { count: tableCount } = await supabase
+        .from('tables')
+        .select('*', { count: 'exact', head: true })
+        .eq('restaurant_id', restaurant.id);
+
+      setTotalTables(tableCount ?? 0);
 
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -561,6 +569,21 @@ export default function AdminDashboardOverview() {
     );
   }
 
+  const getPlanLimits = (plan: string) => {
+    const limits: Record<string, { items: number | string; tables: number | string }> = {
+      free: { items: 12, tables: 5 },
+      basic: { items: 12, tables: 5 },
+      pro: { items: 20, tables: 15 },
+      premium: { items: 23, tables: 17 },
+      enterprise: { items: 'Unlimited', tables: 'Unlimited' }
+    };
+    return limits[plan] || limits.free;
+  };
+
+  const limits = getPlanLimits(planType);
+  const itemsDisplay = `${totalItems} / ${limits.items}`;
+  const tablesDisplay = `${totalTables} / ${limits.tables}`;
+
   return (
     <div className="p-4 sm:p-8 relative animate-fade-in">
       <Toaster />
@@ -575,19 +598,31 @@ export default function AdminDashboardOverview() {
         {restaurantId && <LiveOrderQueue restaurantId={restaurantId} />}
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
           {/* Total Scans Card */}
-          <div onClick={() => setActiveModalTitle('Total Scans')} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer">
+          <div onClick={() => canViewAllAnalytics && setActiveModalTitle('Total Scans')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewAllAnalytics ? 'cursor-default' : 'cursor-pointer'}`}>
+            {!canViewAllAnalytics && (
+              <div className="absolute inset-0 z-10 bg-white/75 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
+                <div className="bg-purple-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
+                  <Lock className="w-3 h-3" /> Locked
+                </div>
+                <p className="text-[11px] text-purple-900 font-extrabold leading-tight">Scan Tracking Required</p>
+                <Link href="/admin/billing" className="mt-2 text-[10px] bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-bold hover:bg-purple-200 transition-colors pointer-events-auto">Unlock with Pro</Link>
+              </div>
+            )}
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Scans</p>
               <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
               </div>
             </div>
-            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalScans}</p>
+            <p className={`text-3xl font-extrabold text-gray-900 mt-0.5 ${!canViewAllAnalytics ? 'blur-[4px]' : ''}`}>
+              {canViewAllAnalytics ? totalScans : '999'}
+            </p>
           </div>
 
+          {/* Top Selling Dish Card */}
           <div onClick={() => canViewAllAnalytics && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewAllAnalytics ? 'cursor-default' : 'cursor-pointer'}`}>
             {!canViewAllAnalytics && (
               <div className="absolute inset-0 z-10 bg-white/75 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
@@ -617,7 +652,20 @@ export default function AdminDashboardOverview() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
               </div>
             </div>
-            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalItems}</p>
+            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{itemsDisplay}</p>
+          </div>
+
+          {/* Total Tables Card */}
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-start mb-2">
+              <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Tables</p>
+              <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16M4 6v12M12 6v12M20 6v12" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{tablesDisplay}</p>
           </div>
         </div>
 
