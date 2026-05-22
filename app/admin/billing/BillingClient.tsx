@@ -272,13 +272,12 @@ export default function BillingPage() {
   ];
 
   const getCtaLabel = (planId: string) => {
-    if (currentPlan === planId && daysRemaining <= 5) {
-      return 'Upgrade Now';
+    if (currentPlan === planId) {
+      if (daysRemaining <= 5) {
+        return isBasicTrial ? 'Upgrade Plan' : 'Upgrade Now';
+      }
+      return 'Current Plan';
     }
-    if (planId === 'basic' && isBasicTrial) {
-      return 'Upgrade Plan';
-    }
-    if (currentPlan === planId) return 'Current Plan';
 
     if (planId === 'basic') {
       const hasUsedTrial = payments.length > 0;
@@ -380,7 +379,7 @@ export default function BillingPage() {
       {/* 4-Tier Grid Subscription Matrix */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
         {plans.map((plan) => {
-          const isCurrent = currentPlan === plan.id && !(plan.id === 'basic' && isBasicTrial);
+          const isCurrent = currentPlan === plan.id;
           const isCurrentExpiring = currentPlan === plan.id && daysRemaining <= 5;
           return (
             <div

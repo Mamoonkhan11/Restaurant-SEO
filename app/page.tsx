@@ -10,17 +10,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center transform -rotate-6 shadow-sm">
-                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M8 4H5a2 2 0 0 0-2 2v3" />
-                  <path d="M16 4h3a2 2 0 0 1 2 2v3" />
-                  <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
-                  <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
-                  <path d="M7 14a5 5 0 0 1 10 0" />
-                  <path d="M6 14h12" />
-                  <path d="M12 9V7" />
-                </svg>
-              </div>
+              <img src="/favicon.ico" alt="Restdigi Logo" className="w-8 h-8 rounded-lg transform -rotate-6 shadow-sm" />
               <span className="font-extrabold text-xl tracking-tight text-gray-900">Rest<span className="text-blue-600">digi</span></span>
             </div>
             <div className="flex items-center gap-4">
@@ -170,17 +160,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
 
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center transform -rotate-6">
-                <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M8 4H5a2 2 0 0 0-2 2v3" />
-                  <path d="M16 4h3a2 2 0 0 1 2 2v3" />
-                  <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
-                  <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
-                  <path d="M7 14a5 5 0 0 1 10 0" />
-                  <path d="M6 14h12" />
-                  <path d="M12 9V7" />
-                </svg>
-              </div>
+              <img src="/favicon.ico" alt="Restdigi Logo" className="w-8 h-8 rounded-lg transform -rotate-6" />
               <span className="font-extrabold text-xl tracking-tight text-white">Rest<span className="text-gray-400">digi</span></span>
             </div>
 

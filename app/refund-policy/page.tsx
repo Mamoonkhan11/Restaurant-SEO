@@ -1,6 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Refund Policy',
+};
 
 export default function RefundPolicy() {
   return (
