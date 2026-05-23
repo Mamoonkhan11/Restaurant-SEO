@@ -85,7 +85,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         
         <div className="flex justify-center mb-8">
-          <img src="/restdigi-logo.png" className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
+          <img src="/restdigi-logo.png" className="h-12 sm:h-14 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
         </div>
 
         {!isSubmitted ? (

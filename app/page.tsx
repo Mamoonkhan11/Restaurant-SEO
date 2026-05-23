@@ -8,9 +8,9 @@ export default function Home() {
       {/* Navigation */}
       <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16 lg:h-20">
+          <div className="flex justify-between items-center h-18 lg:h-24">
             <div className="flex items-center">
-              <img src="/restdigi-logo.png" className="h-10 lg:h-14 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
+              <img src="/restdigi-logo.png" className="h-12 lg:h-16 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
             </div>
             <div className="flex items-center gap-4">
               <Link
@@ -159,7 +159,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
 
             <div className="flex items-center">
-              <img src="/restdigi-logo.png" className="h-10 lg:h-14 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity" alt="RESTDIGI Logo" />
+              <img src="/restdigi-logo.png" className="h-12 lg:h-16 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity" alt="RESTDIGI Logo" />
             </div>
 
             {/* Legal Links required by Razorpay */}

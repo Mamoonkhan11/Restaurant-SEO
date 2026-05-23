@@ -34,6 +34,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
   const [audioMuted, setAudioMuted] = useState(true);
   const [isAlerting, setIsAlerting] = useState(false);
+  const [audioNeedsInteraction, setAudioNeedsInteraction] = useState(false);
   const audioMutedRef = useRef(audioMuted);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
@@ -41,6 +42,39 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   useEffect(() => {
     audioMutedRef.current = audioMuted;
   }, [audioMuted]);
+
+  // Monitor and unlock AudioContext to bypass autoplay blocking policies
+  useEffect(() => {
+    const resumeAudio = () => {
+      const ctx = getAudioContext();
+      if (ctx) {
+        if (ctx.state === 'suspended') {
+          ctx.resume().then(() => {
+            setAudioNeedsInteraction(false);
+          });
+        } else if (ctx.state === 'running') {
+          setAudioNeedsInteraction(false);
+        }
+      }
+    };
+
+    // Trigger state check after mount
+    setTimeout(() => {
+      const ctx = getAudioContext();
+      if (ctx && ctx.state === 'suspended') {
+        setAudioNeedsInteraction(true);
+      }
+    }, 1000);
+
+    window.addEventListener('click', resumeAudio);
+    window.addEventListener('keydown', resumeAudio);
+    window.addEventListener('touchstart', resumeAudio);
+    return () => {
+      window.removeEventListener('click', resumeAudio);
+      window.removeEventListener('keydown', resumeAudio);
+      window.removeEventListener('touchstart', resumeAudio);
+    };
+  }, []);
 
   // Load the initial audio preference from localStorage on mount
   useEffect(() => {
@@ -66,60 +100,59 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     return audioCtxRef.current;
   };
 
-  const playSynthesizedChime = () => {
+  const playSynthesizedBell = () => {
     try {
       const ctx = getAudioContext();
       if (!ctx) return;
       
       const now = ctx.currentTime;
 
-      // Tone 1: 987.77 Hz (B5) - crisp sine + rich triangle presence (LOUD & FAST)
-      const osc1a = ctx.createOscillator();
-      const osc1b = ctx.createOscillator();
-      const gain1 = ctx.createGain();
+      // Bell 1: Bright strike at 880 Hz (A5) with rich inharmonic partials
+      const baseFreq1 = 880;
+      const ratios = [1.0, 1.2, 1.5, 2.0, 3.0]; // prime, minor third, fifth, octave, supernominal
+      const gains = [0.45, 0.22, 0.18, 0.25, 0.12];
+      const decays = [1.5, 1.0, 0.8, 0.6, 0.4];
 
-      osc1a.type = 'sine';
-      osc1a.frequency.setValueAtTime(987.77, now);
-      
-      osc1b.type = 'triangle';
-      osc1b.frequency.setValueAtTime(987.77, now);
+      ratios.forEach((ratio, i) => {
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
 
-      gain1.gain.setValueAtTime(0, now);
-      gain1.gain.linearRampToValueAtTime(0.8, now + 0.01); // Lighter latency, high volume
-      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12); // Fast decay for speed
+        osc.type = i === 0 ? 'sine' : (i === 1 ? 'triangle' : 'sine');
+        osc.frequency.setValueAtTime(baseFreq1 * ratio, now);
 
-      osc1a.connect(gain1);
-      osc1b.connect(gain1);
-      gain1.connect(ctx.destination);
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(gains[i], now + 0.005);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + decays[i]);
 
-      osc1a.start(now);
-      osc1b.start(now);
-      osc1a.stop(now + 0.15);
-      osc1b.stop(now + 0.15);
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination);
 
-      // Tone 2: 1318.51 Hz (E6) - higher chime starting 60ms later
-      const osc2a = ctx.createOscillator();
-      const osc2b = ctx.createOscillator();
-      const gain2 = ctx.createGain();
+        osc.start(now);
+        osc.stop(now + decays[i] + 0.1);
+      });
 
-      osc2a.type = 'sine';
-      osc2a.frequency.setValueAtTime(1318.51, now + 0.06); // 60ms delay for faster speed
+      // Bell 2: Lower strike at 659.25 Hz (E5) delayed by 350ms (ding-dong effect)
+      const delay = 0.35;
+      const baseFreq2 = 659.25;
+      const decays2 = [1.8, 1.2, 1.0, 0.8, 0.5];
 
-      osc2b.type = 'triangle';
-      osc2b.frequency.setValueAtTime(1318.51, now + 0.06);
+      ratios.forEach((ratio, i) => {
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
 
-      gain2.gain.setValueAtTime(0, now + 0.06);
-      gain2.gain.linearRampToValueAtTime(1.0, now + 0.07); // Maximum volume
-      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.25); // Fast decay
+        osc.type = i === 0 ? 'sine' : (i === 1 ? 'triangle' : 'sine');
+        osc.frequency.setValueAtTime(baseFreq2 * ratio, now + delay);
 
-      osc2a.connect(gain2);
-      osc2b.connect(gain2);
-      gain2.connect(ctx.destination);
+        gainNode.gain.setValueAtTime(0, now + delay);
+        gainNode.gain.linearRampToValueAtTime(gains[i] * 0.9, now + delay + 0.005);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + delay + decays2[i]);
 
-      osc2a.start(now + 0.06);
-      osc2b.start(now + 0.06);
-      osc2a.stop(now + 0.3);
-      osc2b.stop(now + 0.3);
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        osc.start(now + delay);
+        osc.stop(now + delay + decays2[i] + 0.1);
+      });
     } catch (err) {
       console.warn("Realtime Audio Playback Intercepted:", err);
     }
@@ -131,7 +164,13 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     localStorage.setItem('admin_audio_muted', String(nextMuted));
 
     if (!nextMuted) {
-      playSynthesizedChime();
+      const ctx = getAudioContext();
+      if (ctx) {
+        ctx.resume().then(() => {
+          setAudioNeedsInteraction(false);
+          playSynthesizedBell();
+        });
+      }
     } else {
       setIsAlerting(false);
     }
@@ -142,7 +181,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     if (!isAlerting || audioMuted) return;
 
     const interval = setInterval(() => {
-      playSynthesizedChime();
+      playSynthesizedBell();
     }, 6000);
 
     return () => clearInterval(interval);
@@ -197,7 +236,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             console.log("🟢 REALTIME NEW ORDER DETECTED FOR TABLE:", payload.new.table_no);
             if (!audioMutedRef.current) {
               setIsAlerting(true);
-              playSynthesizedChime();
+              playSynthesizedBell();
             }
             setLiveOrders(prev => [payload.new, ...prev]);
             toast.success(`New order received from ${payload.new.table_no}!`);
@@ -240,6 +279,11 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             {liveOrders.filter(o => o.status === 'pending').length > 0 && (
               <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-bold animate-pulse">
                 {liveOrders.filter(o => o.status === 'pending').length} Action Required
+              </span>
+            )}
+            {audioNeedsInteraction && !audioMuted && (
+              <span className="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-amber-200 animate-pulse">
+                ⚠️ Tap page to unblock sound
               </span>
             )}
             {!audioMuted ? (
@@ -571,44 +615,26 @@ export default function AdminDashboardOverview() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
           {/* Total Scans Card */}
-          <div onClick={() => !showProLock && setActiveModalTitle('Total Scans')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${showProLock ? 'cursor-default' : 'cursor-pointer'}`}>
-            {showProLock && (
-              <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
-                <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
-                  <Lock className="w-3 h-3" /> Locked
-                </div>
-                <p className="text-[11px] text-orange-950 font-extrabold leading-tight">Total Scans Metrics Locked</p>
-                <Link href="/admin/billing#pro" className="mt-2 text-[10px] bg-orange-600 hover:bg-orange-700 text-white px-3.5 py-1.5 rounded-full font-black uppercase tracking-wider transition-all duration-200 pointer-events-auto shadow-sm shadow-orange-600/20">Upgrade to Pro</Link>
-              </div>
-            )}
+          <div onClick={() => setActiveModalTitle('Total Scans')} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group cursor-pointer">
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Scans</p>
               <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
               </div>
             </div>
-            <p className={`text-3xl font-extrabold text-gray-900 mt-0.5 ${showProLock ? 'blur-[4px]' : ''}`}>{showProLock ? '999' : totalScans}</p>
+            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalScans}</p>
           </div>
 
           {/* Top Selling Dish Card */}
-          <div onClick={() => !showProLock && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${showProLock ? 'cursor-default' : 'cursor-pointer'}`}>
-            {showProLock && (
-              <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
-                <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
-                  <Lock className="w-3 h-3" /> Locked
-                </div>
-                <p className="text-[11px] text-orange-950 font-extrabold leading-tight">Top Selling Dish Locked</p>
-                <Link href="/admin/billing#pro" className="mt-2 text-[10px] bg-orange-600 hover:bg-orange-700 text-white px-3.5 py-1.5 rounded-full font-black uppercase tracking-wider transition-all duration-200 pointer-events-auto shadow-sm shadow-orange-600/20">Upgrade to Pro</Link>
-              </div>
-            )}
+          <div onClick={() => setActiveModalTitle('Top Selling Dish')} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group cursor-pointer">
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Top Selling Dish</p>
               <div className="p-2 bg-orange-50 text-orange-600 rounded-xl">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path></svg>
               </div>
             </div>
-            <p className={`text-xl font-extrabold text-gray-900 mt-0.5 truncate max-w-[140px] ${showProLock ? 'blur-[4px]' : ''}`} title={topDish}>
-              {showProLock ? 'XXXXXXXXXX' : topDish}
+            <p className="text-xl font-extrabold text-gray-900 mt-0.5 truncate max-w-[140px]" title={topDish}>
+              {topDish}
             </p>
           </div>
 
