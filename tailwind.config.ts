@@ -11,6 +11,11 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        brand: {
+          red: '#D32F2F',    // Deep appetizing red for primary backgrounds/accents
+          orange: '#FF9100', // Vibrant swiggy-orange for buttons, active states, and highlights
+          cream: '#FFF8F6'   // Soft warm background tint for premium readability
+        }
       },
     },
   },

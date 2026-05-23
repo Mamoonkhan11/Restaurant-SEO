@@ -262,7 +262,7 @@ export default function TablesPage() {
                 <div 
                   key={table.id} 
                   onClick={() => setSelectedTable(table)}
-                  className={`bg-white p-4 rounded-xl border transition-all cursor-pointer shadow-sm flex items-center justify-between ${isSelected ? 'border-gray-900 ring-1 ring-gray-900' : 'border-gray-100 hover:border-gray-200'}`}
+                  className={`bg-white p-4 rounded-xl border transition-all cursor-pointer shadow-sm flex items-center justify-between ${isSelected ? 'border-brand-orange/30 ring-1 ring-brand-orange/30 shadow-sm' : 'border-gray-100 hover:border-gray-200'}`}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full ${isLive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-gray-200'}`}></div>
@@ -298,10 +298,20 @@ export default function TablesPage() {
             {selectedTable ? (
               <>
                 <div id="printable-qr-frame" className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm inline-flex flex-col items-center mb-8 w-[320px] shrink-0 print:border-none print:shadow-none print:w-[100vw]">
-                  <div className="qr-print-frame">
-                    <div className="mb-8 text-center">
-                      <h3 className="text-xl font-bold text-[#111827] tracking-tight uppercase leading-tight">{restaurant?.name || 'Restaurant Name'}</h3>
-                      <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest leading-tight">{selectedTable.table_no}</p>
+                  <div className="qr-print-frame flex flex-col items-center w-full">
+                    <div className="mb-8 text-center w-full bg-brand-red p-5 rounded-2xl border border-brand-orange/20 shadow-inner">
+                      <h3 className="text-2xl font-black text-brand-orange tracking-tight uppercase leading-none">RESTDIGI</h3>
+                      <span className="text-[9px] font-bold text-white uppercase tracking-wider block mt-1">The Future of Dining</span>
+                      <div className="mt-4 pt-3 border-t border-white/10 flex justify-between items-center text-left">
+                        <div>
+                          <p className="text-[9px] font-bold text-white/65 uppercase tracking-widest leading-none">Restaurant</p>
+                          <p className="text-xs font-extrabold text-white truncate max-w-[130px] mt-1 leading-none">{restaurant?.name || 'Our Venue'}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[9px] font-bold text-white/65 uppercase tracking-widest leading-none">Table</p>
+                          <p className="text-xs font-black text-brand-orange bg-white px-2.5 py-1 rounded-lg mt-1 leading-none inline-block">{selectedTable.table_no}</p>
+                        </div>
+                      </div>
                     </div>
                     
                     <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8 flex justify-center items-center">

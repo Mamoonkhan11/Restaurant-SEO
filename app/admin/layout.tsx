@@ -85,12 +85,12 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#111827] text-gray-300 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         
         {isTrial && daysLeft !== null && !isExpired && (
-          <div className="bg-[#FEF3C7] text-[#111827] p-4 shrink-0 flex flex-col items-center border-b border-amber-200/50">
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 text-brand-red p-4 shrink-0 flex flex-col items-center border-b border-brand-orange/20">
             <span className="text-xs font-bold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
             {isUrgent && (
               <Link 
                 href="/admin/billing" 
-                className="mt-3 w-full py-3 text-center text-xs font-bold uppercase tracking-wider rounded-xl shadow-md bg-[#111827] text-white hover:bg-black transition-all duration-300 ease-in-out"
+                className="mt-3 w-full py-3 text-center text-xs font-bold uppercase tracking-wider rounded-xl shadow-md bg-brand-red text-white hover:bg-brand-red/90 transition-all duration-300 ease-in-out"
               >
                 Upgrade Now
               </Link>
@@ -98,19 +98,22 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <div className="h-20 flex items-center px-6 border-b border-gray-800 shrink-0">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M8 4H5a2 2 0 0 0-2 2v3" />
-              <path d="M16 4h3a2 2 0 0 1 2 2v3" />
-              <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
-              <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
-              <path d="M7 14a5 5 0 0 1 10 0" />
-              <path d="M6 14h12" />
-              <path d="M12 9V7" />
-            </svg>
+        <div className="h-24 flex flex-col justify-center px-6 border-b border-gray-800 shrink-0">
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-brand-orange rounded-lg flex items-center justify-center mr-3 shrink-0">
+              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 4H5a2 2 0 0 0-2 2v3" />
+                <path d="M16 4h3a2 2 0 0 1 2 2v3" />
+                <path d="M8 20H5a2 2 0 0 1-2-2v-3" />
+                <path d="M16 20h3a2 2 0 0 0 2-2v-3" />
+                <path d="M7 14a5 5 0 0 1 10 0" />
+                <path d="M6 14h12" />
+                <path d="M12 9V7" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-black text-white tracking-tight uppercase">RESTDIGI</h2>
           </div>
-          <h2 className="text-xl font-bold text-white tracking-tight">Rest<span className="text-blue-500">digi</span></h2>
+          <span className="text-[10px] font-bold text-brand-orange uppercase tracking-wider mt-1 pl-11">The Future of Dining</span>
         </div>
         
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -120,7 +123,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
               <Link 
                 key={item.name} 
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-gray-800 hover:text-white'}`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive ? 'bg-brand-orange text-white shadow-md shadow-orange-500/20' : 'hover:bg-gray-800 hover:text-white'}`}
                 onClick={() => setIsSidebarOpen(false)}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,12 +146,12 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {isTrial && daysLeft !== null && !isExpired && (
-          <div className="md:hidden bg-[#FEF3C7] text-[#111827] p-4 shrink-0 flex flex-col items-center justify-center border-b border-amber-200">
+          <div className="md:hidden bg-gradient-to-r from-amber-50 to-orange-50 text-brand-red p-4 shrink-0 flex flex-col items-center justify-center border-b border-brand-orange/20">
             <span className="text-xs font-bold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
             {isUrgent && (
               <Link 
                 href="/admin/billing" 
-                className="mt-3 w-full py-3 text-center text-xs font-bold uppercase tracking-wider rounded-xl shadow-md bg-[#111827] text-white hover:bg-black transition-all duration-300 ease-in-out"
+                className="mt-3 w-full py-3 text-center text-xs font-bold uppercase tracking-wider rounded-xl shadow-md bg-brand-red text-white hover:bg-brand-red/90 transition-all duration-300 ease-in-out"
               >
                 Upgrade Now
               </Link>
@@ -161,7 +164,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center">
+            <div className="w-7 h-7 bg-brand-orange rounded-md flex items-center justify-center">
               <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M8 4H5a2 2 0 0 0-2 2v3" />
                 <path d="M16 4h3a2 2 0 0 1 2 2v3" />
@@ -172,7 +175,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                 <path d="M12 9V7" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-gray-900 tracking-tight">Rest<span className="text-blue-600">digi</span></h2>
+            <h2 className="text-xl font-black text-gray-900 tracking-tight uppercase">RESTDIGI</h2>
           </div>
           <div className="w-9" /> {/* Spacer */}
         </header>
@@ -194,7 +197,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
               </div>
               <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Subscription Expired</h2>
               <p className="text-gray-500 mb-8 leading-relaxed">Your Free Trial has Expired. Please upgrade to continue using Restdigi and keep your menu online.</p>
-              <Link href="/admin/billing" className="block w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg">
+              <Link href="/admin/billing" className="block w-full bg-brand-orange text-white py-4 rounded-xl font-bold text-lg hover:bg-brand-orange/90 transition-colors shadow-md hover:shadow-lg">
                 Upgrade Now
               </Link>
             </div>
