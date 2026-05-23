@@ -101,7 +101,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         <div className="h-20 flex items-center px-6 border-b border-gray-800 shrink-0">
           <div className="flex items-center gap-1">
             <img src="/logo.png" className="w-12 h-12 object-contain" alt="RESTDIGI Logo" />
-            <h2 className="text-2xl font-bold text-white tracking-tight select-none">REST<span className="text-orange-500">DIGI</span></h2>
+            <h2 className="text-2xl font-bold text-white tracking-tight select-none -translate-y-[1.5px]">REST<span className="text-orange-500">DIGI</span></h2>
           </div>
         </div>
         
@@ -154,7 +154,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           </button>
           <div className="flex items-center gap-1">
             <img src="/logo.png" className="w-12 h-12 object-contain" alt="RESTDIGI Logo" />
-            <h2 className="text-2xl font-bold text-gray-900 tracking-tight select-none">REST<span className="text-orange-600">DIGI</span></h2>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight select-none -translate-y-[1.5px]">REST<span className="text-orange-600">DIGI</span></h2>
           </div>
           <div className="w-9" /> {/* Spacer */}
         </header>

@@ -11,7 +11,7 @@ export default function Home() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-1">
               <img src="/logo.png" className="w-12 h-12 object-contain" alt="RESTDIGI Logo" />
-              <span className="font-extrabold text-2xl tracking-tight text-gray-900 select-none">REST<span className="text-orange-600">DIGI</span></span>
+              <span className="font-extrabold text-2xl tracking-tight text-gray-900 select-none -translate-y-[1.5px]">REST<span className="text-orange-600">DIGI</span></span>
             </div>
             <div className="flex items-center gap-4">
               <Link
@@ -161,7 +161,7 @@ export default function Home() {
 
             <div className="flex items-center gap-1">
               <img src="/logo.png" className="w-12 h-12 object-contain" alt="RESTDIGI Logo" />
-              <span className="font-extrabold text-2xl tracking-tight text-white select-none">REST<span className="text-orange-500">DIGI</span></span>
+              <span className="font-extrabold text-2xl tracking-tight text-white select-none -translate-y-[1.5px]">REST<span className="text-orange-500">DIGI</span></span>
             </div>
 
             {/* Legal Links required by Razorpay */}
