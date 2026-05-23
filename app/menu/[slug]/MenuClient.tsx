@@ -27,14 +27,7 @@ const MenuHeader = React.memo(({ restaurant, menuBlocked }: { restaurant: any, m
 ));
 MenuHeader.displayName = 'MenuHeader';
 
-const MenuFooter = React.memo(() => (
-  <div className="fixed bottom-0 inset-x-0 h-10 bg-[#FDFBF7]/90 backdrop-blur-sm border-t border-gray-200 flex items-center justify-center z-30">
-    <div className="flex items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
-      <img src="/restdigi-logo.png" className="h-5 w-auto object-contain" alt="RESTDIGI Logo" />
-    </div>
-  </div>
-));
-MenuFooter.displayName = 'MenuFooter';
+
 
 export default function MenuClient({
   params,
@@ -719,8 +712,7 @@ export default function MenuClient({
         )}
       </div>
 
-      {/* Fixed Footer */}
-      <MenuFooter />
+
       {/* Deep Detail Organic Full-Screen Expansion (Retained) */}
       <AnimatePresence>
         {selectedDish && (

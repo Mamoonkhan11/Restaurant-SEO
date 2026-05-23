@@ -73,7 +73,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       
       const now = ctx.currentTime;
 
-      // Tone 1: 987.77 Hz (B5) - crisp sine + rich triangle presence
+      // Tone 1: 987.77 Hz (B5) - crisp sine + rich triangle presence (LOUD & FAST)
       const osc1a = ctx.createOscillator();
       const osc1b = ctx.createOscillator();
       const gain1 = ctx.createGain();
@@ -85,8 +85,8 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       osc1b.frequency.setValueAtTime(987.77, now);
 
       gain1.gain.setValueAtTime(0, now);
-      gain1.gain.linearRampToValueAtTime(0.4, now + 0.015);
-      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      gain1.gain.linearRampToValueAtTime(0.8, now + 0.01); // Lighter latency, high volume
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12); // Fast decay for speed
 
       osc1a.connect(gain1);
       osc1b.connect(gain1);
@@ -94,32 +94,32 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
 
       osc1a.start(now);
       osc1b.start(now);
-      osc1a.stop(now + 0.3);
-      osc1b.stop(now + 0.3);
+      osc1a.stop(now + 0.15);
+      osc1b.stop(now + 0.15);
 
-      // Tone 2: 1318.51 Hz (E6) - higher chime starting 120ms later
+      // Tone 2: 1318.51 Hz (E6) - higher chime starting 60ms later
       const osc2a = ctx.createOscillator();
       const osc2b = ctx.createOscillator();
       const gain2 = ctx.createGain();
 
       osc2a.type = 'sine';
-      osc2a.frequency.setValueAtTime(1318.51, now + 0.12);
+      osc2a.frequency.setValueAtTime(1318.51, now + 0.06); // 60ms delay for faster speed
 
       osc2b.type = 'triangle';
-      osc2b.frequency.setValueAtTime(1318.51, now + 0.12);
+      osc2b.frequency.setValueAtTime(1318.51, now + 0.06);
 
-      gain2.gain.setValueAtTime(0, now + 0.12);
-      gain2.gain.linearRampToValueAtTime(0.5, now + 0.135);
-      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      gain2.gain.setValueAtTime(0, now + 0.06);
+      gain2.gain.linearRampToValueAtTime(1.0, now + 0.07); // Maximum volume
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.25); // Fast decay
 
       osc2a.connect(gain2);
       osc2b.connect(gain2);
       gain2.connect(ctx.destination);
 
-      osc2a.start(now + 0.12);
-      osc2b.start(now + 0.12);
-      osc2a.stop(now + 0.6);
-      osc2b.stop(now + 0.6);
+      osc2a.start(now + 0.06);
+      osc2b.start(now + 0.06);
+      osc2a.stop(now + 0.3);
+      osc2b.stop(now + 0.3);
     } catch (err) {
       console.warn("Realtime Audio Playback Intercepted:", err);
     }
@@ -137,13 +137,13 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     }
   };
 
-  // Loop the alert sound every 2.5 seconds if isAlerting is true and not muted
+  // Loop the alert sound every 6 seconds if isAlerting is true and not muted
   useEffect(() => {
     if (!isAlerting || audioMuted) return;
 
     const interval = setInterval(() => {
       playSynthesizedChime();
-    }, 2500);
+    }, 6000);
 
     return () => clearInterval(interval);
   }, [isAlerting, audioMuted]);
