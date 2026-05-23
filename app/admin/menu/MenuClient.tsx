@@ -125,7 +125,7 @@ export default function MenuManagement() {
               </button>
             </div>
           ) : (
-            <button onClick={() => { setEditingDish(null); setIsFormOpen(true); }} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-sm flex items-center gap-2 transition-colors">
+            <button onClick={() => { setEditingDish(null); setIsFormOpen(true); }} className="bg-orange-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-orange-700 shadow-sm flex items-center gap-2 transition-colors">
               <Plus className="w-5 h-5" />
               <span className="hidden sm:inline">Add Dish</span>
             </button>
@@ -136,7 +136,7 @@ export default function MenuManagement() {
           <div className="overflow-x-auto">
             {isLoading ? (
               <div className="p-12 flex justify-center items-center">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
               </div>
             ) : dishes.length === 0 ? (
               <div className="p-12 text-center text-gray-500">
@@ -169,7 +169,7 @@ export default function MenuManagement() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-700">
                           {dish.category}
                         </span>
                       </td>
@@ -184,7 +184,7 @@ export default function MenuManagement() {
                         </button>
                       </td>
                       <td className="px-6 py-4 text-right space-x-2">
-                        <button onClick={() => { setEditingDish(dish); setIsFormOpen(true); }} className="p-2 text-gray-400 hover:text-blue-600 rounded-xl hover:bg-blue-50 transition-colors">
+                        <button onClick={() => { setEditingDish(dish); setIsFormOpen(true); }} className="p-2 text-gray-400 hover:text-orange-600 rounded-xl hover:bg-orange-50 transition-colors">
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button onClick={() => setDishToDelete(dish)} className="p-2 text-gray-400 hover:text-red-600 rounded-xl hover:bg-red-50 transition-colors">

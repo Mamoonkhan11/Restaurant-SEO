@@ -136,7 +136,7 @@ export default function SettingsPage() {
   if (isLoadingSettings) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
       </div>
     );
   }
@@ -170,7 +170,7 @@ export default function SettingsPage() {
                     setHasWarnedNameChange(true);
                   }
                 }}
-                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900" 
+                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium text-gray-900" 
               />
             </div>
 
@@ -205,7 +205,7 @@ export default function SettingsPage() {
             </div>
 
             <div className="pt-4 border-t border-gray-100">
-              <button type="submit" disabled={isSaving} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70">
+              <button type="submit" disabled={isSaving} className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70">
                 {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                 {isSaving ? 'Saving...' : 'Save Changes'}
               </button>

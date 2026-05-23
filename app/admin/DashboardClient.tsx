@@ -640,7 +640,7 @@ export default function AdminDashboardOverview() {
                 onClick={(e) => e.stopPropagation()} 
                 className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[4px] rounded-2xl flex items-center justify-center p-3 pointer-events-auto cursor-pointer"
               >
-                <span className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-md hover:scale-105 transition-all text-center">
+                <span className="bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-md hover:scale-105 transition-all text-center">
                   Unlock with Pro
                 </span>
               </Link>
@@ -664,7 +664,7 @@ export default function AdminDashboardOverview() {
                 onClick={(e) => e.stopPropagation()} 
                 className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[4px] rounded-2xl flex items-center justify-center p-3 pointer-events-auto cursor-pointer"
               >
-                <span className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-md hover:scale-105 transition-all text-center">
+                <span className="bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-md hover:scale-105 transition-all text-center">
                   Unlock with Pro
                 </span>
               </Link>
@@ -684,7 +684,7 @@ export default function AdminDashboardOverview() {
           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Items</p>
-              <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
+              <div className="p-2 bg-orange-50 text-orange-600 rounded-xl">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
               </div>
             </div>
@@ -715,7 +715,7 @@ export default function AdminDashboardOverview() {
             {!canViewAllAnalytics && (
               <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-end pb-12">
                 <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center max-w-xs text-center border border-gray-100 mb-4 animate-fade-in-up">
-                  <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-4">
                     <Lock className="w-6 h-6" />
                   </div>
                   <h3 className="text-gray-900 font-bold mb-2">Want to see your top-performing items?</h3>
@@ -723,7 +723,7 @@ export default function AdminDashboardOverview() {
                   <Link 
                     href="/admin/billing#premium" 
                     onClick={(e) => e.stopPropagation()} 
-                    className="bg-blue-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-blue-700 transition-colors shadow-md text-center"
+                    className="bg-orange-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-orange-700 transition-colors shadow-md text-center"
                   >
                     Unlock All Insights With Premium Plan
                   </Link>
@@ -745,7 +745,7 @@ export default function AdminDashboardOverview() {
                       contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                       itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
                     />
-                    <Line type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+                    <Line type="monotone" dataKey="views" stroke="#f97316" strokeWidth={4} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
@@ -810,7 +810,7 @@ export default function AdminDashboardOverview() {
             </div>
             {recentActivity.length > 0 && (
               <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 text-center">
-                <button className="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors">
+                <button className="text-sm font-bold text-orange-600 hover:text-orange-800 transition-colors">
                   View All Activity
                 </button>
               </div>

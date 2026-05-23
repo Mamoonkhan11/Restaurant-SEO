@@ -99,7 +99,7 @@ export default function RegisterPage() {
                   value={fullName}
                   onChange={e => setFullName(e.target.value)}
                   placeholder="Your Full Name"
-                  className="w-full px-5 py-4 bg-transparent border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors font-medium text-gray-900 placeholder-gray-400"
+                  className="w-full px-5 py-4 bg-transparent border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-colors font-medium text-gray-900 placeholder-gray-400"
                 />
               </div>
 
@@ -110,7 +110,7 @@ export default function RegisterPage() {
                   value={businessName}
                   onChange={e => setBusinessName(e.target.value)}
                   placeholder="Business Name"
-                  className="w-full px-5 py-4 bg-transparent border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors font-medium text-gray-900 placeholder-gray-400"
+                  className="w-full px-5 py-4 bg-transparent border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-colors font-medium text-gray-900 placeholder-gray-400"
                 />
               </div>
 
@@ -121,7 +121,7 @@ export default function RegisterPage() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="Work Email"
-                  className="w-full px-5 py-4 bg-transparent border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors font-medium text-gray-900 placeholder-gray-400"
+                  className="w-full px-5 py-4 bg-transparent border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-colors font-medium text-gray-900 placeholder-gray-400"
                 />
               </div>
 
@@ -129,7 +129,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-900 transition-colors flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition-colors flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Register Account'}
                 </button>
@@ -137,7 +137,7 @@ export default function RegisterPage() {
             </form>
 
             <p className="text-center text-sm text-gray-500 mt-8 font-medium">
-              Already have an account? <button onClick={() => router.push('/login')} className="text-black font-bold hover:underline focus:outline-none">Sign in</button>
+              Already have an account? <button onClick={() => router.push('/login')} className="text-orange-600 font-bold hover:underline focus:outline-none">Sign in</button>
             </p>
           </div>
         ) : (
@@ -151,7 +151,7 @@ export default function RegisterPage() {
             </p>
             <button
               onClick={() => router.push('/login')}
-              className="w-full bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-900 transition-colors"
+              className="w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition-colors"
             >
               Go to Login
             </button>

@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const location = restaurant?.address || 'Srinagar';
 
   const seoTitle = `${restaurantName} Menu - Best Food in ${location}, Srinagar`;
-  const seoDescription = `Explore our delicious menu at ${restaurantName}. View our best sellers, pricing, and order directly! Located in ${location}, Srinagar. Built with Restdigi.`;
+  const seoDescription = `Explore our delicious menu at ${restaurantName}. View our best sellers, pricing, and order directly! Located in ${location}, Srinagar. Built with RESTDIGI.`;
 
   return {
     title: seoTitle,
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: seoTitle,
       description: seoDescription,
       url: `https://restdigi.com/menu/${params.slug}`,
-      siteName: 'Restdigi',
+      siteName: 'RESTDIGI',
       images: [
         {
           // Dynamic image placeholder based on restaurant name

@@ -115,13 +115,13 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
         <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6 overflow-y-auto flex-1">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Dish Name</label>
-            <input {...register('name')} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="e.g. Wagyu Burger" />
+            <input {...register('name')} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium" placeholder="e.g. Wagyu Burger" />
             {errors.name && <p className="text-red-500 text-xs mt-1">{String(errors.name.message)}</p>}
           </div>
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
-            <textarea {...register('description')} rows={2} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" placeholder="Delicious ingredients..." />
+            <textarea {...register('description')} rows={2} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium" placeholder="Delicious ingredients..." />
             {errors.description && <p className="text-red-500 text-xs mt-1">{String(errors.description.message)}</p>}
           </div>
 
@@ -139,19 +139,19 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
                       setValue('category', e.target.value);
                     }
                   }}
-                  className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium appearance-none"
+                  className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium appearance-none"
                 >
                   {standardCategories.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
-                  <option value="custom" className="font-bold text-blue-600">➕ Add Custom Category</option>
+                  <option value="custom" className="font-bold text-orange-600">➕ Add Custom Category</option>
                 </select>
               ) : (
                 <div className="relative">
                   <input 
                     {...register('category')} 
                     autoFocus
-                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium" 
+                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium" 
                     placeholder="Type custom category..."
                   />
                   <button 
@@ -173,7 +173,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <label className="block text-sm font-bold text-gray-700">Portion Sizes & Prices</label>
-              <button type="button" onClick={handleAddSize} className="text-blue-600 text-sm font-bold hover:text-blue-700 flex items-center gap-1">
+              <button type="button" onClick={handleAddSize} className="text-orange-600 text-sm font-bold hover:text-orange-700 flex items-center gap-1">
                 + Add Size
               </button>
             </div>
@@ -184,7 +184,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
                   placeholder="e.g. Half, Full, Large"
                   value={size.label}
                   onChange={(e) => handleSizeChange(index, 'label', e.target.value)}
-                  className="w-1/2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+                  className="w-1/2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium"
                 />
                 <input
                   type="number"
@@ -192,7 +192,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
                   placeholder="Price (₹)"
                   value={size.price}
                   onChange={(e) => handleSizeChange(index, 'price', e.target.value)}
-                  className="w-1/2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+                  className="w-1/2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium"
                 />
                 {sizes.length > 1 && (
                   <button type="button" onClick={() => handleRemoveSize(index)} className="p-2 text-gray-400 hover:text-red-500 transition-colors">
@@ -229,11 +229,11 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Dish Photo</label>
-            <div className="mt-1 flex justify-center px-6 pt-7 pb-8 border-2 border-gray-200 border-dashed rounded-2xl hover:border-blue-500 hover:bg-blue-50/50 transition-colors relative bg-gray-50">
+            <div className="mt-1 flex justify-center px-6 pt-7 pb-8 border-2 border-gray-200 border-dashed rounded-2xl hover:border-orange-500 hover:bg-orange-50/50 transition-colors relative bg-gray-50">
               {previewUrl ? (
                 <div className="text-center w-full">
                   <img src={previewUrl} alt="Preview" className="mx-auto h-32 w-32 object-cover rounded-xl shadow-sm mb-4" />
-                  <label className="cursor-pointer font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-lg transition-colors">
+                  <label className="cursor-pointer font-bold text-orange-600 hover:text-orange-700 bg-orange-50 px-4 py-2 rounded-lg transition-colors">
                     Change Photo
                     <input type="file" className="sr-only" onChange={handleImageChange} accept="image/*" />
                   </label>
@@ -241,10 +241,10 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
               ) : (
                 <div className="space-y-2 text-center">
                   <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto shadow-sm border border-gray-100">
-                    <UploadCloud className="h-8 w-8 text-blue-500" />
+                    <UploadCloud className="h-8 w-8 text-orange-500" />
                   </div>
                   <div className="flex text-sm text-gray-600 justify-center">
-                    <label className="cursor-pointer bg-transparent rounded-md font-bold text-blue-600 hover:text-blue-500">
+                    <label className="cursor-pointer bg-transparent rounded-md font-bold text-orange-600 hover:text-orange-500">
                       <span>Click to upload</span>
                       <input type="file" className="sr-only" onChange={handleImageChange} accept="image/*" />
                     </label>
@@ -259,7 +259,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
             <button type="button" onClick={onClose} className="flex-1 bg-white border-2 border-gray-200 text-gray-700 px-6 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-colors">
               Cancel
             </button>
-            <button type="submit" disabled={isSubmitting || isUploading} className="flex-1 bg-blue-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-blue-700 shadow-md transition-all disabled:opacity-70 flex justify-center items-center gap-2">
+            <button type="submit" disabled={isSubmitting || isUploading} className="flex-1 bg-orange-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all disabled:opacity-70 flex justify-center items-center gap-2">
               {(isSubmitting || isUploading) ? <Loader2 className="animate-spin h-5 w-5" /> : 'Save Dish'}
             </button>
           </div>

@@ -42,7 +42,7 @@ const MenuFooter = React.memo(() => (
         </svg>
       </div>
       <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-        Powered by Restdigi
+        Powered by RESTDIGI
       </p>
     </div>
   </div>
@@ -614,7 +614,7 @@ export default function MenuClient({
                                 {item.is_available && (
                                   <div className="shrink-0 ml-4">
                                     {quantity > 0 ? (
-                                      <div className="flex items-center gap-3 bg-brand-cream border border-brand-orange/20 px-1 py-1 rounded-full shadow-sm animate-fade-in">
+                                      <div className="flex items-center gap-3 bg-gray-100 border border-gray-200 px-1 py-1 rounded-full shadow-sm animate-fade-in">
                                         <button
                                           onClick={(e) => {
                                             e.stopPropagation();
@@ -632,7 +632,7 @@ export default function MenuClient({
                                         >
                                           -
                                         </button>
-                                        <span className="font-black text-black text-sm w-4 text-center">{quantity}</span>
+                                        <span className="font-bold text-gray-900 text-sm w-4 text-center">{quantity}</span>
                                         <button
                                           onClick={(e) => {
                                             e.stopPropagation();
@@ -708,7 +708,7 @@ export default function MenuClient({
                 setShowTracking(false);
                 setIsCartOpen(true);
               }}
-              className="bg-brand-orange hover:bg-brand-orange/90 text-white px-6 py-3 rounded-xl font-black tracking-wide shadow-md transition-transform active:scale-95 cursor-pointer"
+              className="bg-white text-[#111827] px-6 py-3 rounded-xl font-black shadow-md hover:bg-gray-100 active:scale-95 transition-all cursor-pointer"
             >
               View Cart & Order 🛒
             </button>
@@ -809,7 +809,7 @@ export default function MenuClient({
 
                     return (
                       <div className="flex flex-col gap-4">
-                        <div className="flex items-center justify-between bg-brand-cream p-2 rounded-2xl border border-brand-orange/20">
+                        <div className="flex items-center justify-between bg-gray-50 p-2 rounded-2xl border border-gray-100">
                           <button
                             onClick={() => setDishQuantity(Math.max(1, dishQuantity - 1))}
                             className="w-12 h-12 flex items-center justify-center bg-white rounded-xl font-bold text-xl text-gray-900 shadow-sm border border-gray-200"
@@ -844,7 +844,7 @@ export default function MenuClient({
                             });
                             setSelectedDish(null);
                           }}
-                          className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white py-4 rounded-2xl font-black text-lg tracking-wide transition-transform hover:scale-[1.02] flex items-center justify-between px-6 shadow-lg"
+                          className="w-full bg-gray-900 hover:bg-black text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-between px-6 shadow-lg"
                         >
                           <span>Add to Cart</span>
                           <span>₹{(price * dishQuantity).toFixed(2)}</span>
@@ -975,7 +975,7 @@ export default function MenuClient({
                             {item.size !== 'Standard' && <span className="text-xs text-gray-500">{item.size}</span>}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 bg-brand-cream p-1 rounded-lg border border-brand-orange/20 shrink-0">
+                        <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-100 shrink-0">
                           <button onClick={() => {
                             setCart(prev => {
                               const newCart = [...prev];
@@ -984,7 +984,7 @@ export default function MenuClient({
                               return newCart;
                             });
                           }} className="w-7 h-7 flex items-center justify-center font-bold bg-white rounded shadow-sm text-gray-600">-</button>
-                          <span className="font-black w-4 text-center text-sm text-black">{item.quantity}</span>
+                          <span className="font-bold w-4 text-center text-sm text-black">{item.quantity}</span>
                           <button onClick={() => {
                             setCart(prev => {
                               const newCart = [...prev];
@@ -1040,7 +1040,7 @@ export default function MenuClient({
                         setCart([]); // Clear cart on success
                       }
                     }}
-                    className="w-full py-4 rounded-2xl font-black text-lg transition-transform active:scale-95 flex items-center justify-center gap-2 shadow-lg text-white tracking-wide cursor-pointer bg-brand-orange hover:bg-brand-orange/90"
+                    className={`w-full py-4 rounded-2xl font-bold text-lg transition-transform active:scale-95 flex items-center justify-center gap-2 shadow-lg text-white cursor-pointer ${tableNo ? 'bg-orange-600 hover:bg-orange-700' : 'bg-[#25D366] hover:bg-[#1ebd5a]'}`}
                   >
                     {tableNo ? 'Place KOT Order' : 'Order on WhatsApp'}
                   </button>

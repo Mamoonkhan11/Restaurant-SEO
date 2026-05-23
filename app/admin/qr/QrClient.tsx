@@ -86,7 +86,7 @@ export default function QRCodePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
       </div>
     );
   }
@@ -112,10 +112,10 @@ export default function QRCodePage() {
                   {isFreePlan && (
                     <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-[1px] rounded-xl flex items-center justify-between px-4 border border-gray-100 shadow-sm">
                       <div className="flex items-center gap-2 text-gray-700">
-                        <Lock className="w-4 h-4 text-blue-600" />
+                        <Lock className="w-4 h-4 text-orange-600" />
                         <span className="text-sm font-bold">Custom branding is a Pro feature</span>
                       </div>
-                      <Link href="/admin/billing" className="text-xs font-bold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors pointer-events-auto">
+                      <Link href="/admin/billing" className="text-xs font-bold bg-orange-600 text-white px-3 py-1.5 rounded-lg hover:bg-orange-700 transition-colors pointer-events-auto">
                         Upgrade
                       </Link>
                     </div>
@@ -133,7 +133,7 @@ export default function QRCodePage() {
                         type="text" 
                         value={isFreePlan ? '#8B4513' : color} 
                         onChange={(e) => !isFreePlan && setColor(e.target.value)}
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-gray-700 transition-all" 
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono text-gray-700 transition-all" 
                       />
                     </div>
                   </div>

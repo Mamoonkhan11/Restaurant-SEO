@@ -3,14 +3,14 @@ import { QrCode, ChevronRight, TrendingUp } from 'lucide-react';
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 selection:bg-blue-200">
+    <div className="min-h-screen flex flex-col bg-slate-50 selection:bg-orange-200">
 
       {/* Navigation */}
       <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center transform -rotate-6 shadow-sm">
+              <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center transform -rotate-6 shadow-sm">
                 <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M8 4H5a2 2 0 0 0-2 2v3" />
                   <path d="M16 4h3a2 2 0 0 1 2 2v3" />
@@ -21,7 +21,7 @@ export default function Home() {
                   <path d="M12 9V7" />
                 </svg>
               </div>
-              <span className="font-extrabold text-xl tracking-tight text-gray-900">Rest<span className="text-blue-600">digi</span></span>
+              <span className="font-extrabold text-xl tracking-tight text-gray-900">REST<span className="text-orange-600">DIGI</span></span>
             </div>
             <div className="flex items-center gap-4">
               <Link
@@ -43,23 +43,23 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col items-center justify-center pt-32 pb-20 px-4 sm:px-6 lg:px-8 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-sm font-bold mb-8 animate-fade-in-up">
-          <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
-          The Future of Dining is Here
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 border border-orange-100 text-orange-700 text-sm font-bold mb-8 animate-fade-in-up">
+          <span className="flex h-2 w-2 rounded-full bg-orange-600 animate-pulse"></span>
+          RESTDIGI — The Future of Dining
         </div>
 
         <h1 className="max-w-4xl text-5xl sm:text-6xl md:text-7xl font-extrabold text-gray-900 tracking-tight leading-[1.1] mb-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-          Stop Making Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Customers Wait</span> to Order.
+          Stop Making Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">Customers Wait</span> to Order.
         </h1>
 
         <p className="max-w-3xl text-lg sm:text-xl text-gray-500 mb-10 font-medium animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-          Don't let long queues and short staff kill your restaurant's sales. With Restdigi, customers simply Scan, View, and Place Orders Instantly right from their tables. No apps. No waiting. Just pure speed.
+          Don't let long queues and short staff kill your restaurant's sales. With RESTDIGI, customers simply Scan, View, and Place Orders Instantly right from their tables. No apps. No waiting. Just pure speed.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
           <Link
             href="/admin"
-            className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all bg-blue-600 rounded-full hover:bg-blue-700 hover:shadow-lg hover:-translate-y-1 group"
+            className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all bg-orange-600 rounded-full hover:bg-orange-700 hover:shadow-lg hover:-translate-y-1 group"
           >
             Launch Your Digital Menu Free
             <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -84,9 +84,9 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Step 1: Scan */}
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
-              <div className="absolute top-6 right-6 text-6xl font-black text-blue-100 select-none">01</div>
+              <div className="absolute top-6 right-6 text-6xl font-black text-orange-100 select-none">01</div>
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 relative z-10">
-                <QrCode className="w-7 h-7 text-blue-600" />
+                <QrCode className="w-7 h-7 text-orange-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3 relative z-10">Scan</h3>
               <p className="text-gray-500 leading-relaxed relative z-10">
@@ -111,7 +111,7 @@ export default function Home() {
 
             {/* Step 3: Order Instantly */}
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
-              <div className="absolute top-6 right-6 text-6xl font-black text-blue-100 select-none">03</div>
+              <div className="absolute top-6 right-6 text-6xl font-black text-orange-100 select-none">03</div>
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 relative z-10">
                 <svg className="w-7 h-7 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m5 12 5-5L20 17" />
@@ -130,7 +130,7 @@ export default function Home() {
       <section className="bg-slate-50 py-24 border-t border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="text-xs font-bold tracking-wider text-blue-600 uppercase bg-blue-50 px-3 py-1 rounded-full border border-blue-100">Premium Capabilities</span>
+            <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Premium Capabilities</span>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-4 mb-4">Engineered for Restaurant Success</h2>
             <p className="text-gray-500 font-medium max-w-2xl mx-auto">Unlock next-level performance and automation designed to scale your operations.</p>
           </div>
@@ -138,12 +138,12 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Automated Local SEO Boost */}
             <div className="bg-white p-8 rounded-3xl border border-gray-100 hover:shadow-xl transition-shadow duration-300 relative">
-              <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6">
-                <TrendingUp className="w-7 h-7 text-blue-600" />
+              <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
+                <TrendingUp className="w-7 h-7 text-orange-600" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-3">Automated Local SEO Boost</h3>
               <p className="text-gray-500 leading-relaxed">
-                Restdigi dynamically optimizes your restaurant’s online presence, pushing your physical location to the top of local Google search maps and discoverability indexes automatically.
+                RESTDIGI dynamically optimizes your restaurant’s online presence, pushing your physical location to the top of local Google search maps and discoverability indexes automatically.
               </p>
             </div>
 
@@ -181,7 +181,7 @@ export default function Home() {
                   <path d="M12 9V7" />
                 </svg>
               </div>
-              <span className="font-extrabold text-xl tracking-tight text-white">Rest<span className="text-gray-400">digi</span></span>
+              <span className="font-extrabold text-xl tracking-tight text-white">REST<span className="text-orange-500">DIGI</span></span>
             </div>
 
             {/* Legal Links required by Razorpay */}
@@ -203,7 +203,7 @@ export default function Home() {
 
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
             <p className="mb-2">Address: Srinagar, J&K, India</p>
-            <p>&copy; {new Date().getFullYear()} Restdigi. All rights reserved. Built for modern restaurants.</p>
+            <p>&copy; {new Date().getFullYear()} RESTDIGI. All rights reserved. Built for modern restaurants.</p>
           </div>
         </div>
       </footer>

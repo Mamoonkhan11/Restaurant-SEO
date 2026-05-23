@@ -98,12 +98,12 @@ export default function AdminPreview() {
       {/* Sidebar */}
       <aside className="w-64 bg-gray-900 text-white flex flex-col hidden md:flex">
         <div className="p-6 border-b border-gray-800">
-          <h2 className="text-2xl font-bold tracking-tight">Restaurant OS</h2>
+          <h2 className="text-2xl font-bold tracking-tight">RESTDIGI</h2>
           <p className="text-gray-400 text-sm mt-1">Admin Dashboard</p>
         </div>
         <nav className="flex-1 p-4 space-y-2">
           <a href="#" className="flex items-center gap-3 bg-gray-800 px-4 py-3 rounded-lg text-white font-medium transition-colors">
-            <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+            <svg className="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
             Menu Items
           </a>
           <a href="#" className="flex items-center gap-3 text-gray-400 hover:bg-gray-800 hover:text-white px-4 py-3 rounded-lg font-medium transition-colors">
@@ -127,7 +127,7 @@ export default function AdminPreview() {
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Mobile Header */}
         <header className="bg-white shadow-sm border-b border-gray-200 p-4 flex justify-between items-center md:hidden">
-          <h2 className="text-xl font-bold text-gray-900">Restaurant OS</h2>
+          <h2 className="text-xl font-bold text-gray-900">RESTDIGI</h2>
           <button className="text-gray-500 hover:text-gray-700">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </button>
@@ -140,7 +140,7 @@ export default function AdminPreview() {
               <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">Menu Management</h1>
               <p className="mt-1 text-gray-500 text-sm sm:text-base">Update pricing and availability in real-time.</p>
             </div>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2">
+            <button className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
               Add New Dish
             </button>
@@ -166,7 +166,7 @@ export default function AdminPreview() {
                         <div className="relative w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden shrink-0 shadow-sm">
                           {uploadingId === dish.id && uploadProgress > 0 && uploadProgress < 100 && (
                             <div className="absolute inset-0 z-10 bg-black/50 flex flex-col justify-end">
-                              <div className="h-1.5 bg-blue-500 transition-all duration-300 shadow-[0_0_8px_rgba(59,130,246,0.8)]" style={{ width: `${uploadProgress}%` }} />
+                              <div className="h-1.5 bg-orange-500 transition-all duration-300 shadow-[0_0_8px_rgba(249,115,22,0.8)]" style={{ width: `${uploadProgress}%` }} />
                             </div>
                           )}
                           <img src={dish.image} alt={dish.name} className="w-full h-full object-cover" />
@@ -207,7 +207,7 @@ export default function AdminPreview() {
                         </label>
                         <button 
                           onClick={() => editPrice(dish.id)}
-                          className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                          className="text-sm font-semibold text-orange-600 hover:text-orange-800 transition-colors"
                         >
                           Edit Price
                         </button>

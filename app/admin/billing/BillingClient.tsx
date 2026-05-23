@@ -107,7 +107,7 @@ export default function BillingPage() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_YOUR_KEY_HERE",
         amount: orderData.amount,
         currency: orderData.currency,
-        name: restaurant?.name || "Restdigi",
+        name: restaurant?.name || "RESTDIGI",
         description: `${plan.toUpperCase()} Plan Subscription`,
         order_id: orderData.id,
         handler: async function (response: any) {
@@ -144,7 +144,7 @@ export default function BillingPage() {
           contact: restaurant?.whatsapp_number || "",
         },
         theme: {
-          color: restaurant?.theme_color || "#2563eb",
+          color: restaurant?.theme_color || "#ea580c",
         },
       };
 
@@ -318,7 +318,7 @@ export default function BillingPage() {
                 : currentPlan === 'basic'
                   ? 'bg-emerald-100 text-emerald-700'
                   : currentPlan === 'pro'
-                    ? 'bg-blue-100 text-blue-700'
+                    ? 'bg-orange-100 text-orange-700'
                     : currentPlan === 'premium'
                       ? 'bg-purple-100 text-purple-700'
                       : 'bg-indigo-100 text-indigo-700'
@@ -386,17 +386,17 @@ export default function BillingPage() {
               id={plan.id}
               key={plan.id}
               className={`bg-white rounded-3xl p-8 border flex flex-col relative overflow-hidden transition-all duration-300 ${plan.highlight
-                  ? 'border-blue-500 ring-2 ring-blue-500 shadow-lg md:-translate-y-2'
+                  ? 'border-orange-500 ring-2 ring-orange-500 shadow-lg md:-translate-y-2'
                   : 'border-gray-100 shadow-sm hover:shadow-md'
                 }`}
             >
               {plan.banner && (
-                <div className="absolute top-0 left-0 right-0 bg-blue-600 text-white text-[9px] font-bold py-2 px-4 text-center tracking-wide uppercase leading-tight z-10">
+                <div className="absolute top-0 left-0 right-0 bg-orange-600 text-white text-[9px] font-bold py-2 px-4 text-center tracking-wide uppercase leading-tight z-10">
                   {plan.banner}
                 </div>
               )}
               {plan.highlight && (
-                <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
+                <div className="absolute top-0 right-0 bg-orange-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
                   Popular
                 </div>
               )}
@@ -465,7 +465,7 @@ export default function BillingPage() {
                   className={`w-full py-3 rounded-xl font-bold transition-all ${(isCurrent && !isCurrentExpiring)
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                       : plan.highlight
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg'
+                        ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-md hover:shadow-lg'
                         : 'bg-gray-900 hover:bg-gray-800 text-white shadow-sm hover:shadow-md'
                     }`}
                 >
@@ -532,9 +532,9 @@ export default function BillingPage() {
         .animate-fade-in-up { animation: fadeInUp 0.4s ease forwards; }
         .animate-fade-in { animation: fadeIn 0.4s ease forwards; }
         @keyframes pulseHighlight {
-          0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); border-color: #3b82f6; }
-          50% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(37, 99, 235, 0.2); border-color: #2563eb; }
-          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+          0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); border-color: #f97316; }
+          50% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(249, 115, 22, 0.2); border-color: #ea580c; }
+          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
         }
         .pulse-highlight {
           animation: pulseHighlight 1.5s ease-in-out 2;

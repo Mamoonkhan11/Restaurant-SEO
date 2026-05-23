@@ -139,14 +139,14 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your registered email" 
-                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold text-gray-900 placeholder-gray-400 text-center"
+                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400 text-center"
               />
             </div>
             <div className="pt-2">
               <button 
                 type="submit" 
                 disabled={isLoading || !email}
-                className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
                 {isLoading ? 'Checking...' : 'Send Login Code'}
@@ -163,14 +163,14 @@ export default function LoginPage() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))} // Ensure numeric only
                 placeholder="Enter 6-digit code" 
-                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold text-gray-900 placeholder-gray-400 text-center tracking-[0.5em] text-2xl"
+                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400 text-center tracking-[0.5em] text-2xl"
               />
             </div>
             <div className="pt-2 space-y-4">
               <button 
                 type="submit" 
                 disabled={isLoading || otp.length !== 6}
-                className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
                 Verify & Sign In
@@ -181,7 +181,7 @@ export default function LoginPage() {
                   type="button"
                   disabled={countdown > 0 || isLoading}
                   onClick={() => handleSendOtp()}
-                  className="text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors disabled:opacity-50 disabled:hover:text-gray-500"
+                  className="text-sm font-bold text-gray-500 hover:text-orange-600 transition-colors disabled:opacity-50 disabled:hover:text-gray-500"
                 >
                   {countdown > 0 ? `Resend Code in ${countdown}s` : 'Resend Code'}
                 </button>

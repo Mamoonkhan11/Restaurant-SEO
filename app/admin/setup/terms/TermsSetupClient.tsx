@@ -83,7 +83,7 @@ export default function TermsAcceptancePage() {
         
         {/* Header */}
         <div className="p-8 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4 shrink-0">
-          <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center shadow-inner">
+          <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center shadow-inner">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
@@ -95,29 +95,29 @@ export default function TermsAcceptancePage() {
         {/* Scrollable Terms Content */}
         <div className="p-8 overflow-y-auto flex-1 bg-white">
           <div className="prose prose-sm max-w-none text-gray-600 space-y-6">
-            <h3 className="text-lg font-bold text-gray-900">Restdigi Platform Agreement</h3>
+            <h3 className="text-lg font-bold text-gray-900">RESTDIGI Platform Agreement</h3>
             
-            <p>Welcome to Restdigi. By proceeding, you agree to the following terms which govern your use of our digital menu infrastructure.</p>
+            <p>Welcome to RESTDIGI. By proceeding, you agree to the following terms which govern your use of our digital menu infrastructure.</p>
             
             <h4 className="text-gray-900 font-bold">1. Food Quality & SEO Ranking</h4>
             <p>
               As a Restaurant Owner, you are strictly responsible for maintaining high food quality and hygiene standards. 
-              <strong> User feedback, ratings, and food quality are direct factors in our internal "SEO Ranking" and "Customer Satisfaction Rate" within the Restdigi ecosystem.</strong>
+              <strong> User feedback, ratings, and food quality are direct factors in our internal "SEO Ranking" and "Customer Satisfaction Rate" within the RESTDIGI ecosystem.</strong>
             </p>
             
             <h4 className="text-gray-900 font-bold">2. Quality Standards & Visibility</h4>
             <p>
-              To ensure a premium dining experience, Restdigi reserves the right to lower the ranking, reduce the visibility, or suspend the accounts of restaurants with consistently low Customer Satisfaction Rates.
+              To ensure a premium dining experience, RESTDIGI reserves the right to lower the ranking, reduce the visibility, or suspend the accounts of restaurants with consistently low Customer Satisfaction Rates.
             </p>
 
             <h4 className="text-gray-900 font-bold">3. Accuracy of Information</h4>
             <p>
-              It is your responsibility to provide accurate menu prices, ingredients, and availability. Restdigi holds no legal liability for any disputes or customer grievances arising from incorrect menu descriptions or pricing.
+              It is your responsibility to provide accurate menu prices, ingredients, and availability. RESTDIGI holds no legal liability for any disputes or customer grievances arising from incorrect menu descriptions or pricing.
             </p>
 
             <h4 className="text-gray-900 font-bold">4. Order Fulfillment</h4>
             <p>
-              Restdigi is solely a digital display and communication platform. Food preparation, delivery fulfillment, and direct payment collection remain strictly the restaurant's responsibility.
+              RESTDIGI is solely a digital display and communication platform. Food preparation, delivery fulfillment, and direct payment collection remain strictly the restaurant's responsibility.
             </p>
 
             <hr className="my-8 border-gray-200" />
@@ -136,7 +136,7 @@ export default function TermsAcceptancePage() {
 
             <h4 className="text-gray-900 font-bold">3. Third-Party Data Disclosures</h4>
             <p>
-              Restdigi does not share, lease, sell, or disclose food menu metrics, transaction histories, or location logs to external monetization brokers or advertising channels. All platform telemetry is handled directly through encrypted database layers.
+              RESTDIGI does not share, lease, sell, or disclose food menu metrics, transaction histories, or location logs to external monetization brokers or advertising channels. All platform telemetry is handled directly through encrypted database layers.
             </p>
 
             <h4 className="text-gray-900 font-bold">4. Cookies</h4>
@@ -152,7 +152,7 @@ export default function TermsAcceptancePage() {
             <div className="mt-0.5">
               <input 
                 type="checkbox" 
-                className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                className="w-5 h-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
                 checked={isAgreed}
                 onChange={(e) => setIsAgreed(e.target.checked)}
               />
@@ -169,14 +169,14 @@ export default function TermsAcceptancePage() {
               placeholder="Type your full legal name to sign"
               value={signature}
               onChange={(e) => setSignature(e.target.value)}
-              className="w-full px-5 py-4 bg-white border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium text-gray-900 placeholder:font-normal"
+              className="w-full px-5 py-4 bg-white border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium text-gray-900 placeholder:font-normal"
             />
           </div>
 
           <button 
             onClick={handleAccept}
             disabled={!isFormValid || isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-4 rounded-2xl font-bold text-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+            className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-4 rounded-2xl font-bold text-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <>
