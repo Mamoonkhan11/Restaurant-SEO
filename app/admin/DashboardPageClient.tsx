@@ -331,8 +331,8 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             <div className="w-20 h-20 bg-white shadow-sm text-orange-300 rounded-full flex items-center justify-center mb-4">
               <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
             </div>
-            <h3 className="text-orange-850 font-black text-xl">No Active Orders</h3>
-            <p className="text-orange-600/70 font-medium mt-1 text-base">Waiting for fresh KOT orders to arrive...</p>
+            <h3 className="text-black font-black text-xl">No Active Orders</h3>
+            <p className="text-gray-600 font-medium mt-1 text-base">Waiting for fresh KOT orders to arrive...</p>
           </div>
         )}
       </div>
@@ -346,6 +346,7 @@ export default function AdminDashboardOverview() {
   const [isLoading, setIsLoading] = useState(true);
   const [ownerName, setOwnerName] = useState('...');
   const [totalItems, setTotalItems] = useState<number | string>('-');
+  const [totalTables, setTotalTables] = useState<number | string>('-');
   const [totalScans, setTotalScans] = useState<number | string>('-');
   const [topDish, setTopDish] = useState<string>('-');
 
@@ -358,7 +359,7 @@ export default function AdminDashboardOverview() {
   const [historicalStats, setHistoricalStats] = useState<any[]>([]);
   const { planType, canViewRevenue, canViewAllAnalytics, isTrial, isExpired } = useSubscription();
 
-  const isFreeUser = planType === 'free' && !(isTrial && !isExpired);
+  const isFreeUser = planType === 'free';
   const canViewAdvancedAnalytics = ['premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired);
 
   const router = useRouter();
@@ -444,6 +445,13 @@ export default function AdminDashboardOverview() {
         .eq('owner_id', user.id);
 
       setTotalItems(dishCount ?? 0);
+
+      const { count: tableCount } = await supabase
+        .from('tables')
+        .select('*', { count: 'exact', head: true })
+        .eq('restaurant_id', restaurant.id);
+
+      setTotalTables(tableCount ?? 0);
 
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -560,7 +568,7 @@ export default function AdminDashboardOverview() {
         {restaurantId && <LiveOrderQueue restaurantId={restaurantId} />}
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
           {/* Total Scans Card */}
           <div onClick={() => !isFreeUser && setActiveModalTitle('Total Scans')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreeUser ? 'cursor-default' : 'cursor-pointer'}`}>
@@ -613,6 +621,17 @@ export default function AdminDashboardOverview() {
               </div>
             </div>
             <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalItems} <span className="text-sm font-semibold text-gray-400">dishes</span></p>
+          </div>
+
+          {/* Total Tables Card */}
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-start mb-2">
+              <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Tables</p>
+              <div className="p-2 bg-orange-50 text-orange-600 rounded-xl">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+              </div>
+            </div>
+            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalTables} <span className="text-sm font-semibold text-gray-400">tables</span></p>
           </div>
         </div>
 

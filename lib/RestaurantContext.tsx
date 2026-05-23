@@ -48,6 +48,37 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     fetchRestaurant();
+
+    let channel: any;
+    const setupSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        channel = supabase
+          .channel('restaurant-realtime-updates')
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'restaurants',
+              filter: `owner_id=eq.${user.id}`
+            },
+            (payload) => {
+              if (payload.new) {
+                setRestaurant(payload.new);
+              }
+            }
+          )
+          .subscribe();
+      }
+    };
+    setupSubscription();
+
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
   }, []);
 
   return (
