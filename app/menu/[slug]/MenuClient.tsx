@@ -749,7 +749,7 @@ export default function MenuClient({
             <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none p-0 sm:p-6">
               <motion.div
                 layoutId={`dish-${selectedDish.id}`}
-                className="bg-white w-full h-[85vh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg rounded-t-[2rem] sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl pointer-events-auto"
+                className="relative bg-white w-full h-[85vh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg rounded-t-[2rem] sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl pointer-events-auto"
               >
                 <button
                   onClick={() => setSelectedDish(null)}
@@ -876,17 +876,21 @@ export default function MenuClient({
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed bottom-0 inset-x-0 z-[70] bg-white rounded-t-[2rem] shadow-2xl flex flex-col max-h-[90vh] sm:max-w-md sm:mx-auto"
+              className="relative fixed bottom-0 inset-x-0 z-[70] bg-white rounded-t-[2rem] shadow-2xl flex flex-col max-h-[90vh] sm:max-w-md sm:mx-auto"
             >
+              <button
+                onClick={() => setIsCartOpen(false)}
+                className="absolute top-4 right-4 z-[80] w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-900 shadow-sm transition-all animate-fade-in"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
               <div className="p-4 flex justify-center shrink-0">
                 <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
               </div>
 
-              <div className="px-6 pb-4 flex justify-between items-center border-b border-gray-100 shrink-0">
+              <div className="px-6 pb-4 border-b border-gray-100 shrink-0">
                 <h2 className="text-2xl font-black text-gray-900">Your Order</h2>
-                <button onClick={() => setIsCartOpen(false)} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
-                  <X className="w-5 h-5" />
-                </button>
               </div>
 
               <div className="p-6 overflow-y-auto flex-1 bg-gray-50/50">
