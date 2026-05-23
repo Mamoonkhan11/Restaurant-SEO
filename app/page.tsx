@@ -9,9 +9,8 @@ export default function Home() {
       <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-1">
-              <img src="/logo.png" className="w-12 h-12 object-contain" alt="RESTDIGI Logo" />
-              <span className="font-extrabold text-2xl tracking-tight text-gray-900 select-none -translate-y-[1.5px]">REST<span className="text-orange-600">DIGI</span></span>
+            <div className="flex items-center">
+              <img src="/restdigi-logo.png" className="h-14 w-auto object-contain" alt="RESTDIGI Logo" />
             </div>
             <div className="flex items-center gap-4">
               <Link
@@ -159,9 +158,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
 
-            <div className="flex items-center gap-1">
-              <img src="/logo.png" className="w-12 h-12 object-contain" alt="RESTDIGI Logo" />
-              <span className="font-extrabold text-2xl tracking-tight text-white select-none -translate-y-[1.5px]">REST<span className="text-orange-500">DIGI</span></span>
+            <div className="flex items-center">
+              <img src="/restdigi-logo.png" className="h-14 w-auto object-contain" alt="RESTDIGI Logo" />
             </div>
 
             {/* Legal Links required by Razorpay */}

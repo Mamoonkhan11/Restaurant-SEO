@@ -98,11 +98,11 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <div className="w-full flex items-center justify-center p-4 border-b border-gray-800/40 shrink-0">
+        <div className="w-full flex items-center justify-center px-4 py-5 border-b border-gray-800/40 shrink-0">
           <img
             src="/restdigi-logo.png"
             alt="RESTDIGI Logo"
-            className="h-14 w-auto object-contain max-w-[85%] transition-transform hover:scale-105"
+            className="h-20 w-auto object-contain max-w-[90%] transition-transform hover:scale-105"
           />
         </div>
         
@@ -157,7 +157,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             <img
               src="/restdigi-logo.png"
               alt="RESTDIGI Logo"
-              className="h-10 w-auto object-contain max-w-[160px]"
+              className="h-12 w-auto object-contain max-w-[180px]"
             />
           </div>
           <div className="w-9" /> {/* Spacer */}
