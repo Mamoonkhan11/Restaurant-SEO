@@ -33,8 +33,9 @@ const timeAgo = (dateString: string) => {
 function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
   const [audioMuted, setAudioMuted] = useState(true);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isAlerting, setIsAlerting] = useState(false);
   const audioMutedRef = useRef(audioMuted);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   // Synchronize ref with audioMuted state to prevent stale closures
   useEffect(() => {
@@ -52,23 +53,75 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     }
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !audioRef.current) {
-      const audio = new Audio('/sounds/order_tune.mp3');
-      audio.preload = 'auto';
-      audio.volume = 1.0; // Maximum volume for high alert visibility
-      audio.playbackRate = 0.5; // Set playback speed to 0.5
-      audioRef.current = audio;
+  const getAudioContext = (): AudioContext | null => {
+    if (typeof window === 'undefined') return null;
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return null;
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new AudioContextClass();
     }
-  }, []);
+    if (audioCtxRef.current.state === 'suspended') {
+      audioCtxRef.current.resume();
+    }
+    return audioCtxRef.current;
+  };
 
-  const playNotification = () => {
-    if (audioRef.current) {
-      audioRef.current.pause(); // Stop any incomplete execution thread
-      audioRef.current.currentTime = 0; // Absolute reset to start line
-      audioRef.current.playbackRate = 0.5; // Explicitly ensure play speed
-      audioRef.current.play()
-        .catch(err => console.log("Realtime Audio Playback Intercepted:", err.message));
+  const playSynthesizedChime = () => {
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      
+      const now = ctx.currentTime;
+
+      // Tone 1: 987.77 Hz (B5) - crisp sine + rich triangle presence
+      const osc1a = ctx.createOscillator();
+      const osc1b = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+
+      osc1a.type = 'sine';
+      osc1a.frequency.setValueAtTime(987.77, now);
+      
+      osc1b.type = 'triangle';
+      osc1b.frequency.setValueAtTime(987.77, now);
+
+      gain1.gain.setValueAtTime(0, now);
+      gain1.gain.linearRampToValueAtTime(0.4, now + 0.015);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+      osc1a.connect(gain1);
+      osc1b.connect(gain1);
+      gain1.connect(ctx.destination);
+
+      osc1a.start(now);
+      osc1b.start(now);
+      osc1a.stop(now + 0.3);
+      osc1b.stop(now + 0.3);
+
+      // Tone 2: 1318.51 Hz (E6) - higher chime starting 120ms later
+      const osc2a = ctx.createOscillator();
+      const osc2b = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+
+      osc2a.type = 'sine';
+      osc2a.frequency.setValueAtTime(1318.51, now + 0.12);
+
+      osc2b.type = 'triangle';
+      osc2b.frequency.setValueAtTime(1318.51, now + 0.12);
+
+      gain2.gain.setValueAtTime(0, now + 0.12);
+      gain2.gain.linearRampToValueAtTime(0.5, now + 0.135);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+      osc2a.connect(gain2);
+      osc2b.connect(gain2);
+      gain2.connect(ctx.destination);
+
+      osc2a.start(now + 0.12);
+      osc2b.start(now + 0.12);
+      osc2a.stop(now + 0.6);
+      osc2b.stop(now + 0.6);
+    } catch (err) {
+      console.warn("Realtime Audio Playback Intercepted:", err);
     }
   };
 
@@ -77,23 +130,42 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     setAudioMuted(nextMuted);
     localStorage.setItem('admin_audio_muted', String(nextMuted));
 
-    if (!nextMuted && audioRef.current) {
-      audioRef.current.playbackRate = 0.5;
-      audioRef.current.play()
-        .then(() => {
-          audioRef.current!.pause();
-          audioRef.current!.currentTime = 0;
-        })
-        .catch((err: any) => {
-          const errMsg = err.message || String(err);
-          if (errMsg.includes('interrupted by a call to pause')) {
-            return; // Ignore standard user interaction play-pause interruption
-          }
-          console.warn('Audio decoding anomaly intercepted gracefully:', errMsg);
-          console.warn('Tip: Please verify that order_tune.mp3 exists exactly in the /public/sounds/ folder and is not a corrupted file.');
-        });
+    if (!nextMuted) {
+      playSynthesizedChime();
+    } else {
+      setIsAlerting(false);
     }
   };
+
+  // Loop the alert sound every 2.5 seconds if isAlerting is true and not muted
+  useEffect(() => {
+    if (!isAlerting || audioMuted) return;
+
+    const interval = setInterval(() => {
+      playSynthesizedChime();
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [isAlerting, audioMuted]);
+
+  // Acknowledge/clear alert on user interaction
+  useEffect(() => {
+    if (!isAlerting) return;
+
+    const stopAlerting = () => {
+      setIsAlerting(false);
+    };
+
+    window.addEventListener('click', stopAlerting);
+    window.addEventListener('keydown', stopAlerting);
+    window.addEventListener('touchstart', stopAlerting);
+
+    return () => {
+      window.removeEventListener('click', stopAlerting);
+      window.removeEventListener('keydown', stopAlerting);
+      window.removeEventListener('touchstart', stopAlerting);
+    };
+  }, [isAlerting]);
 
   useEffect(() => {
     if (!restaurantId) return;
@@ -124,7 +196,8 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           if (payload.new) {
             console.log("🟢 REALTIME NEW ORDER DETECTED FOR TABLE:", payload.new.table_no);
             if (!audioMutedRef.current) {
-              playNotification();
+              setIsAlerting(true);
+              playSynthesizedChime();
             }
             setLiveOrders(prev => [payload.new, ...prev]);
             toast.success(`New order received from ${payload.new.table_no}!`);
@@ -158,8 +231,8 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   }, [restaurantId]);
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-emerald-200 shadow-sm flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
-      <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+    <div className="bg-white p-6 rounded-2xl border border-orange-200 shadow-sm flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
+      <div className="absolute top-0 left-0 w-full h-1 bg-orange-500"></div>
       <div className="mb-6 flex justify-between items-center">
         <div>
           <h3 className="text-xl font-black text-gray-900 flex flex-wrap items-center gap-2">
@@ -172,7 +245,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             {!audioMuted ? (
               <button
                 onClick={handleToggleAudio}
-                className="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-emerald-200 transition-colors cursor-pointer"
+                className="bg-orange-100 hover:bg-orange-200 text-orange-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-orange-200 transition-colors cursor-pointer"
                 title="Click to Mute Notifications"
               >
                 Tap Here to Disable Audio
@@ -180,7 +253,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             ) : (
               <button
                 onClick={handleToggleAudio}
-                className="bg-amber-100 hover:bg-amber-200 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-amber-200 transition-colors animate-pulse cursor-pointer"
+                className="bg-orange-50 hover:bg-orange-100 text-orange-700 text-[11px] px-2.5 py-1 rounded-full font-bold border border-orange-200/60 transition-colors animate-pulse cursor-pointer"
                 title="Click to Enable Audio"
               >
                 Tap Here to Enable Audio
@@ -254,12 +327,12 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           </div>
         ))}
         {liveOrders.length === 0 && (
-          <div className="col-span-full py-16 flex flex-col items-center justify-center border-2 border-dashed border-emerald-100 bg-emerald-50/30 rounded-2xl">
-            <div className="w-20 h-20 bg-white shadow-sm text-emerald-300 rounded-full flex items-center justify-center mb-4">
+          <div className="col-span-full py-16 flex flex-col items-center justify-center border-2 border-dashed border-orange-100 bg-orange-50/30 rounded-2xl">
+            <div className="w-20 h-20 bg-white shadow-sm text-orange-300 rounded-full flex items-center justify-center mb-4">
               <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
             </div>
-            <h3 className="text-emerald-800 font-black text-xl">No Active Orders</h3>
-            <p className="text-emerald-600/70 font-medium mt-1 text-base">Waiting for fresh KOT orders to arrive...</p>
+            <h3 className="text-orange-850 font-black text-xl">No Active Orders</h3>
+            <p className="text-orange-600/70 font-medium mt-1 text-base">Waiting for fresh KOT orders to arrive...</p>
           </div>
         )}
       </div>
@@ -283,7 +356,10 @@ export default function AdminDashboardOverview() {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [activeModalTitle, setActiveModalTitle] = useState<string | null>(null);
   const [historicalStats, setHistoricalStats] = useState<any[]>([]);
-  const { planType, canViewRevenue, canViewAllAnalytics } = useSubscription();
+  const { planType, canViewRevenue, canViewAllAnalytics, isTrial, isExpired } = useSubscription();
+
+  const isFreeUser = planType === 'free' && !(isTrial && !isExpired);
+  const canViewAdvancedAnalytics = ['premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired);
 
   const router = useRouter();
   useEffect(() => {
@@ -383,7 +459,7 @@ export default function AdminDashboardOverview() {
         setTopDish(dishesData[0].name);
 
         // Restriction: Free users see only 2 items in chart
-        const visibleDishes = canViewAllAnalytics ? dishesData : dishesData.slice(0, 2);
+        const visibleDishes = canViewAdvancedAnalytics ? dishesData : dishesData.slice(0, 2);
 
         setChartData(visibleDishes.map(d => ({
           name: d.name.length > 12 ? d.name.substring(0, 12) + '...' : d.name,
@@ -487,24 +563,34 @@ export default function AdminDashboardOverview() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
           {/* Total Scans Card */}
-          <div onClick={() => setActiveModalTitle('Total Scans')} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer">
+          <div onClick={() => !isFreeUser && setActiveModalTitle('Total Scans')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreeUser ? 'cursor-default' : 'cursor-pointer'}`}>
+            {isFreeUser && (
+              <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
+                <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
+                  <Lock className="w-3 h-3" /> Locked
+                </div>
+                <p className="text-[11px] text-orange-950 font-extrabold leading-tight">Total Scans Metrics Locked</p>
+                <Link href="/admin/billing#pro" className="mt-2 text-[10px] bg-orange-600 hover:bg-orange-700 text-white px-3.5 py-1.5 rounded-full font-black uppercase tracking-wider transition-all duration-200 pointer-events-auto shadow-sm shadow-orange-600/20">Upgrade to Pro</Link>
+              </div>
+            )}
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Scans</p>
               <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
               </div>
             </div>
-            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalScans}</p>
+            <p className={`text-3xl font-extrabold text-gray-900 mt-0.5 ${isFreeUser ? 'blur-[4px]' : ''}`}>{isFreeUser ? '999' : totalScans}</p>
           </div>
 
-          <div onClick={() => canViewAllAnalytics && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewAllAnalytics ? 'cursor-default' : 'cursor-pointer'}`}>
-            {!canViewAllAnalytics && (
-              <div className="absolute inset-0 z-10 bg-white/75 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
+          {/* Top Selling Dish Card */}
+          <div onClick={() => !isFreeUser && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreeUser ? 'cursor-default' : 'cursor-pointer'}`}>
+            {isFreeUser && (
+              <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
                 <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
                   <Lock className="w-3 h-3" /> Locked
                 </div>
-                <p className="text-[11px] text-orange-900 font-extrabold leading-tight">Advanced Analytics Required</p>
-                <Link href="/admin/billing" className="mt-2 text-[10px] bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-bold hover:bg-orange-200 transition-colors pointer-events-auto">Unlock with Pro</Link>
+                <p className="text-[11px] text-orange-950 font-extrabold leading-tight">Top Selling Dish Locked</p>
+                <Link href="/admin/billing#pro" className="mt-2 text-[10px] bg-orange-600 hover:bg-orange-700 text-white px-3.5 py-1.5 rounded-full font-black uppercase tracking-wider transition-all duration-200 pointer-events-auto shadow-sm shadow-orange-600/20">Upgrade to Pro</Link>
               </div>
             )}
             <div className="flex justify-between items-start mb-2">
@@ -513,8 +599,8 @@ export default function AdminDashboardOverview() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path></svg>
               </div>
             </div>
-            <p className={`text-xl font-extrabold text-gray-900 mt-0.5 truncate max-w-[140px] ${!canViewAllAnalytics ? 'blur-[4px]' : ''}`} title={topDish}>
-              {canViewAllAnalytics ? topDish : 'XXXXXXXXXX'}
+            <p className={`text-xl font-extrabold text-gray-900 mt-0.5 truncate max-w-[140px] ${isFreeUser ? 'blur-[4px]' : ''}`} title={topDish}>
+              {isFreeUser ? 'XXXXXXXXXX' : topDish}
             </p>
           </div>
 
@@ -537,16 +623,16 @@ export default function AdminDashboardOverview() {
 
           {/* Line Chart Section */}
           <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col relative">
-            {!canViewAllAnalytics && (
+            {!canViewAdvancedAnalytics && (
               <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-end pb-12">
                 <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center max-w-xs text-center border border-orange-100 mb-4 animate-fade-in-up">
                   <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-4">
                     <Lock className="w-6 h-6" />
                   </div>
                   <h3 className="text-gray-900 font-bold mb-2">Want to see your top-performing items?</h3>
-                  <p className="text-sm text-gray-500 mb-6">Unlock Advanced Analytics with Pro to track all dish views and growth trends.</p>
-                  <Link href="/admin/billing" className="bg-orange-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-orange-700 transition-colors shadow-md">
-                    Unlock All Insights
+                  <p className="text-sm text-gray-500 mb-6">Unlock Advanced Analytics with Premium to track all dish views and growth trends.</p>
+                  <Link href="/admin/billing#premium" className="bg-orange-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-orange-700 transition-colors shadow-md">
+                    Upgrade to Premium
                   </Link>
                 </div>
               </div>

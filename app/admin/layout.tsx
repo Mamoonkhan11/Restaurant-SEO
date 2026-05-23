@@ -98,7 +98,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <div className="w-full flex items-center justify-center px-4 py-5 border-b border-gray-800/40 shrink-0">
+        <div className="w-full flex items-center justify-center px-4 pt-5 pb-0 border-b border-gray-800/40 shrink-0">
           <img
             src="/restdigi-logo.png"
             alt="RESTDIGI Logo"
@@ -148,7 +148,6 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             )}
           </div>
         )}
-        {/* Mobile Header */}
         <header className="bg-white shadow-sm border-b border-gray-200 p-4 flex justify-between items-center md:hidden z-30 shrink-0">
           <button onClick={() => setIsSidebarOpen(true)} className="text-[#111827] hover:text-black focus:outline-none p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
             <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -157,7 +156,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             <img
               src="/restdigi-logo.png"
               alt="RESTDIGI Logo"
-              className="h-12 w-auto object-contain max-w-[180px]"
+              className="h-16 w-auto object-contain max-w-[210px]"
             />
           </div>
           <div className="w-9" /> {/* Spacer */}
