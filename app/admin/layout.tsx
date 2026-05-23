@@ -98,9 +98,12 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <div className="flex items-center justify-center gap-x-3 w-full px-4 py-6 border-b border-gray-800 shrink-0">
-          <img src="/logo.png" className="w-10 h-10 object-contain flex-shrink-0" alt="RESTDIGI Logo" />
-          <h2 className="text-xl font-black text-white tracking-tight select-none leading-none">REST<span className="text-orange-500">DIGI</span></h2>
+        <div className="w-full flex items-center justify-center p-4 border-b border-gray-800/40 shrink-0">
+          <img
+            src="/restdigi-logo.png"
+            alt="RESTDIGI Logo"
+            className="h-14 w-auto object-contain max-w-[85%] transition-transform hover:scale-105"
+          />
         </div>
         
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -150,9 +153,12 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           <button onClick={() => setIsSidebarOpen(true)} className="text-[#111827] hover:text-black focus:outline-none p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
             <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </button>
-          <div className="flex items-center gap-x-2">
-            <img src="/logo.png" className="w-9 h-9 object-contain flex-shrink-0" alt="RESTDIGI Logo" />
-            <h2 className="text-xl font-black text-gray-900 tracking-tight select-none leading-none">REST<span className="text-orange-600">DIGI</span></h2>
+          <div className="flex items-center">
+            <img
+              src="/restdigi-logo.png"
+              alt="RESTDIGI Logo"
+              className="h-10 w-auto object-contain max-w-[160px]"
+            />
           </div>
           <div className="w-9" /> {/* Spacer */}
         </header>
