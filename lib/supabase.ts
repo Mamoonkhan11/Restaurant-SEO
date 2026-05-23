@@ -33,10 +33,22 @@ export interface Dish {
  * @returns An array of dishes
  */
 export async function getDishesByRestaurantSlug(slug: string): Promise<Dish[]> {
-  const { data, error } = await supabase
-    .from('dishes')
-    .select('*')
-    .eq('restaurant_slug', slug)
+  // Try to find the restaurant first to get the correct restaurant_id
+  const { data: restaurant } = await supabase
+    .from('restaurants')
+    .select('id')
+    .eq('slug', slug)
+    .single();
+
+  const query = supabase.from('dishes').select('*');
+
+  if (restaurant) {
+    query.eq('restaurant_id', restaurant.id);
+  } else {
+    query.eq('restaurant_slug', slug);
+  }
+
+  const { data, error } = await query
     .order('category', { ascending: true })
     .order('name', { ascending: true });
 

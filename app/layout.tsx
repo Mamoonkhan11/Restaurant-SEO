@@ -3,8 +3,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "RESTDIGI | The Future of Dining",
-    template: "%s | RESTDIGI",
+    default: "RESTDIGI",
+    template: "%s",
   },
   description: "RESTDIGI is a lightning-fast digital menu and smart restaurant POS platform that lets customers scan, view, and order instantly from their tables.",
   metadataBase: new URL("https://restdigi.com"),

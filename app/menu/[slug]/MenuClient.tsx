@@ -204,7 +204,7 @@ export default function MenuClient({
           const { data: freshDishes } = await supabase
             .from('dishes')
             .select('*')
-            .eq('restaurant_slug', params.slug)
+            .eq('restaurant_id', freshRestaurant?.id || restaurant.id)
             .order('category', { ascending: true })
             .order('name', { ascending: true });
           if (freshDishes) {
