@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { X, Lock, TrendingUp, Sparkles, Trash2 } from 'lucide-react';
+import { X, Lock, TrendingUp, Sparkles } from 'lucide-react';
 import { useSubscription } from '@/lib/useSubscription';
 
 const timeAgo = (dateString: string) => {
@@ -33,8 +33,8 @@ const timeAgo = (dateString: string) => {
 function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
   const [audioMuted, setAudioMuted] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioMutedRef = useRef(audioMuted);
-  const alertIntervalRef = useRef<any>(null);
 
   // Synchronize ref with audioMuted state to prevent stale closures
   useEffect(() => {
@@ -52,71 +52,46 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     }
   }, []);
 
-  const playHighVolumeAlert = () => {
-    try {
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-
-      const playTone = (frequency: number, startTime: number, duration: number) => {
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(frequency, startTime);
-
-        gainNode.gain.setValueAtTime(0.8, startTime); // Hard, high-volume alert threshold
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration); // Soft fade out
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        oscillator.start(startTime);
-        oscillator.stop(startTime + duration);
-      };
-
-      // Two continuous high-fidelity tones (Chime effect)
-      playTone(587.33, audioCtx.currentTime, 0.15); // D5 note
-      playTone(880.00, audioCtx.currentTime + 0.12, 0.25); // A5 note
-    } catch (err) {
-      // Silent catch for production environment
-    }
-  };
-
-  const startAlertLoop = () => {
-    if (audioMutedRef.current) return;
-    if (alertIntervalRef.current) return;
-
-    playHighVolumeAlert();
-    alertIntervalRef.current = setInterval(playHighVolumeAlert, 2000);
-  };
-
-  const stopAlertLoop = () => {
-    if (alertIntervalRef.current) {
-      clearInterval(alertIntervalRef.current);
-      alertIntervalRef.current = null;
-    }
-  };
-
-  // Cleanup loop timer on component unmount
   useEffect(() => {
-    return () => {
-      stopAlertLoop();
-    };
+    if (typeof window !== 'undefined' && !audioRef.current) {
+      const audio = new Audio('/sounds/order_tune.mp3');
+      audio.preload = 'auto';
+      audio.volume = 1.0; // Maximum volume for high alert visibility
+      audio.playbackRate = 0.5; // Set playback speed to 0.5
+      audioRef.current = audio;
+    }
   }, []);
+
+  const playNotification = () => {
+    if (audioRef.current) {
+      audioRef.current.pause(); // Stop any incomplete execution thread
+      audioRef.current.currentTime = 0; // Absolute reset to start line
+      audioRef.current.playbackRate = 0.5; // Explicitly ensure play speed
+      audioRef.current.play()
+        .catch(err => console.log("Realtime Audio Playback Intercepted:", err.message));
+    }
+  };
 
   const handleToggleAudio = () => {
     const nextMuted = !audioMuted;
     setAudioMuted(nextMuted);
     localStorage.setItem('admin_audio_muted', String(nextMuted));
 
-    if (nextMuted) {
-      stopAlertLoop();
-    } else {
-      const hasPending = liveOrders.some(o => o.status === 'pending');
-      if (hasPending) {
-        startAlertLoop();
-      } else {
-        playHighVolumeAlert();
-      }
+    if (!nextMuted && audioRef.current) {
+      audioRef.current.playbackRate = 0.5;
+      audioRef.current.play()
+        .then(() => {
+          audioRef.current!.pause();
+          audioRef.current!.currentTime = 0;
+        })
+        .catch((err: any) => {
+          const errMsg = err.message || String(err);
+          if (errMsg.includes('interrupted by a call to pause')) {
+            return; // Ignore standard user interaction play-pause interruption
+          }
+          console.warn('Audio decoding anomaly intercepted gracefully:', errMsg);
+          console.warn('Tip: Please verify that order_tune.mp3 exists exactly in the /public/sounds/ folder and is not a corrupted file.');
+        });
     }
   };
 
@@ -131,35 +106,28 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         .in('status', ['pending', 'preparing'])
         .order('created_at', { ascending: false });
 
-      if (initialOrders) {
-        setLiveOrders(initialOrders);
-        const hasPending = initialOrders.some(o => o.status === 'pending');
-        if (hasPending && !audioMutedRef.current) {
-          startAlertLoop();
-        }
-      }
+      if (initialOrders) setLiveOrders(initialOrders);
     };
     fetchOrders();
 
     const ordersSubscription = supabase
-      .channel('any-filter-kot-stream')
+      .channel('live-orders')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'orders',
+          filter: `restaurant_id=eq.${restaurantId}`,
         },
         (payload) => {
           if (payload.new) {
-            if (payload.new.restaurant_id === restaurantId) {
-              setLiveOrders(prev => [payload.new, ...prev]);
-              toast.success(`New order received from ${payload.new.table_no}!`);
-
-              if (!audioMutedRef.current) {
-                startAlertLoop();
-              }
+            console.log("🟢 REALTIME NEW ORDER DETECTED FOR TABLE:", payload.new.table_no);
+            if (!audioMutedRef.current) {
+              playNotification();
             }
+            setLiveOrders(prev => [payload.new, ...prev]);
+            toast.success(`New order received from ${payload.new.table_no}!`);
           }
         }
       )
@@ -169,42 +137,15 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           event: 'UPDATE',
           schema: 'public',
           table: 'orders',
+          filter: `restaurant_id=eq.${restaurantId}`,
         },
         (payload) => {
           if (payload.new) {
-            if (payload.new.restaurant_id === restaurantId) {
-              setLiveOrders(prev => {
-                if (payload.new.status === 'served' || payload.new.status === 'cancelled') {
-                  return prev.filter(o => o.id !== payload.new.id);
-                }
-                return prev.map(o => o.id === payload.new.id ? payload.new : o);
-              });
-
-              if (payload.new.status !== 'pending') {
-                stopAlertLoop();
-              }
-            }
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'orders',
-        },
-        (payload) => {
-          if (payload.old) {
             setLiveOrders(prev => {
-              const deletedOrder = prev.find(o => o.id === payload.old.id);
-              if (deletedOrder && deletedOrder.status === 'pending') {
-                if (alertIntervalRef.current) {
-                  clearInterval(alertIntervalRef.current);
-                  alertIntervalRef.current = null;
-                }
+              if (payload.new.status === 'served') {
+                return prev.filter(o => o.id !== payload.new.id);
               }
-              return prev.filter(o => o.id !== payload.old.id);
+              return prev.map(o => o.id === payload.new.id ? payload.new : o);
             });
           }
         }
@@ -262,39 +203,9 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded">
                   {timeAgo(order.created_at)}
                 </span>
-                <div className="flex items-center gap-2">
-                  {order.status === 'pending' && <span className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending</span>}
-                  {order.status === 'preparing' && <span className="flex items-center gap-1.5 text-xs font-bold text-orange-700 bg-orange-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Preparing</span>}
-                  {order.status === 'served' && <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
-
-                  <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      if (confirm("Are you sure you want to delete this order?")) {
-                        try {
-                          const { error } = await supabase.from('orders').delete().eq('id', order.id);
-                          if (error) throw error;
-
-                          if (order.status === 'pending') {
-                            if (alertIntervalRef.current) {
-                              clearInterval(alertIntervalRef.current);
-                              alertIntervalRef.current = null;
-                            }
-                          }
-
-                          setLiveOrders(prev => prev.filter(o => o.id !== order.id));
-                          toast.success("Order deleted successfully");
-                        } catch (err: any) {
-                          toast.error(err.message || "Failed to delete order");
-                        }
-                      }
-                    }}
-                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                    title="Delete Order"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                {order.status === 'pending' && <span className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending</span>}
+                {order.status === 'preparing' && <span className="flex items-center gap-1.5 text-xs font-bold text-orange-700 bg-orange-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Preparing</span>}
+                {order.status === 'served' && <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
               </div>
             </div>
 
@@ -322,7 +233,6 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
               {order.status === 'pending' && (
                 <button
                   onClick={async () => {
-                    stopAlertLoop();
                     await supabase.from('orders').update({ status: 'preparing' }).eq('id', order.id);
                   }}
                   className="flex-1 bg-[#111827] hover:bg-black text-white text-sm font-bold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
@@ -333,7 +243,6 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
               {order.status === 'preparing' && (
                 <button
                   onClick={async () => {
-                    stopAlertLoop();
                     await supabase.from('orders').update({ status: 'served' }).eq('id', order.id);
                   }}
                   className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
@@ -364,7 +273,6 @@ export default function AdminDashboardOverview() {
   const [isLoading, setIsLoading] = useState(true);
   const [ownerName, setOwnerName] = useState('...');
   const [totalItems, setTotalItems] = useState<number | string>('-');
-  const [totalTables, setTotalTables] = useState<number | string>('-');
   const [totalScans, setTotalScans] = useState<number | string>('-');
   const [topDish, setTopDish] = useState<string>('-');
 
@@ -375,7 +283,7 @@ export default function AdminDashboardOverview() {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [activeModalTitle, setActiveModalTitle] = useState<string | null>(null);
   const [historicalStats, setHistoricalStats] = useState<any[]>([]);
-  const { planType, isTrial, daysLeft, isExpired, canViewRevenue, canViewAllAnalytics } = useSubscription();
+  const { planType, canViewRevenue, canViewAllAnalytics } = useSubscription();
 
   const router = useRouter();
   useEffect(() => {
@@ -460,13 +368,6 @@ export default function AdminDashboardOverview() {
         .eq('owner_id', user.id);
 
       setTotalItems(dishCount ?? 0);
-
-      const { count: tableCount } = await supabase
-        .from('tables')
-        .select('*', { count: 'exact', head: true })
-        .eq('restaurant_id', restaurant.id);
-
-      setTotalTables(tableCount ?? 0);
 
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -569,57 +470,10 @@ export default function AdminDashboardOverview() {
     );
   }
 
-  const getPlanLimits = (plan: string) => {
-    const limits: Record<string, { items: number | string; tables: number | string }> = {
-      free: { items: 12, tables: 5 },
-      basic: { items: 12, tables: 5 },
-      pro: { items: 20, tables: 15 },
-      premium: { items: 23, tables: 17 },
-      enterprise: { items: 'Unlimited', tables: 'Unlimited' }
-    };
-    return limits[plan] || limits.free;
-  };
-
-  const limits = getPlanLimits(planType);
-  const itemsDisplay = `${totalItems} / ${limits.items}`;
-  const tablesDisplay = `${totalTables} / ${limits.tables}`;
-
   return (
     <div className="p-4 sm:p-8 relative animate-fade-in">
       <Toaster />
       <div className="max-w-6xl mx-auto space-y-8">
-
-        {/* Expiring Soon Banner */}
-        {daysLeft !== null && daysLeft <= 5 && !isExpired && (
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 p-6 text-white shadow-lg border border-orange-400/20">
-            {/* Background decorative blobs */}
-            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-            
-            <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-white/20 backdrop-blur-md rounded-xl shrink-0">
-                  <Sparkles className="w-6 h-6 text-amber-100 animate-pulse" />
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-lg leading-tight">
-                    Subscription Expiring Soon
-                  </h3>
-                  <p className="text-sm text-white/90 font-medium mt-0.5">
-                    Your {planType === 'free' ? 'Free Trial' : `${planType.toUpperCase()} Plan`} is expiring in {daysLeft} {daysLeft === 1 ? 'day' : 'days'}. Upgrade or renew your subscription now to avoid any service interruption.
-                  </p>
-                </div>
-              </div>
-              
-              <Link 
-                href="/admin/billing" 
-                className="bg-white text-orange-600 hover:bg-orange-50 font-black text-sm px-6 py-3 rounded-xl shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] shrink-0 w-full md:w-auto text-center cursor-pointer font-bold"
-              >
-                Upgrade Now
-              </Link>
-            </div>
-          </div>
-        )}
 
         {/* Header */}
         <div>
@@ -630,44 +484,28 @@ export default function AdminDashboardOverview() {
         {restaurantId && <LiveOrderQueue restaurantId={restaurantId} />}
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
           {/* Total Scans Card */}
-          <div onClick={() => canViewAllAnalytics && setActiveModalTitle('Total Scans')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewAllAnalytics ? 'cursor-default' : 'cursor-pointer'}`}>
-            {!canViewAllAnalytics && (
-              <Link 
-                href="/admin/billing#pro" 
-                onClick={(e) => e.stopPropagation()} 
-                className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[4px] rounded-2xl flex items-center justify-center p-3 pointer-events-auto cursor-pointer"
-              >
-                <span className="bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-md hover:scale-105 transition-all text-center">
-                  Unlock with Pro
-                </span>
-              </Link>
-            )}
+          <div onClick={() => setActiveModalTitle('Total Scans')} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer">
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Scans</p>
               <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
               </div>
             </div>
-            <p className={`text-3xl font-extrabold text-gray-900 mt-0.5 ${!canViewAllAnalytics ? 'blur-[4px]' : ''}`}>
-              {canViewAllAnalytics ? totalScans : '999'}
-            </p>
+            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalScans}</p>
           </div>
 
-          {/* Top Selling Dish Card */}
           <div onClick={() => canViewAllAnalytics && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${!canViewAllAnalytics ? 'cursor-default' : 'cursor-pointer'}`}>
             {!canViewAllAnalytics && (
-              <Link 
-                href="/admin/billing#pro" 
-                onClick={(e) => e.stopPropagation()} 
-                className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[4px] rounded-2xl flex items-center justify-center p-3 pointer-events-auto cursor-pointer"
-              >
-                <span className="bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-md hover:scale-105 transition-all text-center">
-                  Unlock with Pro
-                </span>
-              </Link>
+              <div className="absolute inset-0 z-10 bg-white/75 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
+                <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
+                  <Lock className="w-3 h-3" /> Locked
+                </div>
+                <p className="text-[11px] text-orange-900 font-extrabold leading-tight">Advanced Analytics Required</p>
+                <Link href="/admin/billing" className="mt-2 text-[10px] bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-bold hover:bg-orange-200 transition-colors pointer-events-auto">Unlock with Pro</Link>
+              </div>
             )}
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Top Selling Dish</p>
@@ -688,20 +526,7 @@ export default function AdminDashboardOverview() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
               </div>
             </div>
-            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{itemsDisplay}</p>
-          </div>
-
-          {/* Total Tables Card */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Tables</p>
-              <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16M4 6v12M12 6v12M20 6v12" />
-                </svg>
-              </div>
-            </div>
-            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{tablesDisplay}</p>
+            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalItems} <span className="text-sm font-semibold text-gray-400">dishes</span></p>
           </div>
         </div>
 
@@ -714,18 +539,14 @@ export default function AdminDashboardOverview() {
           <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col relative">
             {!canViewAllAnalytics && (
               <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-end pb-12">
-                <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center max-w-xs text-center border border-gray-100 mb-4 animate-fade-in-up">
+                <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center max-w-xs text-center border border-orange-100 mb-4 animate-fade-in-up">
                   <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-4">
                     <Lock className="w-6 h-6" />
                   </div>
                   <h3 className="text-gray-900 font-bold mb-2">Want to see your top-performing items?</h3>
-                  <p className="text-sm text-gray-500 mb-6">Unlock Advanced Analytics with Premium to track all dish views and growth trends.</p>
-                  <Link 
-                    href="/admin/billing#premium" 
-                    onClick={(e) => e.stopPropagation()} 
-                    className="bg-orange-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-orange-700 transition-colors shadow-md text-center"
-                  >
-                    Unlock All Insights With Premium Plan
+                  <p className="text-sm text-gray-500 mb-6">Unlock Advanced Analytics with Pro to track all dish views and growth trends.</p>
+                  <Link href="/admin/billing" className="bg-orange-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-orange-700 transition-colors shadow-md">
+                    Unlock All Insights
                   </Link>
                 </div>
               </div>
@@ -745,7 +566,7 @@ export default function AdminDashboardOverview() {
                       contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                       itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
                     />
-                    <Line type="monotone" dataKey="views" stroke="#f97316" strokeWidth={4} dot={{ r: 4, fill: '#f97316', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+                    <Line type="monotone" dataKey="views" stroke="#ea580c" strokeWidth={4} dot={{ r: 4, fill: '#ea580c', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
@@ -771,7 +592,7 @@ export default function AdminDashboardOverview() {
                 ) : (
                   recentActivity.map((activity, index) => {
                     let Icon = <span className="text-[10px]">📝</span>;
-                    let bgColor = "bg-blue-500";
+                    let bgColor = "bg-orange-500";
 
                     if (activity.action_type === 'STOCK_UPDATE') {
                       Icon = <span className="text-[10px]">📦</span>;
