@@ -99,7 +99,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         )}
 
         <div className="h-20 flex items-center px-6 border-b border-gray-800 shrink-0">
-          <img src="/logo.png" className="w-8 h-8 object-contain mr-3" alt="RESTDIGI Logo" />
+          <img src="/logo.png" className="w-9 h-9 object-contain mr-2.5" alt="RESTDIGI Logo" />
           <h2 className="text-xl font-bold text-white tracking-tight">REST<span className="text-orange-500">DIGI</span></h2>
         </div>
         
@@ -150,8 +150,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           <button onClick={() => setIsSidebarOpen(true)} className="text-[#111827] hover:text-black focus:outline-none p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
             <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </button>
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" className="w-7 h-7 object-contain" alt="RESTDIGI Logo" />
+          <div className="flex items-center gap-1.5">
+            <img src="/logo.png" className="w-9 h-9 object-contain" alt="RESTDIGI Logo" />
             <h2 className="text-xl font-bold text-gray-900 tracking-tight">REST<span className="text-orange-600">DIGI</span></h2>
           </div>
           <div className="w-9" /> {/* Spacer */}
