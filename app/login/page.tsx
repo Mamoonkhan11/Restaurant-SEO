@@ -114,7 +114,7 @@ export default function LoginPage() {
         
         <div className="text-center mb-10">
           <div className="flex justify-center mb-6">
-            <img src="/restdigi-logo.png" className="h-10 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
+            <img src="/restdigi-logo.png" className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
           </div>
           <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">
             {step === 'email' ? 'Admin Portal' : 'Check your email'}
