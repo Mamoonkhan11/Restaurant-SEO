@@ -359,7 +359,7 @@ export default function AdminDashboardOverview() {
   const [historicalStats, setHistoricalStats] = useState<any[]>([]);
   const { planType, canViewRevenue, canViewAllAnalytics, isTrial, isExpired } = useSubscription();
 
-  const isFreeUser = planType === 'free';
+  const showProLock = !canViewAllAnalytics;
   const canViewAdvancedAnalytics = ['premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired);
 
   const router = useRouter();
@@ -571,8 +571,8 @@ export default function AdminDashboardOverview() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
           {/* Total Scans Card */}
-          <div onClick={() => !isFreeUser && setActiveModalTitle('Total Scans')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreeUser ? 'cursor-default' : 'cursor-pointer'}`}>
-            {isFreeUser && (
+          <div onClick={() => !showProLock && setActiveModalTitle('Total Scans')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${showProLock ? 'cursor-default' : 'cursor-pointer'}`}>
+            {showProLock && (
               <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
                 <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
                   <Lock className="w-3 h-3" /> Locked
@@ -587,12 +587,12 @@ export default function AdminDashboardOverview() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
               </div>
             </div>
-            <p className={`text-3xl font-extrabold text-gray-900 mt-0.5 ${isFreeUser ? 'blur-[4px]' : ''}`}>{isFreeUser ? '999' : totalScans}</p>
+            <p className={`text-3xl font-extrabold text-gray-900 mt-0.5 ${showProLock ? 'blur-[4px]' : ''}`}>{showProLock ? '999' : totalScans}</p>
           </div>
 
           {/* Top Selling Dish Card */}
-          <div onClick={() => !isFreeUser && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${isFreeUser ? 'cursor-default' : 'cursor-pointer'}`}>
-            {isFreeUser && (
+          <div onClick={() => !showProLock && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${showProLock ? 'cursor-default' : 'cursor-pointer'}`}>
+            {showProLock && (
               <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
                 <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
                   <Lock className="w-3 h-3" /> Locked
@@ -607,8 +607,8 @@ export default function AdminDashboardOverview() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path></svg>
               </div>
             </div>
-            <p className={`text-xl font-extrabold text-gray-900 mt-0.5 truncate max-w-[140px] ${isFreeUser ? 'blur-[4px]' : ''}`} title={topDish}>
-              {isFreeUser ? 'XXXXXXXXXX' : topDish}
+            <p className={`text-xl font-extrabold text-gray-900 mt-0.5 truncate max-w-[140px] ${showProLock ? 'blur-[4px]' : ''}`} title={topDish}>
+              {showProLock ? 'XXXXXXXXXX' : topDish}
             </p>
           </div>
 
