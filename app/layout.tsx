@@ -9,7 +9,12 @@ export const metadata: Metadata = {
   description: "RESTDIGI is a lightning-fast digital menu and smart restaurant POS platform that lets customers scan, view, and order instantly from their tables.",
   metadataBase: new URL("https://restdigi.com"),
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/logo.png", type: "image/png", sizes: "32x32" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: { url: "/logo.png", sizes: "180x180", type: "image/png" },
   },
 };
 
