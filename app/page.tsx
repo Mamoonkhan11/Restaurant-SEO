@@ -10,7 +10,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <img src="/restdigi-logo.png" className="h-14 w-auto object-contain" alt="RESTDIGI Logo" />
+              <img src="/restdigi-logo.png" className="h-10 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
             </div>
             <div className="flex items-center gap-4">
               <Link
@@ -159,7 +159,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
 
             <div className="flex items-center">
-              <img src="/restdigi-logo.png" className="h-14 w-auto object-contain" alt="RESTDIGI Logo" />
+              <img src="/restdigi-logo.png" className="h-10 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity" alt="RESTDIGI Logo" />
             </div>
 
             {/* Legal Links required by Razorpay */}
