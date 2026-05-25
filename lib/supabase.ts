@@ -136,15 +136,20 @@ export async function updateDishImageInDb(id: string | number, newImageUrl: stri
     throw new Error('Restaurant settings not found');
   }
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('dishes')
     .update({ image_url: newImageUrl })
     .eq('id', id)
-    .eq('restaurant_id', restaurant.id);
+    .eq('restaurant_id', restaurant.id)
+    .select();
 
   if (error) {
     console.error('Error updating dish image in database:', error);
     throw new Error('Failed to update database');
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error('No rows updated. Make sure the item belongs to your restaurant.');
   }
 }
 
@@ -186,15 +191,20 @@ export async function updateDishAvailability(id: string | number, is_available: 
     throw new Error('Restaurant settings not found');
   }
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('dishes')
     .update({ is_available })
     .eq('id', id)
-    .eq('restaurant_id', restaurant.id);
+    .eq('restaurant_id', restaurant.id)
+    .select();
 
   if (error) {
     console.error('Error updating availability:', error);
     throw new Error('Failed to update availability');
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error('No rows updated. Make sure the item belongs to your restaurant.');
   }
 }
 
@@ -215,15 +225,20 @@ export async function deleteDishFromDb(id: string | number) {
     throw new Error('Restaurant settings not found');
   }
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('dishes')
     .delete()
     .eq('id', id)
-    .eq('restaurant_id', restaurant.id);
+    .eq('restaurant_id', restaurant.id)
+    .select();
 
   if (error) {
     console.error('Error deleting dish:', error);
     throw new Error('Failed to delete dish');
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error('No rows deleted. Make sure the item belongs to your restaurant.');
   }
 }
 
