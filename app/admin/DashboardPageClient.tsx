@@ -140,21 +140,22 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       const now = ctx.currentTime;
       console.log("🔔 Playing bell alert at AudioContext time:", now);
 
-      // Bell 1: E5 (659.25 Hz)
+      // Bell 1: E5 (659.25 Hz) - Pure sine waves for a soft, smooth chime timbre
       const baseFreq1 = 659.25;
       const ratios = [1.0, 1.2, 1.5, 2.0, 3.0];
-      const gains = [0.45, 0.22, 0.18, 0.25, 0.12];
+      const gains = [0.08, 0.04, 0.03, 0.02, 0.01]; // Significantly reduced gains for a soft background sound
       const decays = [3.0, 2.0, 1.5, 1.0, 0.7]; // Bell 1 decays over 3.0 seconds
 
       ratios.forEach((ratio, i) => {
         const osc = ctx.createOscillator();
         const gainNode = ctx.createGain();
 
-        osc.type = i === 0 ? 'sine' : (i === 1 ? 'triangle' : 'sine');
+        osc.type = 'sine'; // Smooth pure sine wave
         osc.frequency.setValueAtTime(baseFreq1 * ratio, now);
 
         gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(gains[i], now + 0.005);
+        // Smoothed attack slope (0.05s) to eliminate harsh strike clicks/pops
+        gainNode.gain.linearRampToValueAtTime(gains[i], now + 0.05);
         gainNode.gain.exponentialRampToValueAtTime(0.001, now + decays[i]);
 
         osc.connect(gainNode);
@@ -173,11 +174,12 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         const osc = ctx.createOscillator();
         const gainNode = ctx.createGain();
 
-        osc.type = i === 0 ? 'sine' : (i === 1 ? 'triangle' : 'sine');
+        osc.type = 'sine'; // Smooth pure sine wave
         osc.frequency.setValueAtTime(baseFreq2 * ratio, now + delay);
 
         gainNode.gain.setValueAtTime(0, now + delay);
-        gainNode.gain.linearRampToValueAtTime(gains[i] * 0.9, now + delay + 0.005);
+        // Smoothed attack slope (0.05s) to eliminate harsh strike clicks/pops
+        gainNode.gain.linearRampToValueAtTime(gains[i] * 0.9, now + delay + 0.05);
         gainNode.gain.exponentialRampToValueAtTime(0.001, now + delay + decays2[i]);
 
         osc.connect(gainNode);
@@ -209,13 +211,13 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     }
   };
 
-  // Loop the alert sound every 12 seconds (6s play + 6s silence gap) if isAlerting is true and not muted
+  // Loop the alert sound every 8 seconds (6s play + 2s silence gap) if isAlerting is true and not muted
   useEffect(() => {
     if (!isAlerting || audioMuted) return;
 
     const interval = setInterval(() => {
       playSynthesizedBell();
-    }, 12000);
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [isAlerting, audioMuted]);
@@ -289,7 +291,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           if (payload.new && payload.new.restaurant_id === restaurantId) {
             console.log("🟢 REALTIME ORDER UPDATE DETECTED:", payload.new.id, payload.new.status);
             setLiveOrders(prev => {
-              if (payload.new.status === 'served') {
+              if (payload.new.status === 'served' || payload.new.status === 'cancelled') {
                 return prev.filter(o => o.id !== payload.new.id);
               }
               return prev.map(o => o.id === payload.new.id ? payload.new : o);
