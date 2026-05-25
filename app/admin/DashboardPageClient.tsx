@@ -153,7 +153,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                     onClick={async () => {
                       if (confirm(`Cancel and delete the entire order for Table ${order.table_no}?`)) {
                         await supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id);
-                        toast.success(`Order for Table ${order.table_no} has been cancelled.`);
+                        toast.success(`Order from ${order.table_no} has been cancelled`);
                       }
                     }}
                     className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-all cursor-pointer flex items-center justify-center shrink-0 border border-transparent hover:border-red-100"
@@ -458,14 +458,14 @@ export default function AdminDashboardOverview() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
           {/* Total Scans Card */}
-          <div 
+          <div
             onClick={() => {
               if (showProLock) {
                 setActiveModalTitle('UpgradeToProTotalScans');
               } else {
                 setActiveModalTitle('Total Scans');
               }
-            }} 
+            }}
             className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative cursor-pointer group"
           >
             <div className={`flex flex-col h-full ${showProLock ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
@@ -480,14 +480,14 @@ export default function AdminDashboardOverview() {
           </div>
 
           {/* Top Selling Dish Card */}
-          <div 
+          <div
             onClick={() => {
               if (showProLock) {
                 setActiveModalTitle('UpgradeToProTopSellingDish');
               } else {
                 setActiveModalTitle('Top Selling Dish');
               }
-            }} 
+            }}
             className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative cursor-pointer group"
           >
             <div className={`flex flex-col h-full ${showProLock ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
@@ -656,8 +656,8 @@ export default function AdminDashboardOverview() {
                     <Lock className="w-8 h-8" />
                   </div>
                   <h4 className="text-lg font-bold text-gray-900">
-                    {activeModalTitle === 'UpgradeToProTotalScans' 
-                      ? 'Total Scans Metrics Locked' 
+                    {activeModalTitle === 'UpgradeToProTotalScans'
+                      ? 'Total Scans Metrics Locked'
                       : 'Top Selling Dish Locked'}
                   </h4>
                   <p className="text-sm text-gray-500 leading-relaxed">
@@ -665,8 +665,8 @@ export default function AdminDashboardOverview() {
                       ? 'Upgrade to Pro to see the total scans and analyze customer traffic on your digital menu.'
                       : 'Upgrade to Pro to identify your top selling dish and optimize your menu pricing.'}
                   </p>
-                  <Link 
-                    href="/admin/billing#pro" 
+                  <Link
+                    href="/admin/billing#pro"
                     onClick={() => setActiveModalTitle(null)}
                     className="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white py-3.5 rounded-xl font-bold transition-all shadow-md text-sm text-center"
                   >
