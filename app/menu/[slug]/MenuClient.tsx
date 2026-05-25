@@ -156,6 +156,7 @@ export default function MenuClient({
       const { data, error } = await supabase
         .from('orders')
         .select('*')
+        .eq('restaurant_id', initialRestaurant.id)
         .in('id', activeOrderIds);
       if (data && !error) {
         setTrackedOrders(data);
@@ -171,7 +172,7 @@ export default function MenuClient({
       .channel(`customer-orders-group-${params.slug}`)
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'orders' },
+        { event: 'UPDATE', schema: 'public', table: 'orders', filter: `restaurant_id=eq.${initialRestaurant.id}` },
         (payload) => {
           if (payload.new && activeOrderIds.includes(payload.new.id)) {
             console.log("🟢 Realtime update for tracked order:", payload.new);
@@ -280,10 +281,10 @@ export default function MenuClient({
       )
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'dishes' },
+        { event: 'INSERT', schema: 'public', table: 'dishes', filter: `restaurant_id=eq.${restaurantId}` },
         (payload) => {
           setDishes(prev => {
-            if (ownerId && payload.new.owner_id !== ownerId) return prev;
+            if (payload.new.restaurant_id !== restaurantId) return prev;
             const newDish = {
               ...payload.new,
               isBestSeller: (payload.new.view_count || 0) > 60,
@@ -297,10 +298,10 @@ export default function MenuClient({
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'dishes' },
+        { event: 'UPDATE', schema: 'public', table: 'dishes', filter: `restaurant_id=eq.${restaurantId}` },
         (payload) => {
           setDishes(prev => {
-            if (ownerId && payload.new.owner_id !== ownerId) return prev;
+            if (payload.new.restaurant_id !== restaurantId) return prev;
             const newDishes = prev.map(d =>
               d.id === payload.new.id ? {
                 ...payload.new,
@@ -340,7 +341,7 @@ export default function MenuClient({
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'restaurants' },
+        { event: 'UPDATE', schema: 'public', table: 'restaurants', filter: `id=eq.${restaurantId}` },
         (payload) => {
           setRestaurant((prev: any) => {
             if (prev?.id === payload.new.id) {

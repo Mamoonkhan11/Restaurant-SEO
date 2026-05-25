@@ -62,7 +62,8 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'orders'
+          table: 'orders',
+          filter: `restaurant_id=eq.${restaurantId}`
         },
         (payload) => {
           if (payload.new && payload.new.restaurant_id === restaurantId) {
@@ -77,7 +78,8 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'orders'
+          table: 'orders',
+          filter: `restaurant_id=eq.${restaurantId}`
         },
         (payload) => {
           if (payload.new && payload.new.restaurant_id === restaurantId) {
@@ -313,7 +315,7 @@ export default function AdminDashboardOverview() {
         .single();
 
       if (!resetLog || new Date(resetLog.created_at) < monday) {
-        await supabase.from('dishes').update({ view_count: 0 }).eq('owner_id', user.id);
+        await supabase.from('dishes').update({ view_count: 0 }).eq('restaurant_id', restaurant.id);
         await supabase.from('activity_logs').insert({
           admin_id: user.id,
           restaurant_id: restaurant.id,
@@ -326,7 +328,7 @@ export default function AdminDashboardOverview() {
       const { count: dishCount } = await supabase
         .from('dishes')
         .select('*', { count: 'exact', head: true })
-        .eq('owner_id', user.id);
+        .eq('restaurant_id', restaurant.id);
 
       setTotalItems(dishCount ?? 0);
 
@@ -343,7 +345,7 @@ export default function AdminDashboardOverview() {
       const { data: dishesData } = await supabase
         .from('dishes')
         .select('name, view_count')
-        .eq('owner_id', user.id)
+        .eq('restaurant_id', restaurant.id)
         .order('view_count', { ascending: false })
         .limit(7);
 
@@ -384,6 +386,7 @@ export default function AdminDashboardOverview() {
           .from('activity_logs')
           .select('*')
           .eq('admin_id', user.id)
+          .eq('restaurant_id', restaurant.id)
           .gte('created_at', monday.toISOString())
           .order('created_at', { ascending: false })
           .limit(10);

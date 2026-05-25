@@ -61,6 +61,39 @@ export async function getDishesByRestaurantSlug(slug: string): Promise<Dish[]> {
 }
 
 /**
+ * Fetches all dishes for the authenticated admin's restaurant.
+ */
+export async function getDishesForAdmin(): Promise<Dish[]> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+  const { data: restaurant } = await supabase
+    .from('restaurants')
+    .select('id')
+    .eq('owner_id', user.id)
+    .single();
+
+  if (!restaurant) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('dishes')
+    .select('*')
+    .eq('restaurant_id', restaurant.id)
+    .order('category', { ascending: true })
+    .order('name', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching admin dishes:', error);
+    throw new Error(error.message);
+  }
+
+  return data as Dish[];
+}
+
+/**
  * Uploads a dish image to Supabase storage.
  * Requires a storage bucket named 'dishes' to be created in your Supabase dashboard and set to Public.
  * @param file The image file to upload
@@ -89,10 +122,24 @@ export async function uploadDishImage(file: File, bucket: string = 'dishes'): Pr
  * @param newImageUrl The new image URL to save
  */
 export async function updateDishImageInDb(id: string | number, newImageUrl: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+  const { data: restaurant } = await supabase
+    .from('restaurants')
+    .select('id')
+    .eq('owner_id', user.id)
+    .single();
+  if (!restaurant) {
+    throw new Error('Restaurant settings not found');
+  }
+
   const { error } = await supabase
     .from('dishes')
     .update({ image_url: newImageUrl })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('restaurant_id', restaurant.id);
 
   if (error) {
     console.error('Error updating dish image in database:', error);
@@ -125,10 +172,24 @@ export async function removeDishImage(imageUrl: string, bucket: string = 'dishes
  * Updates the availability status of a dish.
  */
 export async function updateDishAvailability(id: string | number, is_available: boolean) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+  const { data: restaurant } = await supabase
+    .from('restaurants')
+    .select('id')
+    .eq('owner_id', user.id)
+    .single();
+  if (!restaurant) {
+    throw new Error('Restaurant settings not found');
+  }
+
   const { error } = await supabase
     .from('dishes')
     .update({ is_available })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('restaurant_id', restaurant.id);
 
   if (error) {
     console.error('Error updating availability:', error);
@@ -140,10 +201,24 @@ export async function updateDishAvailability(id: string | number, is_available: 
  * Deletes a dish from the database.
  */
 export async function deleteDishFromDb(id: string | number) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+  const { data: restaurant } = await supabase
+    .from('restaurants')
+    .select('id')
+    .eq('owner_id', user.id)
+    .single();
+  if (!restaurant) {
+    throw new Error('Restaurant settings not found');
+  }
+
   const { error } = await supabase
     .from('dishes')
     .delete()
-    .eq('id', id);
+    .eq('id', id)
+    .eq('restaurant_id', restaurant.id);
 
   if (error) {
     console.error('Error deleting dish:', error);
@@ -173,6 +248,19 @@ export async function upsertDish(dishData: any) {
   if (restError || !restaurant) {
     // This exact error string can be caught and shown as an alert in the UI
     throw new Error('Please set up your restaurant in Settings first!');
+  }
+
+  // Ownership Check: If updating an existing dish, verify it belongs to this restaurant
+  if (dishData.id) {
+    const { data: existingDish } = await supabase
+      .from('dishes')
+      .select('restaurant_id')
+      .eq('id', dishData.id)
+      .single();
+
+    if (existingDish && existingDish.restaurant_id !== restaurant.id) {
+      throw new Error('Unauthorized: You do not own this dish.');
+    }
   }
 
   const payload = {

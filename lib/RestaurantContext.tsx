@@ -291,7 +291,8 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'orders'
+          table: 'orders',
+          filter: `restaurant_id=eq.${restaurant.id}`
         },
         (payload) => {
           if (payload.new && payload.new.restaurant_id === restaurant.id) {

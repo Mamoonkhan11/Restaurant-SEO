@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Loader2, AlertTriangle } from 'lucide-react';
 import DishForm from './DishForm';
-import { getDishesByRestaurantSlug, updateDishAvailability, deleteDishFromDb, removeDishImage, upsertDish, logAdminAction, broadcastMenuUpdate, Dish } from '@/lib/supabase';
+import { getDishesForAdmin, getDishesByRestaurantSlug, updateDishAvailability, deleteDishFromDb, removeDishImage, upsertDish, logAdminAction, broadcastMenuUpdate, Dish } from '@/lib/supabase';
 import { useRestaurant } from '@/lib/RestaurantContext';
 
 // We fallback to a default slug if the context is still loading
@@ -34,16 +34,14 @@ export default function MenuManagement() {
   const isAddLocked = dishes.length >= limits.items;
 
   useEffect(() => {
-    if (restaurant?.slug) {
-      fetchDishes(restaurant.slug);
-    } else {
-      fetchDishes(FALLBACK_SLUG);
+    if (restaurant) {
+      fetchDishes();
     }
-  }, [restaurant?.slug]);
+  }, [restaurant]);
 
-  const fetchDishes = async (slugToFetch: string) => {
+  const fetchDishes = async () => {
     try {
-      const data = await getDishesByRestaurantSlug(slugToFetch);
+      const data = await getDishesForAdmin();
       setDishes(data);
     } catch (err) {
       console.error(err);
@@ -96,7 +94,7 @@ export default function MenuManagement() {
       });
       setIsFormOpen(false);
       setEditingDish(null);
-      fetchDishes(activeSlug); // Refresh list to get accurate DB state
+      fetchDishes(); // Refresh list to get accurate DB state
       await logAdminAction('MENU_CHANGE', `${data.id ? 'Edited' : 'Added'} dish "${data.name}"`);
       await broadcastMenuUpdate(activeSlug);
     } catch (err) {

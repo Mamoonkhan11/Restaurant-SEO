@@ -149,7 +149,8 @@ export default function TablesPage() {
     const { error } = await supabase
       .from('tables')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('restaurant_id', restaurant.id);
 
     if (error) {
       toast.error('Failed to delete table');
