@@ -33,11 +33,11 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       }
     });
 
-    // 30-minute auto-logout timer to securely end the session
+    // 24-hour auto-logout timer to securely end the session (increased from 30 minutes)
     const logoutTimer = setTimeout(async () => {
       await supabase.auth.signOut();
       router.push('/login');
-    }, 30 * 60 * 1000);
+    }, 24 * 60 * 60 * 1000);
 
     return () => {
       authListener.subscription.unsubscribe();
