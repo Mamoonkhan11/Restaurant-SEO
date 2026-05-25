@@ -24,6 +24,26 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
+    // Pre-Verification Check: Ensure email is not already registered
+    try {
+      const { data: existingRestaurants, error: dbCheckError } = await supabase
+        .from('restaurants')
+        .select('id')
+        .eq('email', email.trim().toLowerCase())
+        .limit(1);
+
+      if (existingRestaurants && existingRestaurants.length > 0) {
+        toast.error('User already exists.', {
+          style: { background: '#000', color: '#fff' },
+          position: 'top-center'
+        });
+        setIsLoading(false);
+        return;
+      }
+    } catch (checkErr) {
+      console.error('Error during pre-verification:', checkErr);
+    }
+
     // Generate a highly secure random 16-character password in the background
     const randomPassword = Array.from(crypto.getRandomValues(new Uint8Array(16)))
       .map((b) => b.toString(16).padStart(2, '0'))
@@ -45,6 +65,16 @@ export default function RegisterPage() {
 
       if (signUpError) {
         toast.error(signUpError.message, {
+          style: { background: '#000', color: '#fff' },
+          position: 'top-center'
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Supabase returns a user but with empty identities if the user is already registered (enumeration protection)
+      if (authData.user && (!authData.user.identities || authData.user.identities.length === 0)) {
+        toast.error('User already exists.', {
           style: { background: '#000', color: '#fff' },
           position: 'top-center'
         });
