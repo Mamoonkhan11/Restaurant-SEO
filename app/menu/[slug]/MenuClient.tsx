@@ -405,7 +405,7 @@ export default function MenuClient({
   const menuBlocked = isExpiredWithGrace();
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] pb-24 font-sans relative selection:bg-gray-200 flex flex-col">
+    <div className="min-h-screen bg-[#FDFBF7] pb-24 font-sans relative selection:bg-gray-200">
       {restaurant && (
         <script
           type="application/ld+json"
@@ -757,7 +757,7 @@ export default function MenuClient({
       )}
 
       {/* Powered By Footer */}
-      <div className="w-full py-12 flex flex-col items-center justify-center gap-2 border-t border-gray-100/50 bg-[#FDFBF7] mt-auto">
+      <div className="w-full py-12 flex flex-col items-center justify-center gap-2 border-t border-gray-100/50 bg-[#FDFBF7] mt-8">
         <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Powered by</span>
         <img
           src="/restdigi-logo.png"
