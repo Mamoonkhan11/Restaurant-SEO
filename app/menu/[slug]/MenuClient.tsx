@@ -406,7 +406,7 @@ export default function MenuClient({
   const menuBlocked = isExpiredWithGrace();
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] pb-24 font-sans relative selection:bg-gray-200 flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#FFF8F6] pb-24 font-sans relative selection:bg-gray-200">
       {restaurant && (
         <script
           type="application/ld+json"
@@ -462,13 +462,13 @@ export default function MenuClient({
         input, textarea {
           -webkit-user-select: auto;
           user-select: auto;
-        }
+          }
       `}</style>
 
       {/* Minimal Top Header */}
       <MenuHeader restaurant={restaurant} menuBlocked={menuBlocked} />
 
-      <div className="flex-1">
+      <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-6">
         {menuBlocked ? (
           <div className="max-w-3xl mx-auto px-4 sm:px-6 mt-16 text-center animate-fade-in">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -480,13 +480,13 @@ export default function MenuClient({
         ) : (
           <>
           {/* Special Offers Section */}
-          {dishes.filter(d => d.is_special_offer && d.is_available).length > 0 && (
+          {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).length > 0 && (
             <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-12 pt-2">
               <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span className="text-orange-500">✨</span> Offers for You
               </h2>
               <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x">
-                {dishes.filter(d => d.is_special_offer && d.is_available).map(item => (
+                {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).map(item => (
                   <motion.div
                     key={`offer-${item.id}`}
                     onClick={() => handleDishClick(item)}
@@ -505,7 +505,7 @@ export default function MenuClient({
                         ₹{getDishPrice(item)}
                       </span>
                     </div>
-                    {item.offer_tag && (
+                    {item.offer_tag && item.restaurant_id === initialRestaurant.id && (
                       <div
                         className="absolute z-[50] -bottom-[10px] -right-[8px] -rotate-[3deg] whitespace-nowrap font-black text-[10px] sm:text-xs text-white px-3 py-1.5 shadow-xl border-2 border-white"
                         style={{
@@ -737,7 +737,7 @@ export default function MenuClient({
                               </div>
                             </div>
 
-                            {item.is_special_offer && item.offer_tag && item.is_available && (
+                            {item.is_special_offer && item.offer_tag && item.is_available && item.restaurant_id === initialRestaurant.id && (
                               <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-[#111827] text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase">
                                 {item.offer_tag}
                               </div>
@@ -758,17 +758,13 @@ export default function MenuClient({
           </div>
         </>
         )}
-      </div>
+      </main>
 
       {/* Powered By Footer — always at page bottom */}
-      <div className="w-full py-10 flex flex-col items-center justify-center gap-2 border-t border-gray-100/50 bg-[#FDFBF7] mt-auto">
-        <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Powered by</span>
-        <img
-          src="/restdigi-logo.png"
-          alt="RESTDIGI Logo"
-          className="h-8 w-auto object-contain opacity-40 hover:opacity-75 transition-opacity"
-        />
-      </div>
+      <footer className="w-full text-center py-6 mt-auto shrink-0">
+        <p className="text-[10px] tracking-widest font-black uppercase text-gray-400">Powered By</p>
+        <img src="/restdigi-logo.png" alt="RESTDIGI" className="h-6 mx-auto mt-1 opacity-70 object-contain" />
+      </footer>
 
       {/* Sticky Bottom Bar for Cart */}
       {cartItemCount > 0 && !showTracking && (
