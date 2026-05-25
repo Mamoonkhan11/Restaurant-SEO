@@ -140,11 +140,11 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       const now = ctx.currentTime;
       console.log("🔔 Playing bell alert at AudioContext time:", now);
 
-      // Bell 1: Bright strike at 880 Hz (A5) with rich inharmonic partials
-      const baseFreq1 = 880;
-      const ratios = [1.0, 1.2, 1.5, 2.0, 3.0]; // prime, minor third, fifth, octave, supernominal
+      // Bell 1: E5 (659.25 Hz)
+      const baseFreq1 = 659.25;
+      const ratios = [1.0, 1.2, 1.5, 2.0, 3.0];
       const gains = [0.45, 0.22, 0.18, 0.25, 0.12];
-      const decays = [3.0, 2.0, 1.5, 1.0, 0.7]; // Bell 1 decays over 3 seconds
+      const decays = [3.0, 2.0, 1.5, 1.0, 0.7]; // Bell 1 decays over 3.0 seconds
 
       ratios.forEach((ratio, i) => {
         const osc = ctx.createOscillator();
@@ -164,10 +164,10 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         osc.stop(now + decays[i] + 0.1);
       });
 
-      // Bell 2: Lower strike at 659.25 Hz (E5) delayed by 1.5 seconds (Ding... Dong)
-      const delay = 1.5;
-      const baseFreq2 = 659.25;
-      const decays2 = [4.5, 3.0, 2.2, 1.5, 1.0]; // Bell 2 decays over 4.5 seconds (total 1.5 + 4.5 = 6.0 seconds)
+      // Bell 2: C5 (523.25 Hz) delayed by 0.8 seconds (Ding... Dong chime at normal speed)
+      const delay = 0.8;
+      const baseFreq2 = 523.25;
+      const decays2 = [5.2, 3.5, 2.5, 1.8, 1.2]; // Bell 2 decays over 5.2 seconds (total 0.8 + 5.2 = 6.0 seconds)
 
       ratios.forEach((ratio, i) => {
         const osc = ctx.createOscillator();
@@ -209,13 +209,13 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     }
   };
 
-  // Loop the alert sound every 5 seconds if isAlerting is true and not muted
+  // Loop the alert sound every 12 seconds (6s play + 6s silence gap) if isAlerting is true and not muted
   useEffect(() => {
     if (!isAlerting || audioMuted) return;
 
     const interval = setInterval(() => {
       playSynthesizedBell();
-    }, 5000);
+    }, 12000);
 
     return () => clearInterval(interval);
   }, [isAlerting, audioMuted]);
@@ -354,9 +354,23 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 <h4 className="font-black text-[#111827] text-2xl leading-none">{order.table_no}</h4>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded">
-                  {timeAgo(order.created_at)}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded">
+                    {timeAgo(order.created_at)}
+                  </span>
+                  <button
+                    onClick={async () => {
+                      if (confirm(`Cancel and delete the entire order for Table ${order.table_no}?`)) {
+                        await supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id);
+                        toast.success(`Order for Table ${order.table_no} has been cancelled.`);
+                      }
+                    }}
+                    className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-all cursor-pointer flex items-center justify-center shrink-0 border border-transparent hover:border-red-100"
+                    title="Cancel Order"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
                 {order.status === 'pending' && <span className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending</span>}
                 {order.status === 'preparing' && <span className="flex items-center gap-1.5 text-xs font-bold text-orange-700 bg-orange-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Preparing</span>}
                 {order.status === 'served' && <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
@@ -373,29 +387,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                       {item.size && item.size !== 'Standard' && <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mt-0.5">{item.size}</span>}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-gray-600 tabular-nums">₹{(item.price * item.quantity).toFixed(2)}</span>
-                    <button
-                      onClick={async () => {
-                        if (confirm(`Remove "${item.name}" from this order?`)) {
-                          const updatedItems = order.items.filter((_: any, i: number) => i !== idx);
-                          const newTotal = updatedItems.reduce((sum: number, curr: any) => sum + (curr.price * curr.quantity), 0);
-                          
-                          if (updatedItems.length === 0) {
-                            await supabase.from('orders').update({ status: 'cancelled', items: [], total_amount: 0 }).eq('id', order.id);
-                            toast.success("Order cancelled because all items were removed.");
-                          } else {
-                            await supabase.from('orders').update({ items: updatedItems, total_amount: newTotal }).eq('id', order.id);
-                            toast.success(`Removed "${item.name}" from order.`);
-                          }
-                        }
-                      }}
-                      className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-all cursor-pointer opacity-80 hover:opacity-100 flex items-center justify-center shrink-0"
-                      title="Remove item"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <span className="font-bold text-gray-600 tabular-nums">₹{(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
             </div>

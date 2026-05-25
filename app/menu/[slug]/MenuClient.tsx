@@ -60,6 +60,7 @@ export default function MenuClient({
   const [orderStatus, setOrderStatus] = useState<'idle' | 'pending' | 'preparing' | 'served' | 'cancelled'>('idle');
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
   const [showTracking, setShowTracking] = useState(false);
+  const [trackedOrderItems, setTrackedOrderItems] = useState<any[]>([]);
 
   // Cart State
   const [cart, setCart] = useState<any[]>([]);
@@ -104,9 +105,36 @@ export default function MenuClient({
     }
   }, [activeCategory, restaurant, hasTappedCategory]);
 
-  // Realtime KOT Order Status Listener
+  // Restore active order from localStorage on mount
   useEffect(() => {
-    if (!activeOrderId) return;
+    if (typeof window !== 'undefined') {
+      const savedOrderId = localStorage.getItem(`active_order_id_${params.slug}`);
+      if (savedOrderId) {
+        setActiveOrderId(savedOrderId);
+        setShowTracking(true);
+      }
+    }
+  }, [params.slug]);
+
+  // Realtime KOT Order Status & Items Listener
+  useEffect(() => {
+    if (!activeOrderId) {
+      setTrackedOrderItems([]);
+      return;
+    }
+
+    const fetchOrder = async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', activeOrderId)
+        .single();
+      if (data && !error) {
+        setOrderStatus(data.status);
+        setTrackedOrderItems(data.items || []);
+      }
+    };
+    fetchOrder();
 
     const subscription = supabase
       .channel(`customer-order-${activeOrderId}`)
@@ -114,8 +142,13 @@ export default function MenuClient({
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${activeOrderId}` },
         (payload) => {
-          if (payload.new && payload.new.status) {
-            setOrderStatus(payload.new.status as any);
+          if (payload.new) {
+            if (payload.new.status) {
+              setOrderStatus(payload.new.status as any);
+            }
+            if (payload.new.items) {
+              setTrackedOrderItems(payload.new.items);
+            }
           }
         }
       )
@@ -124,14 +157,18 @@ export default function MenuClient({
         { event: 'DELETE', schema: 'public', table: 'orders', filter: `id=eq.${activeOrderId}` },
         () => {
           setOrderStatus('cancelled');
+          setTrackedOrderItems([]);
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem(`active_order_id_${params.slug}`);
+          }
         }
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(subscription);
-    }
-  }, [activeOrderId]);
+    };
+  }, [activeOrderId, params.slug]);
 
   // Auto-Reset Timer for Served or Cancelled Status
   useEffect(() => {
@@ -139,13 +176,17 @@ export default function MenuClient({
       const timer = setTimeout(() => {
         setOrderStatus('idle');
         setActiveOrderId(null);
+        setTrackedOrderItems([]);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(`active_order_id_${params.slug}`);
+        }
         setSelectedDish(null);
         setShowTracking(false);
         setIsCartOpen(false);
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [orderStatus]);
+  }, [orderStatus, params.slug]);
 
   useEffect(() => {
     const ownerId = initialRestaurant?.owner_id;
@@ -873,58 +914,121 @@ export default function MenuClient({
 
               <div className="p-6 overflow-y-auto flex-1 bg-gray-50/50">
                 {showTracking && activeOrderId ? (
-                  <div className="flex flex-col items-center justify-center py-12 gap-4">
-                    {orderStatus === 'pending' && (
-                      <>
-                        <Loader2 className="w-12 h-12 animate-spin text-yellow-500" />
-                        <p className="font-black text-xl">Order Sent!</p>
-                        <p className="text-gray-500 text-center">Waiting for kitchen confirmation...</p>
+                  <div className="flex flex-col gap-6">
+                    {/* Status Card */}
+                    <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center gap-3">
+                      {orderStatus === 'pending' && (
+                        <>
+                          <Loader2 className="w-10 h-10 animate-spin text-yellow-500" />
+                          <p className="font-black text-lg">Order Pending</p>
+                          <p className="text-gray-500 text-xs leading-relaxed max-w-[200px]">Waiting for kitchen confirmation...</p>
+                          <button
+                            onClick={async () => {
+                              if (confirm("Are you sure you want to cancel this order?")) {
+                                try {
+                                  const { error } = await supabase
+                                    .from('orders')
+                                    .update({ status: 'cancelled' })
+                                    .eq('id', activeOrderId);
+                                  if (error) throw error;
 
-                        <button
-                          onClick={async () => {
-                            if (confirm("Are you sure you want to cancel this order?")) {
-                              try {
-                                const { error } = await supabase
-                                  .from('orders')
-                                  .update({ status: 'cancelled' })
-                                  .eq('id', activeOrderId);
-                                if (error) throw error;
-
-                                setOrderStatus('cancelled');
-                                alert("Order cancelled successfully.");
-                              } catch (err: any) {
-                                alert("Failed to cancel order: " + err.message);
+                                  setOrderStatus('cancelled');
+                                  setTrackedOrderItems([]);
+                                  if (typeof window !== 'undefined') {
+                                    localStorage.removeItem(`active_order_id_${params.slug}`);
+                                  }
+                                } catch (err: any) {
+                                  alert("Failed to cancel order: " + err.message);
+                                }
                               }
-                            }
-                          }}
-                          className="mt-4 text-xs font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-wider cursor-pointer bg-transparent border-none outline-none"
-                        >
-                          Cancel Order
-                        </button>
-                      </>
-                    )}
-                    {orderStatus === 'preparing' && (
-                      <>
-                        <div className="text-5xl animate-bounce">🍳</div>
-                        <p className="font-black text-xl">Chef is preparing!</p>
-                        <p className="text-gray-500 text-center">Your delicious meal is in the works.</p>
-                      </>
-                    )}
-                    {orderStatus === 'served' && (
-                      <>
-                        <CheckCircle className="w-16 h-16 text-green-500" />
-                        <p className="font-black text-2xl text-green-600">Food Served!</p>
-                        <p className="text-gray-500 text-center">Enjoy your meal.</p>
-                      </>
-                    )}
-                    {orderStatus === 'cancelled' && (
-                      <>
-                        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center animate-fade-in">
-                          <X className="w-8 h-8 text-red-500" />
+                            }}
+                            className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-wider cursor-pointer bg-transparent border-none mt-2"
+                          >
+                            Cancel Order
+                          </button>
+                        </>
+                      )}
+                      {orderStatus === 'preparing' && (
+                        <>
+                          <div className="text-4xl animate-bounce">🍳</div>
+                          <p className="font-black text-lg">Chef is Preparing!</p>
+                          <p className="text-gray-500 text-xs">Your meal is currently being cooked.</p>
+                        </>
+                      )}
+                      {orderStatus === 'served' && (
+                        <>
+                          <CheckCircle className="w-12 h-12 text-green-500 animate-scale-in" />
+                          <p className="font-black text-lg text-green-600">Order Served!</p>
+                          <p className="text-gray-500 text-xs">Enjoy your food!</p>
+                        </>
+                      )}
+                      {orderStatus === 'cancelled' && (
+                        <>
+                          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center animate-fade-in">
+                            <X className="w-6 h-6 text-red-500" />
+                          </div>
+                          <p className="font-black text-lg text-red-600">Order Cancelled</p>
+                          <p className="text-gray-500 text-xs">This order has been cancelled.</p>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Tracked Items List (Only for pending and preparing) */}
+                    {(orderStatus === 'pending' || orderStatus === 'preparing') && trackedOrderItems.length > 0 && (
+                      <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-4 animate-fade-in">
+                        <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                          <span className="font-bold text-sm text-gray-500 uppercase tracking-wider">Ordered Items</span>
+                          <span className="bg-gray-100 text-gray-800 text-xs px-2.5 py-1 rounded-full font-bold">
+                            {tableNo ? `Table ${tableNo}` : 'WhatsApp Order'}
+                          </span>
                         </div>
-                        <p className="font-black text-xl text-red-600">Order Cancelled</p>
-                        <p className="text-gray-500 text-center font-medium">You cancelled your order or it was cancelled by the restaurant.</p>
-                      </>
+                        
+                        <div className="space-y-4">
+                          <AnimatePresence initial={false}>
+                            {trackedOrderItems.map((item) => {
+                              // Find dish image if available
+                              const dishDetail = dishes.find(d => d.id === item.dish_id);
+                              const imgUrl = dishDetail?.image_url;
+
+                              return (
+                                <motion.div
+                                  key={`${item.dish_id}-${item.size || 'Standard'}`}
+                                  initial={{ opacity: 1, height: 'auto' }}
+                                  exit={{ opacity: 0, height: 0, marginBottom: 0, overflow: 'hidden' }}
+                                  transition={{ duration: 0.2 }}
+                                  className="flex gap-4 items-center"
+                                >
+                                  <div className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden relative shrink-0 border border-gray-100 flex items-center justify-center">
+                                    {imgUrl ? (
+                                      <Image src={imgUrl} fill sizes="48px" alt={item.name} className="object-cover" />
+                                    ) : (
+                                      <span className="text-sm font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
+                                    )}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-bold text-sm text-gray-900 truncate">{item.name}</h4>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                      <span className="text-xs text-gray-500 font-medium">Qty: {item.quantity}</span>
+                                      {item.size && item.size !== 'Standard' && (
+                                        <span className="text-[10px] bg-gray-50 text-gray-500 px-1.5 py-0.5 rounded border border-gray-100 font-bold uppercase tracking-wider">{item.size}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <span className="font-black text-sm text-gray-900 tabular-nums">₹{(item.price * item.quantity).toFixed(2)}</span>
+                                </motion.div>
+                              );
+                            })}
+                          </AnimatePresence>
+                        </div>
+
+                        {/* Summary info */}
+                        <div className="border-t border-dashed border-gray-200 pt-4 flex justify-between items-center mt-2">
+                          <span className="font-bold text-sm text-gray-500">Order Total</span>
+                          <span className="font-black text-lg text-gray-900 tabular-nums">
+                            ₹{trackedOrderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
                     )}
 
                     <button
@@ -932,7 +1036,7 @@ export default function MenuClient({
                         setShowTracking(false);
                         setIsCartOpen(false);
                       }}
-                      className="mt-6 bg-[#111827] hover:bg-black text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md active:scale-95 cursor-pointer text-sm"
+                      className="w-full bg-gray-900 hover:bg-black text-white py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-95 cursor-pointer text-sm text-center mt-2"
                     >
                       Order More Items
                     </button>
@@ -1018,6 +1122,10 @@ export default function MenuClient({
                       } else {
                         setActiveOrderId(data.id);
                         setOrderStatus('pending');
+                        setTrackedOrderItems(data.items || []);
+                        if (typeof window !== 'undefined') {
+                          localStorage.setItem(`active_order_id_${params.slug}`, data.id);
+                        }
                         setShowTracking(true);
                         setCart([]); // Clear cart on success
                       }
