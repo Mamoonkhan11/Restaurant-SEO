@@ -307,7 +307,7 @@ export default function TablesPage() {
                     
                     <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8 flex justify-center items-center">
                       <QRCodeSVG
-                        value={`${origin}/menu/${restaurant?.slug}?table=${encodeURIComponent(selectedTable.table_no)}`}
+                        value={`${origin}/menu/${restaurant?.slug}?tableId=${selectedTable.id}`}
                         size={200}
                         fgColor="#000000"
                         bgColor="#FFFFFF"
@@ -324,7 +324,7 @@ export default function TablesPage() {
                 
                 <div className="w-[320px] space-y-3 print:hidden">
                   <a
-                    href={`${origin}/menu/${restaurant?.slug}?table=${encodeURIComponent(selectedTable.table_no)}`}
+                    href={`${origin}/menu/${restaurant?.slug}?tableId=${selectedTable.id}`}
                     target="_blank"
                     rel="noreferrer"
                     className="w-full bg-white border border-gray-200 hover:bg-gray-50 text-[#111827] font-bold py-3 px-6 rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 text-sm"

@@ -33,15 +33,17 @@ export default function MenuClient({
   params,
   initialRestaurant,
   initialDishes,
-  initialCategories
+  initialCategories,
+  tableNo: propTableNo
 }: {
   params: { slug: string },
   initialRestaurant: any,
   initialDishes: any[],
-  initialCategories: string[]
+  initialCategories: string[],
+  tableNo?: string
 }) {
   const searchParams = useSearchParams();
-  const tableNo = searchParams.get('table');
+  const tableNo = propTableNo || searchParams.get('table');
   const [restaurant, setRestaurant] = useState<any>(initialRestaurant);
   const [dishes, setDishes] = useState<any[]>(initialDishes);
   const [categories, setCategories] = useState<string[]>(initialCategories);

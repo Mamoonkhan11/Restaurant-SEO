@@ -4,7 +4,13 @@ import MenuClient from './MenuClient';
 // Ensure the page gets revalidated/dynamic rendering depending on use case.
 export const dynamic = 'force-dynamic';
 
-export default async function DigitalMenu({ params }: { params: { slug: string } }) {
+export default async function DigitalMenu({
+  params,
+  searchParams
+}: {
+  params: { slug: string };
+  searchParams: { tableId?: string; table?: string };
+}) {
   // Fetch Restaurant
   const { data: restaurant } = await supabase
     .from('restaurants')
@@ -20,11 +26,27 @@ export default async function DigitalMenu({ params }: { params: { slug: string }
     );
   }
 
+  let restaurantIdToFetch = restaurant.id;
+  let tableNo: string | undefined = searchParams.table;
+
+  if (searchParams.tableId) {
+    const { data: tableRecord } = await supabase
+      .from('tables')
+      .select('restaurant_id, table_no')
+      .eq('id', searchParams.tableId)
+      .single();
+
+    if (tableRecord) {
+      restaurantIdToFetch = tableRecord.restaurant_id;
+      tableNo = tableRecord.table_no;
+    }
+  }
+
   // Fetch Dishes
   const { data: dishesData, error: dishesError } = await supabase
     .from('dishes')
     .select('*')
-    .eq('restaurant_id', restaurant.id);
+    .eq('restaurant_id', restaurantIdToFetch);
 
   if (dishesError) {
     console.error('Error fetching dishes:', dishesError);
@@ -56,6 +78,7 @@ export default async function DigitalMenu({ params }: { params: { slug: string }
       initialRestaurant={restaurant} 
       initialDishes={initialDishes} 
       initialCategories={initialCategories} 
+      tableNo={tableNo}
     />
   );
 }
