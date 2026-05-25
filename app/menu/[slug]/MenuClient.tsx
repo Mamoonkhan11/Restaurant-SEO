@@ -58,9 +58,10 @@ export default function MenuClient({
 
   // KOT Order Status Lifecycle State
   const [orderStatus, setOrderStatus] = useState<'idle' | 'pending' | 'preparing' | 'served' | 'cancelled'>('idle');
-  const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
+  const [activeOrderIds, setActiveOrderIds] = useState<string[]>([]);
   const [showTracking, setShowTracking] = useState(false);
-  const [trackedOrderItems, setTrackedOrderItems] = useState<any[]>([]);
+  const [trackedOrders, setTrackedOrders] = useState<any[]>([]);
+  const [originalItemsCache, setOriginalItemsCache] = useState<Record<string, any[]>>({});
 
   // Cart State
   const [cart, setCart] = useState<any[]>([]);
@@ -105,61 +106,94 @@ export default function MenuClient({
     }
   }, [activeCategory, restaurant, hasTappedCategory]);
 
-  // Restore active order from localStorage on mount
+  // Restore active orders and original items cache from localStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedOrderId = localStorage.getItem(`active_order_id_${params.slug}`);
-      if (savedOrderId) {
-        setActiveOrderId(savedOrderId);
-        setShowTracking(true);
+      const savedIds = localStorage.getItem(`active_order_ids_${params.slug}`);
+      if (savedIds) {
+        try {
+          const parsed = JSON.parse(savedIds);
+          if (Array.isArray(parsed)) {
+            setActiveOrderIds(parsed);
+            if (parsed.length > 0) {
+              setShowTracking(true);
+            }
+          }
+        } catch (e) {
+          const savedSingle = localStorage.getItem(`active_order_id_${params.slug}`);
+          if (savedSingle) {
+            setActiveOrderIds([savedSingle]);
+            setShowTracking(true);
+          }
+        }
+      } else {
+        const savedSingle = localStorage.getItem(`active_order_id_${params.slug}`);
+        if (savedSingle) {
+          setActiveOrderIds([savedSingle]);
+          setShowTracking(true);
+        }
+      }
+
+      const savedCache = localStorage.getItem(`original_items_cache_${params.slug}`);
+      if (savedCache) {
+        try {
+          setOriginalItemsCache(JSON.parse(savedCache));
+        } catch (e) {
+          console.warn("Failed to parse original items cache", e);
+        }
       }
     }
   }, [params.slug]);
 
-  // Realtime KOT Order Status & Items Listener
+  // Realtime KOT Orders & Items Group Listener
   useEffect(() => {
-    if (!activeOrderId) {
-      setTrackedOrderItems([]);
+    if (activeOrderIds.length === 0) {
+      setTrackedOrders([]);
       return;
     }
 
-    const fetchOrder = async () => {
+    const fetchOrders = async () => {
       const { data, error } = await supabase
         .from('orders')
         .select('*')
-        .eq('id', activeOrderId)
-        .single();
+        .in('id', activeOrderIds);
       if (data && !error) {
-        setOrderStatus(data.status);
-        setTrackedOrderItems(data.items || []);
+        setTrackedOrders(data);
+        const sorted = [...data].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        if (sorted.length > 0) {
+          setOrderStatus(sorted[0].status);
+        }
       }
     };
-    fetchOrder();
+    fetchOrders();
 
     const subscription = supabase
-      .channel(`customer-order-${activeOrderId}`)
+      .channel(`customer-orders-group-${params.slug}`)
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${activeOrderId}` },
+        { event: 'UPDATE', schema: 'public', table: 'orders' },
         (payload) => {
-          if (payload.new) {
-            if (payload.new.status) {
-              setOrderStatus(payload.new.status as any);
-            }
-            if (payload.new.items) {
-              setTrackedOrderItems(payload.new.items);
-            }
+          if (payload.new && activeOrderIds.includes(payload.new.id)) {
+            console.log("🟢 Realtime update for tracked order:", payload.new);
+            setTrackedOrders(prev => prev.map(o => o.id === payload.new.id ? payload.new : o));
+            setOrderStatus(payload.new.status);
           }
         }
       )
       .on(
         'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'orders', filter: `id=eq.${activeOrderId}` },
-        () => {
-          setOrderStatus('cancelled');
-          setTrackedOrderItems([]);
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem(`active_order_id_${params.slug}`);
+        { event: 'DELETE', schema: 'public', table: 'orders' },
+        (payload) => {
+          if (payload.old && activeOrderIds.includes(payload.old.id)) {
+            console.log("🔴 Realtime delete for tracked order:", payload.old.id);
+            setTrackedOrders(prev => prev.filter(o => o.id !== payload.old.id));
+            setActiveOrderIds(prev => {
+              const updated = prev.filter(id => id !== payload.old.id);
+              if (typeof window !== 'undefined') {
+                localStorage.setItem(`active_order_ids_${params.slug}`, JSON.stringify(updated));
+              }
+              return updated;
+            });
           }
         }
       )
@@ -168,25 +202,31 @@ export default function MenuClient({
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [activeOrderId, params.slug]);
+  }, [activeOrderIds, params.slug]);
 
-  // Auto-Reset Timer for Served or Cancelled Status
+  // Auto-Reset Timer when all orders are served or cancelled
   useEffect(() => {
-    if (orderStatus === 'served' || orderStatus === 'cancelled') {
-      const timer = setTimeout(() => {
-        setOrderStatus('idle');
-        setActiveOrderId(null);
-        setTrackedOrderItems([]);
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem(`active_order_id_${params.slug}`);
-        }
-        setSelectedDish(null);
-        setShowTracking(false);
-        setIsCartOpen(false);
-      }, 5000);
-      return () => clearTimeout(timer);
+    if (trackedOrders.length > 0) {
+      const allResolved = trackedOrders.every(o => o.status === 'served' || o.status === 'cancelled');
+      if (allResolved) {
+        const timer = setTimeout(() => {
+          setOrderStatus('idle');
+          setActiveOrderIds([]);
+          setTrackedOrders([]);
+          setOriginalItemsCache({});
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem(`active_order_ids_${params.slug}`);
+            localStorage.removeItem(`active_order_id_${params.slug}`);
+            localStorage.removeItem(`original_items_cache_${params.slug}`);
+          }
+          setSelectedDish(null);
+          setShowTracking(false);
+          setIsCartOpen(false);
+        }, 12000);
+        return () => clearTimeout(timer);
+      }
     }
-  }, [orderStatus, params.slug]);
+  }, [trackedOrders, params.slug]);
 
   useEffect(() => {
     const ownerId = initialRestaurant?.owner_id;
@@ -739,7 +779,7 @@ export default function MenuClient({
 
       {/* Floating Buttons */}
       <div className="fixed right-4 sm:right-8 flex flex-col gap-3 z-40 bottom-28">
-        {activeOrderId && !isCartOpen && (
+        {activeOrderIds.length > 0 && !isCartOpen && (
           <button
             onClick={() => {
               setShowTracking(true);
@@ -913,145 +953,189 @@ export default function MenuClient({
               </div>
 
               <div className="p-6 overflow-y-auto flex-1 bg-gray-50/50">
-                {showTracking && activeOrderId ? (
+                {showTracking && activeOrderIds.length > 0 ? (
                   <div className="flex flex-col gap-6">
-                    {/* Status Card */}
-                    <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center gap-3">
-                      {orderStatus === 'pending' && (
-                        <>
-                          <Loader2 className="w-10 h-10 animate-spin text-yellow-500" />
-                          <p className="font-black text-lg">Order Pending</p>
-                          <p className="text-gray-500 text-xs leading-relaxed max-w-[200px]">Waiting for kitchen confirmation...</p>
-                        </>
-                      )}
-                      {orderStatus === 'preparing' && (
-                        <>
-                          <div className="text-4xl animate-bounce">🍳</div>
-                          <p className="font-black text-lg">Chef is Preparing!</p>
-                          <p className="text-gray-500 text-xs">Your meal is currently being cooked.</p>
-                        </>
-                      )}
-                      {orderStatus === 'served' && (
-                        <>
-                          <CheckCircle className="w-12 h-12 text-green-500 animate-scale-in" />
-                          <p className="font-black text-lg text-green-600">Order Served!</p>
-                          <p className="text-gray-500 text-xs">Enjoy your food!</p>
-                        </>
-                      )}
-                      {orderStatus === 'cancelled' && (
-                        <>
-                          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center animate-fade-in">
-                            <X className="w-6 h-6 text-red-500" />
-                          </div>
-                          <p className="font-black text-lg text-red-600">Order Cancelled</p>
-                          <p className="text-gray-500 text-xs">This order has been cancelled.</p>
-                        </>
+                    <div className="flex justify-between items-center px-1">
+                      <span className="font-bold text-xs uppercase text-gray-400 tracking-wider">Active Track Queue</span>
+                      {trackedOrders.length > 0 && (
+                        <span className="text-xs font-black bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full animate-pulse">
+                          {trackedOrders.filter(o => o.status === 'pending' || o.status === 'preparing').length} Active KOT
+                        </span>
                       )}
                     </div>
 
-                    {/* Tracked Items List (Only for pending and preparing) */}
-                    {(orderStatus === 'pending' || orderStatus === 'preparing') && trackedOrderItems.length > 0 && (
-                      <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-4 animate-fade-in">
-                        <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-                          <span className="font-bold text-sm text-gray-500 uppercase tracking-wider">Ordered Items</span>
-                          <span className="bg-gray-100 text-gray-800 text-xs px-2.5 py-1 rounded-full font-bold">
-                            {tableNo ? `Table ${tableNo}` : 'WhatsApp Order'}
-                          </span>
-                        </div>
-                        
-                        <div className="space-y-4">
-                          <AnimatePresence initial={false}>
-                            {trackedOrderItems.map((item) => {
-                              // Find dish image if available
-                              const dishDetail = dishes.find(d => d.id === item.dish_id);
-                              const imgUrl = dishDetail?.image_url;
+                    {trackedOrders.map((order, orderIdx) => {
+                      const orderItems = originalItemsCache[order.id] || order.items || [];
+                      const isOrderCancelled = order.status === 'cancelled';
+                      const isOrderServed = order.status === 'served';
+                      const isOrderPreparing = order.status === 'preparing';
+                      const isOrderPending = order.status === 'pending';
 
-                              return (
-                                <motion.div
-                                  key={`${item.dish_id}-${item.size || 'Standard'}`}
-                                  initial={{ opacity: 1, height: 'auto' }}
-                                  exit={{ opacity: 0, height: 0, marginBottom: 0, overflow: 'hidden' }}
-                                  transition={{ duration: 0.2 }}
-                                  className="flex gap-4 items-center"
-                                >
-                                  <div className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden relative shrink-0 border border-gray-100 flex items-center justify-center">
-                                    {imgUrl ? (
-                                      <Image src={imgUrl} fill sizes="48px" alt={item.name} className="object-cover" />
-                                    ) : (
-                                      <span className="text-sm font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
-                                    )}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className="font-bold text-sm text-gray-900 truncate">{item.name}</h4>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                      <span className="text-xs text-gray-500 font-medium">Qty: {item.quantity}</span>
-                                      {item.size && item.size !== 'Standard' && (
-                                        <span className="text-[10px] bg-gray-50 text-gray-500 px-1.5 py-0.5 rounded border border-gray-100 font-bold uppercase tracking-wider">{item.size}</span>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-black text-sm text-gray-900 tabular-nums">₹{(item.price * item.quantity).toFixed(2)}</span>
-                                    {orderStatus === 'pending' && (
-                                      <button
-                                        onClick={async () => {
-                                          if (confirm(`Cancel "${item.name}" from your order?`)) {
-                                            const updatedItems = trackedOrderItems.filter(
-                                              (i) => !(i.dish_id === item.dish_id && i.size === item.size)
-                                            );
-                                            const newTotal = updatedItems.reduce(
-                                              (sum, curr) => sum + (curr.price * curr.quantity),
-                                              0
-                                            );
+                      return (
+                        <div
+                          key={order.id}
+                          className={`p-5 rounded-2xl border shadow-sm flex flex-col gap-4 relative overflow-hidden transition-all duration-200 ${
+                            isOrderPending ? 'border-amber-200 bg-amber-50/10' :
+                            isOrderPreparing ? 'border-orange-200 bg-orange-50/10' :
+                            isOrderServed ? 'border-emerald-200 bg-emerald-50/10' :
+                            'border-gray-200 bg-gray-50/30'
+                          }`}
+                        >
+                          {/* Card Top Border Accent */}
+                          <div className={`absolute top-0 left-0 w-full h-1 ${
+                            isOrderPending ? 'bg-amber-400' :
+                            isOrderPreparing ? 'bg-orange-500' :
+                            isOrderServed ? 'bg-emerald-500' :
+                            'bg-gray-400'
+                          }`} />
 
-                                            if (updatedItems.length === 0) {
-                                              await supabase
-                                                .from('orders')
-                                                .update({ status: 'cancelled', items: [], total_amount: 0 })
-                                                .eq('id', activeOrderId);
-                                              setOrderStatus('cancelled');
-                                              setTrackedOrderItems([]);
-                                              if (typeof window !== 'undefined') {
-                                                localStorage.removeItem(`active_order_id_${params.slug}`);
-                                              }
-                                            } else {
-                                              await supabase
-                                                .from('orders')
-                                                .update({ items: updatedItems, total_amount: newTotal })
-                                                .eq('id', activeOrderId);
-                                              setTrackedOrderItems(updatedItems);
-                                            }
-                                          }
-                                        }}
-                                        className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-all cursor-pointer flex items-center justify-center shrink-0"
-                                        title="Cancel item"
+                          {/* Card Header */}
+                          <div className="flex justify-between items-start border-b border-gray-100 pb-3">
+                            <div>
+                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block leading-none mb-1">
+                                Order #{orderIdx + 1}
+                              </span>
+                              <span className="text-sm font-black text-gray-900 leading-none">
+                                {tableNo ? `Table ${tableNo}` : 'WhatsApp Order'}
+                              </span>
+                            </div>
+                            <div className="flex flex-col items-end gap-1">
+                              {isOrderPending && <span className="flex items-center gap-1 text-[11px] font-black text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending</span>}
+                              {isOrderPreparing && <span className="flex items-center gap-1 text-[11px] font-black text-orange-800 bg-orange-100 px-2 py-0.5 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Preparing</span>}
+                              {isOrderServed && <span className="flex items-center gap-1 text-[11px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
+                              {isOrderCancelled && <span className="flex items-center gap-1 text-[11px] font-black text-red-800 bg-red-100 px-2 py-0.5 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> Cancelled</span>}
+                            </div>
+                          </div>
+
+                          {/* Card Body (Items) */}
+                          <div className="space-y-4">
+                            <AnimatePresence initial={false}>
+                              {orderItems.map((item: any, itemIdx: number) => {
+                                const dishDetail = dishes.find(d => d.id === item.dish_id);
+                                const imgUrl = dishDetail?.image_url;
+
+                                const originalQty = item.quantity;
+                                const dbItem = order.items?.find((i: any) => i.dish_id === item.dish_id && i.size === item.size);
+                                const activeQty = isOrderCancelled ? 0 : (dbItem ? dbItem.quantity : 0);
+                                const cancelledQty = originalQty - activeQty;
+
+                                return (
+                                  <div key={itemIdx} className="flex flex-col gap-2">
+                                    {/* Active Item Block */}
+                                    {activeQty > 0 && (
+                                      <motion.div
+                                        key={`active-${item.dish_id}-${item.size || 'Standard'}`}
+                                        initial={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                        className="flex gap-3 items-center"
                                       >
-                                        <X className="w-3.5 h-3.5" />
-                                      </button>
+                                        <div className="w-10 h-10 rounded-xl bg-gray-100 overflow-hidden relative shrink-0 border border-gray-100 flex items-center justify-center">
+                                          {imgUrl ? (
+                                            <Image src={imgUrl} fill sizes="40px" alt={item.name} className="object-cover" />
+                                          ) : (
+                                            <span className="text-xs font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
+                                          )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <h4 className="font-bold text-sm text-gray-900 truncate">{item.name}</h4>
+                                          <div className="flex items-center gap-1.5 mt-0.5">
+                                            <span className="text-xs font-black text-gray-500">Qty: {activeQty}</span>
+                                            {item.size && item.size !== 'Standard' && (
+                                              <span className="text-[9px] bg-gray-50 text-gray-500 px-1 py-0.5 rounded border border-gray-100 font-bold uppercase tracking-wider">{item.size}</span>
+                                            )}
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="font-black text-sm text-gray-900 tabular-nums">₹{(item.price * activeQty).toFixed(2)}</span>
+                                          {isOrderPending && (
+                                            <button
+                                              onClick={async () => {
+                                                if (confirm(`Cancel "${item.name}" from your order?`)) {
+                                                  const updatedItems = order.items.filter(
+                                                    (i: any) => !(i.dish_id === item.dish_id && i.size === item.size)
+                                                  );
+                                                  const newTotal = updatedItems.reduce(
+                                                    (sum: number, curr: any) => sum + (curr.price * curr.quantity),
+                                                    0
+                                                  );
+
+                                                  if (updatedItems.length === 0) {
+                                                    await supabase
+                                                      .from('orders')
+                                                      .update({ status: 'cancelled', items: [], total_amount: 0 })
+                                                      .eq('id', order.id);
+                                                  } else {
+                                                    await supabase
+                                                      .from('orders')
+                                                      .update({ items: updatedItems, total_amount: newTotal })
+                                                      .eq('id', order.id);
+                                                  }
+                                                }
+                                              }}
+                                              className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-all cursor-pointer flex items-center justify-center shrink-0"
+                                              title="Cancel item"
+                                            >
+                                              <X className="w-3.5 h-3.5" />
+                                            </button>
+                                          )}
+                                        </div>
+                                      </motion.div>
+                                    )}
+
+                                    {/* Cancelled Item Block (Reflected on right side!) */}
+                                    {cancelledQty > 0 && (
+                                      <motion.div
+                                        key={`cancelled-${item.dish_id}-${item.size || 'Standard'}`}
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        className="flex gap-3 items-center opacity-60 line-through text-gray-400"
+                                      >
+                                        <div className="w-10 h-10 rounded-xl bg-gray-100 overflow-hidden relative shrink-0 border border-gray-100 flex items-center justify-center grayscale">
+                                          {imgUrl ? (
+                                            <Image src={imgUrl} fill sizes="40px" alt={item.name} className="object-cover" />
+                                          ) : (
+                                            <span className="text-xs font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
+                                          )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <h4 className="font-bold text-sm text-gray-400 truncate">{item.name}</h4>
+                                          <div className="flex items-center gap-1.5 mt-0.5">
+                                            <span className="text-xs font-medium text-gray-400">Qty: {cancelledQty}</span>
+                                            {item.size && item.size !== 'Standard' && (
+                                              <span className="text-[9px] bg-gray-50 text-gray-400 px-1 py-0.5 rounded border border-gray-100 font-bold uppercase tracking-wider">{item.size}</span>
+                                            )}
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 shrink-0">
+                                          <span className="text-xs font-black text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-100 flex items-center gap-1">
+                                            Cancelled
+                                          </span>
+                                        </div>
+                                      </motion.div>
                                     )}
                                   </div>
-                                </motion.div>
-                              );
-                            })}
-                          </AnimatePresence>
-                        </div>
+                                );
+                              })}
+                            </AnimatePresence>
+                          </div>
 
-                        {/* Summary info */}
-                        <div className="border-t border-dashed border-gray-200 pt-4 flex justify-between items-center mt-2">
-                          <span className="font-bold text-sm text-gray-500">Order Total</span>
-                          <span className="font-black text-lg text-gray-900 tabular-nums">
-                            ₹{trackedOrderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
-                          </span>
+                          {/* Card Footer (Order Total) */}
+                          <div className="border-t border-dashed border-gray-200 pt-3 flex justify-between items-center mt-1">
+                            <span className="font-bold text-xs text-gray-400 uppercase tracking-wide">KOT Total</span>
+                            <span className="font-black text-base text-gray-900 tabular-nums">
+                              ₹{Number(order.total_amount || 0).toFixed(2)}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      );
+                    })}
 
                     <button
                       onClick={() => {
                         setShowTracking(false);
                         setIsCartOpen(false);
                       }}
-                      className="w-full bg-gray-900 hover:bg-black text-white py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-95 cursor-pointer text-sm text-center mt-2"
+                      className="w-full bg-[#111827] hover:bg-black text-white py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-95 cursor-pointer text-sm text-center mt-2"
                     >
                       Order More Items
                     </button>
@@ -1135,12 +1219,25 @@ export default function MenuClient({
                         setOrderStatus('idle');
                         alert('Failed to place order. Please try again.');
                       } else {
-                        setActiveOrderId(data.id);
+                        // Append to activeOrderIds list
+                        setActiveOrderIds(prev => {
+                          const updated = [...prev, data.id];
+                          if (typeof window !== 'undefined') {
+                            localStorage.setItem(`active_order_ids_${params.slug}`, JSON.stringify(updated));
+                          }
+                          return updated;
+                        });
+
+                        // Cache original items list for change comparisons
+                        setOriginalItemsCache(prev => {
+                          const updated = { ...prev, [data.id]: payload.items };
+                          if (typeof window !== 'undefined') {
+                            localStorage.setItem(`original_items_cache_${params.slug}`, JSON.stringify(updated));
+                          }
+                          return updated;
+                        });
+
                         setOrderStatus('pending');
-                        setTrackedOrderItems(data.items || []);
-                        if (typeof window !== 'undefined') {
-                          localStorage.setItem(`active_order_id_${params.slug}`, data.id);
-                        }
                         setShowTracking(true);
                         setCart([]); // Clear cart on success
                       }
