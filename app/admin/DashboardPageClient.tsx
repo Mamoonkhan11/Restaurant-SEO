@@ -45,6 +45,8 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
 
   // Monitor and unlock AudioContext to bypass autoplay blocking policies
   useEffect(() => {
+    let listenersRegistered = false;
+
     const resumeAudio = () => {
       console.log("👆 User gesture detected on dashboard. Attempting to resume AudioContext...");
       const ctx = getAudioContext();
@@ -54,31 +56,51 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           ctx.resume().then(() => {
             console.log("✅ AudioContext successfully resumed. State is now:", ctx.state);
             setAudioNeedsInteraction(false);
+            removeListeners();
           }).catch(err => {
             console.error("❌ Failed to resume AudioContext:", err);
           });
         } else if (ctx.state === 'running') {
-          console.log("✅ AudioContext was already running.");
+          console.log("✅ AudioContext is running. Removing gesture listeners.");
           setAudioNeedsInteraction(false);
+          removeListeners();
         }
       }
+    };
+
+    const addListeners = () => {
+      if (listenersRegistered) return;
+      window.addEventListener('click', resumeAudio);
+      window.addEventListener('keydown', resumeAudio);
+      window.addEventListener('touchstart', resumeAudio);
+      listenersRegistered = true;
+      console.log("🔊 Registered AudioContext unblocking gesture listeners.");
+    };
+
+    const removeListeners = () => {
+      if (!listenersRegistered) return;
+      window.removeEventListener('click', resumeAudio);
+      window.removeEventListener('keydown', resumeAudio);
+      window.removeEventListener('touchstart', resumeAudio);
+      listenersRegistered = false;
+      console.log("🔇 Removed AudioContext unblocking gesture listeners.");
     };
 
     // Trigger state check after mount
     setTimeout(() => {
       const ctx = getAudioContext();
-      if (ctx && ctx.state === 'suspended') {
-        setAudioNeedsInteraction(true);
+      if (ctx) {
+        if (ctx.state === 'suspended') {
+          setAudioNeedsInteraction(true);
+          addListeners();
+        } else if (ctx.state === 'running') {
+          setAudioNeedsInteraction(false);
+        }
       }
     }, 1000);
 
-    window.addEventListener('click', resumeAudio);
-    window.addEventListener('keydown', resumeAudio);
-    window.addEventListener('touchstart', resumeAudio);
     return () => {
-      window.removeEventListener('click', resumeAudio);
-      window.removeEventListener('keydown', resumeAudio);
-      window.removeEventListener('touchstart', resumeAudio);
+      removeListeners();
     };
   }, []);
 
