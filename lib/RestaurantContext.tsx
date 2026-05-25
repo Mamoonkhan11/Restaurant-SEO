@@ -91,7 +91,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
       const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
       const noteDelay = 0.15; // Fast arpeggio speed (0.15s between notes)
       const noteDecay = 0.6;  // Fast decay for a clean, modern UI alert sound
-      const maxVolume = 0.06; // Soft, gentle, and user-friendly volume level
+      const maxVolume = 0.25; // Increased volume level for clear audibility
 
       rounds.forEach((roundStart) => {
         notes.forEach((freq, idx) => {
@@ -139,13 +139,13 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
     }
   };
 
-  // Loop the alert sound every 12 seconds (6s play window + 6s silence gap) if isAlerting is true and not muted
+  // Loop the alert sound every 9.5 seconds (6s play window + 3.5s silence gap) if isAlerting is true and not muted
   useEffect(() => {
     if (!isAlerting || audioMuted) return;
 
     const interval = setInterval(() => {
       playSynthesizedBell();
-    }, 12000);
+    }, 9500);
 
     return () => clearInterval(interval);
   }, [isAlerting, audioMuted]);

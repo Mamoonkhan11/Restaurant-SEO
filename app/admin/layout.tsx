@@ -98,11 +98,11 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
-        <div className="w-full flex items-center justify-center py-5 lg:py-8 border-b border-gray-800/40 shrink-0">
+        <div className="w-full flex items-center justify-center py-7 lg:py-10 border-b border-gray-800/40 shrink-0">
           <img
             src="/restdigi-logo.png"
             alt="RESTDIGI Logo"
-            className="h-14 lg:h-22 w-auto object-contain max-w-[85%] transition-transform hover:scale-105"
+            className="h-12 lg:h-16 w-auto object-contain max-w-[80%] transition-transform hover:scale-105"
           />
         </div>
         
@@ -148,15 +148,15 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             )}
           </div>
         )}
-        <header className="h-18 px-4 bg-white shadow-sm border-b border-gray-200 flex justify-between items-center md:hidden z-30 shrink-0">
+        <header className="h-20 px-4 bg-white shadow-sm border-b border-gray-200 flex justify-between items-center md:hidden z-30 shrink-0">
           <button onClick={() => setIsSidebarOpen(true)} className="text-[#111827] hover:text-black focus:outline-none p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
             <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </button>
-          <div className="flex items-center justify-center flex-1 mx-2">
+          <div className="flex items-center justify-center flex-1 mx-2 py-3">
             <img
               src="/restdigi-logo.png"
               alt="RESTDIGI Logo"
-              className="h-11 sm:h-12 w-auto object-contain max-w-[140px] sm:max-w-[170px]"
+              className="h-9 sm:h-10 w-auto object-contain max-w-[120px] sm:max-w-[140px]"
             />
           </div>
           <div className="w-10" /> {/* Spacer to center the logo */}

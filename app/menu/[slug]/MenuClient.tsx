@@ -756,6 +756,16 @@ export default function MenuClient({
         </>
       )}
 
+      {/* Powered By Footer */}
+      <div className="w-full py-12 flex flex-col items-center justify-center gap-2 border-t border-gray-100/50 bg-[#FDFBF7] mt-8">
+        <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Powered by</span>
+        <img
+          src="/restdigi-logo.png"
+          alt="RESTDIGI Logo"
+          className="h-8 w-auto object-contain opacity-40 hover:opacity-75 transition-opacity"
+        />
+      </div>
+
       {/* Sticky Bottom Bar for Cart */}
       {cartItemCount > 0 && !showTracking && (
         <div className="fixed bottom-4 left-4 right-4 z-50 animate-slide-up sm:max-w-md sm:mx-auto">
