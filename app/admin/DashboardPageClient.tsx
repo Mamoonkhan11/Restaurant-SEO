@@ -138,55 +138,35 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       }
 
       const now = ctx.currentTime;
-      console.log("🔔 Playing bell alert at AudioContext time:", now);
+      console.log("🔔 Playing soft notification chime arpeggio at AudioContext time:", now);
 
-      // Bell 1: E5 (659.25 Hz) - Pure sine waves for a soft, smooth chime timbre
-      const baseFreq1 = 659.25;
-      const ratios = [1.0, 1.2, 1.5, 2.0, 3.0];
-      const gains = [0.08, 0.04, 0.03, 0.02, 0.01]; // Significantly reduced gains for a soft background sound
-      const decays = [3.0, 2.0, 1.5, 1.0, 0.7]; // Bell 1 decays over 3.0 seconds
+      // Play 3 rounds of a soft, attractive ascending UI chime (C5 -> E5 -> G5) within the 6-second window
+      const rounds = [0.0, 2.0, 4.0];
+      const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+      const noteDelay = 0.15; // Fast arpeggio speed (0.15s between notes)
+      const noteDecay = 0.6;  // Fast decay for a clean, modern UI alert sound
+      const maxVolume = 0.06; // Soft, gentle, and user-friendly volume level
 
-      ratios.forEach((ratio, i) => {
-        const osc = ctx.createOscillator();
-        const gainNode = ctx.createGain();
+      rounds.forEach((roundStart) => {
+        notes.forEach((freq, idx) => {
+          const startTime = now + roundStart + (idx * noteDelay);
+          const osc = ctx.createOscillator();
+          const gainNode = ctx.createGain();
 
-        osc.type = 'sine'; // Smooth pure sine wave
-        osc.frequency.setValueAtTime(baseFreq1 * ratio, now);
+          osc.type = 'sine'; // Pure sine wave for a soft, smooth timbre
+          osc.frequency.setValueAtTime(freq, startTime);
 
-        gainNode.gain.setValueAtTime(0, now);
-        // Smoothed attack slope (0.05s) to eliminate harsh strike clicks/pops
-        gainNode.gain.linearRampToValueAtTime(gains[i], now + 0.05);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + decays[i]);
+          gainNode.gain.setValueAtTime(0, startTime);
+          // Soft attack slope (0.02s) to eliminate pop/click artifacts
+          gainNode.gain.linearRampToValueAtTime(maxVolume * (1 - idx * 0.15), startTime + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + noteDecay);
 
-        osc.connect(gainNode);
-        gainNode.connect(ctx.destination);
+          osc.connect(gainNode);
+          gainNode.connect(ctx.destination);
 
-        osc.start(now);
-        osc.stop(now + decays[i] + 0.1);
-      });
-
-      // Bell 2: C5 (523.25 Hz) delayed by 0.8 seconds (Ding... Dong chime at normal speed)
-      const delay = 0.8;
-      const baseFreq2 = 523.25;
-      const decays2 = [5.2, 3.5, 2.5, 1.8, 1.2]; // Bell 2 decays over 5.2 seconds (total 0.8 + 5.2 = 6.0 seconds)
-
-      ratios.forEach((ratio, i) => {
-        const osc = ctx.createOscillator();
-        const gainNode = ctx.createGain();
-
-        osc.type = 'sine'; // Smooth pure sine wave
-        osc.frequency.setValueAtTime(baseFreq2 * ratio, now + delay);
-
-        gainNode.gain.setValueAtTime(0, now + delay);
-        // Smoothed attack slope (0.05s) to eliminate harsh strike clicks/pops
-        gainNode.gain.linearRampToValueAtTime(gains[i] * 0.9, now + delay + 0.05);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + delay + decays2[i]);
-
-        osc.connect(gainNode);
-        gainNode.connect(ctx.destination);
-
-        osc.start(now + delay);
-        osc.stop(now + delay + decays2[i] + 0.1);
+          osc.start(startTime);
+          osc.stop(startTime + noteDecay + 0.1);
+        });
       });
     } catch (err) {
       console.warn("Realtime Audio Playback Intercepted:", err);
@@ -211,13 +191,13 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     }
   };
 
-  // Loop the alert sound every 8 seconds (6s play + 2s silence gap) if isAlerting is true and not muted
+  // Loop the alert sound every 14 seconds (6s play window + 8s silence gap) if isAlerting is true and not muted
   useEffect(() => {
     if (!isAlerting || audioMuted) return;
 
     const interval = setInterval(() => {
       playSynthesizedBell();
-    }, 8000);
+    }, 14000);
 
     return () => clearInterval(interval);
   }, [isAlerting, audioMuted]);

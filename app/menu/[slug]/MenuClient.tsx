@@ -922,30 +922,6 @@ export default function MenuClient({
                           <Loader2 className="w-10 h-10 animate-spin text-yellow-500" />
                           <p className="font-black text-lg">Order Pending</p>
                           <p className="text-gray-500 text-xs leading-relaxed max-w-[200px]">Waiting for kitchen confirmation...</p>
-                          <button
-                            onClick={async () => {
-                              if (confirm("Are you sure you want to cancel this order?")) {
-                                try {
-                                  const { error } = await supabase
-                                    .from('orders')
-                                    .update({ status: 'cancelled' })
-                                    .eq('id', activeOrderId);
-                                  if (error) throw error;
-
-                                  setOrderStatus('cancelled');
-                                  setTrackedOrderItems([]);
-                                  if (typeof window !== 'undefined') {
-                                    localStorage.removeItem(`active_order_id_${params.slug}`);
-                                  }
-                                } catch (err: any) {
-                                  alert("Failed to cancel order: " + err.message);
-                                }
-                              }
-                            }}
-                            className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors uppercase tracking-wider cursor-pointer bg-transparent border-none mt-2"
-                          >
-                            Cancel Order
-                          </button>
                         </>
                       )}
                       {orderStatus === 'preparing' && (
@@ -1014,7 +990,46 @@ export default function MenuClient({
                                       )}
                                     </div>
                                   </div>
-                                  <span className="font-black text-sm text-gray-900 tabular-nums">₹{(item.price * item.quantity).toFixed(2)}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-black text-sm text-gray-900 tabular-nums">₹{(item.price * item.quantity).toFixed(2)}</span>
+                                    {orderStatus === 'pending' && (
+                                      <button
+                                        onClick={async () => {
+                                          if (confirm(`Cancel "${item.name}" from your order?`)) {
+                                            const updatedItems = trackedOrderItems.filter(
+                                              (i) => !(i.dish_id === item.dish_id && i.size === item.size)
+                                            );
+                                            const newTotal = updatedItems.reduce(
+                                              (sum, curr) => sum + (curr.price * curr.quantity),
+                                              0
+                                            );
+
+                                            if (updatedItems.length === 0) {
+                                              await supabase
+                                                .from('orders')
+                                                .update({ status: 'cancelled', items: [], total_amount: 0 })
+                                                .eq('id', activeOrderId);
+                                              setOrderStatus('cancelled');
+                                              setTrackedOrderItems([]);
+                                              if (typeof window !== 'undefined') {
+                                                localStorage.removeItem(`active_order_id_${params.slug}`);
+                                              }
+                                            } else {
+                                              await supabase
+                                                .from('orders')
+                                                .update({ items: updatedItems, total_amount: newTotal })
+                                                .eq('id', activeOrderId);
+                                              setTrackedOrderItems(updatedItems);
+                                            }
+                                          }
+                                        }}
+                                        className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-all cursor-pointer flex items-center justify-center shrink-0"
+                                        title="Cancel item"
+                                      >
+                                        <X className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
+                                  </div>
                                 </motion.div>
                               );
                             })}
