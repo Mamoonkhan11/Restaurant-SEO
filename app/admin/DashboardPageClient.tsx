@@ -144,7 +144,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       const baseFreq1 = 880;
       const ratios = [1.0, 1.2, 1.5, 2.0, 3.0]; // prime, minor third, fifth, octave, supernominal
       const gains = [0.45, 0.22, 0.18, 0.25, 0.12];
-      const decays = [1.5, 1.0, 0.8, 0.6, 0.4];
+      const decays = [3.0, 2.0, 1.5, 1.0, 0.7]; // Bell 1 decays over 3 seconds
 
       ratios.forEach((ratio, i) => {
         const osc = ctx.createOscillator();
@@ -164,10 +164,10 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         osc.stop(now + decays[i] + 0.1);
       });
 
-      // Bell 2: Lower strike at 659.25 Hz (E5) delayed by 350ms (ding-dong effect)
-      const delay = 0.35;
+      // Bell 2: Lower strike at 659.25 Hz (E5) delayed by 1.5 seconds (Ding... Dong)
+      const delay = 1.5;
       const baseFreq2 = 659.25;
-      const decays2 = [1.8, 1.2, 1.0, 0.8, 0.5];
+      const decays2 = [4.5, 3.0, 2.2, 1.5, 1.0]; // Bell 2 decays over 4.5 seconds (total 1.5 + 4.5 = 6.0 seconds)
 
       ratios.forEach((ratio, i) => {
         const osc = ctx.createOscillator();
@@ -209,13 +209,13 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     }
   };
 
-  // Loop the alert sound every 6 seconds if isAlerting is true and not muted
+  // Loop the alert sound every 5 seconds if isAlerting is true and not muted
   useEffect(() => {
     if (!isAlerting || audioMuted) return;
 
     const interval = setInterval(() => {
       playSynthesizedBell();
-    }, 6000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [isAlerting, audioMuted]);
@@ -373,7 +373,29 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                       {item.size && item.size !== 'Standard' && <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mt-0.5">{item.size}</span>}
                     </div>
                   </div>
-                  <span className="font-bold text-gray-600 tabular-nums">₹{(item.price * item.quantity).toFixed(2)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-gray-600 tabular-nums">₹{(item.price * item.quantity).toFixed(2)}</span>
+                    <button
+                      onClick={async () => {
+                        if (confirm(`Remove "${item.name}" from this order?`)) {
+                          const updatedItems = order.items.filter((_: any, i: number) => i !== idx);
+                          const newTotal = updatedItems.reduce((sum: number, curr: any) => sum + (curr.price * curr.quantity), 0);
+                          
+                          if (updatedItems.length === 0) {
+                            await supabase.from('orders').update({ status: 'cancelled', items: [], total_amount: 0 }).eq('id', order.id);
+                            toast.success("Order cancelled because all items were removed.");
+                          } else {
+                            await supabase.from('orders').update({ items: updatedItems, total_amount: newTotal }).eq('id', order.id);
+                            toast.success(`Removed "${item.name}" from order.`);
+                          }
+                        }
+                      }}
+                      className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-all cursor-pointer opacity-80 hover:opacity-100 flex items-center justify-center shrink-0"
+                      title="Remove item"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
