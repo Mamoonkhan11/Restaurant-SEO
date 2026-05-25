@@ -6,7 +6,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-slate-50 selection:bg-orange-200">
 
       {/* Navigation */}
-      <nav className="fixed w-full z-50 bg-transparent">
+      <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-3 sm:py-4 lg:py-5">
             <div className="flex items-center py-1 sm:py-2">
