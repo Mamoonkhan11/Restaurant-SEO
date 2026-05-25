@@ -90,10 +90,10 @@ export default function MenuClient({
       } else {
         document.title = `${businessName} | Order Online`;
       }
-      
+
       const categoryDesc = hasTappedCategory && activeCategory ? `${activeCategory} menu at ` : '';
       const descText = `Explore our delicious ${categoryDesc}${businessName}. View prices, details, and order instantly from your browser!`;
-      
+
       const metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
         metaDescription.setAttribute('content', descText);
@@ -251,7 +251,7 @@ export default function MenuClient({
         { event: 'refresh-menu' },
         async () => {
           console.log('Received menu update broadcast event!');
-          
+
           // 1. Fetch latest restaurant details to update immediately (logo, brand name, color, etc.)
           const { data: freshRestaurant } = await supabase
             .from('restaurants')
@@ -479,284 +479,297 @@ export default function MenuClient({
           </div>
         ) : (
           <>
-          {/* Special Offers Section */}
-          {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).length > 0 && (
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-12 pt-2">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <span className="text-orange-500">✨</span> Offers for You
-              </h2>
-              <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x">
-                {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).map(item => (
-                  <motion.div
-                    key={`offer-${item.id}`}
-                    onClick={() => handleDishClick(item)}
-                    className="min-w-[260px] max-w-[260px] bg-white rounded-3xl p-3 flex gap-3 shadow-sm border border-orange-100 relative overflow-visible snap-center cursor-pointer hover:shadow-md transition-all shrink-0"
-                  >
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100/50 shrink-0 overflow-hidden relative border border-orange-50/50 flex items-center justify-center">
-                      {item.image_url ? (
-                        <Image src={item.image_url} fill sizes="80px" alt={item.name} className="object-cover" />
-                      ) : (
-                        <span className="text-xl font-black text-orange-400 uppercase select-none">{item.name.charAt(0)}</span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
-                      <h3 className="text-base font-bold text-gray-900 truncate">{item.name}</h3>
-                      <span className="text-sm font-black text-gray-900 mt-1 block">
-                        ₹{getDishPrice(item)}
-                      </span>
-                    </div>
-                    {item.offer_tag && item.restaurant_id === initialRestaurant.id && (
-                      <div
-                        className="absolute z-[50] -bottom-[10px] -right-[8px] -rotate-[3deg] whitespace-nowrap font-black text-[10px] sm:text-xs text-white px-3 py-1.5 shadow-xl border-2 border-white"
-                        style={{
-                          backgroundColor: '#f97316',
-                          borderRadius: '12px 4px 12px 4px'
-                        }}
-                      >
-                        {item.offer_tag}
+            {/* Special Offers Section */}
+            {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).length > 0 && (
+              <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-12 pt-2">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="text-orange-500">✨</span> Offers for You
+                </h2>
+                <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x">
+                  {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).map(item => (
+                    <motion.div
+                      key={`offer-${item.id}`}
+                      onClick={() => handleDishClick(item)}
+                      className="min-w-[260px] max-w-[260px] bg-white rounded-3xl p-3 flex gap-3 shadow-sm border border-orange-100 relative overflow-visible snap-center cursor-pointer hover:shadow-md transition-all shrink-0"
+                    >
+                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100/50 shrink-0 overflow-hidden relative border border-orange-50/50 flex items-center justify-center">
+                        {item.image_url ? (
+                          <Image src={item.image_url} fill sizes="80px" alt={item.name} className="object-cover" />
+                        ) : (
+                          <span className="text-xl font-black text-orange-400 uppercase select-none">{item.name.charAt(0)}</span>
+                        )}
                       </div>
-                    )}
-                  </motion.div>
-                ))}
+                      <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h3 className="text-base font-bold text-gray-900 truncate">{item.name}</h3>
+                          {/* Secure Strict Conditional Badge Rendering */}
+                          {item.special_tag && item.special_tag.trim() !== "" && (
+                            <span className="bg-brand-orange text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+                              {item.special_tag}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-sm font-black text-gray-900 mt-1 block">
+                          ₹{getDishPrice(item)}
+                        </span>
+                      </div>
+                      {item.offer_tag && item.restaurant_id === initialRestaurant.id && (
+                        <div
+                          className="absolute z-[50] -bottom-[10px] -right-[8px] -rotate-[3deg] whitespace-nowrap font-black text-[10px] sm:text-xs text-white px-3 py-1.5 shadow-xl border-2 border-white"
+                          style={{
+                            backgroundColor: '#f97316',
+                            borderRadius: '12px 4px 12px 4px'
+                          }}
+                        >
+                          {item.offer_tag}
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Search Bar */}
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-6 mt-8">
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 group-focus-within:text-black transition-colors" />
-              </div>
-              <input
-                type="text"
-                className="block w-full pl-14 pr-10 py-4 sm:py-5 text-sm sm:text-base bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 theme-ring transition-all shadow-sm font-medium"
-                placeholder="Search for a dish..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-900 transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Quick Jump Bar */}
-          {categories.length > 0 && (
-            <div className="sticky top-0 z-50 w-full bg-[#F9FAFB] border-b border-gray-200 shadow-sm">
-              <div className="max-w-3xl mx-auto py-3 flex gap-2 overflow-x-auto scrollbar-hide snap-x scroll-pl-4 sm:scroll-pl-6 pl-4 sm:pl-6 pr-4 sm:pr-6">
-                {categories.map((cat) => (
+            {/* Search Bar */}
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-6 mt-8">
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 group-focus-within:text-black transition-colors" />
+                </div>
+                <input
+                  type="text"
+                  className="block w-full pl-14 pr-10 py-4 sm:py-5 text-sm sm:text-base bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 theme-ring transition-all shadow-sm font-medium"
+                  placeholder="Search for a dish..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
                   <button
-                    key={cat}
-                    onClick={() => {
-                      setActiveCategory(cat);
-                      setHasTappedCategory(true);
-                      const el = document.getElementById(`category-${cat}`);
-                      if (el) {
-                        const y = el.getBoundingClientRect().top + window.scrollY - 80;
-                        window.scrollTo({ top: y, behavior: 'smooth' });
-                      }
-                    }}
-                    className={`whitespace-nowrap shrink-0 px-5 py-2 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${
-                      activeCategory === cat
-                        ? 'text-white'
-                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
-                    }`}
-                    style={activeCategory === cat ? { backgroundColor: '#000000' } : {}}
+                    onClick={() => setSearchQuery('')}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-900 transition-colors"
                   >
-                    {cat}
+                    <X className="h-5 w-5" />
                   </button>
-                ))}
+                )}
               </div>
             </div>
-          )}
 
-          {/* Menu List by Categories */}
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-12">
-            {dishes.length === 0 ? (
-              <div className="text-center py-20">
-                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-dashed border-gray-200">
-                  <AlertCircle className="h-8 w-8 text-gray-400" />
-                </div>
-                <p className="text-gray-500 font-medium sm:text-lg">No items available</p>
-              </div>
-            ) : Object.keys(groupedDishes).length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Search className="h-8 w-8 text-gray-400" />
-                </div>
-                <p className="text-gray-500 font-medium sm:text-lg">No dishes found matching your search.</p>
-              </div>
-            ) : (
-              categories.map((cat) => {
-                const categoryDishes = groupedDishes[cat];
-                if (!categoryDishes || categoryDishes.length === 0) return null;
-
-                return (
-                  <div key={cat} id={`category-${cat}`} className="scroll-mt-24 pt-4">
-                    <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6">
+            {/* Quick Jump Bar */}
+            {categories.length > 0 && (
+              <div className="sticky top-0 z-50 w-full bg-[#F9FAFB] border-b border-gray-200 shadow-sm">
+                <div className="max-w-3xl mx-auto py-3 flex gap-2 overflow-x-auto scrollbar-hide snap-x scroll-pl-4 sm:scroll-pl-6 pl-4 sm:pl-6 pr-4 sm:pr-6">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        setActiveCategory(cat);
+                        setHasTappedCategory(true);
+                        const el = document.getElementById(`category-${cat}`);
+                        if (el) {
+                          const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                          window.scrollTo({ top: y, behavior: 'smooth' });
+                        }
+                      }}
+                      className={`whitespace-nowrap shrink-0 px-5 py-2 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${activeCategory === cat
+                          ? 'text-white'
+                          : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
+                        }`}
+                      style={activeCategory === cat ? { backgroundColor: '#000000' } : {}}
+                    >
                       {cat}
-                    </h2>
-                    <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
-                      {categoryDishes.map((item: any, index: number) => {
-                        const sizeKey = item.sizes && Object.keys(item.sizes).length > 0
-                          ? Object.keys(item.sizes)[selectedSizes[item.id] || 0]
-                          : 'Standard';
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-                        const cartItem = cart.find(c => c.dish_id === item.id && c.size === sizeKey);
-                        const quantity = cartItem ? cartItem.quantity : 0;
-                        const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
+            {/* Menu List by Categories */}
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-12">
+              {dishes.length === 0 ? (
+                <div className="text-center py-20">
+                  <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-dashed border-gray-200">
+                    <AlertCircle className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 font-medium sm:text-lg">No items available</p>
+                </div>
+              ) : Object.keys(groupedDishes).length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Search className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 font-medium sm:text-lg">No dishes found matching your search.</p>
+                </div>
+              ) : (
+                categories.map((cat) => {
+                  const categoryDishes = groupedDishes[cat];
+                  if (!categoryDishes || categoryDishes.length === 0) return null;
 
-                        return (
-                          <div
-                            key={item.id}
-                            onClick={() => {
-                              handleDishClick(item);
-                            }}
-                            className={`bg-white rounded-2xl p-3 sm:p-4 flex flex-row gap-4 items-center relative group shadow-sm border border-gray-100 transition-all duration-200 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-gray-200 hover:shadow-md'}`}
-                          >
-                            {/* Image */}
-                            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 shrink-0 overflow-hidden relative border border-gray-100 flex items-center justify-center">
-                              {item.image_url ? (
-                                <Image
-                                  src={item.image_url}
-                                  fill
-                                  sizes="(max-width: 640px) 96px, 112px"
-                                  alt={item.name}
-                                  className="object-cover"
-                                  loading="lazy"
-                                />
-                              ) : (
-                                <span className="text-2xl font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
-                              )}
-                            </div>
+                  return (
+                    <div key={cat} id={`category-${cat}`} className="scroll-mt-24 pt-4">
+                      <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6">
+                        {cat}
+                      </h2>
+                      <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
+                        {categoryDishes.map((item: any, index: number) => {
+                          const sizeKey = item.sizes && Object.keys(item.sizes).length > 0
+                            ? Object.keys(item.sizes)[selectedSizes[item.id] || 0]
+                            : 'Standard';
 
-                            {/* Info */}
-                            <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
-                              <div className="flex items-center gap-2 mb-1">
-                                <div className={`w-3 h-3 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0`}>
-                                  <div className={`w-1.5 h-1.5 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}></div>
-                                </div>
-                                <h3 className="text-base sm:text-lg font-bold text-[#111827] truncate">
-                                  {item.name}
-                                </h3>
+                          const cartItem = cart.find(c => c.dish_id === item.id && c.size === sizeKey);
+                          const quantity = cartItem ? cartItem.quantity : 0;
+                          const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
+
+                          return (
+                            <div
+                              key={item.id}
+                              onClick={() => {
+                                handleDishClick(item);
+                              }}
+                              className={`bg-white rounded-2xl p-3 sm:p-4 flex flex-row gap-4 items-center relative group shadow-sm border border-gray-100 transition-all duration-200 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-gray-200 hover:shadow-md'}`}
+                            >
+                              {/* Image */}
+                              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 shrink-0 overflow-hidden relative border border-gray-100 flex items-center justify-center">
+                                {item.image_url ? (
+                                  <Image
+                                    src={item.image_url}
+                                    fill
+                                    sizes="(max-width: 640px) 96px, 112px"
+                                    alt={item.name}
+                                    className="object-cover"
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <span className="text-2xl font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
+                                )}
                               </div>
-                              {item.description && (
-                                <p className="text-gray-500 text-xs sm:text-sm mt-0.5 line-clamp-2 leading-relaxed">
-                                  {item.description}
-                                </p>
-                              )}
 
-                              {item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0 && (
-                                <div className="mt-2 flex flex-wrap gap-1.5" onClick={e => e.stopPropagation()}>
-                                  {Object.entries(item.sizes).map(([label, _price], i: number) => {
-                                    const isSelected = (selectedSizes[item.id] || 0) === i;
-                                    return (
-                                      <button
-                                        key={i}
-                                        onClick={(e) => { e.stopPropagation(); setSelectedSizes({ ...selectedSizes, [item.id]: i }); }}
-                                        className={`px-2 py-1 text-[10px] uppercase tracking-wide font-bold rounded-lg transition-all ${isSelected ? 'bg-[#111827] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-                                      >
-                                        {label}
-                                      </button>
-                                    );
-                                  })}
+                              {/* Info */}
+                              <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <div className={`w-3 h-3 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0`}>
+                                    <div className={`w-1.5 h-1.5 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}></div>
+                                  </div>
+                                  <h3 className="text-base sm:text-lg font-bold text-[#111827] truncate">
+                                    {item.name}
+                                  </h3>
+                                  {/* Secure Strict Conditional Badge Rendering */}
+                                  {item.special_tag && item.special_tag.trim() !== "" && (
+                                    <span className="bg-brand-orange text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                      {item.special_tag}
+                                    </span>
+                                  )}
                                 </div>
-                              )}
+                                {item.description && (
+                                  <p className="text-gray-500 text-xs sm:text-sm mt-0.5 line-clamp-2 leading-relaxed">
+                                    {item.description}
+                                  </p>
+                                )}
 
-                              <div className="mt-3 flex items-center justify-between">
-                                <span className="text-base sm:text-lg font-black text-[#111827] tabular-nums">
-                                  ₹{getDishPrice(item)}
-                                </span>
-
-                                {/* Add to Cart logic */}
-                                {item.is_available && (
-                                  <div className="shrink-0 ml-4">
-                                    {quantity > 0 ? (
-                                      <div className="flex items-center gap-3 bg-gray-100 border border-gray-200 px-1 py-1 rounded-full shadow-sm animate-fade-in">
+                                {item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0 && (
+                                  <div className="mt-2 flex flex-wrap gap-1.5" onClick={e => e.stopPropagation()}>
+                                    {Object.entries(item.sizes).map(([label, _price], i: number) => {
+                                      const isSelected = (selectedSizes[item.id] || 0) === i;
+                                      return (
                                         <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setCart(prev => {
-                                              const newCart = [...prev];
-                                              const idx = newCart.findIndex(c => c.dish_id === item.id && c.size === sizeKey);
-                                              if (idx >= 0) {
-                                                newCart[idx].quantity -= 1;
-                                                if (newCart[idx].quantity <= 0) newCart.splice(idx, 1);
-                                              }
-                                              return newCart;
-                                            });
-                                          }}
-                                          className="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 text-gray-500 rounded-full font-bold active:scale-95 transition-transform hover:bg-gray-50"
+                                          key={i}
+                                          onClick={(e) => { e.stopPropagation(); setSelectedSizes({ ...selectedSizes, [item.id]: i }); }}
+                                          className={`px-2 py-1 text-[10px] uppercase tracking-wide font-bold rounded-lg transition-all ${isSelected ? 'bg-[#111827] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                                         >
-                                          -
+                                          {label}
                                         </button>
-                                        <span className="font-bold text-gray-900 text-sm w-4 text-center">{quantity}</span>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (quantity < 10) {
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                <div className="mt-3 flex items-center justify-between">
+                                  <span className="text-base sm:text-lg font-black text-[#111827] tabular-nums">
+                                    ₹{getDishPrice(item)}
+                                  </span>
+
+                                  {/* Add to Cart logic */}
+                                  {item.is_available && (
+                                    <div className="shrink-0 ml-4">
+                                      {quantity > 0 ? (
+                                        <div className="flex items-center gap-3 bg-gray-100 border border-gray-200 px-1 py-1 rounded-full shadow-sm animate-fade-in">
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
                                               setCart(prev => {
                                                 const newCart = [...prev];
                                                 const idx = newCart.findIndex(c => c.dish_id === item.id && c.size === sizeKey);
-                                                if (idx >= 0) newCart[idx].quantity += 1;
+                                                if (idx >= 0) {
+                                                  newCart[idx].quantity -= 1;
+                                                  if (newCart[idx].quantity <= 0) newCart.splice(idx, 1);
+                                                }
                                                 return newCart;
                                               });
-                                            }
+                                            }}
+                                            className="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 text-gray-500 rounded-full font-bold active:scale-95 transition-transform hover:bg-gray-50"
+                                          >
+                                            -
+                                          </button>
+                                          <span className="font-bold text-gray-900 text-sm w-4 text-center">{quantity}</span>
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              if (quantity < 10) {
+                                                setCart(prev => {
+                                                  const newCart = [...prev];
+                                                  const idx = newCart.findIndex(c => c.dish_id === item.id && c.size === sizeKey);
+                                                  if (idx >= 0) newCart[idx].quantity += 1;
+                                                  return newCart;
+                                                });
+                                              }
+                                            }}
+                                            className="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 text-gray-500 rounded-full font-bold active:scale-95 transition-transform hover:bg-gray-50"
+                                          >
+                                            +
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setCart(prev => [...prev, {
+                                              dish_id: item.id,
+                                              name: item.name,
+                                              price: Number(getDishPrice(item)),
+                                              quantity: 1,
+                                              size: sizeKey,
+                                              img: item.image_url
+                                            }]);
                                           }}
-                                          className="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 text-gray-500 rounded-full font-bold active:scale-95 transition-transform hover:bg-gray-50"
+                                          className="bg-[#F9FAFB] hover:bg-gray-100 text-[#111827] border border-gray-200 px-5 py-1.5 rounded-full font-bold text-sm transition-colors active:scale-95 shadow-sm"
                                         >
-                                          +
+                                          ADD
                                         </button>
-                                      </div>
-                                    ) : (
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setCart(prev => [...prev, {
-                                            dish_id: item.id,
-                                            name: item.name,
-                                            price: Number(getDishPrice(item)),
-                                            quantity: 1,
-                                            size: sizeKey,
-                                            img: item.image_url
-                                          }]);
-                                        }}
-                                        className="bg-[#F9FAFB] hover:bg-gray-100 text-[#111827] border border-gray-200 px-5 py-1.5 rounded-full font-bold text-sm transition-colors active:scale-95 shadow-sm"
-                                      >
-                                        ADD
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                            </div>
 
-                            {item.is_special_offer && item.offer_tag && item.is_available && item.restaurant_id === initialRestaurant.id && (
-                              <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-[#111827] text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase">
-                                {item.offer_tag}
-                              </div>
-                            )}
-                            {!item.is_available && (
-                              <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-gray-500 text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase">
-                                Out of stock
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                              {item.is_special_offer && item.offer_tag && item.is_available && item.restaurant_id === initialRestaurant.id && (
+                                <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-[#111827] text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase">
+                                  {item.offer_tag}
+                                </div>
+                              )}
+                              {!item.is_available && (
+                                <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-gray-500 text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase">
+                                  Out of stock
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </>
+                  );
+                })
+              )}
+            </div>
+          </>
         )}
       </main>
 
@@ -984,20 +997,18 @@ export default function MenuClient({
                       return (
                         <div
                           key={order.id}
-                          className={`p-5 rounded-2xl border shadow-sm flex flex-col gap-4 relative overflow-hidden transition-all duration-200 ${
-                            isOrderPending ? 'border-amber-200 bg-amber-50/10' :
-                            isOrderPreparing ? 'border-orange-200 bg-orange-50/10' :
-                            isOrderServed ? 'border-emerald-200 bg-emerald-50/10' :
-                            'border-gray-200 bg-gray-50/30'
-                          }`}
+                          className={`p-5 rounded-2xl border shadow-sm flex flex-col gap-4 relative overflow-hidden transition-all duration-200 ${isOrderPending ? 'border-amber-200 bg-amber-50/10' :
+                              isOrderPreparing ? 'border-orange-200 bg-orange-50/10' :
+                                isOrderServed ? 'border-emerald-200 bg-emerald-50/10' :
+                                  'border-gray-200 bg-gray-50/30'
+                            }`}
                         >
                           {/* Card Top Border Accent */}
-                          <div className={`absolute top-0 left-0 w-full h-1 ${
-                            isOrderPending ? 'bg-amber-400' :
-                            isOrderPreparing ? 'bg-orange-500' :
-                            isOrderServed ? 'bg-emerald-500' :
-                            'bg-gray-400'
-                          }`} />
+                          <div className={`absolute top-0 left-0 w-full h-1 ${isOrderPending ? 'bg-amber-400' :
+                              isOrderPreparing ? 'bg-orange-500' :
+                                isOrderServed ? 'bg-emerald-500' :
+                                  'bg-gray-400'
+                            }`} />
 
                           {/* Card Header */}
                           <div className="flex justify-between items-start border-b border-gray-100 pb-3">

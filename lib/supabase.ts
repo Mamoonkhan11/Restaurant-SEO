@@ -25,6 +25,7 @@ export interface Dish {
   sizes?: Record<string, number>;
   is_special_offer?: boolean;
   offer_tag?: string | null;
+  special_tag?: string | null;
 }
 
 /**
