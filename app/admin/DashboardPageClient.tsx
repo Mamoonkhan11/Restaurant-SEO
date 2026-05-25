@@ -46,13 +46,19 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   // Monitor and unlock AudioContext to bypass autoplay blocking policies
   useEffect(() => {
     const resumeAudio = () => {
+      console.log("👆 User gesture detected on dashboard. Attempting to resume AudioContext...");
       const ctx = getAudioContext();
       if (ctx) {
+        console.log("State before resume:", ctx.state);
         if (ctx.state === 'suspended') {
           ctx.resume().then(() => {
+            console.log("✅ AudioContext successfully resumed. State is now:", ctx.state);
             setAudioNeedsInteraction(false);
+          }).catch(err => {
+            console.error("❌ Failed to resume AudioContext:", err);
           });
         } else if (ctx.state === 'running') {
+          console.log("✅ AudioContext was already running.");
           setAudioNeedsInteraction(false);
         }
       }
@@ -101,11 +107,16 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   };
 
   const playSynthesizedBell = () => {
+    console.log("🔔 playSynthesizedBell() called. AudioContext state:", audioCtxRef.current?.state);
     try {
       const ctx = getAudioContext();
-      if (!ctx) return;
+      if (!ctx) {
+        console.warn("🔔 Failed to get AudioContext");
+        return;
+      }
 
       const now = ctx.currentTime;
+      console.log("🔔 Playing bell alert at AudioContext time:", now);
 
       // Bell 1: Bright strike at 880 Hz (A5) with rich inharmonic partials
       const baseFreq1 = 880;
@@ -222,21 +233,23 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     fetchOrders();
 
     const ordersSubscription = supabase
-      .channel('live-orders')
+      .channel(`live-orders-${restaurantId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'orders',
-          filter: `restaurant_id=eq.${restaurantId}`,
+          table: 'orders'
         },
         (payload) => {
-          if (payload.new) {
+          if (payload.new && payload.new.restaurant_id === restaurantId) {
             console.log("🟢 REALTIME NEW ORDER DETECTED FOR TABLE:", payload.new.table_no);
             if (!audioMutedRef.current) {
+              console.log("🔔 Audio is unmuted. Triggering bell ring...");
               setIsAlerting(true);
               playSynthesizedBell();
+            } else {
+              console.log("🔇 Audio is muted. Skipping bell ring.");
             }
             setLiveOrders(prev => [payload.new, ...prev]);
             toast.success(`New order received from ${payload.new.table_no}!`);
@@ -248,11 +261,11 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'orders',
-          filter: `restaurant_id=eq.${restaurantId}`,
+          table: 'orders'
         },
         (payload) => {
-          if (payload.new) {
+          if (payload.new && payload.new.restaurant_id === restaurantId) {
+            console.log("🟢 REALTIME ORDER UPDATE DETECTED:", payload.new.id, payload.new.status);
             setLiveOrders(prev => {
               if (payload.new.status === 'served') {
                 return prev.filter(o => o.id !== payload.new.id);
@@ -262,7 +275,9 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`📡 Supabase Realtime Subscription Status (orders):`, status);
+      });
 
     return () => {
       supabase.removeChannel(ordersSubscription);
