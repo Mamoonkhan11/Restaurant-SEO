@@ -8,11 +8,15 @@ export default function Home() {
       {/* Navigation */}
       <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-18 lg:h-24">
-            <div className="flex items-center">
-              <img src="/restdigi-logo.png" className="h-12 lg:h-16 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
+          <div className="flex justify-between items-center py-3 sm:py-4 lg:py-5">
+            <div className="flex items-center py-1 sm:py-2">
+              <img
+                src="/restdigi-logo.png"
+                className="h-10 sm:h-12 lg:h-16 w-auto object-contain transition-transform hover:scale-105"
+                alt="RESTDIGI Logo"
+              />
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <Link
                 href="/admin"
                 className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
