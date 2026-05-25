@@ -405,7 +405,7 @@ export default function MenuClient({
   const menuBlocked = isExpiredWithGrace();
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] pb-24 font-sans relative selection:bg-gray-200">
+    <div className="min-h-screen bg-[#FDFBF7] pb-24 font-sans relative selection:bg-gray-200 flex flex-col">
       {restaurant && (
         <script
           type="application/ld+json"
@@ -467,16 +467,17 @@ export default function MenuClient({
       {/* Minimal Top Header */}
       <MenuHeader restaurant={restaurant} menuBlocked={menuBlocked} />
 
-      {menuBlocked ? (
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 mt-16 text-center animate-fade-in">
-          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <AlertCircle className="w-10 h-10 text-gray-400" />
+      <div className="flex-1">
+        {menuBlocked ? (
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 mt-16 text-center animate-fade-in">
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="w-10 h-10 text-gray-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Menu Unavailable</h2>
+            <p className="text-gray-500 font-medium">This menu is temporarily unavailable. Please contact the restaurant owner.</p>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Menu Unavailable</h2>
-          <p className="text-gray-500 font-medium">This menu is temporarily unavailable. Please contact the restaurant owner.</p>
-        </div>
-      ) : (
-        <>
+        ) : (
+          <>
           {/* Special Offers Section */}
           {dishes.filter(d => d.is_special_offer && d.is_available).length > 0 && (
             <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-12 pt-2">
@@ -547,7 +548,7 @@ export default function MenuClient({
           {/* Quick Jump Bar */}
           {categories.length > 0 && (
             <div className="sticky top-0 z-50 w-full bg-[#F9FAFB] border-b border-gray-200 shadow-sm">
-              <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex space-x-2 overflow-x-auto scrollbar-hide snap-x">
+              <div className="max-w-3xl mx-auto py-3 flex gap-2 overflow-x-auto scrollbar-hide snap-x scroll-pl-4 sm:scroll-pl-6 pl-4 sm:pl-6 pr-4 sm:pr-6">
                 {categories.map((cat) => (
                   <button
                     key={cat}
@@ -560,10 +561,11 @@ export default function MenuClient({
                         window.scrollTo({ top: y, behavior: 'smooth' });
                       }
                     }}
-                    className={`whitespace-nowrap px-5 py-2 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${activeCategory === cat
-                      ? 'text-white'
-                      : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
-                      }`}
+                    className={`whitespace-nowrap shrink-0 px-5 py-2 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${
+                      activeCategory === cat
+                        ? 'text-white'
+                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
+                    }`}
                     style={activeCategory === cat ? { backgroundColor: '#000000' } : {}}
                   >
                     {cat}
@@ -754,10 +756,11 @@ export default function MenuClient({
             )}
           </div>
         </>
-      )}
+        )}
+      </div>
 
-      {/* Powered By Footer */}
-      <div className="w-full py-12 flex flex-col items-center justify-center gap-2 border-t border-gray-100/50 bg-[#FDFBF7] mt-8">
+      {/* Powered By Footer — always at page bottom */}
+      <div className="w-full py-10 flex flex-col items-center justify-center gap-2 border-t border-gray-100/50 bg-[#FDFBF7] mt-auto">
         <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Powered by</span>
         <img
           src="/restdigi-logo.png"
