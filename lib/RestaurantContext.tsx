@@ -298,13 +298,43 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
           if (payload.new && payload.new.restaurant_id === restaurant.id) {
             console.log("🟢 REALTIME GLOBAL NEW ORDER DETECTED FOR TABLE:", payload.new.table_no);
             if (!audioMutedRef.current) {
-              console.log("🔔 Audio is unmuted. Triggering bell ring...");
+              console.log("🔔 Audio is unmuted. Triggering bell ring and loop alert...");
               setIsAlerting(true);
               playSynthesizedBell();
             } else {
               console.log("🔇 Audio is muted. Skipping bell ring.");
             }
           }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `restaurant_id=eq.${restaurant.id}`
+        },
+        (payload) => {
+          if (payload.new && payload.new.restaurant_id === restaurant.id) {
+            // If the order status changes to served or cancelled (user/owner deleted/resolved)
+            if (payload.new.status === 'cancelled' || payload.new.status === 'served') {
+              console.log("🛑 Order resolved or cancelled. Stopping notification sound.");
+              setIsAlerting(false);
+            }
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'orders'
+        },
+        (payload) => {
+          console.log("🛑 Order deleted. Stopping notification sound.");
+          setIsAlerting(false);
         }
       )
       .subscribe((status) => {

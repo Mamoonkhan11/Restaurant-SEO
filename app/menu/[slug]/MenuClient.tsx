@@ -408,7 +408,7 @@ export default function MenuClient({
   const menuBlocked = isExpiredWithGrace();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFF8F6] pb-24 font-sans relative selection:bg-gray-200">
+    <div className="min-h-screen flex flex-col bg-white pb-24 font-sans relative selection:bg-gray-200">
       {restaurant && (
         <script
           type="application/ld+json"
