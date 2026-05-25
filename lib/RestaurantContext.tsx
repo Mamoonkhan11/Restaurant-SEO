@@ -13,7 +13,7 @@ type RestaurantContextType = {
   setIsAlerting: React.Dispatch<React.SetStateAction<boolean>>;
   audioNeedsInteraction: boolean;
   handleToggleAudio: () => void;
-  playSynthesizedBell: () => void;
+  playSynthesizedBell: (singleRound?: boolean) => void;
 };
 
 const RestaurantContext = createContext<RestaurantContextType>({
@@ -27,7 +27,7 @@ const RestaurantContext = createContext<RestaurantContextType>({
   setIsAlerting: () => {},
   audioNeedsInteraction: false,
   handleToggleAudio: () => {},
-  playSynthesizedBell: () => {},
+  playSynthesizedBell: (singleRound?: boolean) => {},
 });
 
 export const useRestaurant = () => useContext(RestaurantContext);
@@ -74,7 +74,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
     return audioCtxRef.current;
   };
 
-  const playSynthesizedBell = () => {
+  const playSynthesizedBell = (singleRound = false) => {
     console.log("🔔 playSynthesizedBell() called. AudioContext state:", audioCtxRef.current?.state);
     try {
       const ctx = getAudioContext();
@@ -86,8 +86,8 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
       const now = ctx.currentTime;
       console.log("🔔 Playing soft notification chime arpeggio at AudioContext time:", now);
 
-      // Play 3 rounds of a soft, attractive ascending UI chime (C5 -> E5 -> G5) within the 6-second window
-      const rounds = [0.0, 2.0, 4.0];
+      // Play 3 rounds, or just 1 round if singleRound is true
+      const rounds = singleRound ? [0.0] : [0.0, 2.0, 4.0];
       const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
       const noteDelay = 0.15; // Fast arpeggio speed (0.15s between notes)
       const noteDecay = 0.6;  // Fast decay for a clean, modern UI alert sound
@@ -131,7 +131,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
       if (ctx) {
         ctx.resume().then(() => {
           setAudioNeedsInteraction(false);
-          playSynthesizedBell();
+          playSynthesizedBell(true); // Play once on user gesture activation
         });
       }
     } else {

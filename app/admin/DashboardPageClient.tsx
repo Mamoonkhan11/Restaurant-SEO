@@ -112,11 +112,6 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 {liveOrders.filter(o => o.status === 'pending').length} Action Required
               </span>
             )}
-            {audioNeedsInteraction && !audioMuted && (
-              <span className="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-amber-200 animate-pulse">
-                ⚠️ Tap page to unblock sound
-              </span>
-            )}
             {!audioMuted ? (
               <button
                 onClick={handleToggleAudio}
@@ -460,43 +455,49 @@ export default function AdminDashboardOverview() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
           {/* Total Scans Card */}
-          <div onClick={() => !showProLock && setActiveModalTitle('Total Scans')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${showProLock ? 'cursor-default' : 'cursor-pointer'}`}>
-            {showProLock && (
-              <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
-                <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
+          <div 
+            onClick={() => {
+              if (showProLock) {
+                setActiveModalTitle('UpgradeToProTotalScans');
+              } else {
+                setActiveModalTitle('Total Scans');
+              }
+            }} 
+            className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative cursor-pointer group"
+          >
+            <div className={`flex flex-col h-full ${showProLock ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
+              <div className="flex justify-between items-start mb-2">
+                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Scans</p>
+                <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                 </div>
-                <p className="text-[11px] text-orange-950 font-extrabold leading-tight">Total Scans Metrics Locked</p>
-                <Link href="/admin/billing#pro" className="mt-2 text-[10px] bg-orange-600 hover:bg-orange-700 text-white px-3.5 py-1.5 rounded-full font-black uppercase tracking-wider transition-all duration-200 pointer-events-auto shadow-sm shadow-orange-600/20">Upgrade to Pro</Link>
               </div>
-            )}
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Scans</p>
-              <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-              </div>
+              <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{showProLock ? '999' : totalScans}</p>
             </div>
-            <p className={`text-3xl font-extrabold text-gray-900 mt-0.5 ${showProLock ? 'blur-[4px]' : ''}`}>{showProLock ? '999' : totalScans}</p>
           </div>
 
           {/* Top Selling Dish Card */}
-          <div onClick={() => !showProLock && setActiveModalTitle('Top Selling Dish')} className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative group ${showProLock ? 'cursor-default' : 'cursor-pointer'}`}>
-            {showProLock && (
-              <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[4px] rounded-2xl flex flex-col items-center justify-center border border-white/20 p-4 text-center">
-                <div className="bg-orange-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg mb-2 flex items-center gap-1 uppercase tracking-widest">
+          <div 
+            onClick={() => {
+              if (showProLock) {
+                setActiveModalTitle('UpgradeToProTopSellingDish');
+              } else {
+                setActiveModalTitle('Top Selling Dish');
+              }
+            }} 
+            className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative cursor-pointer group"
+          >
+            <div className={`flex flex-col h-full ${showProLock ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
+              <div className="flex justify-between items-start mb-2">
+                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Top Selling Dish</p>
+                <div className="p-2 bg-orange-50 text-orange-600 rounded-xl">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path></svg>
                 </div>
-                <p className="text-[11px] text-orange-950 font-extrabold leading-tight">Top Selling Dish Locked</p>
-                <Link href="/admin/billing#pro" className="mt-2 text-[10px] bg-orange-600 hover:bg-orange-700 text-white px-3.5 py-1.5 rounded-full font-black uppercase tracking-wider transition-all duration-200 pointer-events-auto shadow-sm shadow-orange-600/20">Upgrade to Pro</Link>
               </div>
-            )}
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Top Selling Dish</p>
-              <div className="p-2 bg-orange-50 text-orange-600 rounded-xl">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path></svg>
-              </div>
+              <p className="text-xl font-extrabold text-gray-900 mt-0.5 truncate max-w-[140px]" title={topDish}>
+                {showProLock ? 'XXXXXXXXXX' : topDish}
+              </p>
             </div>
-            <p className={`text-xl font-extrabold text-gray-900 mt-0.5 truncate max-w-[140px] ${showProLock ? 'blur-[4px]' : ''}`} title={topDish}>
-              {showProLock ? 'XXXXXXXXXX' : topDish}
-            </p>
           </div>
 
           {/* Total Items Card */}
@@ -637,64 +638,101 @@ export default function AdminDashboardOverview() {
       {activeModalTitle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up border border-gray-100 flex flex-col max-h-[80vh]">
-            <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
-              <h3 className="text-xl font-bold text-gray-900">
-                {activeModalTitle} <span className="text-gray-400 font-medium text-base ml-1">History</span>
-              </h3>
-              <button onClick={() => setActiveModalTitle(null)} className="text-gray-400 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-200 transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto flex-1">
-              <div className="space-y-6">
-                {activeModalTitle === 'Total Scans' ? (
-                  historicalStats.length === 0 ? (
-                    <p className="text-sm font-medium text-gray-500 text-center py-4">No historical data available.</p>
-                  ) : (
-                    historicalStats.map((stat, index) => (
-                      <div key={index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
-                        {index !== historicalStats.length - 1 && (
-                          <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
-                        )}
-                        <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white bg-purple-500 shadow-sm flex items-center justify-center`}>
-                          <span className="text-[10px]">📊</span>
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">{stat.label}</p>
-                          <p className="text-xs text-gray-500 mt-0.5 font-bold">
-                            {stat.scans} Scans
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                  )
-                ) : activeModalTitle === 'Top Selling Dish' ? (
-                  chartData.slice(0, 3).length === 0 ? (
-                    <p className="text-sm font-medium text-gray-500 text-center py-4">No dish data available.</p>
-                  ) : (
-                    chartData.slice(0, 3).map((dish, index) => (
-                      <div key={index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
-                        {index !== chartData.slice(0, 3).length - 1 && (
-                          <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
-                        )}
-                        <div className="absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white bg-orange-500 shadow-sm flex items-center justify-center">
-                          <span className="text-[10px]">🏆</span>
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Rank #{index + 1}: {dish.name}</p>
-                          <p className="text-xs text-gray-500 mt-0.5 font-bold">{dish.views} Views this week</p>
-                        </div>
-                      </div>
-                    ))
-                  )
-                ) : null}
-              </div>
-            </div>
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
-              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
-                {(activeModalTitle === 'Estimated Revenue' || activeModalTitle === 'Total Scans') ? 'Showing last 3 months' : 'Showing top 3 dishes'}
-              </p>
-            </div>
+            {activeModalTitle.startsWith('UpgradeToPro') ? (
+              <>
+                <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
+                  <h3 className="text-xl font-black text-gray-900">
+                    Upgrade to Pro
+                  </h3>
+                  <button onClick={() => setActiveModalTitle(null)} className="text-gray-400 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-200 transition-colors">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-6 flex flex-col items-center text-center gap-4">
+                  <div className="w-16 h-16 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center">
+                    <Lock className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-lg font-bold text-gray-900">
+                    {activeModalTitle === 'UpgradeToProTotalScans' 
+                      ? 'Total Scans Metrics Locked' 
+                      : 'Top Selling Dish Locked'}
+                  </h4>
+                  <p className="text-sm text-gray-500 leading-relaxed">
+                    {activeModalTitle === 'UpgradeToProTotalScans'
+                      ? 'Upgrade to Pro to see the total scans and analyze customer traffic on your digital menu.'
+                      : 'Upgrade to Pro to identify your top selling dish and optimize your menu pricing.'}
+                  </p>
+                  <Link 
+                    href="/admin/billing#pro" 
+                    onClick={() => setActiveModalTitle(null)}
+                    className="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white py-3.5 rounded-xl font-bold transition-all shadow-md text-sm text-center"
+                  >
+                    Upgrade to Pro
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
+                  <h3 className="text-xl font-bold text-gray-900">
+                    {activeModalTitle} <span className="text-gray-400 font-medium text-base ml-1">History</span>
+                  </h3>
+                  <button onClick={() => setActiveModalTitle(null)} className="text-gray-400 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-200 transition-colors">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-6 overflow-y-auto flex-1">
+                  <div className="space-y-6">
+                    {activeModalTitle === 'Total Scans' ? (
+                      historicalStats.length === 0 ? (
+                        <p className="text-sm font-medium text-gray-500 text-center py-4">No historical data available.</p>
+                      ) : (
+                        historicalStats.map((stat, index) => (
+                          <div key={index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+                            {index !== historicalStats.length - 1 && (
+                              <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
+                            )}
+                            <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white bg-purple-500 shadow-sm flex items-center justify-center`}>
+                              <span className="text-[10px]">📊</span>
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-gray-900">{stat.label}</p>
+                              <p className="text-xs text-gray-500 mt-0.5 font-bold">
+                                {stat.scans} Scans
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )
+                    ) : activeModalTitle === 'Top Selling Dish' ? (
+                      chartData.slice(0, 3).length === 0 ? (
+                        <p className="text-sm font-medium text-gray-500 text-center py-4">No dish data available.</p>
+                      ) : (
+                        chartData.slice(0, 3).map((dish, index) => (
+                          <div key={index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+                            {index !== chartData.slice(0, 3).length - 1 && (
+                              <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
+                            )}
+                            <div className="absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white bg-orange-500 shadow-sm flex items-center justify-center">
+                              <span className="text-[10px]">🏆</span>
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-gray-900">Rank #{index + 1}: {dish.name}</p>
+                              <p className="text-xs text-gray-500 mt-0.5 font-bold">{dish.views} Views this week</p>
+                            </div>
+                          </div>
+                        ))
+                      )
+                    ) : null}
+                  </div>
+                </div>
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
+                  <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
+                    {(activeModalTitle === 'Estimated Revenue' || activeModalTitle === 'Total Scans') ? 'Showing last 3 months' : 'Showing top 3 dishes'}
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
