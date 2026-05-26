@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Mail, ArrowRight, KeyRound } from 'lucide-react';
+import { Loader2, ArrowRight, KeyRound } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function LoginPage() {
@@ -14,7 +14,6 @@ export default function LoginPage() {
   const [countdown, setCountdown] = useState(0);
   const [basicCount, setBasicCount] = useState<number | null>(null);
 
-  // Guard: If a user is already logged in, redirect them immediately to /admin
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -25,7 +24,6 @@ export default function LoginPage() {
     checkUser();
   }, [router]);
 
-  // Fetch basic plans count to see if promo slots are available
   useEffect(() => {
     const fetchCount = async () => {
       const { count } = await supabase
@@ -39,7 +37,6 @@ export default function LoginPage() {
     fetchCount();
   }, []);
 
-  // Handle Countdown Timer for Resending Code
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (countdown > 0) {
@@ -54,14 +51,12 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    // Pre-Verification Check: Ensure email is registered
     const { data: restaurants, error: dbError } = await supabase
       .from('restaurants')
       .select('id')
       .eq('email', email)
       .limit(1);
 
-    // If the database query errors or returns an empty array, deny access
     if (dbError || !restaurants || restaurants.length === 0) {
       toast.error('Invalid credentials. Access denied.', {
         style: { background: '#000', color: '#fff' },
@@ -72,11 +67,9 @@ export default function LoginPage() {
       return;
     }
 
-    // Proceed with sending the Magic Link / OTP
     const { error: authError } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        // Dynamically routes back to /admin regardless of localhost or production domain
         emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/admin` : 'http://localhost:3000/admin',
       }
     });
@@ -95,7 +88,7 @@ export default function LoginPage() {
         duration: 5000,
         position: 'top-center'
       });
-      setEmail(''); // clear the input after sending
+      setEmail('');
     }
   };
 
@@ -106,7 +99,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.verifyOtp({
       email,
       token: otp,
-      type: 'email', // strictly verifies the 6-digit code
+      type: 'email',
     });
 
     if (error) {
@@ -178,7 +171,7 @@ export default function LoginPage() {
                   required
                   maxLength={6}
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))} // Ensure numeric only
+                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
                   placeholder="Enter 6-digit code" 
                   className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400 text-center tracking-[0.5em] text-2xl"
                 />

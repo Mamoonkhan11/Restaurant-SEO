@@ -20,30 +20,27 @@ export default function TermsAcceptancePage() {
     setIsLoading(true);
     
     try {
-      // Fetch user's IP Address
       let ipAddress = 'Unknown';
       try {
         const ipResponse = await fetch('https://api.ipify.org?format=json');
         const ipData = await ipResponse.json();
         ipAddress = ipData.ip;
       } catch (err) {
-        console.warn('Could not fetch IP address', err);
+        // Ignored
       }
 
       const userAgent = window.navigator.userAgent;
       const timestamp = new Date().toISOString();
 
-      // Fire an internal update to set terms_accepted: true inside the database profiles row
       try {
         await supabase
           .from('profiles')
           .update({ terms_accepted: true })
           .eq('id', restaurant.owner_id);
       } catch (e) {
-        // Ignore fallback
+        // Fallback profile update ignored
       }
 
-      // Check count and perform Automated Free Tier Basic Activation if slots < 5
       if (restaurant.plan_type === 'free' || !restaurant.plan_type) {
         let count = 0;
         const { count: restCount, error: restErr } = await supabase
@@ -51,7 +48,7 @@ export default function TermsAcceptancePage() {
           .select('*', { count: 'exact', head: true })
           .eq('plan_type', 'basic');
         if (restErr) {
-          console.error("TermsSetupClient: Restaurants count check failed:", restErr);
+          console.error("Restaurants count check failed:", restErr);
         }
         count = restCount || 0;
 
@@ -69,7 +66,7 @@ export default function TermsAcceptancePage() {
             .eq('id', restaurant.id);
           
           if (updateErr) {
-            console.error("TermsSetupClient: Failed to update restaurant to basic plan:", updateErr);
+            console.error("Failed to update restaurant to basic plan:", updateErr);
           }
 
           const { error: payErr } = await supabase.from('payments').insert({
@@ -81,12 +78,11 @@ export default function TermsAcceptancePage() {
           });
 
           if (payErr) {
-            console.error("TermsSetupClient: Failed to insert payments history record:", payErr);
+            console.error("Failed to insert payments history record:", payErr);
           }
         }
       }
 
-      // Update terms in restaurants table
       const { error } = await supabase
         .from('restaurants')
         .update({

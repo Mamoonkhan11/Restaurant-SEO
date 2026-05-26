@@ -37,7 +37,6 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
   const [payments, setPayments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Global Audio States
   const [audioMuted, setAudioMuted] = useState(false);
   const [isAlerting, setIsAlerting] = useState(false);
   const [audioNeedsInteraction, setAudioNeedsInteraction] = useState(false);
@@ -49,15 +48,10 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
     audioMutedRef.current = audioMuted;
   }, [audioMuted]);
 
-  // Load the initial audio preference from localStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('admin_audio_muted');
-      if (saved !== null) {
-        setAudioMuted(saved === 'true');
-      } else {
-        setAudioMuted(false);
-      }
+      setAudioMuted(saved === 'true');
     }
   }, []);
 
@@ -75,23 +69,16 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
   };
 
   const playSynthesizedBell = (singleRound = false) => {
-    console.log("🔔 playSynthesizedBell() called. AudioContext state:", audioCtxRef.current?.state);
     try {
       const ctx = getAudioContext();
-      if (!ctx) {
-        console.warn("🔔 Failed to get AudioContext");
-        return;
-      }
+      if (!ctx) return;
 
       const now = ctx.currentTime;
-      console.log("🔔 Playing soft notification chime arpeggio at AudioContext time:", now);
-
-      // Play 3 rounds, or just 1 round if singleRound is true
       const rounds = singleRound ? [0.0] : [0.0, 2.0, 4.0];
-      const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
-      const noteDelay = 0.15; // Fast arpeggio speed (0.15s between notes)
-      const noteDecay = 0.6;  // Fast decay for a clean, modern UI alert sound
-      const maxVolume = 0.25; // Increased volume level for clear audibility
+      const notes = [523.25, 659.25, 783.99];
+      const noteDelay = 0.15;
+      const noteDecay = 0.6;
+      const maxVolume = 0.25;
 
       rounds.forEach((roundStart) => {
         notes.forEach((freq, idx) => {
@@ -99,11 +86,10 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
           const osc = ctx.createOscillator();
           const gainNode = ctx.createGain();
 
-          osc.type = 'sine'; // Pure sine wave for a soft, smooth timbre
+          osc.type = 'sine';
           osc.frequency.setValueAtTime(freq, startTime);
 
           gainNode.gain.setValueAtTime(0, startTime);
-          // Soft attack slope (0.02s) to eliminate pop/click artifacts
           gainNode.gain.linearRampToValueAtTime(maxVolume * (1 - idx * 0.15), startTime + 0.02);
           gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + noteDecay);
 
@@ -115,7 +101,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
         });
       });
     } catch (err) {
-      console.warn("Realtime Audio Playback Intercepted:", err);
+      console.error("Audio playback error:", err);
     }
   };
 
@@ -131,7 +117,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
       if (ctx) {
         ctx.resume().then(() => {
           setAudioNeedsInteraction(false);
-          playSynthesizedBell(true); // Play once on user gesture activation
+          playSynthesizedBell(true);
         });
       }
     } else {
@@ -139,7 +125,6 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
     }
   };
 
-  // Loop the alert sound every 9.5 seconds (6s play window + 3.5s silence gap) if isAlerting is true and not muted
   useEffect(() => {
     if (!isAlerting || audioMuted) return;
 
@@ -150,7 +135,6 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
     return () => clearInterval(interval);
   }, [isAlerting, audioMuted]);
 
-  // Acknowledge/clear alert on user interaction
   useEffect(() => {
     if (!isAlerting) return;
 
@@ -169,19 +153,15 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
     };
   }, [isAlerting]);
 
-  // Check browser AudioContext state and manage interaction requirement
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     let listenersRegistered = false;
 
     const resumeAudio = async () => {
-      console.log("👆 User gesture detected. Attempting to resume AudioContext...");
       const ctx = getAudioContext();
       if (ctx) {
-        console.log("State before resume:", ctx.state);
         await ctx.resume();
-        console.log("✅ AudioContext state after resume:", ctx.state);
         if (ctx.state === 'running') {
           setAudioNeedsInteraction(false);
           removeListeners();
@@ -195,7 +175,6 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
       window.addEventListener('keydown', resumeAudio);
       window.addEventListener('touchstart', resumeAudio);
       listenersRegistered = true;
-      console.log("🔊 Registered AudioContext unblocking gesture listeners.");
     };
 
     const removeListeners = () => {
@@ -204,7 +183,6 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
       window.removeEventListener('keydown', resumeAudio);
       window.removeEventListener('touchstart', resumeAudio);
       listenersRegistered = false;
-      console.log("🔇 Removed AudioContext unblocking gesture listeners.");
     };
 
     const ctx = getAudioContext();
@@ -224,14 +202,12 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
 
   const fetchRestaurant = async () => {
     setIsLoading(true);
-    console.log("RestaurantContext: Fetching restaurant session...");
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
     if (userErr) {
-      console.error("RestaurantContext: Get user session error:", userErr);
+      console.error("Error fetching user session:", userErr);
     }
     
     if (user) {
-      console.log("RestaurantContext: User authenticated. Fetching restaurant details for user id:", user.id);
       const { data, error: fetchErr } = await supabase
         .from('restaurants')
         .select('*')
@@ -239,25 +215,22 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
         .single();
 
       if (fetchErr) {
-        console.error("RestaurantContext: Error fetching restaurant:", fetchErr);
+        console.error("Error fetching restaurant profile:", fetchErr);
       }
 
       let restaurantData = data;
       if (restaurantData && (restaurantData.plan_type === 'free' || !restaurantData.plan_type) && restaurantData.subscription_status !== 'active') {
-        console.log("RestaurantContext: Restaurant is on free/null plan. Checking promo slots...");
         let count = 0;
         const { count: restCount, error: restErr } = await supabase
           .from('restaurants')
           .select('*', { count: 'exact', head: true })
           .eq('plan_type', 'basic');
         if (restErr) {
-          console.error("RestaurantContext: Restaurants count check failed:", restErr);
+          console.error("Error checking basic plans count:", restErr);
         }
         count = restCount || 0;
-        console.log("RestaurantContext: Counted basic users from restaurants:", count);
 
         if (count < 5) {
-          console.log("RestaurantContext: Promo slot available (count < 5). Automatically activating Basic plan...");
           const newExpiry = new Date();
           newExpiry.setDate(newExpiry.getDate() + 30);
 
@@ -273,14 +246,12 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
             .single();
 
           if (updateErr) {
-            console.error("RestaurantContext: Failed to update restaurant to basic plan:", updateErr);
+            console.error("Error updating plan type:", updateErr);
           }
 
           if (!updateErr && updatedData) {
-            console.log("RestaurantContext: Successfully updated restaurant to basic plan:", updatedData);
             restaurantData = updatedData;
             
-            console.log("RestaurantContext: Inserting payment record for free_trier...");
             const { error: payErr } = await supabase.from('payments').insert({
               restaurant_id: restaurantData.id,
               amount: 0,
@@ -289,20 +260,15 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
               payment_method: 'free_trier'
             });
             if (payErr) {
-              console.error("RestaurantContext: Failed to insert payments history record:", payErr);
-            } else {
-              console.log("RestaurantContext: Payment history record successfully created!");
+              console.error("Error inserting payment record:", payErr);
             }
           }
-        } else {
-          console.log("RestaurantContext: Promo count has reached 5. Early adopter promo not applied.");
         }
       }
 
       setRestaurant(restaurantData);
 
       if (restaurantData) {
-        console.log("RestaurantContext: Loading payments history for restaurant id:", restaurantData.id);
         const { data: paymentsData, error: paymentsErr } = await supabase
           .from('payments')
           .select('*')
@@ -310,17 +276,12 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
           .order('created_at', { ascending: false });
         
         if (paymentsErr) {
-          console.error("RestaurantContext: Error fetching payments history:", paymentsErr);
+          console.error("Error fetching payments history:", paymentsErr);
         }
         
         let paymentsList = paymentsData || [];
-        console.log("RestaurantContext: Payments list loaded. Count:", paymentsList.length);
 
-        // Self-healing check: If the restaurant is registered as basic but has 0 payment history records,
-        // it means the unauthenticated registration page tried to insert the payment record but got blocked.
-        // Let's insert the missing 'free_trier' payment record now under this authenticated session.
         if (restaurantData.plan_type === 'basic' && paymentsList.length === 0) {
-          console.log("RestaurantContext: SELF-HEALING: Restaurant is basic but has 0 payments. Attempting to insert payment history...");
           const { error: insertErr } = await supabase.from('payments').insert({
             restaurant_id: restaurantData.id,
             amount: 0,
@@ -330,16 +291,15 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
           });
           
           if (insertErr) {
-            console.error("RestaurantContext: SELF-HEALING: Failed to insert payment history record:", insertErr);
+            console.error("Self-healing error inserting payment:", insertErr);
           } else {
-            console.log("RestaurantContext: SELF-HEALING: Payment history record successfully inserted! Re-fetching payments...");
             const { data: refetchedPayments, error: refetchErr } = await supabase
               .from('payments')
               .select('*')
               .eq('restaurant_id', restaurantData.id)
               .order('created_at', { ascending: false });
             if (refetchErr) {
-              console.error("RestaurantContext: SELF-HEALING: Re-fetching payments error:", refetchErr);
+              console.error("Self-healing re-fetch error:", refetchErr);
             }
             paymentsList = refetchedPayments || [];
           }
@@ -347,8 +307,6 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
 
         setPayments(paymentsList);
       }
-    } else {
-      console.warn("RestaurantContext: No authenticated user session found.");
     }
     setIsLoading(false);
   };
@@ -356,9 +314,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     fetchRestaurant();
 
-    // Listen for auth state changes to dynamically trigger fetching or reset the restaurant state
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("RestaurantContext: Auth event fired:", event, session?.user?.id);
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         fetchRestaurant();
       } else if (event === 'SIGNED_OUT') {
@@ -372,11 +328,9 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
     };
   }, []);
 
-  // Realtime channel subscription for postgres UPDATE changes on the current owner's restaurant profile
   useEffect(() => {
     if (!restaurant?.owner_id) return;
 
-    console.log("RestaurantContext: Setting up postgres change channel for owner's restaurant:", restaurant.owner_id);
     const channel = supabase
       .channel('restaurant-realtime-updates')
       .on(
@@ -389,21 +343,17 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
         },
         (payload) => {
           if (payload.new) {
-            console.log("RestaurantContext: Realtime update received from db for restaurant:", payload.new);
             setRestaurant(payload.new);
           }
         }
       )
-      .subscribe((status) => {
-        console.log(`RestaurantContext: Postgres change channel status:`, status);
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
   }, [restaurant?.owner_id]);
 
-  // Realtime subscription for incoming orders to trigger the alert chime across all admin pages
   useEffect(() => {
     if (!restaurant?.id) return;
 
@@ -419,13 +369,9 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
         },
         (payload) => {
           if (payload.new && payload.new.restaurant_id === restaurant.id) {
-            console.log("🟢 REALTIME GLOBAL NEW ORDER DETECTED FOR TABLE:", payload.new.table_no);
             if (!audioMutedRef.current) {
-              console.log("🔔 Audio is unmuted. Triggering bell ring and loop alert...");
               setIsAlerting(true);
               playSynthesizedBell();
-            } else {
-              console.log("🔇 Audio is muted. Skipping bell ring.");
             }
           }
         }
@@ -440,9 +386,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
         },
         (payload) => {
           if (payload.new && payload.new.restaurant_id === restaurant.id) {
-            // If the order status changes to served or cancelled (user/owner deleted/resolved)
             if (payload.new.status === 'cancelled' || payload.new.status === 'served') {
-              console.log("🛑 Order resolved or cancelled. Stopping notification sound.");
               setIsAlerting(false);
             }
           }
@@ -455,14 +399,11 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
           schema: 'public',
           table: 'orders'
         },
-        (payload) => {
-          console.log("🛑 Order deleted. Stopping notification sound.");
+        () => {
           setIsAlerting(false);
         }
       )
-      .subscribe((status) => {
-        console.log(`📡 Global Supabase Realtime Subscription Status (orders):`, status);
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(ordersSubscription);

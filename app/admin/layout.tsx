@@ -17,33 +17,29 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const isPromoUser = planType === 'basic' && payments && payments.some(p => p.plan_type === 'basic' && (p.payment_method === 'free_trial' || p.payment_method === 'free_trier'));
   const [loading, setLoading] = useState(true);
 
-  // Client-Side Middleware / Guard
   useEffect(() => {
     const checkUserSession = async () => {
       setLoading(true);
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
-          // Only redirect if Supabase explicitly confirms no session token exists
           router.push('/login');
         }
       } catch (err) {
         console.error("Auth hydration error:", err);
       } finally {
-        setLoading(false); // Session is now fully loaded into local states
+        setLoading(false);
       }
     };
 
     checkUserSession();
 
-    // Keep live channel listeners tracking auth modifications safely
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
         router.push('/login');
       }
     });
 
-    // 24-hour auto-logout timer to securely end the session
     const logoutTimer = setTimeout(async () => {
       await supabase.auth.signOut();
       router.push('/login');
@@ -68,7 +64,6 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     { name: 'Settings', href: '/admin/settings', paths: ['M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z', 'M15 12a3 3 0 11-6 0 3 3 0 016 0z'] },
   ];
 
-  // Auth Loading Overlay Check
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FFF8F6]">
@@ -77,7 +72,6 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Terms Acceptance Middleware
   useEffect(() => {
     if (!loading && !isLoading && restaurant) {
       if (restaurant.terms_accepted === false && pathname !== '/admin/setup/terms') {
@@ -86,12 +80,10 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     }
   }, [loading, isLoading, restaurant, pathname, router]);
 
-  // Don't show the dashboard layout for the terms setup page
   if (pathname === '/admin/setup/terms') {
     return <div className="min-h-screen bg-gray-50">{children}</div>;
   }
 
-  // Prevent flash of layout/content if terms are not accepted
   if (!isLoading && restaurant && restaurant.terms_accepted === false) {
     return null;
   }
@@ -113,12 +105,10 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Mobile Overlay */}
         {isSidebarOpen && (
           <div className="fixed inset-0 bg-gray-900/60 z-40 md:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
         )}
 
-        {/* Dark Sidebar */}
         <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#111827] text-gray-300 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="w-full flex items-center justify-center py-7 lg:py-10 border-b border-gray-800/40 shrink-0">
             <img
@@ -155,7 +145,6 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        {/* Main Content Area */}
         <main className="flex-1 flex flex-col h-full overflow-hidden">
           <header className="h-20 px-4 bg-white shadow-sm border-b border-gray-200 flex justify-between items-center md:hidden z-30 shrink-0">
             <button onClick={() => setIsSidebarOpen(true)} className="text-[#111827] hover:text-black focus:outline-none p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
@@ -168,15 +157,13 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                 className="h-9 sm:h-10 w-auto object-contain max-w-[120px] sm:max-w-[140px]"
               />
             </div>
-            <div className="w-10" /> {/* Spacer to center the logo */}
+            <div className="w-10" />
           </header>
 
-          {/* Page Content */}
           <div className={`flex-1 overflow-y-auto bg-gray-50 relative ${showExpiredOverlay ? 'blur-sm pointer-events-none' : ''}`}>
             {children}
           </div>
 
-          {/* Expired Modal */}
           {showExpiredOverlay && (
             <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40">
               <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-gray-100 animate-fade-in-up">

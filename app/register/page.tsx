@@ -14,7 +14,6 @@ export default function RegisterPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [basicCount, setBasicCount] = useState<number | null>(null);
 
-  // Fetch basic plans count to see if promo slots are available
   useEffect(() => {
     const fetchCount = async () => {
       const { count } = await supabase
@@ -28,20 +27,14 @@ export default function RegisterPage() {
     fetchCount();
   }, []);
 
-  // Generates a URL-friendly slug from the business name
-  const generateSlug = (name: string) => {
-    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-  };
-
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName || !businessName || !email) return;
 
     setIsLoading(true);
 
-    // Pre-Verification Check: Ensure email is not already registered
     try {
-      const { data: existingRestaurants, error: dbCheckError } = await supabase
+      const { data: existingRestaurants } = await supabase
         .from('restaurants')
         .select('id')
         .eq('email', email.trim().toLowerCase())
@@ -59,13 +52,11 @@ export default function RegisterPage() {
       console.error('Error during pre-verification:', checkErr);
     }
 
-    // Generate a highly secure random 16-character password in the background
     const randomPassword = Array.from(crypto.getRandomValues(new Uint8Array(16)))
       .map((b) => b.toString(16).padStart(2, '0'))
       .join('');
 
     try {
-      // 1. Sign up the user in Supabase Auth
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password: randomPassword,
@@ -87,7 +78,6 @@ export default function RegisterPage() {
         return;
       }
 
-      // Supabase returns a user but with empty identities if the user is already registered (enumeration protection)
       if (authData.user && (!authData.user.identities || authData.user.identities.length === 0)) {
         toast.error('User already exists.', {
           style: { background: '#000', color: '#fff' },
@@ -98,7 +88,6 @@ export default function RegisterPage() {
       }
 
       if (authData.user) {
-        // 2. Provision the restaurant profile in the database
         const { error: dbError } = await supabase.from('restaurants').insert({
           owner_id: authData.user.id,
           email: authData.user.email,
@@ -110,7 +99,6 @@ export default function RegisterPage() {
           throw new Error(dbError.message);
         }
 
-        // Only show success if BOTH auth and database succeed
         setIsSubmitted(true);
       }
     } catch (err: any) {
