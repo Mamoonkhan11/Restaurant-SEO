@@ -140,16 +140,14 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {isTrial && daysLeft !== null && !isExpired && (
-          <div className="md:hidden bg-[#FEF3C7] text-[#111827] p-4 shrink-0 flex flex-col items-center justify-center border-b border-amber-200">
-            <span className="text-xs font-bold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
-            {isUrgent && (
-              <Link 
-                href="/admin/billing" 
-                className="mt-3 w-full py-3 text-center text-xs font-bold uppercase tracking-wider rounded-xl shadow-md bg-[#111827] text-white hover:bg-black transition-all duration-300 ease-in-out"
-              >
-                Upgrade Now
-              </Link>
-            )}
+          <div className="bg-[#FEF3C7] text-[#111827] p-3.5 shrink-0 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-amber-200 z-30">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
+            <Link 
+              href="/admin/billing" 
+              className="py-1.5 px-3.5 text-center text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm bg-[#111827] text-white hover:bg-black transition-all duration-300 ease-in-out"
+            >
+              Upgrade Now
+            </Link>
           </div>
         )}
         <header className="h-20 px-4 bg-white shadow-sm border-b border-gray-200 flex justify-between items-center md:hidden z-30 shrink-0">
