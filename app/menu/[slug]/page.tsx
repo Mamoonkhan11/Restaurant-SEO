@@ -14,7 +14,7 @@ export default async function DigitalMenu({
   // Fetch Restaurant
   const { data: restaurant } = await supabase
     .from('restaurants')
-    .select('id, name, logo_url, owner_id, plan_type, whatsapp_number, expiry_date, trial_ends_at, slug')
+    .select('*')
     .eq('slug', params.slug)
     .single();
 

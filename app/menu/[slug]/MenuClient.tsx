@@ -424,7 +424,7 @@ export default function MenuClient({
                 "@type": "Restaurant",
                 "name": restaurant?.name || 'Restaurant',
                 "image": restaurant?.logo_url || undefined,
-                "telephone": restaurant?.whatsapp_number || undefined,
+                "telephone": undefined,
                 "menu": typeof window !== 'undefined' ? window.location.href : '',
               },
               {
@@ -1223,7 +1223,12 @@ export default function MenuClient({
                       if (!tableNo) {
                         const itemsList = cart.map(i => `${i.quantity}x ${i.name}`).join('%0A');
                         const msg = `Hi! I would like to order:%0A${itemsList}%0ATotal: ₹${cartTotal.toFixed(2)}%0ACould you let me know if delivery is available?`;
-                        window.open(`https://wa.me/${restaurant?.whatsapp_number?.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
+                        const whatsappNum = (restaurant?.whatsapp_number || '').replace(/[^0-9]/g, '');
+                        if (whatsappNum) {
+                          window.open(`https://wa.me/${whatsappNum}?text=${msg}`, '_blank');
+                        } else {
+                          alert('WhatsApp ordering is not configured for this restaurant.');
+                        }
                         return;
                       }
 

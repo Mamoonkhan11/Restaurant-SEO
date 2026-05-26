@@ -12,7 +12,6 @@ export default function SettingsPage() {
   const { canCustomBrand, planType } = useSubscription();
   const [formData, setFormData] = useState({
     name: '',
-    whatsapp_number: '',
     planType: 'free',
   });
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -38,7 +37,6 @@ export default function SettingsPage() {
         originalName.current = fetchedName;
         setFormData({
           name: fetchedName,
-          whatsapp_number: restaurant.whatsapp_number || restaurant.whatsapp || '',
           planType: restaurant.plan_type || 'free',
         });
         setLogoPreview(restaurant.logo_url || null);
@@ -108,7 +106,6 @@ export default function SettingsPage() {
         .update({
           name: formData.name,
           slug: generatedSlug,
-          whatsapp_number: formData.whatsapp_number,
           logo_url: finalLogoUrl
         })
         .eq('owner_id', session.user.id)

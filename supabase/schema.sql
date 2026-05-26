@@ -28,6 +28,7 @@ ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS user_agent TEXT;
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS total_scans INTEGER DEFAULT 0;
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS trial_started_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS trial_ends_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS whatsapp_number TEXT;
 
 -- Function to handle trial initialization
 CREATE OR REPLACE FUNCTION initialize_trial()

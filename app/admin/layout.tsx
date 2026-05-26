@@ -90,19 +90,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col font-sans overflow-hidden">
-      {isTrial && daysLeft !== null && !isExpired && (
-        <div className="bg-[#FEF3C7] text-[#111827] p-3.5 shrink-0 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-amber-200 z-50">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
-          {isUrgent && (
-            <Link 
-              href="/admin/billing" 
-              className="py-1.5 px-3.5 text-center text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm bg-[#111827] text-white hover:bg-black transition-all duration-300 ease-in-out"
-            >
-              Upgrade Now
-            </Link>
-          )}
-        </div>
-      )}
+
 
       <div className="flex-1 flex overflow-hidden relative">
         {isSidebarOpen && (
@@ -161,6 +149,19 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           </header>
 
           <div className={`flex-1 overflow-y-auto bg-gray-50 relative ${showExpiredOverlay ? 'blur-sm pointer-events-none' : ''}`}>
+            {isTrial && daysLeft !== null && !isExpired && (
+              <div className="bg-[#FEF3C7] text-[#111827] p-3.5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-amber-200 z-50">
+                <span className="text-xs font-extrabold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
+                {isUrgent && (
+                  <Link 
+                    href="/admin/billing" 
+                    className="py-1.5 px-3.5 text-center text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm bg-[#111827] text-white hover:bg-black transition-all duration-300 ease-in-out"
+                  >
+                    Upgrade Now
+                  </Link>
+                )}
+              </div>
+            )}
             {children}
           </div>
 

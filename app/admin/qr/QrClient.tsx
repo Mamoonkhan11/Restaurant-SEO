@@ -30,7 +30,7 @@ export default function QRCodePage() {
 
       const { data: restaurant, error } = await supabase
         .from('restaurants')
-        .select('name, slug, logo_url, theme_color, plan_type')
+        .select('name, slug, logo_url, plan_type')
         .eq('owner_id', session.user.id)
         .single();
         

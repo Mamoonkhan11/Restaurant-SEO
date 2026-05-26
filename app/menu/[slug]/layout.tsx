@@ -12,13 +12,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Fetch actual restaurant details from Supabase
   const { data: restaurant } = await supabase
     .from('restaurants')
-    .select('name, address')
+    .select('name')
     .eq('slug', params.slug)
     .single();
 
   const fallbackName = params.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   const restaurantName = restaurant?.name || fallbackName;
-  const location = restaurant?.address || 'Srinagar';
+  const location = 'Srinagar';
 
   const seoTitle = `${restaurantName} Menu - Best Food in ${location}, Srinagar`;
   const seoDescription = `Explore our delicious menu at ${restaurantName}. View our best sellers, pricing, and order directly! Located in ${location}, Srinagar. Built with RESTDIGI.`;

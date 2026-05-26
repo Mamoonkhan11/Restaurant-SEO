@@ -140,10 +140,10 @@ export default function BillingPage() {
         },
         prefill: {
           name: restaurant?.owner_name || "",
-          contact: restaurant?.whatsapp_number || "",
+          contact: "",
         },
         theme: {
-          color: restaurant?.theme_color || "#ea580c",
+          color: "#ea580c",
         },
       };
 
