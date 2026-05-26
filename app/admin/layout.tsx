@@ -88,21 +88,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       {/* Dark Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#111827] text-gray-300 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
 
-        {isPromoUser && daysLeft !== null && !isExpired && (
-          <div className="bg-gradient-to-r from-orange-600 to-amber-500 text-white p-4 shrink-0 flex flex-col items-center border-b border-orange-600/30">
-            <span className="text-xs font-bold uppercase tracking-widest text-center">Promo: {daysLeft} Days Left</span>
-            {isUrgent && (
-              <Link 
-                href="/admin/billing" 
-                className="mt-3 w-full py-3 text-center text-xs font-bold uppercase tracking-wider rounded-xl shadow-md bg-[#111827] text-white hover:bg-black transition-all duration-300 ease-in-out"
-              >
-                Upgrade Now
-              </Link>
-            )}
-          </div>
-        )}
-
-        {isTrial && daysLeft !== null && !isExpired && !isPromoUser && (
+        {isTrial && daysLeft !== null && !isExpired && (
           <div className="bg-[#FEF3C7] text-[#111827] p-4 shrink-0 flex flex-col items-center border-b border-amber-200/50">
             <span className="text-xs font-bold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
             {isUrgent && (
@@ -128,8 +114,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
-              <Link
-                key={item.name}
+              <Link 
+                key={item.name} 
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${isActive ? 'bg-orange-600 text-white shadow-md' : 'hover:bg-gray-800 hover:text-white'}`}
                 onClick={() => setIsSidebarOpen(false)}
@@ -157,8 +143,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           <div className="md:hidden bg-[#FEF3C7] text-[#111827] p-4 shrink-0 flex flex-col items-center justify-center border-b border-amber-200">
             <span className="text-xs font-bold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
             {isUrgent && (
-              <Link
-                href="/admin/billing"
+              <Link 
+                href="/admin/billing" 
                 className="mt-3 w-full py-3 text-center text-xs font-bold uppercase tracking-wider rounded-xl shadow-md bg-[#111827] text-white hover:bg-black transition-all duration-300 ease-in-out"
               >
                 Upgrade Now
@@ -180,16 +166,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           <div className="w-10" /> {/* Spacer to center the logo */}
         </header>
 
-
-
-
         {/* Page Content */}
         <div className={`flex-1 overflow-y-auto bg-gray-50 relative ${showExpiredOverlay ? 'blur-sm pointer-events-none' : ''}`}>
-          {isPromoUser && daysLeft !== null && !isExpired && (
-            <div className="bg-gradient-to-r from-orange-600 to-amber-500 text-white py-3 px-4 text-center text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm shrink-0">
-              <span> Early Adopter Promotion: 1-Month Free Basic Plan Activated! ({daysLeft} days remaining)</span>
-            </div>
-          )}
           {children}
         </div>
 

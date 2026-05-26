@@ -246,29 +246,15 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
       if (restaurantData && (restaurantData.plan_type === 'free' || !restaurantData.plan_type) && restaurantData.subscription_status !== 'active') {
         console.log("RestaurantContext: Restaurant is on free/null plan. Checking promo slots...");
         let count = 0;
-        try {
-          const { count: profCount, error: profErr } = await supabase
-            .from('profiles')
-            .select('*', { count: 'exact', head: true })
-            .eq('plan_type', 'basic');
-          if (profErr) {
-            console.warn("RestaurantContext: Profiles count check failed (expected if profiles table is missing):", profErr);
-            throw profErr;
-          }
-          count = profCount || 0;
-          console.log("RestaurantContext: Counted basic users from profiles:", count);
-        } catch (e) {
-          console.log("RestaurantContext: Falling back to counting basic users from restaurants table...");
-          const { count: restCount, error: restErr } = await supabase
-            .from('restaurants')
-            .select('*', { count: 'exact', head: true })
-            .eq('plan_type', 'basic');
-          if (restErr) {
-            console.error("RestaurantContext: Restaurants count check failed:", restErr);
-          }
-          count = restCount || 0;
-          console.log("RestaurantContext: Counted basic users from restaurants:", count);
+        const { count: restCount, error: restErr } = await supabase
+          .from('restaurants')
+          .select('*', { count: 'exact', head: true })
+          .eq('plan_type', 'basic');
+        if (restErr) {
+          console.error("RestaurantContext: Restaurants count check failed:", restErr);
         }
+        count = restCount || 0;
+        console.log("RestaurantContext: Counted basic users from restaurants:", count);
 
         if (count < 5) {
           console.log("RestaurantContext: Promo slot available (count < 5). Automatically activating Basic plan...");

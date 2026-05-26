@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [basicCount, setBasicCount] = useState<number | null>(null);
 
   // Guard: If a user is already logged in, redirect them immediately to /admin
   useEffect(() => {
@@ -23,6 +24,20 @@ export default function LoginPage() {
     };
     checkUser();
   }, [router]);
+
+  // Fetch basic plans count to see if promo slots are available
+  useEffect(() => {
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from('restaurants')
+        .select('*', { count: 'exact', head: true })
+        .eq('plan_type', 'basic');
+      if (count !== null) {
+        setBasicCount(count);
+      }
+    };
+    fetchCount();
+  }, []);
 
   // Handle Countdown Timer for Resending Code
   useEffect(() => {
@@ -36,7 +51,7 @@ export default function LoginPage() {
   const handleSendOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!email) return;
-    
+
     setIsLoading(true);
 
     // Pre-Verification Check: Ensure email is registered

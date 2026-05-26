@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Loader2, CheckCircle2 } from 'lucide-react';
@@ -191,6 +191,7 @@ export default function RegisterPage() {
             </button>
           </div>
         )}
+
       </div>
 
       <style>{`

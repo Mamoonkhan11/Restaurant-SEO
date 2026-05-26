@@ -46,23 +46,14 @@ export default function TermsAcceptancePage() {
       // Check count and perform Automated Free Tier Basic Activation if slots < 5
       if (restaurant.plan_type === 'free' || !restaurant.plan_type) {
         let count = 0;
-        try {
-          const { count: profCount, error: profErr } = await supabase
-            .from('profiles')
-            .select('*', { count: 'exact', head: true })
-            .eq('plan_type', 'basic');
-          if (profErr) throw profErr;
-          count = profCount || 0;
-        } catch (e) {
-          const { count: restCount, error: restErr } = await supabase
-            .from('restaurants')
-            .select('*', { count: 'exact', head: true })
-            .eq('plan_type', 'basic');
-          if (restErr) {
-            console.error("TermsSetupClient: Restaurants count check failed:", restErr);
-          }
-          count = restCount || 0;
+        const { count: restCount, error: restErr } = await supabase
+          .from('restaurants')
+          .select('*', { count: 'exact', head: true })
+          .eq('plan_type', 'basic');
+        if (restErr) {
+          console.error("TermsSetupClient: Restaurants count check failed:", restErr);
         }
+        count = restCount || 0;
 
         if (count < 5) {
           const newExpiry = new Date();
