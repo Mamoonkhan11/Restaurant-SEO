@@ -15,33 +15,42 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const showExpiredOverlay = isExpired && pathname !== '/admin/billing';
   const isUrgent = daysLeft !== null && daysLeft <= 5;
   const isPromoUser = planType === 'basic' && payments && payments.some(p => p.plan_type === 'basic' && (p.payment_method === 'free_trial' || p.payment_method === 'free_trier'));
+  const [loading, setLoading] = useState(true);
 
   // Client-Side Middleware / Guard
   useEffect(() => {
-    // Check initial session
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push('/login');
+    const checkUserSession = async () => {
+      setLoading(true);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          // Only redirect if Supabase explicitly confirms no session token exists
+          router.push('/login');
+        }
+      } catch (err) {
+        console.error("Auth hydration error:", err);
+      } finally {
+        setLoading(false); // Session is now fully loaded into local states
       }
     };
-    checkSession();
 
-    // Listen for auth state changes (like logout)
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
+    checkUserSession();
+
+    // Keep live channel listeners tracking auth modifications safely
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
         router.push('/login');
       }
     });
 
-    // 24-hour auto-logout timer to securely end the session (increased from 30 minutes)
+    // 24-hour auto-logout timer to securely end the session
     const logoutTimer = setTimeout(async () => {
       await supabase.auth.signOut();
       router.push('/login');
     }, 24 * 60 * 60 * 1000);
 
     return () => {
-      authListener.subscription.unsubscribe();
+      subscription.unsubscribe();
       clearTimeout(logoutTimer);
     };
   }, [router]);
@@ -59,14 +68,23 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     { name: 'Settings', href: '/admin/settings', paths: ['M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z', 'M15 12a3 3 0 11-6 0 3 3 0 016 0z'] },
   ];
 
+  // Auth Loading Overlay Check
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FFF8F6]">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-orange-600"></div>
+      </div>
+    );
+  }
+
   // Terms Acceptance Middleware
   useEffect(() => {
-    if (!isLoading && restaurant) {
+    if (!loading && !isLoading && restaurant) {
       if (restaurant.terms_accepted === false && pathname !== '/admin/setup/terms') {
         router.push('/admin/setup/terms');
       }
     }
-  }, [isLoading, restaurant, pathname, router]);
+  }, [loading, isLoading, restaurant, pathname, router]);
 
   // Don't show the dashboard layout for the terms setup page
   if (pathname === '/admin/setup/terms') {
@@ -83,12 +101,14 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       {isTrial && daysLeft !== null && !isExpired && (
         <div className="bg-[#FEF3C7] text-[#111827] p-3.5 shrink-0 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-amber-200 z-50">
           <span className="text-xs font-extrabold uppercase tracking-widest text-center">Free Trial: {daysLeft} Days Left</span>
-          <Link 
-            href="/admin/billing" 
-            className="py-1.5 px-3.5 text-center text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm bg-[#111827] text-white hover:bg-black transition-all duration-300 ease-in-out"
-          >
-            Upgrade Now
-          </Link>
+          {isUrgent && (
+            <Link 
+              href="/admin/billing" 
+              className="py-1.5 px-3.5 text-center text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm bg-[#111827] text-white hover:bg-black transition-all duration-300 ease-in-out"
+            >
+              Upgrade Now
+            </Link>
+          )}
         </div>
       )}
 
