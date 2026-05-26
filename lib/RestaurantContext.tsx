@@ -273,7 +273,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
               amount: 0,
               plan_type: 'basic',
               status: 'success',
-              payment_method: 'free_trial'
+              payment_method: 'free_trier'
             });
           }
         }

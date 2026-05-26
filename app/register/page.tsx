@@ -83,16 +83,60 @@ export default function RegisterPage() {
       }
 
       if (authData.user) {
-        // 2. Provision the restaurant profile in the database
-        const { error: dbError } = await supabase.from('restaurants').insert({
+        // Check if this owner is within the first 5 registered owners
+        let count = 0;
+        try {
+          const { count: profCount, error: profErr } = await supabase
+            .from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .eq('plan_type', 'basic');
+          if (profErr) throw profErr;
+          count = profCount || 0;
+        } catch (e) {
+          const { count: restCount } = await supabase
+            .from('restaurants')
+            .select('*', { count: 'exact', head: true })
+            .eq('plan_type', 'basic');
+          count = restCount || 0;
+        }
+
+        const isPromo = count < 5;
+        const newExpiry = new Date();
+        newExpiry.setDate(newExpiry.getDate() + 30);
+
+        const restaurantPayload: any = {
           owner_id: authData.user.id,
           email: authData.user.email,
           name: businessName,
           slug: businessName.toLowerCase().replace(/ /g, '-')
-        });
+        };
+
+        if (isPromo) {
+          restaurantPayload.plan_type = 'basic';
+          restaurantPayload.subscription_status = 'active';
+          restaurantPayload.expiry_date = newExpiry.toISOString();
+        }
+
+        // 2. Provision the restaurant profile in the database
+        const { data: insertedRestaurant, error: dbError } = await supabase
+          .from('restaurants')
+          .insert(restaurantPayload)
+          .select()
+          .single();
 
         if (dbError) {
           throw new Error(dbError.message);
+        }
+
+        // Insert payments record if it is a promo user
+        if (isPromo && insertedRestaurant) {
+          await supabase.from('payments').insert({
+            restaurant_id: insertedRestaurant.id,
+            amount: 0,
+            plan_type: 'basic',
+            status: 'success',
+            payment_method: 'free_trier'
+          });
         }
 
         // Only show success if BOTH auth and database succeed

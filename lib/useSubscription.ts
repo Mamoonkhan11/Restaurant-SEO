@@ -24,7 +24,7 @@ export const useSubscription = () => {
   const now = new Date();
 
   const isBasicTrial = planType === 'basic' && (
-    (payments && payments.some(p => p.plan_type === 'basic' && p.payment_method === 'free_trial')) ||
+    (payments && payments.some(p => p.plan_type === 'basic' && (p.payment_method === 'free_trial' || p.payment_method === 'free_trier'))) ||
     (!!trialEndsAt && (!payments || !payments.some(p => p.plan_type === 'basic' && p.payment_method === 'razorpay' && p.status === 'success')))
   );
 

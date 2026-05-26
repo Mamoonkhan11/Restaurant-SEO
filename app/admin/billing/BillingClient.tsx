@@ -68,7 +68,7 @@ export default function BillingPage() {
     : (expiryDate ? now > expiryDate : false);
 
   const isBasicTrial = currentPlan === 'basic' && (
-    payments.some(p => p.plan_type === 'basic' && p.payment_method === 'free_trial') ||
+    payments.some(p => p.plan_type === 'basic' && (p.payment_method === 'free_trial' || p.payment_method === 'free_trier')) ||
     (!!trialEndsAt && !payments.some(p => p.plan_type === 'basic' && p.payment_method === 'razorpay' && p.status === 'success'))
   );
 
@@ -181,7 +181,7 @@ export default function BillingPage() {
         amount: 0,
         plan_type: 'basic',
         status: 'success',
-        payment_method: 'free_trial'
+        payment_method: 'free_trier'
       });
 
       toast.success('Successfully activated your 1-Month Free Trial of Basic Plan!');
