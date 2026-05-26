@@ -287,7 +287,31 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
           .select('*')
           .eq('restaurant_id', restaurantData.id)
           .order('created_at', { ascending: false });
-        setPayments(paymentsData || []);
+        
+        let paymentsList = paymentsData || [];
+
+        // Self-healing check: If the restaurant is registered as basic but has 0 payment history records,
+        // it means the unauthenticated registration page tried to insert the payment record but got blocked.
+        // Let's insert the missing 'free_trier' payment record now under this authenticated session.
+        if (restaurantData.plan_type === 'basic' && paymentsList.length === 0) {
+          const { error: insertErr } = await supabase.from('payments').insert({
+            restaurant_id: restaurantData.id,
+            amount: 0,
+            plan_type: 'basic',
+            status: 'success',
+            payment_method: 'free_trier'
+          });
+          if (!insertErr) {
+            const { data: refetchedPayments } = await supabase
+              .from('payments')
+              .select('*')
+              .eq('restaurant_id', restaurantData.id)
+              .order('created_at', { ascending: false });
+            paymentsList = refetchedPayments || [];
+          }
+        }
+
+        setPayments(paymentsList);
       }
     }
     setIsLoading(false);
