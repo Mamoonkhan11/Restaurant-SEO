@@ -53,32 +53,42 @@ export default function TermsAcceptancePage() {
         count = restCount || 0;
 
         if (count < 5) {
+          const activeUserId = restaurant.owner_id;
           const newExpiry = new Date();
           newExpiry.setDate(newExpiry.getDate() + 30);
 
-          const { error: updateErr } = await supabase
+          // 1. Update the core business subscription states directly inside 'restaurants'
+          const { error: restaurantUpdateError } = await supabase
             .from('restaurants')
-            .update({
-              plan_type: 'basic',
-              subscription_status: 'active',
+            .update({ 
+              plan_type: 'basic', 
+              subscription_status: 'active', 
               expiry_date: newExpiry.toISOString()
             })
-            .eq('id', restaurant.id);
-          
-          if (updateErr) {
-            console.error("Failed to update restaurant to basic plan:", updateErr);
+            .eq('owner_id', activeUserId); // Matches the unique ID of the restaurant owner
+
+          if (restaurantUpdateError) {
+            console.error("Failed to update restaurant to basic plan:", restaurantUpdateError);
           }
 
-          const { error: payErr } = await supabase.from('payments').insert({
-            restaurant_id: restaurant.id,
-            amount: 0,
-            plan_type: 'basic',
-            status: 'success',
-            payment_method: 'free_trier'
-          });
+          // 2. Parallel Injection: Log the transaction inside the 'payments' table
+          const { error: paymentLogError } = await supabase
+            .from('payments')
+            .insert([{
+              restaurant_id: restaurant.id,      // Relational key mapping to the restaurants table
+              amount: 0.00,                      // Marked free for early adopters
+              plan_type: 'basic',                // Legacy support
+              plan_tier: 'basic',
+              billing_cycle: 'monthly',
+              status: 'success',                 // Pre-approved internal log
+              payment_method: 'free_trial',      // Required NOT NULL column
+              payment_gateway: 'system_promo',
+              description: 'Automated 1-Month Early Adopter Promotional Free Activation',
+              created_at: new Date().toISOString()
+            }]);
 
-          if (payErr) {
-            console.error("Failed to insert payments history record:", payErr);
+          if (paymentLogError) {
+            console.error("PAYMENT RECORD INJECTION ERROR:", paymentLogError.message);
           }
         }
       }

@@ -231,37 +231,51 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
         count = restCount || 0;
 
         if (count < 5) {
+          const activeUserId = user.id;
           const newExpiry = new Date();
           newExpiry.setDate(newExpiry.getDate() + 30);
 
-          const { data: updatedData, error: updateErr } = await supabase
+          // 1. Update the core business subscription states directly inside 'restaurants'
+          const { error: restaurantUpdateError } = await supabase
             .from('restaurants')
-            .update({
-              plan_type: 'basic',
-              subscription_status: 'active',
+            .update({ 
+              plan_type: 'basic', 
+              subscription_status: 'active', 
               expiry_date: newExpiry.toISOString()
             })
-            .eq('id', restaurantData.id)
-            .select()
+            .eq('owner_id', activeUserId); // Matches the unique ID of the restaurant owner
+
+          if (restaurantUpdateError) throw restaurantUpdateError;
+
+          // Re-fetch the updated restaurant data
+          const { data: refetchedRest, error: refetchRestErr } = await supabase
+            .from('restaurants')
+            .select('*')
+            .eq('owner_id', activeUserId)
             .single();
 
-          if (updateErr) {
-            console.error("Error updating plan type:", updateErr);
+          if (!refetchRestErr && refetchedRest) {
+            restaurantData = refetchedRest;
           }
 
-          if (!updateErr && updatedData) {
-            restaurantData = updatedData;
-            
-            const { error: payErr } = await supabase.from('payments').insert({
-              restaurant_id: restaurantData.id,
-              amount: 0,
-              plan_type: 'basic',
-              status: 'success',
-              payment_method: 'free_trier'
-            });
-            if (payErr) {
-              console.error("Error inserting payment record:", payErr);
-            }
+          // 2. Parallel Injection: Log the transaction inside the 'payments' table
+          const { error: paymentLogError } = await supabase
+            .from('payments')
+            .insert([{
+              restaurant_id: restaurantData.id, // Relational key mapping to the restaurants table
+              amount: 0.00,                      // Marked free for early adopters
+              plan_type: 'basic',                // Legacy support
+              plan_tier: 'basic',
+              billing_cycle: 'monthly',
+              status: 'success',                 // Pre-approved internal log
+              payment_method: 'free_trial',      // Required NOT NULL column
+              payment_gateway: 'system_promo',
+              description: 'Automated 1-Month Early Adopter Promotional Free Activation',
+              created_at: new Date().toISOString()
+            }]);
+
+          if (paymentLogError) {
+            console.error("PAYMENT RECORD INJECTION ERROR:", paymentLogError.message);
           }
         }
       }
@@ -286,8 +300,13 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
             restaurant_id: restaurantData.id,
             amount: 0,
             plan_type: 'basic',
+            plan_tier: 'basic',
+            billing_cycle: 'monthly',
             status: 'success',
-            payment_method: 'free_trier'
+            payment_method: 'free_trial',
+            payment_gateway: 'system_promo',
+            description: 'Automated 1-Month Early Adopter Promotional Free Activation',
+            created_at: new Date().toISOString()
           });
           
           if (insertErr) {

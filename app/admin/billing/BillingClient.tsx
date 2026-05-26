@@ -82,7 +82,7 @@ export default function BillingPage() {
     });
   };
 
-  const handleUpgrade = async (plan: 'basic' | 'pro' | 'premium', price: number, isAnnual: boolean, useDiscount: boolean = false) => {
+  const handleUpgrade = async (plan: 'basic' | 'pro' | 'premium', price: number, isAnnual: boolean) => {
     setIsLoading(true);
     const res = await loadRazorpay();
 
@@ -97,7 +97,7 @@ export default function BillingPage() {
       const orderRes = await fetch('/api/razorpay/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, price, useDiscount, restaurantId: restaurant.id })
+        body: JSON.stringify({ plan, price, restaurantId: restaurant.id })
       });
       const orderData = await orderRes.json();
 
@@ -122,7 +122,6 @@ export default function BillingPage() {
                 restaurantId: restaurant.id,
                 plan,
                 amount: orderData.amount / 100,
-                useDiscount,
                 isAnnual
               })
             });
@@ -180,8 +179,13 @@ export default function BillingPage() {
         restaurant_id: restaurant?.id,
         amount: 0,
         plan_type: 'basic',
+        plan_tier: 'basic',
+        billing_cycle: 'monthly',
         status: 'success',
-        payment_method: 'free_trier'
+        payment_method: 'free_trial',
+        payment_gateway: 'system_promo',
+        description: 'Automated 1-Month Early Adopter Promotional Free Activation',
+        created_at: new Date().toISOString()
       });
 
       toast.success('Successfully activated your 1-Month Free Trial of Basic Plan!');

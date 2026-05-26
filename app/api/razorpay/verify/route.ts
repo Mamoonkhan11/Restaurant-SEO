@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(req: Request) {
   try {
-    const { payment_id, order_id, signature, restaurantId, plan, amount, useDiscount, isAnnual } = await req.json();
+    const { payment_id, order_id, signature, restaurantId, plan, amount, isAnnual } = await req.json();
 
     const secret = process.env.RAZORPAY_KEY_SECRET || 'dummy_secret';
 
@@ -30,28 +30,24 @@ export async function POST(req: Request) {
     // Update restaurant
     await supabase
       .from('restaurants')
-      .update({ 
-        plan_type: plan, 
+      .update({
+        plan_type: plan,
         subscription_status: 'active',
-        expiry_date: newExpiry.toISOString() 
+        expiry_date: newExpiry.toISOString()
       })
       .eq('id', restaurantId);
-
-    if (useDiscount) {
-      // Fetch current discount
-      const { data: rest } = await supabase.from('restaurants').select('pending_discounts').eq('id', restaurantId).single();
-      if (rest && rest.pending_discounts && rest.pending_discounts > 0) {
-         await supabase.from('restaurants').update({ pending_discounts: rest.pending_discounts - 1 }).eq('id', restaurantId);
-      }
-    }
 
     // Insert payment record
     await supabase.from('payments').insert({
       restaurant_id: restaurantId,
       amount: amount,
-      plan_type: plan,
+      plan_tier: plan,
+      billing_cycle: isYearly ? 'yearly' : 'monthly',
       status: 'success',
-      payment_method: 'razorpay'
+      payment_method: 'razorpay',
+      payment_gateway: 'razorpay',
+      description: `Razorpay Subscription Upgradation to ${plan} Plan (${isYearly ? 'Yearly' : 'Monthly'})`,
+      created_at: new Date().toISOString()
     });
 
     return NextResponse.json({ success: true });
