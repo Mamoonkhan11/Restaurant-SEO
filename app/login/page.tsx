@@ -122,85 +122,92 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative">
-      <Toaster />
-      
-      <div className="w-full max-w-md bg-white rounded-[2rem] shadow-xl border border-gray-100 p-8 sm:p-12 animate-fade-in-up">
-        
-        <div className="text-center mb-10">
-          <div className="flex justify-center mb-6">
-            <img src="/restdigi-logo.png" className="h-12 sm:h-14 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
-          </div>
-          <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">
-            {step === 'email' ? 'Admin Portal' : 'Check your email'}
-          </h1>
-          <p className="text-gray-500 text-sm mt-2 font-medium">
-            {step === 'email' 
-              ? 'Sign in password-free to manage your menu.' 
-              : `We've sent a secure login link and 6-digit code to ${email}.`}
-          </p>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-between">
+      {basicCount !== null && basicCount < 5 && (
+        <div className="bg-[#FEF3C7] text-[#111827] p-3.5 text-center text-xs font-bold uppercase tracking-widest border-b border-amber-200 w-full shrink-0 z-50">
+          First 5 Registered Businesses Get 1 Month Free! (Basic Tier)
         </div>
+      )}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <Toaster />
+        
+        <div className="w-full max-w-md bg-white rounded-[2rem] shadow-xl border border-gray-100 p-8 sm:p-12 animate-fade-in-up">
+          
+          <div className="text-center mb-10">
+            <div className="flex justify-center mb-6">
+              <img src="/restdigi-logo.png" className="h-12 sm:h-14 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
+            </div>
+            <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">
+              {step === 'email' ? 'Admin Portal' : 'Check your email'}
+            </h1>
+            <p className="text-gray-500 text-sm mt-2 font-medium">
+              {step === 'email' 
+                ? 'Sign in password-free to manage your menu.' 
+                : `We've sent a secure login link and 6-digit code to ${email}.`}
+            </p>
+          </div>
 
-        {step === 'email' ? (
-          <form onSubmit={handleSendOtp} className="space-y-5 animate-fade-in-up">
-            <div>
-              <input 
-                type="email" 
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your registered email" 
-                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400 text-center"
-              />
-            </div>
-            <div className="pt-2">
-              <button 
-                type="submit" 
-                disabled={isLoading || !email}
-                className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
-                {isLoading ? 'Checking...' : 'Send Login Code'}
-              </button>
-            </div>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyOtp} className="space-y-5 animate-fade-in-up">
-            <div>
-              <input 
-                type="text" 
-                required
-                maxLength={6}
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))} // Ensure numeric only
-                placeholder="Enter 6-digit code" 
-                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400 text-center tracking-[0.5em] text-2xl"
-              />
-            </div>
-            <div className="pt-2 space-y-4">
-              <button 
-                type="submit" 
-                disabled={isLoading || otp.length !== 6}
-                className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
-                Verify & Sign In
-              </button>
-              
-              <div className="text-center pt-2">
-                <button
-                  type="button"
-                  disabled={countdown > 0 || isLoading}
-                  onClick={() => handleSendOtp()}
-                  className="text-sm font-bold text-gray-500 hover:text-orange-600 transition-colors disabled:opacity-50 disabled:hover:text-gray-500"
+          {step === 'email' ? (
+            <form onSubmit={handleSendOtp} className="space-y-5 animate-fade-in-up">
+              <div>
+                <input 
+                  type="email" 
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your registered email" 
+                  className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400 text-center"
+                />
+              </div>
+              <div className="pt-2">
+                <button 
+                  type="submit" 
+                  disabled={isLoading || !email}
+                  className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  {countdown > 0 ? `Resend Code in ${countdown}s` : 'Resend Code'}
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
+                  {isLoading ? 'Checking...' : 'Send Login Code'}
                 </button>
               </div>
-            </div>
-          </form>
-        )}
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="space-y-5 animate-fade-in-up">
+              <div>
+                <input 
+                  type="text" 
+                  required
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))} // Ensure numeric only
+                  placeholder="Enter 6-digit code" 
+                  className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400 text-center tracking-[0.5em] text-2xl"
+                />
+              </div>
+              <div className="pt-2 space-y-4">
+                <button 
+                  type="submit" 
+                  disabled={isLoading || otp.length !== 6}
+                  className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
+                  Verify & Sign In
+                </button>
+                
+                <div className="text-center pt-2">
+                  <button
+                    type="button"
+                    disabled={countdown > 0 || isLoading}
+                    onClick={() => handleSendOtp()}
+                    className="text-sm font-bold text-gray-500 hover:text-orange-600 transition-colors disabled:opacity-50 disabled:hover:text-gray-500"
+                  >
+                    {countdown > 0 ? `Resend Code in ${countdown}s` : 'Resend Code'}
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
 
+        </div>
       </div>
 
       <style>{`

@@ -69,7 +69,7 @@ export default function BillingPage() {
 
   const isBasicTrial = currentPlan === 'basic' && (
     payments.some(p => p.plan_type === 'basic' && (p.payment_method === 'free_trial' || p.payment_method === 'free_trier')) ||
-    (!!trialEndsAt && !payments.some(p => p.plan_type === 'basic' && p.payment_method === 'razorpay' && p.status === 'success'))
+    (!payments || !payments.some(p => p.plan_type === 'basic' && p.payment_method === 'razorpay' && p.status === 'success'))
   );
 
   const loadRazorpay = () => {

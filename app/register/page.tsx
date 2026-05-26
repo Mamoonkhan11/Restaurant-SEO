@@ -12,6 +12,21 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [basicCount, setBasicCount] = useState<number | null>(null);
+
+  // Fetch basic plans count to see if promo slots are available
+  useEffect(() => {
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from('restaurants')
+        .select('*', { count: 'exact', head: true })
+        .eq('plan_type', 'basic');
+      if (count !== null) {
+        setBasicCount(count);
+      }
+    };
+    fetchCount();
+  }, []);
 
   // Generates a URL-friendly slug from the business name
   const generateSlug = (name: string) => {
@@ -110,88 +125,95 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <Toaster />
-      <div className="w-full max-w-md">
-        
-        <div className="flex justify-center mb-8">
-          <img src="/restdigi-logo.png" className="h-12 sm:h-14 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
+    <div className="min-h-screen bg-white flex flex-col justify-between">
+      {basicCount !== null && basicCount < 5 && (
+        <div className="bg-[#FEF3C7] text-[#111827] p-3.5 text-center text-xs font-bold uppercase tracking-widest border-b border-amber-200 w-full shrink-0 z-50">
+          First 5 Registered Businesses Get 1 Month Free! (Basic Tier)
         </div>
-
-        {!isSubmitted ? (
-          <div className="animate-fade-in-up">
-            <div className="mb-10 text-center">
-              <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Create Account</h1>
-              <p className="text-gray-500 font-medium">Join the future of digital menus.</p>
-            </div>
-
-            <form onSubmit={handleRegister} className="space-y-5">
-              <div>
-                <input
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={e => setFullName(e.target.value)}
-                  placeholder="Your Full Name"
-                  className="w-full px-5 py-4 bg-transparent border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-colors font-medium text-gray-900 placeholder-gray-400"
-                />
-              </div>
-
-              <div>
-                <input
-                  type="text"
-                  required
-                  value={businessName}
-                  onChange={e => setBusinessName(e.target.value)}
-                  placeholder="Business Name"
-                  className="w-full px-5 py-4 bg-transparent border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-colors font-medium text-gray-900 placeholder-gray-400"
-                />
-              </div>
-
-              <div>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="Work Email"
-                  className="w-full px-5 py-4 bg-transparent border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-colors font-medium text-gray-900 placeholder-gray-400"
-                />
-              </div>
-
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition-colors flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Register Account'}
-                </button>
-              </div>
-            </form>
-
-            <p className="text-center text-sm text-gray-500 mt-8 font-medium">
-              Already have an account? <button onClick={() => router.push('/login')} className="text-orange-600 font-bold hover:underline focus:outline-none">Sign in</button>
-            </p>
+      )}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <Toaster />
+        <div className="w-full max-w-md">
+          
+          <div className="flex justify-center mb-8">
+            <img src="/restdigi-logo.png" className="h-12 sm:h-14 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
           </div>
-        ) : (
-          <div className="text-center animate-fade-in-up bg-gray-50 border border-gray-100 p-10 rounded-[2rem]">
-            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-green-500" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-3">Check your inbox</h2>
-            <p className="text-gray-500 font-medium mb-8 leading-relaxed">
-              Confirm your email. We sent a verification link to <br /><strong className="text-gray-900">{email}</strong>.
-            </p>
-            <button
-              onClick={() => router.push('/login')}
-              className="w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition-colors"
-            >
-              Go to Login
-            </button>
-          </div>
-        )}
 
+          {!isSubmitted ? (
+            <div className="animate-fade-in-up">
+              <div className="mb-10 text-center">
+                <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Create Account</h1>
+                <p className="text-gray-500 font-medium">Join the future of digital menus.</p>
+              </div>
+
+              <form onSubmit={handleRegister} className="space-y-5">
+                <div>
+                  <input
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={e => setFullName(e.target.value)}
+                    placeholder="Your Full Name"
+                    className="w-full px-5 py-4 bg-transparent border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-colors font-medium text-gray-900 placeholder-gray-400"
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    required
+                    value={businessName}
+                    onChange={e => setBusinessName(e.target.value)}
+                    placeholder="Business Name"
+                    className="w-full px-5 py-4 bg-transparent border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-colors font-medium text-gray-900 placeholder-gray-400"
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="Work Email"
+                    className="w-full px-5 py-4 bg-transparent border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-colors font-medium text-gray-900 placeholder-gray-400"
+                  />
+                </div>
+
+                <div className="pt-4">
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition-colors flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Register Account'}
+                  </button>
+                </div>
+              </form>
+
+              <p className="text-center text-sm text-gray-500 mt-8 font-medium">
+                Already have an account? <button onClick={() => router.push('/login')} className="text-orange-600 font-bold hover:underline focus:outline-none">Sign in</button>
+              </p>
+            </div>
+          ) : (
+            <div className="text-center animate-fade-in-up bg-gray-50 border border-gray-100 p-10 rounded-[2rem]">
+              <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10 text-green-500" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-3">Check your inbox</h2>
+              <p className="text-gray-500 font-medium mb-8 leading-relaxed">
+                Confirm your email. We sent a verification link to <br /><strong className="text-gray-900">{email}</strong>.
+              </p>
+              <button
+                onClick={() => router.push('/login')}
+                className="w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition-colors"
+              >
+                Go to Login
+              </button>
+            </div>
+          )}
+
+        </div>
       </div>
 
       <style>{`
