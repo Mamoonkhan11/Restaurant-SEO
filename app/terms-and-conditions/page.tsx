@@ -22,9 +22,7 @@ export default function TermsAndConditions() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-3">1. Nature of Service</h2>
             <p>
-              <strong>RESTDIGI</strong> provides an interactive, cloud-hosted digital menu infrastructure and local SEO amplification system. 
-              By utilizing our table-specific QR code matrices, subscribing restaurants ("Merchants") can allow their customers ("Diners") to 
-              <strong>Scan, View, and Place Orders Instantly</strong> directly from their mobile browsers to the Merchant's live administrative Kitchen Order Ticket (KOT) dashboard.
+              <strong>RESTDIGI</strong> provides an interactive, cloud-hosted digital menu infrastructure and local SEO amplification system. By utilizing our table-specific QR code matrices, subscribing restaurants ("Merchants") can allow their customers ("Diners") to <strong>Scan, View, and Place Orders Instantly</strong> directly from their mobile browsers to the Merchant's live administrative Kitchen Order Ticket (KOT) dashboard.
             </p>
           </section>
 
