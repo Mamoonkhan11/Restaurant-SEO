@@ -10,7 +10,12 @@ const MenuHeader = React.memo(({ restaurant, menuBlocked }: { restaurant: any, m
   <div className="pt-8 pb-6 px-4 flex flex-col items-center justify-center bg-[#F9FAFB] relative z-10">
     <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-full border border-gray-100 flex items-center justify-center overflow-hidden mb-3 relative shadow-sm">
       {restaurant?.logo_url ? (
-        <Image src={restaurant.logo_url} fill sizes="96px" alt="Logo" className="object-cover" priority />
+        <img 
+          src={restaurant.logo_url} 
+          alt="Logo" 
+          className="w-full h-full object-cover" 
+          key={restaurant.logo_url} 
+        />
       ) : (
         <span className="text-3xl font-black text-[#111827]">
           {restaurant?.name?.charAt(0) || 'L'}
