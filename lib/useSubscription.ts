@@ -11,11 +11,14 @@ export const useSubscription = () => {
       canViewRevenue: false,
       canViewAllAnalytics: false,
       isExpired: false,
-      isLoading
+      isLoading,
+      hasActivePlan: false,
+      subscriptionStatus: null
     };
   }
 
   const planType = restaurant.plan_type || 'free';
+  const subscriptionStatus = restaurant.subscription_status || null;
   const trialEndsAt = restaurant.trial_ends_at ? new Date(restaurant.trial_ends_at) : null;
   const expiryDate = restaurant.expiry_date ? new Date(restaurant.expiry_date) : null;
   const now = new Date();
@@ -39,6 +42,10 @@ export const useSubscription = () => {
     daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 
+  // Available plans are strictly restricted to: 'basic', 'pro', 'premium', and 'enterprise'.
+  const validPlans = ['basic', 'pro', 'premium', 'enterprise'];
+  const hasActivePlan = validPlans.includes(planType) && subscriptionStatus === 'active' && !isExpired;
+
   return {
     planType,
     isTrial,
@@ -48,6 +55,8 @@ export const useSubscription = () => {
     canCustomBrand: ['pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired),
     canWhatsAppOrder: ['pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired),
     isExpired,
-    isLoading
+    isLoading,
+    hasActivePlan,
+    subscriptionStatus
   };
 };

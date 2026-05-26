@@ -231,13 +231,61 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
         .select('*')
         .eq('owner_id', user.id)
         .single();
-      setRestaurant(data);
 
-      if (data) {
+      let restaurantData = data;
+      if (restaurantData && (restaurantData.plan_type === 'free' || !restaurantData.plan_type) && restaurantData.subscription_status !== 'active') {
+        let count = 0;
+        try {
+          const { count: profCount, error: profErr } = await supabase
+            .from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .eq('plan_type', 'basic');
+          if (profErr) throw profErr;
+          count = profCount || 0;
+        } catch (e) {
+          const { count: restCount } = await supabase
+            .from('restaurants')
+            .select('*', { count: 'exact', head: true })
+            .eq('plan_type', 'basic');
+          count = restCount || 0;
+        }
+
+        if (count < 5) {
+          const newExpiry = new Date();
+          newExpiry.setDate(newExpiry.getDate() + 30);
+
+          const { data: updatedData, error: updateErr } = await supabase
+            .from('restaurants')
+            .update({
+              plan_type: 'basic',
+              subscription_status: 'active',
+              expiry_date: newExpiry.toISOString()
+            })
+            .eq('id', restaurantData.id)
+            .select()
+            .single();
+
+          if (!updateErr && updatedData) {
+            restaurantData = updatedData;
+            
+            await supabase.from('payments').insert({
+              restaurant_id: restaurantData.id,
+              amount: 0,
+              plan_type: 'basic',
+              status: 'success',
+              payment_method: 'free_trial'
+            });
+          }
+        }
+      }
+
+      setRestaurant(restaurantData);
+
+      if (restaurantData) {
         const { data: paymentsData } = await supabase
           .from('payments')
           .select('*')
-          .eq('restaurant_id', data.id)
+          .eq('restaurant_id', restaurantData.id)
           .order('created_at', { ascending: false });
         setPayments(paymentsData || []);
       }

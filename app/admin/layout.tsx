@@ -67,11 +67,14 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     }
   }, [isLoading, restaurant, pathname, router]);
 
-
-
   // Don't show the dashboard layout for the terms setup page
   if (pathname === '/admin/setup/terms') {
     return <div className="min-h-screen bg-gray-50">{children}</div>;
+  }
+
+  // Prevent flash of layout/content if terms are not accepted
+  if (!isLoading && restaurant && restaurant.terms_accepted === false) {
+    return null;
   }
 
   return (

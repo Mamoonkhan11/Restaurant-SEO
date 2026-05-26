@@ -15,7 +15,7 @@ export default function TermsAndConditions() {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
           </Link>
           <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">Terms and Conditions</h1>
-          <p className="text-gray-505 font-medium text-sm text-gray-400">Last Updated: May 2026</p>
+          <p className="text-gray-500 font-medium text-sm">Last Updated: May 2026</p>
         </div>
 
         <div className="space-y-8 text-gray-700 leading-relaxed">

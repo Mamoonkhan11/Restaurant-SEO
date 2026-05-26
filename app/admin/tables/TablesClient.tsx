@@ -1,14 +1,17 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Plus, Trash2, Link as LinkIcon, QrCode, Download } from 'lucide-react';
+import { Loader2, Plus, Trash2, Link as LinkIcon, QrCode, Download, Lock } from 'lucide-react';
+import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useRestaurant } from '@/lib/RestaurantContext';
 import { QRCodeSVG } from 'qrcode.react';
 import html2canvas from 'html2canvas';
+import { useSubscription } from '@/lib/useSubscription';
 
 export default function TablesPage() {
   const { restaurant, isLoading: isRestaurantLoading } = useRestaurant();
+  const { hasActivePlan } = useSubscription();
   const [tables, setTables] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [newTableName, setNewTableName] = useState('');
@@ -164,6 +167,35 @@ export default function TablesPage() {
     }
   };
 
+  const wrapWithLock = (content: React.ReactNode) => {
+    if (hasActivePlan) return content;
+
+    return (
+      <div className="relative w-full min-h-screen">
+        <div className="pointer-events-none select-none blur-md opacity-60">
+          {content}
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center p-4 z-20 pointer-events-auto">
+          <div className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/20 animate-fade-in-up">
+            <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No Active Plan</h3>
+            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+              Please select a subscription tier from the Billing panel to unlock these management interfaces.
+            </p>
+            <Link
+              href="/admin/billing"
+              className="inline-block bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-colors"
+            >
+              Go to Billing
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (isRestaurantLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -174,7 +206,7 @@ export default function TablesPage() {
 
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://vionys.com';
 
-  return (
+  return wrapWithLock(
     <div className="p-4 sm:p-8 max-w-6xl mx-auto min-h-screen bg-[#F9FAFB] font-sans">
       <style dangerouslySetInnerHTML={{__html: `
         @page {

@@ -7,7 +7,7 @@ import { CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
 
 export default function TermsAcceptancePage() {
   const router = useRouter();
-  const { restaurant } = useRestaurant();
+  const { restaurant, refreshRestaurant } = useRestaurant();
   
   const [isAgreed, setIsAgreed] = useState(false);
   const [signature, setSignature] = useState('');
@@ -33,7 +33,57 @@ export default function TermsAcceptancePage() {
       const userAgent = window.navigator.userAgent;
       const timestamp = new Date().toISOString();
 
-      // Update Supabase Record
+      // Fire an internal update to set terms_accepted: true inside the database profiles row
+      try {
+        await supabase
+          .from('profiles')
+          .update({ terms_accepted: true })
+          .eq('id', restaurant.owner_id);
+      } catch (e) {
+        // Ignore fallback
+      }
+
+      // Check count and perform Automated Free Tier Basic Activation if slots < 5
+      if (restaurant.plan_type === 'free' || !restaurant.plan_type) {
+        let count = 0;
+        try {
+          const { count: profCount } = await supabase
+            .from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .eq('plan_type', 'basic');
+          count = profCount || 0;
+        } catch (e) {
+          const { count: restCount } = await supabase
+            .from('restaurants')
+            .select('*', { count: 'exact', head: true })
+            .eq('plan_type', 'basic');
+          count = restCount || 0;
+        }
+
+        if (count < 5) {
+          const newExpiry = new Date();
+          newExpiry.setDate(newExpiry.getDate() + 30);
+
+          await supabase
+            .from('restaurants')
+            .update({
+              plan_type: 'basic',
+              subscription_status: 'active',
+              expiry_date: newExpiry.toISOString()
+            })
+            .eq('id', restaurant.id);
+
+          await supabase.from('payments').insert({
+            restaurant_id: restaurant.id,
+            amount: 0,
+            plan_type: 'basic',
+            status: 'success',
+            payment_method: 'free_trial'
+          });
+        }
+      }
+
+      // Update terms in restaurants table
       const { error } = await supabase
         .from('restaurants')
         .update({
@@ -47,11 +97,11 @@ export default function TermsAcceptancePage() {
 
       if (error) throw error;
 
+      await refreshRestaurant();
       setIsSuccess(true);
       
-      // Force a full reload to ensure context is updated and middleware allows access
       setTimeout(() => {
-        window.location.href = '/admin';
+        router.push('/admin');
       }, 1500);
       
     } catch (error) {
@@ -105,31 +155,31 @@ export default function TermsAcceptancePage() {
               <strong> User feedback, ratings, and food quality are direct factors in our internal "SEO Ranking" and "Customer Satisfaction Rate" within the RESTDIGI ecosystem.</strong>
             </p>
             
-            <h4 className="text-gray-900 font-bold">2. Quality Standards & Visibility</h4>
+            <h4 className="text-gray-900 font-bold">2. Elimination of Ordering Intermediaries</h4>
             <p>
-              To ensure a premium dining experience, RESTDIGI reserves the right to lower the ranking, reduce the visibility, or suspend the accounts of restaurants with consistently low Customer Satisfaction Rates.
+              RESTDIGI operates via direct local network socket handshakes and real-time database structures. RESTDIGI does <strong>not</strong> route orders through third-party messaging applications (such as WhatsApp), SMS relays, or external manual agents. All transmission happens natively within the RESTDIGI ecosystem to eliminate waiting times.
             </p>
-
+            
             <h4 className="text-gray-900 font-bold">3. Accuracy of Information</h4>
             <p>
               It is your responsibility to provide accurate menu prices, ingredients, and availability. RESTDIGI holds no legal liability for any disputes or customer grievances arising from incorrect menu descriptions or pricing.
             </p>
 
-            <h4 className="text-gray-900 font-bold">4. Order Fulfillment</h4>
+            <h4 className="text-gray-900 font-bold">4. Limitation of Operational Liability</h4>
             <p>
-              RESTDIGI is solely a digital display and communication platform. Food preparation, delivery fulfillment, and direct payment collection remain strictly the restaurant's responsibility.
+              RESTDIGI functions solely as a software utility conduit. We disclaim all liability regarding payment settlement failures between Diners and Merchants, physical preparation delays, kitchen errors, order cancellations, or hardware/internet disconnections at the restaurant premises.
             </p>
 
             <hr className="my-8 border-gray-200" />
 
             <h3 className="text-lg font-bold text-gray-900">Privacy Policy</h3>
             
-            <h4 className="text-gray-900 font-bold">1. Data Collection</h4>
+            <h4 className="text-gray-900 font-bold">1. Data Collected from Diners (Customers)</h4>
             <p>
               To preserve zero-friction speed, Diners do not need to create accounts or download applications. We only process operational tokens required to fulfill table-ordering: specific item cart selections, dynamic table numbers, and timestamps. No persistent personal social metrics or chat data are monitored.
             </p>
 
-            <h4 className="text-gray-900 font-bold">2. How We Use Your Data</h4>
+            <h4 className="text-gray-900 font-bold">2. Data Collected from Merchants (Restaurants)</h4>
             <p>
               We collect standard administrative variables necessary to operate the SaaS platform: corporate business names, profile logos uploaded via secure cloud storage buckets, contact details, pricing records, and regional location coordinates required to run the automated Local SEO ranking enhancement model.
             </p>

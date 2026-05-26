@@ -23,8 +23,8 @@ export default function RefundPolicy() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-3">1. Merchant SaaS Subscriptions</h2>
             <p>
-              RESTDIGI operates on clean SaaS pricing tiers (Basic, Pro, Premium, Enterprise) with dynamic Monthly and Annual cycles. 
-              As outlined in our introductory campaigns, the first 6 registered businesses receive an absolute <strong>1-Month Free Trial</strong> with Basic tier functionalities. 
+              RESTDIGI operates on clean SaaS pricing tiers (Basic, Pro, Premium, Enterprise) with dynamic Monthly and Annual cycles.
+              As outlined in our introductory campaigns, the first 5 registered businesses receive an absolute <strong>1-Month Free Trial</strong> with Basic tier functionalities.
               Subscribers can cancel their renewals at any point directly from the account portal before the next billing cycle triggers.
             </p>
           </section>

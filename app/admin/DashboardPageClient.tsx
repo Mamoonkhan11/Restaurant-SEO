@@ -39,6 +39,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     audioNeedsInteraction,
     handleToggleAudio
   } = useRestaurant();
+  const { hasActivePlan } = useSubscription();
 
   useEffect(() => {
     if (!restaurantId) return;
@@ -102,7 +103,36 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     };
   }, [restaurantId]);
 
-  return (
+  const wrapWithLock = (content: React.ReactNode) => {
+    if (hasActivePlan) return content;
+
+    return (
+      <div className="relative w-full mb-8">
+        <div className="pointer-events-none select-none blur-md opacity-60">
+          {content}
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center p-4 z-20 pointer-events-auto">
+          <div className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/20 animate-fade-in-up">
+            <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No Active Plan</h3>
+            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+              Please select a subscription tier from the Billing panel to unlock these management interfaces.
+            </p>
+            <Link
+              href="/admin/billing"
+              className="inline-block bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-colors"
+            >
+              Go to Billing
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return wrapWithLock(
     <div className="bg-white p-6 rounded-2xl border border-orange-200 shadow-sm flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
       <div className="absolute top-0 left-0 w-full h-1 bg-orange-500"></div>
       <div className="mb-6 flex justify-between items-center">
