@@ -293,7 +293,7 @@ export default function AdminDashboardOverview() {
       // 2. Profile Fetch
       const { data: restaurant, error } = await supabase
         .from('restaurants')
-        .select('id, slug, average_order_value, plan_type, total_scans')
+        .select('id, slug, plan_type, total_scans')
         .eq('owner_id', user.id)
         .single();
 

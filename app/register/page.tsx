@@ -33,15 +33,29 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
-    try {
-      const { data: existingRestaurants } = await supabase
-        .from('restaurants')
-        .select('id')
-        .eq('email', email.trim().toLowerCase())
-        .limit(1);
+    const trimmedFullName = fullName.trim();
+    const trimmedBusinessName = businessName.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    const targetSlug = trimmedBusinessName.toLowerCase().replace(/ /g, '-');
 
-      if (existingRestaurants && existingRestaurants.length > 0) {
+    try {
+      const [emailCheck, nameCheck, slugCheck] = await Promise.all([
+        supabase.from('restaurants').select('id').eq('email', trimmedEmail).limit(1),
+        supabase.from('restaurants').select('id').eq('name', trimmedBusinessName).limit(1),
+        supabase.from('restaurants').select('id').eq('slug', targetSlug).limit(1)
+      ]);
+
+      if (emailCheck.data && emailCheck.data.length > 0) {
         toast.error('User already exists.', {
+          style: { background: '#000', color: '#fff' },
+          position: 'top-center'
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if ((nameCheck.data && nameCheck.data.length > 0) || (slugCheck.data && slugCheck.data.length > 0)) {
+        toast.error('Business name or link already taken. Please try a modified name.', {
           style: { background: '#000', color: '#fff' },
           position: 'top-center'
         });
@@ -58,13 +72,13 @@ export default function RegisterPage() {
 
     try {
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email,
+        email: trimmedEmail,
         password: randomPassword,
         options: {
           emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/login` : 'http://localhost:3000/login',
           data: {
-            full_name: fullName,
-            business_name: businessName
+            full_name: trimmedFullName,
+            business_name: trimmedBusinessName
           }
         }
       });
@@ -91,8 +105,8 @@ export default function RegisterPage() {
         const { error: dbError } = await supabase.from('restaurants').insert({
           owner_id: authData.user.id,
           email: authData.user.email,
-          name: businessName,
-          slug: businessName.toLowerCase().replace(/ /g, '-')
+          name: trimmedBusinessName,
+          slug: targetSlug
         });
 
         if (dbError) {
