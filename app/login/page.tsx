@@ -149,7 +149,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your registered email" 
-                  className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400 text-center"
+                  className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400"
                 />
               </div>
               <div className="pt-2">
@@ -173,7 +173,7 @@ export default function LoginPage() {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
                   placeholder="Enter 6-digit code" 
-                  className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400 text-center tracking-[0.5em] text-2xl"
+                  className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400 tracking-[0.5em] text-2xl"
                 />
               </div>
               <div className="pt-2 space-y-4">
