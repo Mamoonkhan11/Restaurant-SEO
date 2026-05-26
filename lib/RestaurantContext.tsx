@@ -224,33 +224,54 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
 
   const fetchRestaurant = async () => {
     setIsLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
+    console.log("RestaurantContext: Fetching restaurant session...");
+    const { data: { user }, error: userErr } = await supabase.auth.getUser();
+    if (userErr) {
+      console.error("RestaurantContext: Get user session error:", userErr);
+    }
+    
     if (user) {
-      const { data } = await supabase
+      console.log("RestaurantContext: User authenticated. Fetching restaurant details for user id:", user.id);
+      const { data, error: fetchErr } = await supabase
         .from('restaurants')
         .select('*')
         .eq('owner_id', user.id)
         .single();
 
+      if (fetchErr) {
+        console.error("RestaurantContext: Error fetching restaurant:", fetchErr);
+      }
+
       let restaurantData = data;
       if (restaurantData && (restaurantData.plan_type === 'free' || !restaurantData.plan_type) && restaurantData.subscription_status !== 'active') {
+        console.log("RestaurantContext: Restaurant is on free/null plan. Checking promo slots...");
         let count = 0;
         try {
           const { count: profCount, error: profErr } = await supabase
             .from('profiles')
             .select('*', { count: 'exact', head: true })
             .eq('plan_type', 'basic');
-          if (profErr) throw profErr;
+          if (profErr) {
+            console.warn("RestaurantContext: Profiles count check failed (expected if profiles table is missing):", profErr);
+            throw profErr;
+          }
           count = profCount || 0;
+          console.log("RestaurantContext: Counted basic users from profiles:", count);
         } catch (e) {
-          const { count: restCount } = await supabase
+          console.log("RestaurantContext: Falling back to counting basic users from restaurants table...");
+          const { count: restCount, error: restErr } = await supabase
             .from('restaurants')
             .select('*', { count: 'exact', head: true })
             .eq('plan_type', 'basic');
+          if (restErr) {
+            console.error("RestaurantContext: Restaurants count check failed:", restErr);
+          }
           count = restCount || 0;
+          console.log("RestaurantContext: Counted basic users from restaurants:", count);
         }
 
         if (count < 5) {
+          console.log("RestaurantContext: Promo slot available (count < 5). Automatically activating Basic plan...");
           const newExpiry = new Date();
           newExpiry.setDate(newExpiry.getDate() + 30);
 
@@ -265,35 +286,55 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
             .select()
             .single();
 
+          if (updateErr) {
+            console.error("RestaurantContext: Failed to update restaurant to basic plan:", updateErr);
+          }
+
           if (!updateErr && updatedData) {
+            console.log("RestaurantContext: Successfully updated restaurant to basic plan:", updatedData);
             restaurantData = updatedData;
             
-            await supabase.from('payments').insert({
+            console.log("RestaurantContext: Inserting payment record for free_trier...");
+            const { error: payErr } = await supabase.from('payments').insert({
               restaurant_id: restaurantData.id,
               amount: 0,
               plan_type: 'basic',
               status: 'success',
               payment_method: 'free_trier'
             });
+            if (payErr) {
+              console.error("RestaurantContext: Failed to insert payments history record:", payErr);
+            } else {
+              console.log("RestaurantContext: Payment history record successfully created!");
+            }
           }
+        } else {
+          console.log("RestaurantContext: Promo count has reached 5. Early adopter promo not applied.");
         }
       }
 
       setRestaurant(restaurantData);
 
       if (restaurantData) {
-        const { data: paymentsData } = await supabase
+        console.log("RestaurantContext: Loading payments history for restaurant id:", restaurantData.id);
+        const { data: paymentsData, error: paymentsErr } = await supabase
           .from('payments')
           .select('*')
           .eq('restaurant_id', restaurantData.id)
           .order('created_at', { ascending: false });
         
+        if (paymentsErr) {
+          console.error("RestaurantContext: Error fetching payments history:", paymentsErr);
+        }
+        
         let paymentsList = paymentsData || [];
+        console.log("RestaurantContext: Payments list loaded. Count:", paymentsList.length);
 
         // Self-healing check: If the restaurant is registered as basic but has 0 payment history records,
         // it means the unauthenticated registration page tried to insert the payment record but got blocked.
         // Let's insert the missing 'free_trier' payment record now under this authenticated session.
         if (restaurantData.plan_type === 'basic' && paymentsList.length === 0) {
+          console.log("RestaurantContext: SELF-HEALING: Restaurant is basic but has 0 payments. Attempting to insert payment history...");
           const { error: insertErr } = await supabase.from('payments').insert({
             restaurant_id: restaurantData.id,
             amount: 0,
@@ -301,18 +342,27 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
             status: 'success',
             payment_method: 'free_trier'
           });
-          if (!insertErr) {
-            const { data: refetchedPayments } = await supabase
+          
+          if (insertErr) {
+            console.error("RestaurantContext: SELF-HEALING: Failed to insert payment history record:", insertErr);
+          } else {
+            console.log("RestaurantContext: SELF-HEALING: Payment history record successfully inserted! Re-fetching payments...");
+            const { data: refetchedPayments, error: refetchErr } = await supabase
               .from('payments')
               .select('*')
               .eq('restaurant_id', restaurantData.id)
               .order('created_at', { ascending: false });
+            if (refetchErr) {
+              console.error("RestaurantContext: SELF-HEALING: Re-fetching payments error:", refetchErr);
+            }
             paymentsList = refetchedPayments || [];
           }
         }
 
         setPayments(paymentsList);
       }
+    } else {
+      console.warn("RestaurantContext: No authenticated user session found.");
     }
     setIsLoading(false);
   };
@@ -320,37 +370,52 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     fetchRestaurant();
 
-    let channel: any;
-    const setupSubscription = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        channel = supabase
-          .channel('restaurant-realtime-updates')
-          .on(
-            'postgres_changes',
-            {
-              event: 'UPDATE',
-              schema: 'public',
-              table: 'restaurants',
-              filter: `owner_id=eq.${user.id}`
-            },
-            (payload) => {
-              if (payload.new) {
-                setRestaurant(payload.new);
-              }
-            }
-          )
-          .subscribe();
+    // Listen for auth state changes to dynamically trigger fetching or reset the restaurant state
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("RestaurantContext: Auth event fired:", event, session?.user?.id);
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        fetchRestaurant();
+      } else if (event === 'SIGNED_OUT') {
+        setRestaurant(null);
+        setPayments([]);
       }
-    };
-    setupSubscription();
+    });
 
     return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
-      }
+      authListener.subscription.unsubscribe();
     };
   }, []);
+
+  // Realtime channel subscription for postgres UPDATE changes on the current owner's restaurant profile
+  useEffect(() => {
+    if (!restaurant?.owner_id) return;
+
+    console.log("RestaurantContext: Setting up postgres change channel for owner's restaurant:", restaurant.owner_id);
+    const channel = supabase
+      .channel('restaurant-realtime-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'restaurants',
+          filter: `owner_id=eq.${restaurant.owner_id}`
+        },
+        (payload) => {
+          if (payload.new) {
+            console.log("RestaurantContext: Realtime update received from db for restaurant:", payload.new);
+            setRestaurant(payload.new);
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log(`RestaurantContext: Postgres change channel status:`, status);
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [restaurant?.owner_id]);
 
   // Realtime subscription for incoming orders to trigger the alert chime across all admin pages
   useEffect(() => {

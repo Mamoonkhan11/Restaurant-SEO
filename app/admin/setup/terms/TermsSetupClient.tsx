@@ -47,16 +47,20 @@ export default function TermsAcceptancePage() {
       if (restaurant.plan_type === 'free' || !restaurant.plan_type) {
         let count = 0;
         try {
-          const { count: profCount } = await supabase
+          const { count: profCount, error: profErr } = await supabase
             .from('profiles')
             .select('*', { count: 'exact', head: true })
             .eq('plan_type', 'basic');
+          if (profErr) throw profErr;
           count = profCount || 0;
         } catch (e) {
-          const { count: restCount } = await supabase
+          const { count: restCount, error: restErr } = await supabase
             .from('restaurants')
             .select('*', { count: 'exact', head: true })
             .eq('plan_type', 'basic');
+          if (restErr) {
+            console.error("TermsSetupClient: Restaurants count check failed:", restErr);
+          }
           count = restCount || 0;
         }
 
@@ -64,7 +68,7 @@ export default function TermsAcceptancePage() {
           const newExpiry = new Date();
           newExpiry.setDate(newExpiry.getDate() + 30);
 
-          await supabase
+          const { error: updateErr } = await supabase
             .from('restaurants')
             .update({
               plan_type: 'basic',
@@ -72,14 +76,22 @@ export default function TermsAcceptancePage() {
               expiry_date: newExpiry.toISOString()
             })
             .eq('id', restaurant.id);
+          
+          if (updateErr) {
+            console.error("TermsSetupClient: Failed to update restaurant to basic plan:", updateErr);
+          }
 
-          await supabase.from('payments').insert({
+          const { error: payErr } = await supabase.from('payments').insert({
             restaurant_id: restaurant.id,
             amount: 0,
             plan_type: 'basic',
             status: 'success',
             payment_method: 'free_trier'
           });
+
+          if (payErr) {
+            console.error("TermsSetupClient: Failed to insert payments history record:", payErr);
+          }
         }
       }
 
