@@ -203,7 +203,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
   const fetchRestaurant = async () => {
     setIsLoading(true);
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
-    if (userErr) {
+    if (userErr && userErr.name !== 'AuthSessionMissingError') {
       console.error("Error fetching user session:", userErr);
     }
     
