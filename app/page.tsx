@@ -1,7 +1,32 @@
+"use client";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { QrCode, ChevronRight, TrendingUp } from 'lucide-react';
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.replace('/admin');
+      }
+    };
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        router.replace('/admin');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [router]);
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 selection:bg-orange-200">
 

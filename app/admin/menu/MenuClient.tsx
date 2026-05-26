@@ -17,7 +17,7 @@ export default function MenuManagement() {
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const [dishToDelete, setDishToDelete] = useState<Dish | null>(null);
   const { restaurant } = useRestaurant();
-  const { hasActivePlan } = useSubscription();
+  const { hasActivePlan, isLoading: isSubLoading } = useSubscription();
 
   const activeSlug = restaurant?.slug || FALLBACK_SLUG;
 
@@ -106,6 +106,13 @@ export default function MenuManagement() {
   };
 
   const wrapWithLock = (content: React.ReactNode) => {
+    if (isSubLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
+        </div>
+      );
+    }
     if (hasActivePlan) return content;
 
     return (

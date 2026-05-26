@@ -40,14 +40,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       }
     });
 
-    const logoutTimer = setTimeout(async () => {
-      await supabase.auth.signOut();
-      router.push('/login');
-    }, 24 * 60 * 60 * 1000);
-
     return () => {
       subscription.unsubscribe();
-      clearTimeout(logoutTimer);
     };
   }, [router]);
 

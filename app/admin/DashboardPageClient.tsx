@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { X, Lock, TrendingUp, Sparkles } from 'lucide-react';
+import { X, Lock, TrendingUp, Sparkles, Loader2 } from 'lucide-react';
 import { useSubscription } from '@/lib/useSubscription';
 import { useRestaurant } from '@/lib/RestaurantContext';
 
@@ -39,7 +39,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     audioNeedsInteraction,
     handleToggleAudio
   } = useRestaurant();
-  const { hasActivePlan } = useSubscription();
+  const { hasActivePlan, isLoading: isSubLoading } = useSubscription();
 
   useEffect(() => {
     if (!restaurantId) return;
@@ -104,6 +104,13 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   }, [restaurantId]);
 
   const wrapWithLock = (content: React.ReactNode) => {
+    if (isSubLoading) {
+      return (
+        <div className="bg-white p-6 rounded-2xl border border-orange-200 shadow-sm flex items-center justify-center mb-8 relative min-h-[200px]">
+          <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
+        </div>
+      );
+    }
     if (hasActivePlan) return content;
 
     return (
@@ -273,7 +280,7 @@ export default function AdminDashboardOverview() {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [activeModalTitle, setActiveModalTitle] = useState<string | null>(null);
   const [historicalStats, setHistoricalStats] = useState<any[]>([]);
-  const { planType, canViewRevenue, canViewAllAnalytics, isTrial, isExpired } = useSubscription();
+  const { planType, canViewRevenue, canViewAllAnalytics, isTrial, isExpired, isLoading: isSubLoading } = useSubscription();
 
   const showProLock = !canViewAllAnalytics;
   const canViewAdvancedAnalytics = ['premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired);
@@ -453,7 +460,7 @@ export default function AdminDashboardOverview() {
   }, [router]);
 
 
-  if (isLoading) {
+  if (isLoading || isSubLoading) {
     return (
       <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-8 min-h-screen">
         <div className="animate-pulse space-y-4">
