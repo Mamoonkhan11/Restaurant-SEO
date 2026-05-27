@@ -79,7 +79,7 @@ export default function Home() {
             href="/admin"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all bg-orange-600 rounded-full hover:bg-orange-700 hover:shadow-lg hover:-translate-y-1 group"
           >
-            Launch Your Digital Menu Free
+            Launch Your Digital Menu
             <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
