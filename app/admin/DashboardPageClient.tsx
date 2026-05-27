@@ -94,9 +94,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           }
         }
       )
-      .subscribe((status) => {
-        console.log(`📡 Supabase Realtime Subscription Status (orders):`, status);
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(ordersSubscription);
@@ -405,12 +403,12 @@ export default function AdminDashboardOverview() {
       const firstDayOf2MonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString();
       const firstDayOf3MonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString();
 
-      const { count: month1 } = await supabase.from('restaurant_views').select('*', { count: 'exact', head: true })
-        .eq('restaurant_slug', restaurant.slug).gte('created_at', firstDayOfLastMonth).lt('created_at', firstDayOfMonth);
-      const { count: month2 } = await supabase.from('restaurant_views').select('*', { count: 'exact', head: true })
-        .eq('restaurant_slug', restaurant.slug).gte('created_at', firstDayOf2MonthsAgo).lt('created_at', firstDayOfLastMonth);
-      const { count: month3 } = await supabase.from('restaurant_views').select('*', { count: 'exact', head: true })
-        .eq('restaurant_slug', restaurant.slug).gte('created_at', firstDayOf3MonthsAgo).lt('created_at', firstDayOf2MonthsAgo);
+      const { count: month1 } = await supabase.from('restaurants').select('*', { count: 'exact', head: true })
+        .eq('slug', restaurant.slug).gte('created_at', firstDayOfLastMonth).lt('created_at', firstDayOfMonth);
+      const { count: month2 } = await supabase.from('restaurants').select('*', { count: 'exact', head: true })
+        .eq('slug', restaurant.slug).gte('created_at', firstDayOf2MonthsAgo).lt('created_at', firstDayOfLastMonth);
+      const { count: month3 } = await supabase.from('restaurants').select('*', { count: 'exact', head: true })
+        .eq('slug', restaurant.slug).gte('created_at', firstDayOf3MonthsAgo).lt('created_at', firstDayOf2MonthsAgo);
 
       setHistoricalStats([
         { label: 'Last Month', scans: month1 || 0 },

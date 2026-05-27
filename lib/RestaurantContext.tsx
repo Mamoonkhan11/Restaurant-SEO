@@ -258,18 +258,17 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
             restaurantData = refetchedRest;
           }
 
-          // Ensure you have selected the real record object metadata first
           const { data: targetRestaurant } = await supabase
             .from('restaurants')
-            .select('id') // This is the actual system UUID row key
+            .select('id')
             .eq('owner_id', activeUserId)
             .single();
 
           if (targetRestaurant) {
             const targetRestaurantId = targetRestaurant.id;
             const payload = {
-              restaurant_id: String(targetRestaurantId), // Must be a valid, existing restaurant UUID string
-              amount: parseFloat("0.00"),                  // Forces a precise numeric/float point value
+              restaurant_id: String(targetRestaurantId),
+              amount: parseFloat("0.00"),
               plan_tier: 'basic',
               billing_cycle: 'monthly',
               status: 'success',
@@ -278,11 +277,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
               created_at: new Date().toISOString()
             };
 
-            const { data, error } = await supabase.from('payments').insert([payload]);
-            if (error) {
-              console.error(" SUPABASE REJECTION DETAILS:", error.message, "| Details:", error.details, "| Hint:", error.hint);
-              console.log(" EXAMINING THE BLIND PAYLOAD SENT:", payload);
-            }
+            await supabase.from('payments').insert([payload]);
           }
         }
       }
