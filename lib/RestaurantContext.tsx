@@ -326,8 +326,10 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
 
         setPayments(paymentsList);
       }
+      setIsLoading(false);
+    } else {
+      setIsLoading(true);
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -339,6 +341,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
       } else if (event === 'SIGNED_OUT') {
         setRestaurant(null);
         setPayments([]);
+        setIsLoading(true);
       }
     });
 

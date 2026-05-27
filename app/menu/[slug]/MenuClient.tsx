@@ -7,7 +7,7 @@ import { X, MessageCircle, Loader2, Search, MapPin, AlertCircle, CheckCircle } f
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MenuHeader = React.memo(({ restaurant, menuBlocked }: { restaurant: any, menuBlocked: boolean }) => (
-  <div className="pt-8 pb-6 px-4 flex flex-col items-center justify-center bg-[#F9FAFB] relative z-10">
+  <div className="pt-8 pb-6 px-4 flex flex-col items-center justify-center bg-white relative z-10">
     <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-full border border-gray-100 flex items-center justify-center overflow-hidden mb-3 relative shadow-sm">
       {restaurant?.logo_url ? (
         <img 
@@ -397,7 +397,7 @@ export default function MenuClient({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Loader2 className="w-10 h-10 animate-spin text-gray-400" />
       </div>
     );
@@ -563,7 +563,7 @@ export default function MenuClient({
 
             {/* Quick Jump Bar */}
             {categories.length > 0 && (
-              <div className="sticky top-0 z-50 w-full bg-[#F9FAFB] border-b border-gray-200 shadow-sm">
+              <div className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm">
                 <div className="max-w-3xl mx-auto py-3 flex gap-2 overflow-x-auto scrollbar-hide snap-x scroll-pl-4 sm:scroll-pl-6 pl-4 sm:pl-6 pr-4 sm:pr-6">
                   {categories.map((cat) => (
                     <button
