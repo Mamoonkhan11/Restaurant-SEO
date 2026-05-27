@@ -83,12 +83,13 @@ export default function LoginPage() {
         position: 'top-center'
       });
     } else {
-      toast.success('Magic Link sent! Check your inbox.', {
+      toast.success('Login link and code sent! Check your inbox.', {
         style: { background: '#000', color: '#fff' },
         duration: 5000,
         position: 'top-center'
       });
-      setEmail('');
+      setStep('otp');
+      setCountdown(60);
     }
   };
 
@@ -186,7 +187,7 @@ export default function LoginPage() {
                   Verify & Sign In
                 </button>
                 
-                <div className="text-center pt-2">
+                <div className="text-center pt-2 flex flex-col items-center gap-2">
                   <button
                     type="button"
                     disabled={countdown > 0 || isLoading}
@@ -194,6 +195,16 @@ export default function LoginPage() {
                     className="text-sm font-bold text-gray-500 hover:text-orange-600 transition-colors disabled:opacity-50 disabled:hover:text-gray-500"
                   >
                     {countdown > 0 ? `Resend Code in ${countdown}s` : 'Resend Code'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStep('email');
+                      setOtp('');
+                    }}
+                    className="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    Change Email
                   </button>
                 </div>
               </div>
