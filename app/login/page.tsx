@@ -68,9 +68,10 @@ export default function LoginPage() {
     }
 
     const { error: authError } = await supabase.auth.signInWithOtp({
-      email,
+      email: email.trim().toLowerCase(),
       options: {
-        emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/admin` : 'http://localhost:3000/admin',
+        shouldCreateUser: true,
+        emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/admin` : 'http://localhost:3000/admin'
       }
     });
 

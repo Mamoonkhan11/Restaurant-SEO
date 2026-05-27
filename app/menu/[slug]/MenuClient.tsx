@@ -31,8 +31,7 @@ const MenuHeader = React.memo(({ restaurant, menuBlocked }: { restaurant: any, m
   </div>
 ));
 MenuHeader.displayName = 'MenuHeader';
-
-
+const springTransition = { type: "spring" as const, stiffness: 450, damping: 38 };
 
 export default function MenuClient({
   params,
@@ -634,12 +633,14 @@ export default function MenuClient({
                                 handleDishClick(item);
                               }}
                               layoutId={`dish-${item.id}`}
+                              transition={springTransition}
                               whileTap={{ scale: 0.98 }}
                               className={`bg-white rounded-2xl p-3 sm:p-4 flex flex-row gap-4 items-center relative group shadow-sm border border-gray-100 transition-all duration-200 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-gray-200 hover:shadow-md'}`}
                             >
                               {/* Image */}
                               <motion.div 
                                 layoutId={`dish-image-${item.id}`}
+                                transition={springTransition}
                                 className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 shrink-0 overflow-hidden relative border border-gray-100 flex items-center justify-center"
                               >
                                 {item.image_url ? (
@@ -664,6 +665,7 @@ export default function MenuClient({
                                   </div>
                                   <motion.h3 
                                     layoutId={`dish-title-${item.id}`}
+                                    transition={springTransition}
                                     className="text-base sm:text-lg font-bold text-[#111827] truncate"
                                   >
                                     {item.name}
@@ -701,6 +703,7 @@ export default function MenuClient({
                                 <div className="mt-3 flex items-center justify-between">
                                   <motion.span 
                                     layoutId={`dish-price-${item.id}`}
+                                    transition={springTransition}
                                     className="text-base sm:text-lg font-black text-[#111827] tabular-nums"
                                   >
                                     ₹{getDishPrice(item)}
@@ -851,6 +854,7 @@ export default function MenuClient({
             <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none p-0 sm:p-6">
               <motion.div
                 layoutId={`dish-${selectedDish.id}`}
+                transition={springTransition}
                 className="relative bg-white w-full h-[85vh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg rounded-t-[2rem] sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl pointer-events-auto"
               >
                 <button
@@ -860,7 +864,11 @@ export default function MenuClient({
                   <X className="w-5 h-5" />
                 </button>
 
-                <motion.div layoutId={`dish-image-${selectedDish.id}`} className="relative h-64 sm:h-80 w-full bg-gradient-to-br from-gray-50 to-gray-100 shrink-0 flex items-center justify-center border-b border-gray-100">
+                <motion.div 
+                  layoutId={`dish-image-${selectedDish.id}`} 
+                  transition={springTransition}
+                  className="relative h-64 sm:h-80 w-full bg-gradient-to-br from-gray-50 to-gray-100 shrink-0 flex items-center justify-center border-b border-gray-100"
+                >
                   {selectedDish.image_url ? (
                     <>
                       <Image
@@ -879,10 +887,18 @@ export default function MenuClient({
 
                 <div className="p-6 sm:p-8 overflow-y-auto flex-1 bg-white">
                   <div className="flex justify-between items-start gap-4 mb-4">
-                    <motion.h2 layoutId={`dish-title-${selectedDish.id}`} className="text-2xl sm:text-3xl font-black text-gray-900 leading-tight">
+                    <motion.h2 
+                      layoutId={`dish-title-${selectedDish.id}`} 
+                      transition={springTransition}
+                      className="text-2xl sm:text-3xl font-black text-gray-900 leading-tight"
+                    >
                       {selectedDish.name}
                     </motion.h2>
-                    <motion.span layoutId={`dish-price-${selectedDish.id}`} className="text-2xl sm:text-3xl font-black text-gray-900 shrink-0">
+                    <motion.span 
+                      layoutId={`dish-price-${selectedDish.id}`} 
+                      transition={springTransition}
+                      className="text-2xl sm:text-3xl font-black text-gray-900 shrink-0"
+                    >
                       ₹{getDishPrice(selectedDish)}
                     </motion.span>
                   </div>
