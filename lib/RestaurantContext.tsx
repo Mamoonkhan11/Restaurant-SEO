@@ -20,14 +20,14 @@ const RestaurantContext = createContext<RestaurantContextType>({
   restaurant: null,
   payments: [],
   isLoading: true,
-  refreshRestaurant: async () => {},
+  refreshRestaurant: async () => { },
   audioMuted: false,
-  setAudioMuted: () => {},
+  setAudioMuted: () => { },
   isAlerting: false,
-  setIsAlerting: () => {},
+  setIsAlerting: () => { },
   audioNeedsInteraction: false,
-  handleToggleAudio: () => {},
-  playSynthesizedBell: (singleRound?: boolean) => {},
+  handleToggleAudio: () => { },
+  playSynthesizedBell: (singleRound?: boolean) => { },
 });
 
 export const useRestaurant = () => useContext(RestaurantContext);
@@ -206,7 +206,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
     if (userErr && userErr.name !== 'AuthSessionMissingError') {
       console.error("Error fetching user session:", userErr);
     }
-    
+
     if (user) {
       const { data, error: fetchErr } = await supabase
         .from('restaurants')
@@ -238,9 +238,9 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
           // 1. Update the core business subscription states directly inside 'restaurants'
           const { error: restaurantUpdateError } = await supabase
             .from('restaurants')
-            .update({ 
-              plan_type: 'basic', 
-              subscription_status: 'active', 
+            .update({
+              plan_type: 'basic',
+              subscription_status: 'active',
               expiry_date: newExpiry.toISOString()
             })
             .eq('owner_id', activeUserId); // Matches the unique ID of the restaurant owner
@@ -258,24 +258,30 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
             restaurantData = refetchedRest;
           }
 
-          // 2. Parallel Injection: Log the transaction inside the 'payments' table
-          const { error: paymentLogError } = await supabase
-            .from('payments')
-            .insert([{
-              restaurant_id: restaurantData.id, // Relational key mapping to the restaurants table
-              amount: 0.00,                      // Marked free for early adopters
-              plan_type: 'basic',                // Legacy support
-              plan_tier: 'basic',
-              billing_cycle: 'monthly',
-              status: 'success',                 // Pre-approved internal log
-              payment_method: 'free_trial',      // Required NOT NULL column
-              payment_gateway: 'system_promo',
-              description: 'Automated 1-Month Early Adopter Promotional Free Activation',
-              created_at: new Date().toISOString()
-            }]);
+          // Ensure you have selected the real record object metadata first
+          const { data: targetRestaurant } = await supabase
+            .from('restaurants')
+            .select('id') // This is the actual system UUID row key
+            .eq('owner_id', activeUserId)
+            .single();
 
-          if (paymentLogError) {
-            console.error("PAYMENT RECORD INJECTION ERROR:", paymentLogError.message);
+          if (targetRestaurant) {
+            // Execute the clean log insertion mapping the verified UUID safely
+            const { error: logError } = await supabase
+              .from('payments')
+              .insert([{
+                restaurant_id: targetRestaurant.id, // This must be the database generated UUID, not any metadata token string
+                amount: 0.00,
+                plan_tier: 'basic',
+                billing_cycle: 'monthly',
+                status: 'success',
+                payment_method: 'free_trial',
+                payment_gateway: 'system_promo',
+                description: 'Automated 1-Month Early Adopter Promotional Free Activation',
+                created_at: new Date().toISOString()
+              }]);
+
+            if (logError) console.error("Database schema alignment rejection:", logError.message);
           }
         }
       }
@@ -288,11 +294,11 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
           .select('*')
           .eq('restaurant_id', restaurantData.id)
           .order('created_at', { ascending: false });
-        
+
         if (paymentsErr) {
           console.error("Error fetching payments history:", paymentsErr);
         }
-        
+
         let paymentsList = paymentsData || [];
 
         if (restaurantData.plan_type === 'basic' && paymentsList.length === 0) {
@@ -308,7 +314,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
             description: 'Automated 1-Month Early Adopter Promotional Free Activation',
             created_at: new Date().toISOString()
           });
-          
+
           if (insertErr) {
             console.error("Self-healing error inserting payment:", insertErr);
           } else {

@@ -8,7 +8,7 @@ import { CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
 export default function TermsAcceptancePage() {
   const router = useRouter();
   const { restaurant, refreshRestaurant } = useRestaurant();
-  
+
   const [isAgreed, setIsAgreed] = useState(false);
   const [signature, setSignature] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -16,9 +16,9 @@ export default function TermsAcceptancePage() {
 
   const handleAccept = async () => {
     if (!restaurant) return;
-    
+
     setIsLoading(true);
-    
+
     try {
       let ipAddress = 'Unknown';
       try {
@@ -60,9 +60,9 @@ export default function TermsAcceptancePage() {
           // 1. Update the core business subscription states directly inside 'restaurants'
           const { error: restaurantUpdateError } = await supabase
             .from('restaurants')
-            .update({ 
-              plan_type: 'basic', 
-              subscription_status: 'active', 
+            .update({
+              plan_type: 'basic',
+              subscription_status: 'active',
               expiry_date: newExpiry.toISOString()
             })
             .eq('owner_id', activeUserId); // Matches the unique ID of the restaurant owner
@@ -71,24 +71,30 @@ export default function TermsAcceptancePage() {
             console.error("Failed to update restaurant to basic plan:", restaurantUpdateError);
           }
 
-          // 2. Parallel Injection: Log the transaction inside the 'payments' table
-          const { error: paymentLogError } = await supabase
-            .from('payments')
-            .insert([{
-              restaurant_id: restaurant.id,      // Relational key mapping to the restaurants table
-              amount: 0.00,                      // Marked free for early adopters
-              plan_type: 'basic',                // Legacy support
-              plan_tier: 'basic',
-              billing_cycle: 'monthly',
-              status: 'success',                 // Pre-approved internal log
-              payment_method: 'free_trial',      // Required NOT NULL column
-              payment_gateway: 'system_promo',
-              description: 'Automated 1-Month Early Adopter Promotional Free Activation',
-              created_at: new Date().toISOString()
-            }]);
+          // Ensure you have selected the real record object metadata first
+          const { data: targetRestaurant } = await supabase
+            .from('restaurants')
+            .select('id') // This is the actual system UUID row key
+            .eq('owner_id', activeUserId)
+            .single();
 
-          if (paymentLogError) {
-            console.error("PAYMENT RECORD INJECTION ERROR:", paymentLogError.message);
+          if (targetRestaurant) {
+            // Execute the clean log insertion mapping the verified UUID safely
+            const { error: logError } = await supabase
+              .from('payments')
+              .insert([{
+                restaurant_id: targetRestaurant.id, // This must be the database generated UUID, not any metadata token string
+                amount: 0.00,
+                plan_tier: 'basic',
+                billing_cycle: 'monthly',
+                status: 'success',
+                payment_method: 'free_trial',
+                payment_gateway: 'system_promo',
+                description: 'Automated 1-Month Early Adopter Promotional Free Activation',
+                created_at: new Date().toISOString()
+              }]);
+
+            if (logError) console.error("Database schema alignment rejection:", logError.message);
           }
         }
       }
@@ -108,11 +114,11 @@ export default function TermsAcceptancePage() {
 
       await refreshRestaurant();
       setIsSuccess(true);
-      
+
       setTimeout(() => {
         router.push('/admin');
       }, 1500);
-      
+
     } catch (error) {
       console.error('Error accepting terms:', error);
       setIsLoading(false);
@@ -139,7 +145,7 @@ export default function TermsAcceptancePage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8">
       <div className="bg-white max-w-3xl w-full rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden flex flex-col max-h-[90vh]">
-        
+
         {/* Header */}
         <div className="p-8 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4 shrink-0">
           <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center shadow-inner">
@@ -155,20 +161,20 @@ export default function TermsAcceptancePage() {
         <div className="p-8 overflow-y-auto flex-1 bg-white">
           <div className="prose prose-sm max-w-none text-gray-600 space-y-6">
             <h3 className="text-lg font-bold text-gray-900">RESTDIGI Platform Agreement</h3>
-            
+
             <p>Welcome to RESTDIGI. By proceeding, you agree to the following terms which govern your use of our digital menu infrastructure.</p>
-            
+
             <h4 className="text-gray-900 font-bold">1. Food Quality & SEO Ranking</h4>
             <p>
-              As a Restaurant Owner, you are strictly responsible for maintaining high food quality and hygiene standards. 
+              As a Restaurant Owner, you are strictly responsible for maintaining high food quality and hygiene standards.
               <strong> User feedback, ratings, and food quality are direct factors in our internal "SEO Ranking" and "Customer Satisfaction Rate" within the RESTDIGI ecosystem.</strong>
             </p>
-            
+
             <h4 className="text-gray-900 font-bold">2. Elimination of Ordering Intermediaries</h4>
             <p>
               RESTDIGI operates via direct local network socket handshakes and real-time database structures. RESTDIGI does <strong>not</strong> route orders through third-party messaging applications (such as WhatsApp), SMS relays, or external manual agents. All transmission happens natively within the RESTDIGI ecosystem to eliminate waiting times.
             </p>
-            
+
             <h4 className="text-gray-900 font-bold">3. Accuracy of Information</h4>
             <p>
               It is your responsibility to provide accurate menu prices, ingredients, and availability. RESTDIGI holds no legal liability for any disputes or customer grievances arising from incorrect menu descriptions or pricing.
@@ -182,7 +188,7 @@ export default function TermsAcceptancePage() {
             <hr className="my-8 border-gray-200" />
 
             <h3 className="text-lg font-bold text-gray-900">Privacy Policy</h3>
-            
+
             <h4 className="text-gray-900 font-bold">1. Data Collected from Diners (Customers)</h4>
             <p>
               To preserve zero-friction speed, Diners do not need to create accounts or download applications. We only process operational tokens required to fulfill table-ordering: specific item cart selections, dynamic table numbers, and timestamps. No persistent personal social metrics or chat data are monitored.
@@ -209,8 +215,8 @@ export default function TermsAcceptancePage() {
         <div className="p-8 border-t border-gray-100 bg-gray-50 shrink-0 space-y-6">
           <label className="flex items-start gap-3 cursor-pointer group">
             <div className="mt-0.5">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 className="w-5 h-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
                 checked={isAgreed}
                 onChange={(e) => setIsAgreed(e.target.checked)}
@@ -223,8 +229,8 @@ export default function TermsAcceptancePage() {
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Digital Signature</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Type your full legal name to sign"
               value={signature}
               onChange={(e) => setSignature(e.target.value)}
@@ -232,7 +238,7 @@ export default function TermsAcceptancePage() {
             />
           </div>
 
-          <button 
+          <button
             onClick={handleAccept}
             disabled={!isFormValid || isLoading}
             className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-4 rounded-2xl font-bold text-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"

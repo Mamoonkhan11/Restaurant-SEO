@@ -178,7 +178,6 @@ export default function BillingPage() {
       await supabase.from('payments').insert({
         restaurant_id: restaurant?.id,
         amount: 0,
-        plan_type: 'basic',
         plan_tier: 'basic',
         billing_cycle: 'monthly',
         status: 'success',
@@ -318,14 +317,14 @@ export default function BillingPage() {
           <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Current Plan</p>
           <div className="flex items-center gap-3">
             <span className={`px-4 py-1.5 rounded-full text-sm font-bold capitalize ${currentPlan === 'free'
-                ? 'bg-gray-100 text-gray-700'
-                : currentPlan === 'basic'
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : currentPlan === 'pro'
-                    ? 'bg-orange-100 text-orange-700'
-                    : currentPlan === 'premium'
-                      ? 'bg-purple-100 text-purple-700'
-                      : 'bg-indigo-100 text-indigo-700'
+              ? 'bg-gray-100 text-gray-700'
+              : currentPlan === 'basic'
+                ? 'bg-emerald-100 text-emerald-700'
+                : currentPlan === 'pro'
+                  ? 'bg-orange-100 text-orange-700'
+                  : currentPlan === 'premium'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-indigo-100 text-indigo-700'
               }`}>
               {currentPlan} plan
             </span>
@@ -390,8 +389,8 @@ export default function BillingPage() {
               id={plan.id}
               key={plan.id}
               className={`bg-white rounded-3xl p-8 border flex flex-col relative overflow-hidden transition-all duration-300 ${plan.highlight
-                  ? 'border-orange-500 ring-2 ring-orange-500 shadow-lg md:-translate-y-2'
-                  : 'border-gray-100 shadow-sm hover:shadow-md'
+                ? 'border-orange-500 ring-2 ring-orange-500 shadow-lg md:-translate-y-2'
+                : 'border-gray-100 shadow-sm hover:shadow-md'
                 }`}
             >
               {plan.banner && (
@@ -436,8 +435,8 @@ export default function BillingPage() {
                     <li
                       key={i}
                       className={`flex items-start gap-2.5 text-sm font-medium transition-all ${feature.included
-                          ? 'text-gray-700'
-                          : 'text-rose-400 line-through text-opacity-50 text-gray-400'
+                        ? 'text-gray-700'
+                        : 'text-rose-400 line-through text-opacity-50 text-gray-400'
                         }`}
                     >
                       {feature.included ? (
@@ -467,10 +466,10 @@ export default function BillingPage() {
                   }}
                   disabled={isLoading || (isCurrent && !isCurrentExpiring)}
                   className={`w-full py-3 rounded-xl font-bold transition-all ${(isCurrent && !isCurrentExpiring)
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                      : plan.highlight
-                        ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-md hover:shadow-lg'
-                        : 'bg-gray-900 hover:bg-gray-800 text-white shadow-sm hover:shadow-md'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                    : plan.highlight
+                      ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-md hover:shadow-lg'
+                      : 'bg-gray-900 hover:bg-gray-800 text-white shadow-sm hover:shadow-md'
                     }`}
                 >
                   {getCtaLabel(plan.id)}
