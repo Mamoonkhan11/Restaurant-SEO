@@ -497,6 +497,7 @@ export default function MenuClient({
                     <motion.div
                       key={`offer-${item.id}`}
                       onClick={() => handleDishClick(item)}
+                      whileTap={{ scale: 0.98 }}
                       className="min-w-[260px] max-w-[260px] bg-white rounded-3xl p-3 flex gap-3 shadow-sm border border-orange-100 relative overflow-visible snap-center cursor-pointer hover:shadow-md transition-all shrink-0"
                     >
                       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100/50 shrink-0 overflow-hidden relative border border-orange-50/50 flex items-center justify-center">
@@ -627,15 +628,20 @@ export default function MenuClient({
                           const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
 
                           return (
-                            <div
+                            <motion.div
                               key={item.id}
                               onClick={() => {
                                 handleDishClick(item);
                               }}
+                              layoutId={`dish-${item.id}`}
+                              whileTap={{ scale: 0.98 }}
                               className={`bg-white rounded-2xl p-3 sm:p-4 flex flex-row gap-4 items-center relative group shadow-sm border border-gray-100 transition-all duration-200 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-gray-200 hover:shadow-md'}`}
                             >
                               {/* Image */}
-                              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 shrink-0 overflow-hidden relative border border-gray-100 flex items-center justify-center">
+                              <motion.div 
+                                layoutId={`dish-image-${item.id}`}
+                                className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 shrink-0 overflow-hidden relative border border-gray-100 flex items-center justify-center"
+                              >
                                 {item.image_url ? (
                                   <Image
                                     src={item.image_url}
@@ -648,7 +654,7 @@ export default function MenuClient({
                                 ) : (
                                   <span className="text-2xl font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
                                 )}
-                              </div>
+                              </motion.div>
 
                               {/* Info */}
                               <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
@@ -656,9 +662,12 @@ export default function MenuClient({
                                   <div className={`w-3 h-3 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0`}>
                                     <div className={`w-1.5 h-1.5 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}></div>
                                   </div>
-                                  <h3 className="text-base sm:text-lg font-bold text-[#111827] truncate">
+                                  <motion.h3 
+                                    layoutId={`dish-title-${item.id}`}
+                                    className="text-base sm:text-lg font-bold text-[#111827] truncate"
+                                  >
                                     {item.name}
-                                  </h3>
+                                  </motion.h3>
                                   {/* Secure Strict Conditional Badge Rendering */}
                                   {item.special_tag && item.special_tag.trim() !== "" && (
                                     <span className="bg-brand-orange text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
@@ -690,13 +699,16 @@ export default function MenuClient({
                                 )}
 
                                 <div className="mt-3 flex items-center justify-between">
-                                  <span className="text-base sm:text-lg font-black text-[#111827] tabular-nums">
+                                  <motion.span 
+                                    layoutId={`dish-price-${item.id}`}
+                                    className="text-base sm:text-lg font-black text-[#111827] tabular-nums"
+                                  >
                                     ₹{getDishPrice(item)}
-                                  </span>
+                                  </motion.span>
 
                                   {/* Add to Cart logic */}
                                   {item.is_available && (
-                                    <div className="shrink-0 ml-4">
+                                    <div className="shrink-0 ml-4" onClick={(e) => e.stopPropagation()}>
                                       {quantity > 0 ? (
                                         <div className="flex items-center gap-3 bg-gray-100 border border-gray-200 px-1 py-1 rounded-full shadow-sm animate-fade-in">
                                           <button
@@ -767,7 +779,7 @@ export default function MenuClient({
                                   Out of stock
                                 </div>
                               )}
-                            </div>
+                            </motion.div>
                           );
                         })}
                       </div>
