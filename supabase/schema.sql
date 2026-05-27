@@ -64,7 +64,6 @@ CREATE TABLE IF NOT EXISTS payments (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
   amount DECIMAL(10, 2) NOT NULL,
-  plan_type TEXT NOT NULL,
   status TEXT NOT NULL,
   plan_tier TEXT DEFAULT 'basic',
   billing_cycle TEXT DEFAULT 'monthly',

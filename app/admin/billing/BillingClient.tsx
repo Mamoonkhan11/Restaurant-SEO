@@ -68,8 +68,8 @@ export default function BillingPage() {
     : (expiryDate ? now > expiryDate : false);
 
   const isBasicTrial = currentPlan === 'basic' && (
-    payments.some(p => p.plan_type === 'basic' && p.payment_gateway === 'system_promo') ||
-    (!payments || !payments.some(p => p.plan_type === 'basic' && p.payment_gateway === 'razorpay' && p.status === 'success'))
+    payments.some(p => p.plan_tier === 'basic' && p.payment_gateway === 'system_promo') ||
+    (!payments || !payments.some(p => p.plan_tier === 'basic' && p.payment_gateway === 'razorpay' && p.status === 'success'))
   );
 
   const loadRazorpay = () => {
@@ -507,7 +507,7 @@ export default function BillingPage() {
                       {new Date(payment.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-sm font-bold text-gray-700 capitalize">
-                      {payment.plan_type}
+                      {payment.plan_tier}
                     </td>
                     <td className="px-6 py-4 text-sm font-bold text-gray-900">
                       ₹{payment.amount}

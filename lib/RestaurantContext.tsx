@@ -306,7 +306,6 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
           const { error: insertErr } = await supabase.from('payments').insert({
             restaurant_id: restaurantData.id,
             amount: 0,
-            plan_type: 'basic',
             plan_tier: 'basic',
             billing_cycle: 'monthly',
             status: 'success',
