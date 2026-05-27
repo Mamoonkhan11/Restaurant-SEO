@@ -93,25 +93,42 @@ export default function LoginPage() {
     }
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleVerifyOtp = async (e?: React.FormEvent, customOtp?: string) => {
+    if (e) e.preventDefault();
+    const tokenToVerify = customOtp || otp;
+    if (tokenToVerify.length !== 6) return toast.error('Please enter a full 6-digit token');
     setIsLoading(true);
 
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token: otp,
-      type: 'email',
-    });
+    try {
+      console.log(" Attempting OTP verification for:", email.trim().toLowerCase());
+      const { data: { session }, error } = await supabase.auth.verifyOtp({
+        email: email.trim().toLowerCase(),
+        token: tokenToVerify.trim(),
+        type: 'magiclink'
+      });
 
-    if (error) {
-      toast.error('Invalid or expired code. Please try again.', {
+      if (error) {
+        console.error(" OTP verification failed:", error.message);
+        throw error;
+      }
+
+      if (session) {
+        console.log(" OTP verification successful! Session established.");
+        toast.success('Authentication successful! Routing to dashboard shortly', {
+          style: { background: '#000', color: '#fff' },
+          duration: 2000,
+          position: 'top-center'
+        });
+        router.push('/admin');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Invalid or expired activation OTP code.', {
         style: { background: '#000', color: '#fff' },
         duration: 3000,
         position: 'top-center'
       });
+    } finally {
       setIsLoading(false);
-    } else {
-      router.push('/admin');
     }
   };
 
@@ -124,9 +141,9 @@ export default function LoginPage() {
       )}
       <div className="flex-1 flex items-center justify-center p-4">
         <Toaster />
-        
+
         <div className="w-full max-w-md bg-white rounded-[2rem] shadow-xl border border-gray-100 p-8 sm:p-12 animate-fade-in-up">
-          
+
           <div className="text-center mb-10">
             <div className="flex justify-center mb-6">
               <img src="/restdigi-logo.png" className="h-12 sm:h-14 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
@@ -135,8 +152,8 @@ export default function LoginPage() {
               {step === 'email' ? 'Admin Portal' : 'Check your email'}
             </h1>
             <p className="text-gray-500 text-sm mt-2 font-medium">
-              {step === 'email' 
-                ? 'Sign in password-free to manage your menu.' 
+              {step === 'email'
+                ? 'Sign in password-free to manage your menu.'
                 : `We've sent a secure login link and 6-digit code to ${email}.`}
             </p>
           </div>
@@ -144,18 +161,18 @@ export default function LoginPage() {
           {step === 'email' ? (
             <form onSubmit={handleSendOtp} className="space-y-5 animate-fade-in-up">
               <div>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your registered email" 
+                  placeholder="Enter your registered email"
                   className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400"
                 />
               </div>
               <div className="pt-2">
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={isLoading || !email}
                   className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
@@ -167,26 +184,36 @@ export default function LoginPage() {
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-5 animate-fade-in-up">
               <div>
-                <input 
-                  type="text" 
-                  required
+                <input
+                  type="text"
                   maxLength={6}
+                  pattern="[0-9]*"
+                  inputMode="numeric"
+                  placeholder="Enter 6-digit code"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
-                  placeholder="Enter 6-digit code" 
-                  className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-bold text-gray-900 placeholder-gray-400 tracking-[0.5em] text-2xl"
+                  onChange={async (e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    setOtp(val);
+                    console.log(" OTP entry buffer state change. Current value:", val);
+                    if (val.length === 6) {
+                      console.log(" OTP reached 6 digits. Launching auto-verification payload...");
+                      await handleVerifyOtp(undefined, val);
+                    }
+                  }}
+                  className="w-full px-5 py-4 text-center tracking-[0.5em] font-mono text-2xl font-black font-semibold shadow-inner rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-[#D32F2F] transition-colors bg-[#FFF8F6]"
+                  required
                 />
               </div>
               <div className="pt-2 space-y-4">
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={isLoading || otp.length !== 6}
                   className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
                   Verify & Sign In
                 </button>
-                
+
                 <div className="text-center pt-2 flex flex-col items-center gap-2">
                   <button
                     type="button"
