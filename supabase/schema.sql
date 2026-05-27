@@ -66,7 +66,6 @@ CREATE TABLE IF NOT EXISTS payments (
   amount DECIMAL(10, 2) NOT NULL,
   plan_type TEXT NOT NULL,
   status TEXT NOT NULL,
-  payment_method TEXT NOT NULL,
   plan_tier TEXT DEFAULT 'basic',
   billing_cycle TEXT DEFAULT 'monthly',
   payment_gateway TEXT DEFAULT 'system_promo',

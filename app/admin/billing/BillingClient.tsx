@@ -68,8 +68,8 @@ export default function BillingPage() {
     : (expiryDate ? now > expiryDate : false);
 
   const isBasicTrial = currentPlan === 'basic' && (
-    payments.some(p => p.plan_type === 'basic' && (p.payment_method === 'free_trial' || p.payment_method === 'free_trier')) ||
-    (!payments || !payments.some(p => p.plan_type === 'basic' && p.payment_method === 'razorpay' && p.status === 'success'))
+    payments.some(p => p.plan_type === 'basic' && p.payment_gateway === 'system_promo') ||
+    (!payments || !payments.some(p => p.plan_type === 'basic' && p.payment_gateway === 'razorpay' && p.status === 'success'))
   );
 
   const loadRazorpay = () => {
@@ -181,7 +181,6 @@ export default function BillingPage() {
         plan_tier: 'basic',
         billing_cycle: 'monthly',
         status: 'success',
-        payment_method: 'free_trial',
         payment_gateway: 'system_promo',
         description: 'Automated 1-Month Early Adopter Promotional Free Activation',
         created_at: new Date().toISOString()
@@ -514,7 +513,7 @@ export default function BillingPage() {
                       ₹{payment.amount}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 capitalize">
-                      {payment.payment_method || 'Online'}
+                      {payment.payment_gateway || 'Online'}
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700">

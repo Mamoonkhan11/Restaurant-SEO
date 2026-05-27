@@ -44,7 +44,6 @@ export async function POST(req: Request) {
       plan_tier: plan,
       billing_cycle: isYearly ? 'yearly' : 'monthly',
       status: 'success',
-      payment_method: 'razorpay',
       payment_gateway: 'razorpay',
       description: `Razorpay Subscription Upgradation to ${plan} Plan (${isYearly ? 'Yearly' : 'Monthly'})`,
       created_at: new Date().toISOString()

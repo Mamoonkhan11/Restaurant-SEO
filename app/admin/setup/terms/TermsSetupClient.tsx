@@ -79,22 +79,23 @@ export default function TermsAcceptancePage() {
             .single();
 
           if (targetRestaurant) {
-            // Execute the clean log insertion mapping the verified UUID safely
-            const { error: logError } = await supabase
-              .from('payments')
-              .insert([{
-                restaurant_id: targetRestaurant.id, // This must be the database generated UUID, not any metadata token string
-                amount: 0.00,
-                plan_tier: 'basic',
-                billing_cycle: 'monthly',
-                status: 'success',
-                payment_method: 'free_trial',
-                payment_gateway: 'system_promo',
-                description: 'Automated 1-Month Early Adopter Promotional Free Activation',
-                created_at: new Date().toISOString()
-              }]);
+            const targetRestaurantId = targetRestaurant.id;
+            const payload = {
+              restaurant_id: String(targetRestaurantId), // Must be a valid, existing restaurant UUID string
+              amount: parseFloat("0.00"),                  // Forces a precise numeric/float point value
+              plan_tier: 'basic',
+              billing_cycle: 'monthly',
+              status: 'success',
+              payment_gateway: 'system_promo',
+              description: 'Automated 1-Month Early Adopter Promotional Free Activation',
+              created_at: new Date().toISOString()
+            };
 
-            if (logError) console.error("Database schema alignment rejection:", logError.message);
+            const { data, error } = await supabase.from('payments').insert([payload]);
+            if (error) {
+              console.error("❌ SUPABASE REJECTION DETAILS:", error.message, "| Details:", error.details, "| Hint:", error.hint);
+              console.log("👉 EXAMINING THE BLIND PAYLOAD SENT:", payload);
+            }
           }
         }
       }
