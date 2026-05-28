@@ -26,7 +26,7 @@ export default function ContactUs() {
             </div>
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-1">Registered Address</h3>
-              <p className="text-gray-600 font-medium">RESTDIGI<br />Srinagar, Jammu & Kashmir<br />India - 190001</p>
+              <p className="text-gray-600 font-medium">RESTDIGI<br />Srinagar, Jammu & Kashmir<br />India - 190010</p>
             </div>
           </div>
 
@@ -36,7 +36,7 @@ export default function ContactUs() {
             </div>
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-1">Email Support</h3>
-              <a href="mailto:support@vionys.com" className="text-orange-600 hover:underline font-medium">support@vionys.com</a>
+              <a href="mailto:support@vionys.com" className="text-orange-600 hover:underline font-medium">support@restdigi.online</a>
             </div>
           </div>
 
