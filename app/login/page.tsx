@@ -2,16 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Loader2, ArrowRight, KeyRound } from 'lucide-react';
+import { Loader2, ArrowRight, Mail } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [step, setStep] = useState<'email' | 'otp'>('email');
   const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [countdown, setCountdown] = useState(0);
   const [basicCount, setBasicCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -37,15 +35,7 @@ export default function LoginPage() {
     fetchCount();
   }, []);
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (countdown > 0) {
-      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [countdown]);
-
-  const handleSendOtp = async (e?: React.FormEvent) => {
+  const handleSendMagicLink = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!email) return;
 
@@ -54,7 +44,7 @@ export default function LoginPage() {
     const { data: restaurants, error: dbError } = await supabase
       .from('restaurants')
       .select('id')
-      .eq('email', email)
+      .eq('email', email.trim().toLowerCase())
       .limit(1);
 
     if (dbError || !restaurants || restaurants.length === 0) {
@@ -84,52 +74,12 @@ export default function LoginPage() {
         position: 'top-center'
       });
     } else {
-      toast.success('Login link and code sent! Check your inbox.', {
+      toast.success('Magic login link sent! Check your inbox.', {
         style: { background: '#000', color: '#fff' },
         duration: 5000,
         position: 'top-center'
       });
-      setStep('otp');
-      setCountdown(60);
-    }
-  };
-
-  const handleVerifyOtp = async (e?: React.FormEvent, customOtp?: string) => {
-    if (e) e.preventDefault();
-    const tokenToVerify = customOtp || otp;
-    if (tokenToVerify.length !== 6) return toast.error('Please enter a full 6-digit token');
-    setIsLoading(true);
-
-    try {
-      console.log(" Attempting OTP verification for:", email.trim().toLowerCase());
-      const { data: { session }, error } = await supabase.auth.verifyOtp({
-        email: email.trim().toLowerCase(),
-        token: tokenToVerify.trim(),
-        type: 'email'
-      });
-
-      if (error) {
-        console.error(" OTP verification failed:", error.message);
-        throw error;
-      }
-
-      if (session) {
-        console.log(" OTP verification successful! Session established.");
-        toast.success('Authentication successful! Routing to dashboard shortly', {
-          style: { background: '#000', color: '#fff' },
-          duration: 2000,
-          position: 'top-center'
-        });
-        router.push('/admin');
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Invalid or expired activation OTP code.', {
-        style: { background: '#000', color: '#fff' },
-        duration: 3000,
-        position: 'top-center'
-      });
-    } finally {
-      setIsLoading(false);
+      setIsSubmitted(true);
     }
   };
 
@@ -145,22 +95,22 @@ export default function LoginPage() {
 
         <div className="w-full max-w-md bg-white rounded-[2rem] shadow-xl border border-gray-100 p-8 sm:p-12 animate-fade-in-up">
 
-          <div className="text-center mb-10">
+          <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
               <img src="/restdigi-logo.png" className="h-12 sm:h-14 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
             </div>
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">
-              {step === 'email' ? 'Admin Portal' : 'Check your email'}
+              {isSubmitted ? 'Check your email' : 'Admin Portal'}
             </h1>
             <p className="text-gray-500 text-sm mt-2 font-medium">
-              {step === 'email'
-                ? 'Sign in password-free to manage your menu.'
-                : `We've sent a secure login link and 6-digit code to ${email}.`}
+              {isSubmitted
+                ? `We've sent a secure login link to ${email}.`
+                : 'Sign in password-free to manage your menu.'}
             </p>
           </div>
 
-          {step === 'email' ? (
-            <form onSubmit={handleSendOtp} className="space-y-5 animate-fade-in-up">
+          {!isSubmitted ? (
+            <form onSubmit={handleSendMagicLink} className="space-y-5 animate-fade-in-up">
               <div>
                 <input
                   type="email"
@@ -178,65 +128,38 @@ export default function LoginPage() {
                   className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
-                  {isLoading ? 'Checking...' : 'Send Login Code'}
+                  {isLoading ? 'Checking...' : 'Send Login Link'}
                 </button>
               </div>
             </form>
           ) : (
-            <form onSubmit={handleVerifyOtp} className="space-y-5 animate-fade-in-up">
-              <div>
-                <input
-                  type="text"
-                  maxLength={6}
-                  pattern="[0-9]*"
-                  inputMode="numeric"
-                  placeholder="Enter 6-digit code"
-                  value={otp}
-                  onChange={async (e) => {
-                    const val = e.target.value.replace(/\D/g, '');
-                    setOtp(val);
-                    console.log(" OTP entry buffer state change. Current value:", val);
-                    if (val.length === 6) {
-                      console.log(" OTP reached 6 digits. Launching auto-verification payload...");
-                      await handleVerifyOtp(undefined, val);
-                    }
-                  }}
-                  className="w-full px-5 py-4 text-center tracking-[0.5em] font-mono text-2xl font-black font-semibold shadow-inner rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-[#D32F2F] transition-colors bg-[#FFF8F6]"
-                  required
-                />
-              </div>
-              <div className="pt-2 space-y-4">
-                <button
-                  type="submit"
-                  disabled={isLoading || otp.length !== 6}
-                  className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
-                  Verify & Sign In
-                </button>
-
-                <div className="text-center pt-2 flex flex-col items-center gap-2">
-                  <button
-                    type="button"
-                    disabled={countdown > 0 || isLoading}
-                    onClick={() => handleSendOtp()}
-                    className="text-sm font-bold text-gray-500 hover:text-orange-600 transition-colors disabled:opacity-50 disabled:hover:text-gray-500"
-                  >
-                    {countdown > 0 ? `Resend Code in ${countdown}s` : 'Resend Code'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStep('email');
-                      setOtp('');
-                    }}
-                    className="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    Change Email
-                  </button>
+            <div className="space-y-6 animate-fade-in-up text-center">
+              <div className="flex justify-center">
+                <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-orange-600 animate-pulse">
+                  <Mail className="w-8 h-8" />
                 </div>
               </div>
-            </form>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Click the magic link inside the email to log in automatically. If you don't see it, check your spam folder.
+              </p>
+              <div className="pt-4 border-t border-gray-100 flex flex-col items-center gap-3">
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => handleSendMagicLink()}
+                  className="text-sm font-bold text-orange-600 hover:text-orange-700 transition-colors disabled:opacity-50"
+                >
+                  {isLoading ? 'Resending...' : 'Resend Link'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsSubmitted(false)}
+                  className="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  Change Email
+                </button>
+              </div>
+            </div>
           )}
 
         </div>
