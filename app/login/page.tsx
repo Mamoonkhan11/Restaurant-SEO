@@ -61,7 +61,7 @@ export default function LoginPage() {
       email: email.trim().toLowerCase(),
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/admin` : 'http://localhost:3000/admin'
+        emailRedirectTo: `${window.location.origin}/admin`
       }
     });
 
