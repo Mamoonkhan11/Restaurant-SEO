@@ -3,12 +3,33 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Loader2, AlertTriangle, Lock } from 'lucide-react';
 import Link from 'next/link';
 import DishForm from './DishForm';
-import { getDishesForAdmin, getDishesByRestaurantSlug, updateDishAvailability, deleteDishFromDb, removeDishImage, upsertDish, logAdminAction, broadcastMenuUpdate, Dish } from '@/lib/supabase';
+import { supabase, getDishesForAdmin, getDishesByRestaurantSlug, updateDishAvailability, deleteDishFromDb, removeDishImage, upsertDish, logAdminAction, broadcastMenuUpdate, Dish } from '@/lib/supabase';
 import { useRestaurant } from '@/lib/RestaurantContext';
 import { useSubscription } from '@/lib/useSubscription';
 
 // We fallback to a default slug if the context is still loading
-const FALLBACK_SLUG = 'demo-restaurant'; 
+const FALLBACK_SLUG = 'demo-restaurant';
+
+const MenuTableSkeleton = () => (
+  <div className="animate-pulse space-y-4">
+    <div className="bg-gray-50/50 h-12 w-full rounded-t-xl" />
+    {[1, 2, 3, 4].map(n => (
+      <div key={n} className="px-6 py-4 flex items-center justify-between border-b border-gray-100 h-20">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gray-200/60" />
+          <div className="h-5 bg-gray-200/60 rounded w-32" />
+        </div>
+        <div className="h-6 bg-gray-200/60 rounded-full w-20" />
+        <div className="h-5 bg-gray-200/60 rounded w-16" />
+        <div className="h-6 bg-gray-200/60 rounded-full w-12" />
+        <div className="flex gap-2">
+          <div className="w-8 h-8 bg-gray-200/60 rounded-lg" />
+          <div className="w-8 h-8 bg-gray-200/60 rounded-lg" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 export default function MenuManagement() {
   const [dishes, setDishes] = useState<Dish[]>([]);
@@ -37,9 +58,34 @@ export default function MenuManagement() {
   const isAddLocked = dishes.length >= limits.items;
 
   useEffect(() => {
-    if (restaurant) {
-      fetchDishes();
-    }
+    if (!restaurant) return;
+
+    fetchDishes();
+
+    // Realtime subscription for dishes changes with cleanup on unmount
+    const dishesChannel = supabase
+      .channel(`menu-dishes-realtime-${restaurant.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'dishes', filter: `restaurant_id=eq.${restaurant.id}` },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setDishes(prev => {
+              if (prev.some(d => d.id === payload.new.id)) return prev;
+              return [...prev, payload.new as Dish];
+            });
+          } else if (payload.eventType === 'DELETE') {
+            setDishes(prev => prev.filter(d => d.id !== payload.old.id));
+          } else if (payload.eventType === 'UPDATE') {
+            setDishes(prev => prev.map(d => d.id === payload.new.id ? (payload.new as Dish) : d));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(dishesChannel);
+    };
   }, [restaurant]);
 
   const fetchDishes = async () => {
@@ -172,9 +218,7 @@ export default function MenuManagement() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             {isLoading ? (
-              <div className="p-12 flex justify-center items-center">
-                <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
-              </div>
+              <MenuTableSkeleton />
             ) : dishes.length === 0 ? (
               <div className="p-12 text-center text-gray-500">
                 <p>No dishes found. Add your first dish to get started!</p>

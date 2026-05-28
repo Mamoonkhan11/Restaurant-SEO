@@ -9,6 +9,47 @@ import { QRCodeSVG } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 import { useSubscription } from '@/lib/useSubscription';
 
+const TableSkeleton = () => (
+  <div className="p-4 sm:p-8 max-w-6xl mx-auto min-h-screen bg-[#F9FAFB] font-sans animate-pulse">
+    {/* Header Skeleton */}
+    <div className="mb-10 flex flex-col justify-center">
+      <div className="h-8 bg-gray-200/60 rounded-lg w-1/3 mb-2" />
+      <div className="h-4 bg-gray-200/60 rounded-lg w-1/2" />
+    </div>
+
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-fade-in-up">
+      {/* Left Column: Form & List */}
+      <div className="lg:col-span-5 space-y-6">
+        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+          <div className="h-10 bg-gray-200/60 rounded-lg w-full" />
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3, 4].map(n => (
+            <div key={n} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm h-14 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-gray-200" />
+                <div className="h-4 bg-gray-200/60 rounded w-20" />
+              </div>
+              <div className="w-8 h-8 bg-gray-200/60 rounded-lg" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right Column: Preview QR */}
+      <div className="lg:col-span-7">
+        <div className="bg-white p-6 md:p-12 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center">
+          <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center w-[320px] h-[380px] shrink-0 justify-between">
+            <div className="w-3/4 h-6 bg-gray-200 rounded mb-4" />
+            <div className="w-[200px] h-[200px] bg-gray-200/60 rounded-lg" />
+            <div className="w-1/2 h-4 bg-gray-200 rounded" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export default function TablesPage() {
   const { restaurant, isLoading: isRestaurantLoading } = useRestaurant();
   const { hasActivePlan } = useSubscription();
@@ -69,14 +110,7 @@ export default function TablesPage() {
     }
   };
 
-  useEffect(() => {
-    if (restaurant) {
-      fetchTables();
-      fetchLiveOrders();
-    }
-  }, [restaurant]);
-
-  const fetchLiveOrders = async () => {
+  const fetchLiveOrdersOnly = async () => {
     if (!restaurant) return;
     const { data } = await supabase
       .from('orders')
@@ -88,25 +122,87 @@ export default function TablesPage() {
     }
   };
 
-  const fetchTables = async () => {
+  useEffect(() => {
     if (!restaurant) return;
-    setIsLoading(true);
-    const { data, error } = await supabase
-      .from('tables')
-      .select('*')
-      .eq('restaurant_id', restaurant.id)
-      .order('created_at', { ascending: true });
 
-    if (error) {
-      toast.error('Failed to load tables');
-    } else {
-      setTables(data || []);
-      if (data && data.length > 0 && !selectedTable) {
-        setSelectedTable(data[0]);
+    const loadInitialData = async () => {
+      setIsLoading(true);
+      try {
+        const [tablesRes, ordersRes] = await Promise.all([
+          supabase
+            .from('tables')
+            .select('*')
+            .eq('restaurant_id', restaurant.id)
+            .order('created_at', { ascending: true }),
+          supabase
+            .from('orders')
+            .select('table_no')
+            .eq('restaurant_id', restaurant.id)
+            .in('status', ['pending', 'preparing'])
+        ]);
+
+        if (tablesRes.error) {
+          toast.error('Failed to load tables');
+        } else {
+          setTables(tablesRes.data || []);
+          if (tablesRes.data && tablesRes.data.length > 0 && !selectedTable) {
+            setSelectedTable(tablesRes.data[0]);
+          }
+        }
+
+        if (ordersRes.data) {
+          setLiveOrders(ordersRes.data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
-  };
+    };
+
+    loadInitialData();
+
+    // ⚡ Realtime subscription for tables changes
+    const tablesChannel = supabase
+      .channel(`tables-realtime-${restaurant.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tables', filter: `restaurant_id=eq.${restaurant.id}` },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setTables(prev => {
+              if (prev.some(t => t.id === payload.new.id)) return prev;
+              return [...prev, payload.new];
+            });
+          } else if (payload.eventType === 'DELETE') {
+            setTables(prev => prev.filter(t => t.id !== payload.old.id));
+            setSelectedTable((prev: any) => prev?.id === payload.old.id ? null : prev);
+          } else if (payload.eventType === 'UPDATE') {
+            setTables(prev => prev.map(t => t.id === payload.new.id ? payload.new : t));
+            setSelectedTable((prev: any) => prev?.id === payload.new.id ? payload.new : prev);
+          }
+        }
+      )
+      .subscribe();
+
+    // ⚡ Realtime subscription for orders changes to update live table status
+    const ordersChannel = supabase
+      .channel(`orders-realtime-${restaurant.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders', filter: `restaurant_id=eq.${restaurant.id}` },
+        () => {
+          fetchLiveOrdersOnly();
+        }
+      )
+      .subscribe();
+
+    // ⚡ CLEANUP: Prevents zombie channels on unmount
+    return () => {
+      supabase.removeChannel(tablesChannel);
+      supabase.removeChannel(ordersChannel);
+    };
+  }, [restaurant]);
 
   const handleAddTable = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,11 +293,7 @@ export default function TablesPage() {
   };
 
   if (isRestaurantLoading || isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
-      </div>
-    );
+    return <TableSkeleton />;
   }
 
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://vionys.com';
