@@ -31,7 +31,7 @@ const MenuHeader = React.memo(({ restaurant, menuBlocked }: { restaurant: any, m
   </div>
 ));
 MenuHeader.displayName = 'MenuHeader';
-const springTransition = { type: "spring" as const, stiffness: 450, damping: 38 };
+const springTransition = { type: "spring" as const, stiffness: 550, damping: 40 };
 
 export default function MenuClient({
   params,
@@ -847,6 +847,7 @@ export default function MenuClient({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
               onClick={() => setSelectedDish(null)}
               className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm cursor-pointer"
             />
@@ -906,7 +907,7 @@ export default function MenuClient({
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
+                    transition={{ duration: 0.15, delay: 0.05 }}
                     className="text-gray-600 text-sm sm:text-base leading-relaxed mb-8"
                   >
                     {selectedDish.description || "Prepared with fresh ingredients and our secret house spices."}
@@ -914,9 +915,9 @@ export default function MenuClient({
                 </div>
 
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
+                  transition={{ duration: 0.2, delay: 0.1 }}
                   className="p-4 sm:p-6 border-t border-gray-100 bg-white shrink-0"
                 >
                   {(() => {
