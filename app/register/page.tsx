@@ -75,7 +75,7 @@ export default function RegisterPage() {
         email: trimmedEmail,
         password: randomPassword,
         options: {
-          emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/login` : 'http://localhost:3000/login',
+          emailRedirectTo: `${window.location.origin}/login`,
           data: {
             full_name: trimmedFullName,
             business_name: trimmedBusinessName
