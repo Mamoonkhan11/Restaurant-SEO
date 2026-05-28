@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { Loader2, Mail } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function RegisterPage() {
@@ -27,8 +27,8 @@ export default function RegisterPage() {
     fetchCount();
   }, []);
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRegister = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!fullName || !businessName || !email) return;
 
     setIsLoading(true);
@@ -127,7 +127,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-between">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-between">
       {basicCount !== null && basicCount < 5 && (
         <div className="bg-[#FEF3C7] text-[#111827] p-3.5 text-center text-xs font-bold uppercase tracking-widest border-b border-amber-200 w-full shrink-0 z-50">
           First 5 Registered Businesses Get 1 Month Free! (Basic Tier)
@@ -135,14 +135,14 @@ export default function RegisterPage() {
       )}
       <div className="flex-1 flex items-center justify-center p-4">
         <Toaster />
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md bg-white rounded-[2rem] shadow-xl border border-gray-100 p-8 sm:p-12 animate-fade-in-up">
           
           <div className="flex justify-center mb-8">
             <img src="/restdigi-logo.png" className="h-12 sm:h-14 w-auto object-contain transition-transform hover:scale-105" alt="RESTDIGI Logo" />
           </div>
 
           {!isSubmitted ? (
-            <div className="animate-fade-in-up">
+            <div>
               <div className="mb-10 text-center">
                 <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Create Account</h1>
                 <p className="text-gray-500 font-medium">Join the future of digital menus.</p>
@@ -198,20 +198,48 @@ export default function RegisterPage() {
               </p>
             </div>
           ) : (
-            <div className="text-center animate-fade-in-up bg-gray-50 border border-gray-100 p-10 rounded-[2rem]">
-              <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-10 h-10 text-green-500" />
+            <div>
+              <div className="mb-10 text-center">
+                <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Check your email</h1>
+                <p className="text-gray-500 text-sm mt-2 font-medium">
+                  We've sent a secure verification link to <strong className="text-gray-900">{email}</strong>.
+                </p>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-3">Check your inbox</h2>
-              <p className="text-gray-500 font-medium mb-8 leading-relaxed">
-                Confirm your email. We sent a verification link to <br /><strong className="text-gray-900">{email}</strong>.
-              </p>
-              <button
-                onClick={() => router.push('/login')}
-                className="w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition-colors"
-              >
-                Go to Login
-              </button>
+
+              <div className="space-y-6 text-center">
+                <div className="flex justify-center">
+                  <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-orange-600 animate-pulse">
+                    <Mail className="w-8 h-8" />
+                  </div>
+                </div>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Click the verification link inside the email to confirm your account and log in automatically. If you don't see it, check your spam folder.
+                </p>
+                <div className="pt-6 border-t border-gray-100 flex flex-col items-center gap-3">
+                  <button
+                    type="button"
+                    disabled={isLoading}
+                    onClick={() => handleRegister()}
+                    className="text-sm font-bold text-orange-600 hover:text-orange-700 transition-colors disabled:opacity-50"
+                  >
+                    {isLoading ? 'Resending...' : 'Resend Link'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsSubmitted(false)}
+                    className="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    Change Email
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push('/login')}
+                    className="mt-2 text-sm font-bold text-gray-500 hover:text-gray-700 transition-colors border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50"
+                  >
+                    Go to Login
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
