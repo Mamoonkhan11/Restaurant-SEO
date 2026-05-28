@@ -43,6 +43,11 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
 
   const audioMutedRef = useRef(audioMuted);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const restaurantRef = useRef<any>(null);
+
+  useEffect(() => {
+    restaurantRef.current = restaurant;
+  }, [restaurant]);
 
   useEffect(() => {
     audioMutedRef.current = audioMuted;
@@ -201,10 +206,17 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
   }, []);
 
   const fetchRestaurant = async () => {
-    setIsLoading(true);
-    const { data: { user }, error: userErr } = await supabase.auth.getUser();
-    if (userErr && userErr.name !== 'AuthSessionMissingError') {
-      console.error("Error fetching user session:", userErr);
+    if (!restaurantRef.current) {
+      setIsLoading(true);
+    }
+    const { data: { session } } = await supabase.auth.getSession();
+    let user = session?.user || null;
+    if (!user) {
+      const { data: { user: fetchedUser }, error: userErr } = await supabase.auth.getUser();
+      if (userErr && userErr.name !== 'AuthSessionMissingError') {
+        console.error("Error fetching user session:", userErr);
+      }
+      user = fetchedUser;
     }
 
     if (user) {

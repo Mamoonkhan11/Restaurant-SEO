@@ -286,8 +286,13 @@ export default function AdminDashboardOverview() {
   const router = useRouter();
   useEffect(() => {
     const fetchDashboardData = async () => {
-      // 1. Auth Check
-      const { data: { user } } = await supabase.auth.getUser();
+      // 1. Auth Check (use fast local session check first)
+      const { data: { session } } = await supabase.auth.getSession();
+      let user = session?.user;
+      if (!user) {
+        const { data: { user: fetchedUser } } = await supabase.auth.getUser();
+        user = fetchedUser || undefined;
+      }
       if (!user) {
         router.push('/login');
         return;
@@ -303,12 +308,10 @@ export default function AdminDashboardOverview() {
         .single();
 
       if (error || !restaurant) {
-        // 5. Loading UI: Redirect if no restaurant found
         router.push('/admin/settings');
         return;
       }
 
-      // 4. State Management: Store restaurantId
       setRestaurantId(restaurant.id);
       setTotalScans(restaurant.total_scans || 0);
 
@@ -331,84 +334,104 @@ export default function AdminDashboardOverview() {
         )
         .subscribe();
 
-
-
-      // --- Weekly Reset Logic for Item Views ---
+      // --- Time Calculations ---
+      const now = new Date();
       const d = new Date();
       const day = d.getDay();
       const diff = d.getDate() - day + (day === 0 ? -6 : 1);
       const monday = new Date(d.setDate(diff));
       monday.setHours(0, 0, 0, 0);
 
-      const { data: resetLog } = await supabase
-        .from('activity_logs')
-        .select('created_at')
-        .eq('admin_id', user.id)
-        .eq('action_type', 'WEEKLY_RESET')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (!resetLog || new Date(resetLog.created_at) < monday) {
-        await supabase.from('dishes').update({ view_count: 0 }).eq('restaurant_id', restaurant.id);
-        await supabase.from('activity_logs').insert({
-          admin_id: user.id,
-          restaurant_id: restaurant.id,
-          action_type: 'WEEKLY_RESET',
-          description: 'Weekly item views reset automatically'
-        });
-      }
-
-      // 3. Conditional Fetching (Only runs if restaurant is found)
-      const { count: dishCount } = await supabase
-        .from('dishes')
-        .select('*', { count: 'exact', head: true })
-        .eq('restaurant_id', restaurant.id);
-
-      setTotalItems(dishCount ?? 0);
-
-      const { count: tableCount } = await supabase
-        .from('tables')
-        .select('*', { count: 'exact', head: true })
-        .eq('restaurant_id', restaurant.id);
-
-      setTotalTables(tableCount ?? 0);
-
-      const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-
-      const { data: dishesData } = await supabase
-        .from('dishes')
-        .select('name, view_count')
-        .eq('restaurant_id', restaurant.id)
-        .order('view_count', { ascending: false })
-        .limit(7);
-
-      if (dishesData && dishesData.length > 0) {
-        setTopDish(dishesData[0].name);
-
-        // Restriction: Free users see only 2 items in chart
-        const visibleDishes = canViewAdvancedAnalytics ? dishesData : dishesData.slice(0, 2);
-
-        setChartData(visibleDishes.map(d => ({
-          name: d.name.length > 12 ? d.name.substring(0, 12) + '...' : d.name,
-          views: d.view_count || 0
-        })));
-      } else {
-        setTopDish('N/A');
-        setChartData([]);
-      }
-
       const firstDayOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
       const firstDayOf2MonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString();
       const firstDayOf3MonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString();
 
-      const { count: month1 } = await supabase.from('restaurants').select('*', { count: 'exact', head: true })
-        .eq('slug', restaurant.slug).gte('created_at', firstDayOfLastMonth).lt('created_at', firstDayOfMonth);
-      const { count: month2 } = await supabase.from('restaurants').select('*', { count: 'exact', head: true })
-        .eq('slug', restaurant.slug).gte('created_at', firstDayOf2MonthsAgo).lt('created_at', firstDayOfLastMonth);
-      const { count: month3 } = await supabase.from('restaurants').select('*', { count: 'exact', head: true })
-        .eq('slug', restaurant.slug).gte('created_at', firstDayOf3MonthsAgo).lt('created_at', firstDayOf2MonthsAgo);
+      // 3. Launch all dependent queries concurrently using Promise.all to eliminate sequential blocking roundtrips
+      const [
+        resetLogRes,
+        dishCountRes,
+        tableCountRes,
+        dishesDataRes,
+        month1Res,
+        month2Res,
+        month3Res,
+        logsDataRes
+      ] = await Promise.all([
+        supabase
+          .from('activity_logs')
+          .select('created_at')
+          .eq('admin_id', user.id)
+          .eq('action_type', 'WEEKLY_RESET')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from('dishes')
+          .select('*', { count: 'exact', head: true })
+          .eq('restaurant_id', restaurant.id),
+        supabase
+          .from('tables')
+          .select('*', { count: 'exact', head: true })
+          .eq('restaurant_id', restaurant.id),
+        supabase
+          .from('dishes')
+          .select('name, view_count')
+          .eq('restaurant_id', restaurant.id)
+          .order('view_count', { ascending: false })
+          .limit(7),
+        supabase.from('restaurants').select('*', { count: 'exact', head: true })
+          .eq('slug', restaurant.slug).gte('created_at', firstDayOfLastMonth).lt('created_at', firstDayOfMonth),
+        supabase.from('restaurants').select('*', { count: 'exact', head: true })
+          .eq('slug', restaurant.slug).gte('created_at', firstDayOf2MonthsAgo).lt('created_at', firstDayOfLastMonth),
+        supabase.from('restaurants').select('*', { count: 'exact', head: true })
+          .eq('slug', restaurant.slug).gte('created_at', firstDayOf3MonthsAgo).lt('created_at', firstDayOf2MonthsAgo),
+        supabase
+          .from('activity_logs')
+          .select('*')
+          .eq('admin_id', user.id)
+          .eq('restaurant_id', restaurant.id)
+          .gte('created_at', monday.toISOString())
+          .order('created_at', { ascending: false })
+          .limit(10)
+      ]);
+
+      // 4. Handle Weekly Reset logic
+      const resetLog = resetLogRes.data;
+      if (!resetLog || new Date(resetLog.created_at) < monday) {
+        await Promise.all([
+          supabase.from('dishes').update({ view_count: 0 }).eq('restaurant_id', restaurant.id),
+          supabase.from('activity_logs').insert({
+            admin_id: user.id,
+            restaurant_id: restaurant.id,
+            action_type: 'WEEKLY_RESET',
+            description: 'Weekly item views reset automatically'
+          })
+        ]);
+        setTopDish('N/A');
+        setChartData([]);
+      } else {
+        const dishesData = dishesDataRes.data;
+        if (dishesData && dishesData.length > 0) {
+          setTopDish(dishesData[0].name);
+          const visibleDishes = canViewAdvancedAnalytics ? dishesData : dishesData.slice(0, 2);
+          setChartData(visibleDishes.map(d => ({
+            name: d.name.length > 12 ? d.name.substring(0, 12) + '...' : d.name,
+            views: d.view_count || 0
+          })));
+        } else {
+          setTopDish('N/A');
+          setChartData([]);
+        }
+      }
+
+      // 5. Populate stats and metrics from concurrent responses
+      setTotalItems(dishCountRes.count ?? 0);
+      setTotalTables(tableCountRes.count ?? 0);
+
+      const month1 = month1Res.count;
+      const month2 = month2Res.count;
+      const month3 = month3Res.count;
 
       setHistoricalStats([
         { label: 'Last Month', scans: month1 || 0 },
@@ -416,8 +439,13 @@ export default function AdminDashboardOverview() {
         { label: '3 Months Ago', scans: month3 || 0 }
       ]);
 
+      if (logsDataRes.data) {
+        setRecentActivity(logsDataRes.data);
+      }
+
+      // Helper function to re-fetch logs for realtime update triggers
       const fetchLogs = async () => {
-        const { data: logsData, error: logError } = await supabase
+        const { data: logsData } = await supabase
           .from('activity_logs')
           .select('*')
           .eq('admin_id', user.id)
@@ -425,19 +453,17 @@ export default function AdminDashboardOverview() {
           .gte('created_at', monday.toISOString())
           .order('created_at', { ascending: false })
           .limit(10);
-
-        if (logsData && !logError) {
+        if (logsData) {
           setRecentActivity(logsData);
         }
       };
-      fetchLogs();
 
       const subscription = supabase
         .channel('public:activity_logs')
         .on(
           'postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'activity_logs', filter: `admin_id=eq.${user.id}` },
-          (payload) => {
+          () => {
             fetchLogs();
           }
         )
