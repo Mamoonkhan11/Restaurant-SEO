@@ -567,44 +567,39 @@ export default function AdminDashboardOverview() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
 
           {/* Line Chart Section */}
-          <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col relative">
-            {!canViewAdvancedAnalytics && (
-              <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-end pb-12">
-                <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center max-w-xs text-center border border-orange-100 mb-4 animate-fade-in-up">
-                  <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-4">
-                    <Lock className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-gray-900 font-bold mb-2">Want to see your top-performing items?</h3>
-                  <p className="text-sm text-gray-500 mb-6">Unlock Advanced Analytics with Premium to track all dish views and growth trends.</p>
-                  <Link href="/admin/billing#premium" className="bg-orange-600 text-white text-sm font-bold px-6 py-3 rounded-xl w-full pointer-events-auto hover:bg-orange-700 transition-colors shadow-md">
-                    Upgrade to Premium
-                  </Link>
-                </div>
+          <div
+            onClick={() => {
+              if (!canViewAdvancedAnalytics) {
+                setActiveModalTitle('UpgradeToPremiumAdvancedAnalytics');
+              }
+            }}
+            className={`lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col relative ${!canViewAdvancedAnalytics ? 'cursor-pointer' : ''}`}
+          >
+            <div className={`flex flex-col h-full ${!canViewAdvancedAnalytics ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-gray-900">Menu Item Views</h3>
+                <p className="text-sm text-gray-500">Track which dishes customers are looking at the most.</p>
               </div>
-            )}
-            <div className="mb-6">
-              <h3 className="text-lg font-bold text-gray-900">Menu Item Views</h3>
-              <p className="text-sm text-gray-500">Track which dishes customers are looking at the most.</p>
-            </div>
-            <div className="h-[300px] w-full mt-4">
-              {chartData.length > 0 ? (
-                <ResponsiveContainer width="99%" height={300}>
-                  <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 30, left: -20 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 11 }} dy={15} angle={-25} textAnchor="end" />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                    <Tooltip
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                      itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
-                    />
-                    <Line type="monotone" dataKey="views" stroke="#ea580c" strokeWidth={4} dot={{ r: 4, fill: '#ea580c', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-full flex items-center justify-center border-2 border-dashed border-gray-100 rounded-xl">
-                  <p className="text-gray-400 font-medium text-sm">No view data available yet.</p>
-                </div>
-              )}
+              <div className="h-[300px] w-full mt-4">
+                {chartData.length > 0 ? (
+                  <ResponsiveContainer width="99%" height={300}>
+                    <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 30, left: -20 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 11 }} dy={15} angle={-25} textAnchor="end" />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                      <Tooltip
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                        itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
+                      />
+                      <Line type="monotone" dataKey="views" stroke="#ea580c" strokeWidth={4} dot={{ r: 4, fill: '#ea580c', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center border-2 border-dashed border-gray-100 rounded-xl">
+                    <p className="text-gray-400 font-medium text-sm">No view data available yet.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -676,11 +671,11 @@ export default function AdminDashboardOverview() {
       {activeModalTitle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up border border-gray-100 flex flex-col max-h-[80vh]">
-            {activeModalTitle.startsWith('UpgradeToPro') ? (
+            {activeModalTitle.startsWith('UpgradeTo') ? (
               <>
                 <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
                   <h3 className="text-xl font-black text-gray-900">
-                    Upgrade to Pro
+                    {activeModalTitle === 'UpgradeToPremiumAdvancedAnalytics' ? 'Upgrade to Premium' : 'Upgrade to Pro'}
                   </h3>
                   <button onClick={() => setActiveModalTitle(null)} className="text-gray-400 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-200 transition-colors">
                     <X className="w-5 h-5" />
@@ -693,19 +688,23 @@ export default function AdminDashboardOverview() {
                   <h4 className="text-lg font-bold text-gray-900">
                     {activeModalTitle === 'UpgradeToProTotalScans'
                       ? 'Total Scans Metrics Locked'
-                      : 'Top Selling Dish Locked'}
+                      : activeModalTitle === 'UpgradeToPremiumAdvancedAnalytics'
+                        ? 'Advanced Analytics Locked'
+                        : 'Top Selling Dish Locked'}
                   </h4>
                   <p className="text-sm text-gray-500 leading-relaxed">
                     {activeModalTitle === 'UpgradeToProTotalScans'
                       ? 'Upgrade to Pro to see the total scans and analyze customer traffic on your digital menu.'
-                      : 'Upgrade to Pro to identify your top selling dish and optimize your menu pricing.'}
+                      : activeModalTitle === 'UpgradeToPremiumAdvancedAnalytics'
+                        ? 'Upgrade to Premium to track all dish views, customer behavior, and detailed menu growth trends.'
+                        : 'Upgrade to Pro to identify your top selling dish and optimize your menu pricing.'}
                   </p>
                   <Link
-                    href="/admin/billing#pro"
+                    href={activeModalTitle === 'UpgradeToPremiumAdvancedAnalytics' ? '/admin/billing#premium' : '/admin/billing#pro'}
                     onClick={() => setActiveModalTitle(null)}
                     className="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white py-3.5 rounded-xl font-bold transition-all shadow-md text-sm text-center"
                   >
-                    Upgrade to Pro
+                    {activeModalTitle === 'UpgradeToPremiumAdvancedAnalytics' ? 'Upgrade to Premium' : 'Upgrade to Pro'}
                   </Link>
                 </div>
               </>
