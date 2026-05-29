@@ -36,7 +36,7 @@ export default function ContactUs() {
             </div>
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-1">Email Support</h3>
-              <a href="mailto:support@vionys.com" className="text-orange-600 hover:underline font-medium">support@restdigi.online</a>
+              <a href="mailto:support@restdigi.online" className="text-orange-600 hover:underline font-medium">support@restdigi.online</a>
             </div>
           </div>
 
