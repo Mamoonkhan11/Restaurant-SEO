@@ -5,42 +5,42 @@ import { supabase } from '@/lib/supabase';
 const emailMatrix = [
   {
     subject: "Is paper management leaking your restaurant profits? ",
-    body: `Are you still using paper order pads and manual kitchen tickets? Handwritten KOT entries are slow, error-prone, and one of the biggest reasons for leaks in restaurant profits. Orders get lost, billing errors happen, and food preparation slows down.<br><br>With <strong>RESTDIGI</strong>, you can transition seamlessly to a cloud-native digital system. Keep track of all orders in real-time, streamline your kitchen routing, and ensure that every single item served is accurately recorded and billed. Protect your hard-earned margins from day one!`,
-    ctaText: "Go to Billing & Upgrade"
+    body: `I was reviewing some restaurant metrics today and wanted to ask: are you still using paper order pads and manual kitchen tickets? I've seen so many owners lose a significant chunk of their margins due to simple paper leaks—lost tickets, manual billing errors, or delays in cooking.<br><br>We built RESTDIGI to fix exactly this. By moving to our digital framework, everything updates in real-time, preventing order leaks and keeping your preparation loops fast.<br><br>Bhai, kya aap abhi bhi paper billing use kar rahe hain ya koi local software lagaya hua hai? Is email ka reply karke mujhe zaroor batana, main aapke setup ko optimize karne mein personally help karunga.`,
+    ctaText: "Open Your RestDigi Dashboard"
   },
   {
     subject: "Empower your waitstaff & eliminate service friction ",
-    body: `Service speed and accuracy are everything when it comes to guest satisfaction. If your waitstaff is running back and forth to write kitchen orders, tables are waiting longer than they should.<br><br>The <strong>RESTDIGI Waiter Panel</strong> eliminates this friction. Your staff can scan tables, enter orders directly on a mobile interface, and instantly route KOTs directly to kitchen display screens. Say goodbye to manual mistakes, misheard orders, and table service delays!`,
-    ctaText: "Empower Your Waitstaff Now"
+    body: `I wanted to check in on how your waitstaff manages table orders during peak hours. If they have to write down orders on paper and run to the kitchen, it naturally creates a bottleneck.<br><br>Our Waiter Panel lets your staff scan tables, enter orders on their phones, and route them instantly to the kitchen display. It eliminates manual ordering mistakes and ensures diners are served faster.<br><br>It's super simple to set up, and you can manage everything right from your dashboard.`,
+    ctaText: "Activate Waiter Panel"
   },
   {
     subject: "Boost your average billing value by 25% automatically ",
-    body: `Every restaurant owner wants to increase their average order value, but waitstaff often forget to upsell when they are busy. The psychological impact of automated upselling is huge.<br><br>The <strong>RESTDIGI Interactive Menu</strong> does the work for you. It intelligently prompts your customers with smart add-ons—such as extra cheese, dynamic beverage pairings, or delicious desserts—right when they order. Boost your billing value automatically without depending on manual staff suggestions!`,
-    ctaText: "Boost Billing Value Today"
+    body: `Let's talk about upselling. When your staff is busy running around, they often forget to suggest add-ons like extra cheese, desserts, or beverage pairings.<br><br>With the RESTDIGI interactive menu, the system does this automatically. It intelligently prompts customers with smart pairings and toppings at the exact moment they are ordering. Owners who use this feature see an average billing increase of 25% without changing anything else.`,
+    ctaText: "Boost Your Billing Value Today"
   },
   {
     subject: "Unlock the RESTDIGI Starter Plan: Perfect for Single Outlets ",
-    body: `Are you looking to streamline operations for a single cafe or restaurant outlet? The <strong>RESTDIGI Starter Plan</strong> is designed specifically for you.<br><br>Get access to our core digital menu, table order tracking, and essential operations tools at an extremely affordable rate. It is the perfect launchpad to automate your daily tasks without breaking the bank. Discover how standard automation can elevate your growing outlet!`,
+    body: `If you are running a single cafe or outlet, I highly recommend our Starter Plan. It's built specifically to automate basic operations without any unnecessary complexity or high costs.<br><br>You get the core digital menu, table scanning, and basic order tracking. It's the most cost-effective way to transition away from paper and speed up your service.`,
     ctaText: "Explore Starter Plan Tiers"
   },
   {
     subject: "Inside the Kitchen: Speed up your preparation loops ",
-    body: `A chaotic kitchen slows down table turnover and impacts your revenue. Chefs need a structured way to view and prioritize incoming orders.<br><br>The <strong>RESTDIGI Kitchen Display Layout</strong> streamlines kitchen operations. It features color-coded timers, auto-sorting of orders based on cooking time, and clear notifications for modifications or special requests. Empower your kitchen team to speed up prep loops and serve guests faster than ever!`,
+    body: `Have you looked at how orders are handled inside your kitchen? A chaotic kitchen means slower table turnovers and lower overall sales.<br><br>The RESTDIGI Kitchen Display Layout sorts incoming orders automatically based on preparation time, with color-coded timers. This helps your chefs prioritize cooking easily. Speeding up preparation loops translates directly to more tables served per hour.`,
     ctaText: "Optimize Your Kitchen Loops"
   },
   {
     subject: "Track your sales revenue live from anywhere in the world ",
-    body: `Managing a restaurant shouldn't mean being chained to the billing counter. You need a way to track operations and revenue remotely.<br><br>The <strong>RESTDIGI Owner & Admin Dashboard</strong> gives you real-time visibility from anywhere in the world. Monitor live sales, track peak traffic hours, analyze item popularity, and review automated demand predictions. Make data-driven decisions that grow your restaurant's bottom line!`,
+    body: `As an owner, you shouldn't have to be physically present at the restaurant just to know how the day's sales are going.<br><br>Our Admin Dashboard gives you live revenue tracking, peak traffic counters, and item popularity analytics from any device. You can track exactly what's selling and how much you're making in real-time, whether you're at home or traveling.`,
     ctaText: "Access Real-time Analytics"
   },
   {
     subject: "Scale to Premium: Multiple Outlets & Advanced Inventory Systems ",
-    body: `Ready to scale up? Whether you run a growing chain or a large dining establishment, you need advanced tools to manage complexity.<br><br>Our <strong>RESTDIGI Pro & Premium Multi-Outlet Tiers</strong> are built for scale. Manage your centralized menu catalog, sync live inventory data across franchises, track supply chain performance, and oversee consolidated business reports from a single dashboard. Scale your operations efficiently with centralized power!`,
+    body: `If you are looking to scale your business to multiple locations, you will need central control. Centralizing menus, pricing, and stock can quickly become a headache.<br><br>Our Pro and Premium plans offer centralized catalog management, real-time franchise data sync, and advanced supply chain oversight. You can control menus across all your outlets from one screen.`,
     ctaText: "Scale to Pro & Premium Tiers"
   },
   {
     subject: "Ready to dominate your local food market? Pick your perfect plan ",
-    body: `The right technology can set your restaurant apart from competitors. From automated upselling to real-time sales analytics, RESTDIGI is built to help you grow.<br><br>Compare our pricing tiers and pick the perfect plan tailored to your restaurant's size and needs. Start saving time, reducing order errors, and boosting your revenue today. Let's build your success story together!`,
+    body: `We have spent a lot of time engineering RESTDIGI to help local restaurants run more efficiently and grow their revenue. Whether you need simple digital ordering or advanced multi-outlet tracking, we have a plan that fits.<br><br>Take a moment to pick the plan that matches your current size. If you have any questions or need help picking, just hit reply and let me know.`,
     ctaText: "Pick Your Perfect Plan"
   }
 ];
@@ -52,111 +52,27 @@ function getEmailHtml(id, name, subject, contentBody, ctaText) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${subject}</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #FFF8F6;
-      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      color: #2A2A2A;
-      -webkit-font-smoothing: antialiased;
-    }
-    .wrapper {
-      width: 100%;
-      background-color: #FFF8F6;
-      padding: 40px 20px;
-      box-sizing: border-box;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: #ffffff;
-      border: 1px solid #F5F5F5;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(211, 47, 47, 0.03);
-    }
-    .header {
-      background-color: #ffffff;
-      padding: 30px 40px 20px 40px;
-      border-bottom: 1px solid #F5F5F5;
-      text-align: center;
-    }
-    .logo {
-      font-size: 28px;
-      font-weight: 800;
-      color: #D32F2F;
-      text-decoration: none;
-      letter-spacing: -0.5px;
-    }
-    .content {
-      padding: 40px;
-      line-height: 1.6;
-      font-size: 16px;
-    }
-    .greeting {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      color: #D32F2F;
-    }
-    .main-text {
-      margin-bottom: 30px;
-      color: #4A4A4A;
-    }
-    .cta-container {
-      text-align: center;
-      margin: 35px 0;
-    }
-    .cta-button {
-      background-color: #D32F2F;
-      color: #ffffff !important;
-      text-decoration: none;
-      padding: 14px 32px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 16px;
-      display: inline-block;
-      box-shadow: 0 4px 10px rgba(211, 47, 47, 0.25);
-      transition: all 0.2s ease-in-out;
-    }
-    .footer {
-      background-color: #FFF8F6;
-      padding: 30px 40px;
-      text-align: center;
-      font-size: 13px;
-      color: #7A7A7A;
-      border-top: 1px solid #F5F5F5;
-    }
-    .footer a {
-      color: #D32F2F;
-      text-decoration: none;
-      font-weight: 600;
-    }
-  </style>
 </head>
-<body>
-  <div class="wrapper">
-    <div class="container">
-      <div class="header">
-        <a href="https://www.restdigi.online" class="logo">REST<span style="color: #FF9100;">DIGI</span></a>
-      </div>
-      <div class="content">
-        <div class="greeting">Hi ${name},</div>
-        <div class="main-text">
-          ${contentBody}
-        </div>
-        <div class="cta-container">
-          <a href="https://www.restdigi.online/admin/billing" class="cta-button">${ctaText}</a>
-        </div>
-      </div>
-      <div class="footer">
-        <p>You are receiving this because you agreed to RESTDIGI terms of service.<br>
-        RESTDIGI Growth Team • <a href="https://www.restdigi.online">www.restdigi.online</a> • <a href="https://www.restdigi.online/api/unsubscribe?id=${id}">Unsubscribe</a></p>
-      </div>
-    </div>
-  </div>
+<body style="margin: 0; padding: 20px; font-family: Arial, sans-serif; font-size: 16px; color: #111111; line-height: 1.6; background-color: #ffffff;">
+  <p>Hi ${name},</p>
+  
+  <p style="margin: 0 0 20px 0;">${contentBody}</p>
+
+  <p style="margin: 25px 0;">
+    <a href="https://www.restdigi.online/admin/billing" style="color: #D32F2F; font-weight: bold; text-decoration: underline;">${ctaText}</a>
+  </p>
+
+  <p style="margin: 30px 0 0 0; color: #555555; font-size: 15px;">
+    Best regards,<br>
+    <strong>Mamoon</strong><br>
+    Founder, RESTDIGI
+  </p>
+
+  <hr style="border: 0; border-top: 1px solid #eeeeee; margin: 30px 0 15px 0;" />
+  <p style="font-size: 12px; color: #888888; margin: 0; line-height: 1.4;">
+    You are receiving this because you agreed to the RESTDIGI terms of service.<br>
+    RESTDIGI Team • <a href="https://www.restdigi.online" style="color: #888888; text-decoration: underline;">www.restdigi.online</a> • <a href="https://www.restdigi.online/api/unsubscribe?id=${id}" style="color: #888888; text-decoration: underline;">Unsubscribe</a>
+  </p>
 </body>
 </html>`;
 }
