@@ -107,7 +107,7 @@ async function handleCron(req) {
             'api-key': process.env.BREVO_API_KEY || ''
           },
           body: JSON.stringify({
-            sender: { name: "RESTDIGI TEAM", email: "[EMAIL_ADDRESS]" },
+            sender: { name: "RESTDIGI TEAM", email: "noreply@restdigi.online" },
             to: [{ email: restaurant.email, name: restaurant.name || "Restaurant Partner" }],
             subject: emailData.subject,
             htmlContent: htmlContent
@@ -148,7 +148,7 @@ async function handleCron(req) {
     }
 
     return NextResponse.json({
-      message: 'Marketing emails processed.',
+      message: 'RestDigi Emails Sent Successfully',
       totalProcessed: targets.length,
       successCount: results.filter(r => r.status === 'success').length,
       failedCount: results.filter(r => r.status === 'failed').length,
