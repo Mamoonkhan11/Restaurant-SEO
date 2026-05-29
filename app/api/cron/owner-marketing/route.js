@@ -10,7 +10,7 @@ const emailMatrix = [
   },
   {
     subject: "Empower your waitstaff & eliminate service friction ",
-    body: `I wanted to check in on how your waitstaff manages table orders during peak hours. If they have to write down orders on paper and run to the kitchen, it naturally creates a bottleneck.<br><br>Our Waiter Panel lets your staff scan tables, enter orders on their phones, and route them instantly to the kitchen display. It eliminates manual ordering mistakes and ensures diners are served faster.<br><br>It's super simple to set up, and you can manage everything right from your dashboard.`,
+    body: `I wanted to check in on how your waitstaff manages table orders during peak hours. If they have to write down orders on paper and run to the kitchen, it naturally creates a bottleneck.<br><br>Our Waiter Panel lets your staff scan tables, enter orders on their phones, and route them instantly to the kitchen display. It eliminates manual ordering mistakes and ensures diners are served faster.`,
     ctaText: "Activate Waiter Panel"
   },
   {
@@ -46,35 +46,12 @@ const emailMatrix = [
 ];
 
 function getEmailHtml(id, name, subject, contentBody, ctaText) {
-  return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${subject}</title>
-</head>
-<body style="margin: 0; padding: 20px; font-family: Arial, sans-serif; font-size: 16px; color: #111111; line-height: 1.6; background-color: #ffffff;">
-  <p>Hi ${name},</p>
-  
-  <p style="margin: 0 0 20px 0;">${contentBody}</p>
-
-  <p style="margin: 25px 0;">
-    <a href="https://www.restdigi.online/admin/billing" style="color: #D32F2F; font-weight: bold; text-decoration: underline;">${ctaText}</a>
-  </p>
-
-  <p style="margin: 30px 0 0 0; color: #555555; font-size: 15px;">
-    Best regards,<br>
-    <strong>Mamoon</strong><br>
-    Founder, RESTDIGI
-  </p>
-
-  <hr style="border: 0; border-top: 1px solid #eeeeee; margin: 30px 0 15px 0;" />
-  <p style="font-size: 12px; color: #888888; margin: 0; line-height: 1.4;">
-    You are receiving this because you agreed to the RESTDIGI terms of service.<br>
-    RESTDIGI Team • <a href="https://www.restdigi.online" style="color: #888888; text-decoration: underline;">www.restdigi.online</a> • <a href="https://www.restdigi.online/api/unsubscribe?id=${id}" style="color: #888888; text-decoration: underline;">Unsubscribe</a>
-  </p>
-</body>
-</html>`;
+  // Simple rich-text style layout with zero complex HTML/styles to bypass Promotions tab
+  return `<p>Hi ${name},</p>
+<p>${contentBody}</p>
+<p>You can check it out here: <a href="https://www.restdigi.online/admin/billing" style="color: #D32F2F; font-weight: bold; text-decoration: underline;">${ctaText}</a></p>
+<p>Best regards,<br>Mamoon<br>Founder, RESTDIGI</p>
+<p style="font-size: 11px; color: #888888; margin-top: 30px;">To opt out of future updates, click <a href="https://www.restdigi.online/api/unsubscribe?id=${id}" style="color: #888888; text-decoration: underline;">here</a>.</p>`;
 }
 
 async function handleCron(req) {
@@ -128,7 +105,7 @@ async function handleCron(req) {
             'api-key': process.env.BREVO_API_KEY || ''
           },
           body: JSON.stringify({
-            sender: { name: "RESTDIGI Growth Team", email: "noreply@restdigi.online" },
+            sender: { name: "Mamoon - RESTDIGI", email: "noreply@restdigi.online" },
             to: [{ email: restaurant.email, name: restaurant.name || "Restaurant Partner" }],
             subject: emailData.subject,
             htmlContent: htmlContent
