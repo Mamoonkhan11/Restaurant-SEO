@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 const emailMatrix = [
   {
     subject: "Is paper management leaking your restaurant profits? ",
-    body: `I was reviewing some restaurant metrics today and wanted to ask: are you still using paper order pads and manual kitchen tickets? I've seen so many owners lose a significant chunk of their margins due to simple paper leaks—lost tickets, manual billing errors, or delays in cooking.<br><br>We built RESTDIGI to fix exactly this. By moving to our digital framework, everything updates in real-time, preventing order leaks and keeping your preparation loops fast.`,
+    body: `I was reviewing some restaurant metrics today and wanted to ask: are you still using paper order pads and manual kitchen tickets? I've seen so many owners lose a significant chunk of their margins due to simple paper leaks—lost tickets, manual billing errors, or delays in cooking.<br><br>We built RESTDIGI to fix exactly this. By moving to our digital framework, everything updates in real-time, preventing order leaks and keeping your preparation loops fast.<br><br>Bhai, kya aap abhi bhi paper billing use kar rahe hain ya koi local software lagaya hua hai? Is email ka reply karke mujhe zaroor batana, main aapke setup ko optimize karne mein personally help karunga.`,
     ctaText: "Open Your RestDigi Dashboard"
   },
   {
