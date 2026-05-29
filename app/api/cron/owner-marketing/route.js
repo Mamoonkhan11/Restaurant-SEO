@@ -47,11 +47,13 @@ const emailMatrix = [
 
 function getEmailHtml(id, name, subject, contentBody, ctaText) {
   // Simple rich-text style layout with zero complex HTML/styles to bypass Promotions tab
-  return `<p>Hi ${name},</p>
-<p>${contentBody}</p>
-<p>You can check it out here: <a href="https://www.restdigi.online/admin/billing" style="color: #D32F2F; font-weight: bold; text-decoration: underline;">${ctaText}</a></p>
-<p>Best regards,<br>Mamoon<br>Founder, RESTDIGI</p>
-<p style="font-size: 11px; color: #888888; margin-top: 30px;">To opt out of future updates, click <a href="https://www.restdigi.online/api/unsubscribe?id=${id}" style="color: #888888; text-decoration: underline;">here</a>.</p>`;
+  return `<div style="font-family: Arial, sans-serif; font-size: 16px; color: #111111; line-height: 1.6; max-width: 600px; padding: 20px 0;">
+  <p>Hi ${name},</p>
+  <p>${contentBody}</p>
+  <p>You can check it out here: <a href="https://www.restdigi.online/admin/billing" style="color: #D32F2F; font-weight: bold; text-decoration: underline;">${ctaText}</a></p>
+  <p>Best regards,<br>Mamoon<br>Founder, RESTDIGI</p>
+  <p style="font-size: 11px; color: #888888; margin-top: 30px;">To opt out of future updates, click <a href="https://www.restdigi.online/api/unsubscribe?id=${id}" style="color: #888888; text-decoration: underline;">here</a>.</p>
+</div>`;
 }
 
 async function handleCron(req) {
