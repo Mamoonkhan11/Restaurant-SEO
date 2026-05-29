@@ -297,8 +297,10 @@ export default function BillingPage() {
     return 'Upgrade';
   };
 
-  const whatsappUrl = `https://wa.me/919999999999?text=${encodeURIComponent(
-    `Hi! I'm interested in the Enterprise Plan for my restaurant "${restaurant?.name || ''}" (ID: ${restaurant?.id || ''}). Please contact me with details.`
+  const mailtoUrl = `mailto:support@restdigi.online?subject=${encodeURIComponent(
+    `Enterprise Plan Inquiry - ${restaurant?.name || ''}`
+  )}&body=${encodeURIComponent(
+    `Hi RESTDIGI Team,\n\nI'm interested in the Enterprise Plan for my restaurant "${restaurant?.name || ''}" (ID: ${restaurant?.id || ''}). Please contact me with details.`
   )}`;
 
   return (
@@ -458,7 +460,7 @@ export default function BillingPage() {
                         handleUpgrade('basic', plan.price as number, isAnnual);
                       }
                     } else if (plan.id === 'enterprise') {
-                      window.open(whatsappUrl, '_blank');
+                      window.location.href = mailtoUrl;
                     } else {
                       handleUpgrade(plan.id as 'basic' | 'pro' | 'premium', plan.price as number, isAnnual);
                     }
