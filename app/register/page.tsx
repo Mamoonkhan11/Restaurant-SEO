@@ -190,6 +190,9 @@ export default function RegisterPage() {
                   >
                     {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Register Account'}
                   </button>
+                  <p className="text-[11px] text-gray-400 text-center mt-3 leading-relaxed">
+                    By registering, you agree to our <a href="/terms-and-conditions" target="_blank" className="underline hover:text-gray-600">Terms & Conditions</a> and consent to receive automated operational and marketing emails from RESTDIGI.
+                  </p>
                 </div>
               </form>
 

@@ -181,6 +181,11 @@ export default function TermsAcceptancePage() {
               RESTDIGI functions solely as a software utility conduit. We disclaim all liability regarding payment settlement failures between Diners and Merchants, physical preparation delays, kitchen errors, order cancellations, or hardware/internet disconnections at the restaurant premises.
             </p>
 
+            <h4 className="text-gray-900 font-bold">5. Automated Communications & Nurturing Consent</h4>
+            <p>
+              By accepting these terms, you grant RESTDIGI explicit consent to send you automated operational notifications, platform performance reports, value-nurturing tips, marketing campaigns, and promotional tier/upgrade suggestions via email. You may opt out of promotional communications at any time.
+            </p>
+
             <hr className="my-8 border-gray-200" />
 
             <h3 className="text-lg font-bold text-gray-900">Privacy Policy</h3>
@@ -219,7 +224,7 @@ export default function TermsAcceptancePage() {
               />
             </div>
             <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
-              I have read, understood, and agree to the Terms & Conditions and Privacy Policy outlined above.
+              I have read, understood, and agree to the Terms & Conditions and Privacy Policy, and consent to receive automated operational messages and marketing/nurturing emails from RESTDIGI.
             </span>
           </label>
 

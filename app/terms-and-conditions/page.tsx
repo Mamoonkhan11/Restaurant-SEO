@@ -46,6 +46,13 @@ export default function TermsAndConditions() {
               RESTDIGI functions solely as a software utility conduit. We disclaim all liability regarding payment settlement failures between Diners and Merchants, physical preparation delays, kitchen errors, order cancellations, or hardware/internet disconnections at the restaurant premises.
             </p>
           </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 mb-3">5. Automated Communications & Nurturing Consent</h2>
+            <p>
+              By creating an account, accepting these terms, or using the RESTDIGI service, you grant RESTDIGI explicit consent to send you automated operational notifications, platform performance reports, marketing/nurturing emails, sales impact analyses, and promotional tier/upgrade suggestions. You may opt out of promotional messages at any time using the unsubscribe link provided in such emails.
+            </p>
+          </section>
         </div>
       </div>
     </div>

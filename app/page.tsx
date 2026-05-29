@@ -208,9 +208,12 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
-            <p className="mb-2">Address: Srinagar, J&K, India</p>
-            <p>&copy; {new Date().getFullYear()} RESTDIGI. All rights reserved. Built for modern restaurants.</p>
+          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-xs text-gray-400">
+            <p className="mb-4 max-w-2xl mx-auto">
+              * By signing up for RESTDIGI, you agree to our <a href="/terms-and-conditions" className="underline hover:text-white">Terms & Conditions</a>
+            </p>
+            <p className="mb-2 text-sm text-gray-500">Address: Srinagar, J&K, India</p>
+            <p className="text-gray-500">&copy; {new Date().getFullYear()} RESTDIGI. All rights reserved. Built for modern restaurants.</p>
           </div>
         </div>
       </footer>
