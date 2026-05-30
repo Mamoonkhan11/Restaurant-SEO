@@ -375,7 +375,7 @@ export default function BillingPage() {
         </div>
         {isAnnual && (
           <p className="text-xs font-semibold text-emerald-600 animate-fade-in">
-            🎉 Smart choice! Saving up to 16% on annual packages.
+            Smart choice! Saving up to 16% on annual packages.
           </p>
         )}
       </div>

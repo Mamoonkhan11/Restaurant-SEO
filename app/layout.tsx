@@ -15,12 +15,50 @@ export const metadata: Metadata = {
     template: "%s",
   },
   description: "RESTDIGI is a lightning-fast digital menu and smart restaurant POS platform that lets customers scan, view, and order instantly from their tables.",
-  metadataBase: new URL("https://restdigi.com"),
+  metadataBase: new URL("https://www.restdigi.online"),
   icons: {
     icon: "/favicon-tab.png",
     shortcut: "/favicon-tab.png",
     apple: "/favicon-tab.png",
   },
+};
+
+const schemaObject = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "RestDigi",
+  "url": "https://www.restdigi.online",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "All",
+  "description": "Cloud-native restaurant operating framework providing continuous digital QR menus, streamlined kitchen display metrics, and automated ordering automation.",
+  "offers": {
+    "@type": "AggregateOffer",
+    "priceCurrency": "INR",
+    "lowPrice": "0",
+    "highPrice": "999",
+    "offerCount": "3",
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Free Basic Tier (For First Comers)",
+        "price": "0",
+        "priceCurrency": "INR",
+        "description": "Free core operational tools including digital QR menu and basic analytics, specially dedicated for early adopters."
+      },
+      {
+        "@type": "Offer",
+        "name": "Pro Outlet Plan",
+        "price": "699",
+        "priceCurrency": "INR"
+      },
+      {
+        "@type": "Offer",
+        "name": "Premium Enterprise Plan",
+        "price": "999",
+        "priceCurrency": "INR"
+      }
+    ]
+  }
 };
 
 export default function RootLayout({
@@ -30,7 +68,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${jakarta.variable} font-sans`}>{children}</body>
+      <body className={`${jakarta.variable} font-sans`}>
+        {children}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaObject) }}
+        />
+      </body>
     </html>
   );
 }
