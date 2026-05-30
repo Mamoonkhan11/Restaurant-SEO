@@ -51,12 +51,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Fetch all active restaurants from Supabase
+  // Fetch pro, premium and enterprise restaurants from Supabase
   try {
     const { data: restaurants } = await supabase
       .from('restaurants')
       .select('slug')
-      .not('slug', 'is', null);
+      .not('slug', 'is', null)
+      .in('plan_type', ['pro', 'premium', 'enterprise']);
 
     if (restaurants) {
       const restaurantRoutes = restaurants.map((restaurant) => ({
