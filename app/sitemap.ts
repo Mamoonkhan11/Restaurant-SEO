@@ -2,37 +2,50 @@ import { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://restdigi.com';
+  const baseUrl = 'https://www.restdigi.online';
+  const lastModifiedStr = new Date().toISOString();
 
-  // Base routes
+  // Base routes according to content mapping requirements
   const routes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: lastModifiedStr,
       changeFrequency: 'weekly',
-      priority: 1,
+      priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/admin`,
+      lastModified: lastModifiedStr,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/register`,
+      lastModified: lastModifiedStr,
+      changeFrequency: 'weekly',
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/terms-and-conditions`,
-      lastModified: new Date(),
+      lastModified: lastModifiedStr,
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.3,
     },
     {
       url: `${baseUrl}/privacy-policy`,
-      lastModified: new Date(),
+      lastModified: lastModifiedStr,
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.3,
     },
     {
       url: `${baseUrl}/refund-policy`,
-      lastModified: new Date(),
+      lastModified: lastModifiedStr,
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.3,
     },
     {
       url: `${baseUrl}/contact-us`,
-      lastModified: new Date(),
+      lastModified: lastModifiedStr,
       changeFrequency: 'yearly',
       priority: 0.5,
     },
@@ -48,7 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (restaurants) {
       const restaurantRoutes = restaurants.map((restaurant) => ({
         url: `${baseUrl}/menu/${restaurant.slug}`,
-        lastModified: new Date(),
+        lastModified: lastModifiedStr,
         changeFrequency: 'daily' as const,
         priority: 0.8,
       }));
