@@ -182,6 +182,124 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section className="bg-white py-24 border-t border-gray-100">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 animate-fade-in-up">
+            <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">FAQ</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-4 mb-4" style={{ color: '#111111' }}>Frequently Asked Questions</h2>
+            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Got questions? We've got answers. Explore our support topics below.</p>
+          </div>
+
+          <div className="space-y-4 max-w-3xl mx-auto">
+            {/* Q1 */}
+            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
+              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
+                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>What exactly is RestDigi, and how does it work?</span>
+                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
+                RestDigi is a cloud-native restaurant operating framework. You simply generate a customized QR code for your tables. Customers scan the QR to view your interactive digital menu and place orders instantly. The order is routed straight to your kitchen display system—eliminating manual paper tracking completely.
+              </div>
+            </details>
+
+            {/* Q2 */}
+            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
+              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
+                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>Do my customers need to download any mobile application to scan the menu?</span>
+                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
+                No apps are required! Customers can simply scan the table QR code using their default smartphone camera or any standard scanner app, and your full high-speed menu will open instantly inside their mobile web browser.
+              </div>
+            </details>
+
+            {/* Q3 */}
+            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
+              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
+                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>What is the "Free Basic Tier for First Comers" offer?</span>
+                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
+                To support local restaurant communities, we are running an exclusive Early Bird launch frame. The first 5 users/outlets to register on RestDigi will get our core operational infrastructure (including the dynamic digital QR menu and basic telemetry analytics) completely FREE for a lifetime—zero monthly hosting fees, zero catches.
+              </div>
+            </details>
+
+            {/* Q4 */}
+            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
+              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
+                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>How does the successful referral commission system work?</span>
+                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
+                We love growing with our community! If you refer another cafe or restaurant owner to RestDigi, you earn a premium cash payout or software credits as soon as your referred user upgrades and makes their first successful purchase of our Pro, Premium or Enterprise tier plans.
+              </div>
+            </details>
+
+            {/* Q5 */}
+            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
+              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
+                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>How long does it take to set up my entire restaurant menu live?</span>
+                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
+                Under 10 minutes. After completing your quick registration panel, add item, add prices, and hit publish. Your custom tables QR code sheet will be generated automatically for immediate printing.
+              </div>
+            </details>
+
+            {/* Q6 */}
+            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
+              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
+                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>Can I track my restaurant sales data when I am away or at home?</span>
+                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
+                Yes! RestDigi is a 100% cloud-synced system. You can open your customized live owner dashboard from any smartphone, laptop, or tablet in the world to track real-time tables and menu , total scan counts, and your top-performing menu items.
+              </div>
+            </details>
+
+            {/* Q7 */}
+            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
+              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
+                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>Is there a contract, or can I cancel my subscription anytime?</span>
+                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                </span>
+              </summary>
+              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
+                There are absolutely no locked contracts or hidden liabilities. You can scale your tiers, downgrade to our base assets, or cancel your active premium subscriptions inside your admin control panel whenever you wish with a single click.
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
       {/* Footer (Razorpay Legal Links) */}
       <footer className="bg-gray-900 text-gray-300 py-12 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -226,6 +344,9 @@ export default function Home() {
         .animate-fade-in-up { 
           animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
           opacity: 0;
+        }
+        summary::-webkit-details-marker {
+          display: none;
         }
       `}</style>
     </div>

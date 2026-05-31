@@ -231,7 +231,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
       }
 
       let restaurantData = data;
-      if (restaurantData && (restaurantData.plan_type === 'free' || !restaurantData.plan_type) && restaurantData.subscription_status !== 'active') {
+      if (restaurantData && (restaurantData.plan_type === 'free' || !restaurantData.plan_type) && restaurantData.subscription_status === 'inactive') {
         let count = 0;
         const { count: restCount, error: restErr } = await supabase
           .from('restaurants')

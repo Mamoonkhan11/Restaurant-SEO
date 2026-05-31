@@ -197,6 +197,37 @@ export default function BillingPage() {
     }
   };
 
+  const handleCancelSubscription = async () => {
+    if (isLoading) return;
+    const confirmCancel = window.confirm(
+      "Are you sure you want to cancel your current subscription? Your features will be downgraded to the free plan limits."
+    );
+    if (!confirmCancel) return;
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('restaurants')
+        .update({
+          plan_type: 'free',
+          subscription_status: 'cancelled',
+          expiry_date: null
+        })
+        .eq('id', restaurant?.id);
+
+      if (error) throw error;
+
+      toast.success('Subscription cancelled successfully.');
+      await refreshRestaurant();
+      await fetchPayments();
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Failed to cancel subscription: ' + err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const plans = [
     {
       id: 'basic',
@@ -475,6 +506,17 @@ export default function BillingPage() {
                 >
                   {getCtaLabel(plan.id)}
                 </button>
+
+                {isCurrent && (
+                  <button
+                    onClick={handleCancelSubscription}
+                    disabled={isLoading}
+                    className="w-full mt-3 py-2.5 rounded-xl font-bold text-sm transition-all border border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                  >
+                    <X className="w-4 h-4" />
+                    Cancel Subscription
+                  </button>
+                )}
               </div>
             </div>
           );

@@ -41,7 +41,7 @@ export default function TermsAcceptancePage() {
         // Fallback profile update ignored
       }
 
-      if (restaurant.plan_type === 'free' || !restaurant.plan_type) {
+      if ((restaurant.plan_type === 'free' || !restaurant.plan_type) && restaurant.subscription_status === 'inactive') {
         let count = 0;
         const { count: restCount, error: restErr } = await supabase
           .from('restaurants')
