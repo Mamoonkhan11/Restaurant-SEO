@@ -233,7 +233,7 @@ export default function Home() {
                 </span>
               </summary>
               <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
-                To support local restaurant communities, we are running an exclusive Early Bird launch frame. The first 5 users/outlets to register on RestDigi will get our core operational infrastructure (including the dynamic digital QR menu and basic telemetry analytics) completely FREE for a lifetime—zero monthly hosting fees, zero catches.
+                To support local restaurant communities, we are running an exclusive Early Bird launch frame. The first 5 users/outlets to register on RestDigi will get our core operational infrastructure (including the dynamic digital QR menu and basic telemetry analytics) completely FREE for one month—zero monthly hosting fees, zero catches.
               </div>
             </details>
 
@@ -248,7 +248,7 @@ export default function Home() {
                 </span>
               </summary>
               <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
-                We love growing with our community! If you refer another cafe or restaurant owner to RestDigi, you earn a premium cash payout or software credits as soon as your referred user upgrades and makes their first successful purchase of our Pro, Premium or Enterprise tier plans.
+                We love growing with our community! If you refer another cafe or restaurant owner to RestDigi, you earn a premium cash payout or software credits as soon as your referred user upgrades and makes their first successful purchase of our Pro, Premium or Enterprise tier plans. For commission information, you can contact <a href="mailto:support@restdigi.online" className="text-orange-600 hover:text-orange-700 underline font-semibold">support@restdigi.online</a>.
               </div>
             </details>
 
@@ -278,7 +278,7 @@ export default function Home() {
                 </span>
               </summary>
               <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
-                Yes! RestDigi is a 100% cloud-synced system. You can open your customized live owner dashboard from any smartphone, laptop, or tablet in the world to track real-time tables and menu , total scan counts, and your top-performing menu items.
+                Yes! RestDigi is a 100% cloud-synced system. You can open your customized live owner dashboard from any smartphone, laptop, or tablet in the world to track real-time tables and menu, total scan counts, and your top-performing menu items.
               </div>
             </details>
 
