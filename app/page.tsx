@@ -1,12 +1,13 @@
 "use client";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { QrCode, ChevronRight, TrendingUp } from 'lucide-react';
+import { QrCode, ChevronRight, TrendingUp, Check, X, BarChart3 } from 'lucide-react';
 
 export default function Home() {
   const router = useRouter();
+  const [isAnnual, setIsAnnual] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -91,6 +92,46 @@ export default function Home() {
         </div>
       </main>
 
+      {/* Advanced Metrics Features Section */}
+      <section className="bg-white border-t border-b border-gray-100 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-16">
+            {/* Card 1 */}
+            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 mb-6">
+                <QrCode className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Total QR Scans Counter</h3>
+              <p className="text-gray-500 leading-relaxed text-sm">
+                Track customer engagement velocity seamlessly across all active tables with automated metric counters.
+              </p>
+            </div>
+
+            {/* Card 2 */}
+            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 mb-6">
+                <TrendingUp className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Top Item of the Week</h3>
+              <p className="text-gray-500 leading-relaxed text-sm">
+                Identify inventory winners dynamically through computational weekly telemetry metrics.
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 mb-6">
+                <BarChart3 className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Advanced Analytics Dashboard</h3>
+              <p className="text-gray-500 leading-relaxed text-sm">
+                Render visual data streams and item-view performance graphs right inside your pocket.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Frictionless 3-Step Dining Journey */}
       <section className="bg-white py-24 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -145,7 +186,7 @@ export default function Home() {
       </section>
 
       {/* Premium Growth Features */}
-      <section className="bg-slate-50 py-24 border-t border-b border-gray-100">
+      <section id="features" className="bg-slate-50 py-24 border-t border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Premium Capabilities</span>
@@ -182,8 +223,289 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section id="pricing" className="bg-slate-50 py-24 border-t border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center mb-12 animate-fade-in-up">
+            <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Pricing Plans</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-4 mb-4">Choose Your Perfect Plan</h2>
+            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Get started with our free basic trial, or upgrade to unlock advanced operations metrics.</p>
+          </div>
+
+          {/* Premium Sliding Billing Cycle Toggle */}
+          <div className="flex flex-col items-center justify-center space-y-3 py-4 mb-12">
+            <div className="relative bg-gray-100 p-1 rounded-full grid grid-cols-2 w-72 border border-gray-200 shadow-inner">
+              <div
+                className="absolute top-1 bottom-1 bg-white rounded-full shadow-md transition-all duration-300 ease-out"
+                style={{
+                  left: isAnnual ? 'calc(50% + 1px)' : '4px',
+                  width: 'calc(50% - 5px)',
+                }}
+              />
+              <button
+                onClick={() => setIsAnnual(false)}
+                className={`relative z-10 py-2 text-sm font-bold rounded-full transition-colors duration-200 flex justify-center items-center ${!isAnnual ? 'text-gray-950' : 'text-gray-400 hover:text-gray-700'
+                  }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setIsAnnual(true)}
+                className={`relative z-10 py-2 text-sm font-bold rounded-full transition-colors duration-200 flex justify-center items-center gap-1.5 ${isAnnual ? 'text-gray-950' : 'text-gray-400 hover:text-gray-700'
+                  }`}
+              >
+                Annually
+                <span className="text-[10px] bg-emerald-500 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider scale-95">
+                  Save
+                </span>
+              </button>
+            </div>
+            {isAnnual && (
+              <p className="text-xs font-semibold text-emerald-600 animate-fade-in">
+                Smart choice! Saving up to 16% on annual packages.
+              </p>
+            )}
+          </div>
+
+          {/* 4-Tier Grid Subscription Matrix */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
+            {/* Basic Plan */}
+            <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-md pt-12">
+              <div className="absolute top-0 left-0 right-0 bg-orange-600 text-white text-[9px] font-bold py-2 px-4 text-center tracking-wide uppercase leading-tight z-10">
+                First 5 Registered Businesses Get 1 Month Free! (Early Bird Promotional Activation)
+              </div>
+              <div className="flex-1 flex flex-col">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Basic Plan</h3>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-4xl font-extrabold text-gray-900">₹{isAnnual ? 1499 : 149}</span>
+                  <span className="text-gray-500 font-medium text-sm">{isAnnual ? '/yr' : '/mo'}</span>
+                </div>
+                {isAnnual && (
+                  <div className="mb-4">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Save ~16%
+                    </span>
+                  </div>
+                )}
+                {!isAnnual && <div className="mb-4 h-[22px]" />}
+                <p className="text-sm text-gray-500 mb-6 font-medium leading-relaxed">
+                  Perfect to get started and test the waters with your digital menu.
+                </p>
+                <ul className="space-y-4 flex-1 mb-8">
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Up to 12 Menu Items</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Up to 5 Digital Tables</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
+                    <X className="w-5 h-5 text-rose-400 shrink-0" />
+                    <span>SEO Ranking Optimization</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
+                    <X className="w-5 h-5 text-rose-400 shrink-0" />
+                    <span>Top Selling Dish Analytics</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
+                    <X className="w-5 h-5 text-rose-400 shrink-0" />
+                    <span>Total QR Scans Metric Counter</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
+                    <X className="w-5 h-5 text-rose-400 shrink-0" />
+                    <span>Menu Item View Performance Graphs</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
+                    <X className="w-5 h-5 text-rose-400 shrink-0" />
+                    <span>Direct 24/7 Support & Assistance</span>
+                  </li>
+                </ul>
+                <Link
+                  href="/register"
+                  className="w-full py-3 rounded-xl font-bold transition-all text-center bg-gray-900 hover:bg-gray-800 text-white shadow-sm hover:shadow-md block"
+                >
+                  Get Started
+                </Link>
+              </div>
+            </div>
+
+            {/* Pro Plan */}
+            <div className="bg-white rounded-3xl p-8 border border-orange-500 ring-2 ring-orange-500 shadow-lg flex flex-col relative overflow-hidden transition-all duration-300 md:-translate-y-2">
+              <div className="absolute top-0 right-0 bg-orange-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
+                Popular
+              </div>
+              <div className="flex-1 flex flex-col">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Pro Plan</h3>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-4xl font-extrabold text-gray-900">₹{isAnnual ? 7899 : 699}</span>
+                  <span className="text-gray-500 font-medium text-sm">{isAnnual ? '/yr' : '/mo'}</span>
+                </div>
+                {isAnnual && (
+                  <div className="mb-4">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Save ~6%
+                    </span>
+                  </div>
+                )}
+                {!isAnnual && <div className="mb-4 h-[22px]" />}
+                <p className="text-sm text-gray-500 mb-6 font-medium leading-relaxed">
+                  Everything you need to run and optimize your active digital menu.
+                </p>
+                <ul className="space-y-4 flex-1 mb-8">
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Up to 20 Menu Items</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Up to 15 Digital Tables</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>SEO Ranking Optimization</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Top Selling Dish Analytics</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Total QR Scans Metric Counter</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
+                    <X className="w-5 h-5 text-rose-400 shrink-0" />
+                    <span>Menu Item View Performance Graphs</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
+                    <X className="w-5 h-5 text-rose-400 shrink-0" />
+                    <span>Direct 24/7 Support & Assistance</span>
+                  </li>
+                </ul>
+                <Link
+                  href="/register"
+                  className="w-full py-3 rounded-xl font-bold transition-all text-center bg-orange-600 hover:bg-orange-700 text-white shadow-md hover:shadow-lg block"
+                >
+                  Get Started
+                </Link>
+              </div>
+            </div>
+
+            {/* Premium Plan */}
+            <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-md">
+              <div className="flex-1 flex flex-col">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Premium Plan</h3>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-4xl font-extrabold text-gray-900">₹{isAnnual ? 10499 : 999}</span>
+                  <span className="text-gray-500 font-medium text-sm">{isAnnual ? '/yr' : '/mo'}</span>
+                </div>
+                {isAnnual && (
+                  <div className="mb-4">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Save ~12%
+                    </span>
+                  </div>
+                )}
+                {!isAnnual && <div className="mb-4 h-[22px]" />}
+                <p className="text-sm text-gray-500 mb-6 font-medium leading-relaxed">
+                  For growing brands looking for deeper data and direct metrics.
+                </p>
+                <ul className="space-y-4 flex-1 mb-8">
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Up to 23 Menu Items</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Up to 17 Digital Tables</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>SEO Ranking Optimization</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Top Selling Dish Analytics</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Total QR Scans Metric Counter</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Menu Item View Performance Graphs</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
+                    <X className="w-5 h-5 text-rose-400 shrink-0" />
+                    <span>Direct 24/7 Support & Assistance</span>
+                  </li>
+                </ul>
+                <Link
+                  href="/register"
+                  className="w-full py-3 rounded-xl font-bold transition-all text-center bg-gray-900 hover:bg-gray-800 text-white shadow-sm hover:shadow-md block"
+                >
+                  Get Started
+                </Link>
+              </div>
+            </div>
+
+            {/* Enterprise Plan */}
+            <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-md">
+              <div className="flex-1 flex flex-col">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Enterprise Plan</h3>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-xl font-extrabold text-gray-900 leading-tight">Custom / Contact Us</span>
+                </div>
+                <div className="mb-4 h-[22px]" />
+                <p className="text-sm text-gray-500 mb-6 font-medium leading-relaxed">
+                  Fully tailored setup limits and direct enterprise priority support.
+                </p>
+                <ul className="space-y-4 flex-1 mb-8">
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Manual Scalable Items (As per your custom need)</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Unlimited Digital Tables</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>SEO Ranking Optimization</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Top Selling Dish Analytics</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Total QR Scans Metric Counter</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Menu Item View Performance Graphs</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
+                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span>Direct 24/7 Support & Assistance</span>
+                  </li>
+                </ul>
+                <a
+                  href="mailto:support@restdigi.online?subject=Enterprise%20Plan%20Inquiry"
+                  className="w-full py-3 rounded-xl font-bold transition-all text-center bg-gray-900 hover:bg-gray-800 text-white shadow-sm hover:shadow-md block"
+                >
+                  Contact Sales
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
       {/* FAQ Section */}
-      <section className="bg-white py-24 border-t border-gray-100">
+      <section id="faq" className="bg-white py-24 border-t border-gray-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in-up">
             <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">FAQ</span>
@@ -300,38 +622,103 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer (Razorpay Legal Links) */}
-      <footer className="bg-gray-900 text-gray-300 py-12 border-t border-gray-800">
+      {/* Footer */}
+      <footer className="bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 pt-12 border-t border-slate-100">
 
-            <div className="flex items-center">
-              <img src="/restdigi-logo.png" className="h-12 lg:h-16 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity" alt="RESTDIGI Logo" />
+            {/* Column 1 (Branding Node) */}
+            <div className="space-y-4">
+              <img
+                src="/restdigi-logo.png"
+                className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105"
+                alt="RESTDIGI Logo"
+              />
+              <p className="text-slate-500 text-sm leading-relaxed">
+                Modernizing local dining ecosystems with high-speed digital tools.
+              </p>
+              <div className="text-xs text-slate-400">
+                &copy; 2026 RestDigi. All rights reserved.
+              </div>
             </div>
 
-            {/* Legal Links required by Razorpay */}
-            <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
-              <Link href="/terms-and-conditions" className="text-sm font-medium hover:text-white transition-colors">
-                Terms & Conditions
-              </Link>
-              <Link href="/privacy-policy" className="text-sm font-medium hover:text-white transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="/refund-policy" className="text-sm font-medium hover:text-white transition-colors">
-                Cancellation & Refund
-              </Link>
-              <Link href="/contact-us" className="text-sm font-medium hover:text-white transition-colors">
-                Contact Us
-              </Link>
+            {/* Column 2 (Product Assets) */}
+            <div className="space-y-4">
+              <h3 className="text-slate-900 font-bold text-sm tracking-wider uppercase">
+                Product
+              </h3>
+              <ul className="space-y-3">
+                <li>
+                  <Link href="#features" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#pricing" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                    Pricing Tiers
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#faq" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                    FAQ Section
+                  </Link>
+                </li>
+              </ul>
             </div>
-          </div>
 
-          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-xs text-gray-400">
-            <p className="mb-4 max-w-2xl mx-auto">
-              * By signing up for RESTDIGI, you agree to our <a href="/terms-and-conditions" className="underline hover:text-white">Terms & Conditions</a>
-            </p>
-            <p className="mb-2 text-sm text-gray-500">Address: Srinagar, J&K, India</p>
-            <p className="text-gray-500">&copy; {new Date().getFullYear()} RESTDIGI. All rights reserved. Built for modern restaurants.</p>
+            {/* Column 3 (Legal Framework Documents) */}
+            <div className="space-y-4">
+              <h3 className="text-slate-900 font-bold text-sm tracking-wider uppercase">
+                Legal
+              </h3>
+              <ul className="space-y-3">
+                <li>
+                  <Link href="/privacy-policy" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms-and-conditions" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                    Terms & Conditions
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/refund-policy" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                    Cancellation & Refund
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact-us" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                    Contact Us
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 4 (Social Footprint Connect) */}
+            <div className="space-y-4">
+              <h3 className="text-slate-900 font-bold text-sm tracking-wider uppercase">
+                Social
+              </h3>
+              <ul className="space-y-3">
+                <li>
+                  <a href="https://twitter.com/restdigii" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                    Twitter (X)
+                  </a>
+                </li>
+                <li>
+                  <a href="https://instagram.com/restdigii" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                    Instagram
+                  </a>
+                </li>
+                <li>
+                  <a href="https://youtube.com/restdigii" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                    YouTube
+                  </a>
+                </li>
+              </ul>
+            </div>
+
           </div>
         </div>
       </footer>

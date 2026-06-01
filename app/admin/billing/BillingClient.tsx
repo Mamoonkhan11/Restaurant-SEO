@@ -10,6 +10,7 @@ export default function BillingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [payments, setPayments] = useState<any[]>([]);
   const [isAnnual, setIsAnnual] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   useEffect(() => {
     if (restaurant) {
@@ -199,10 +200,6 @@ export default function BillingPage() {
 
   const handleCancelSubscription = async () => {
     if (isLoading) return;
-    const confirmCancel = window.confirm(
-      "Are you sure you want to cancel your current subscription? Your features will be downgraded to the free plan limits."
-    );
-    if (!confirmCancel) return;
 
     setIsLoading(true);
     try {
@@ -225,6 +222,7 @@ export default function BillingPage() {
       toast.error('Failed to cancel subscription: ' + err.message);
     } finally {
       setIsLoading(false);
+      setIsCancelModalOpen(false);
     }
   };
 
@@ -509,7 +507,7 @@ export default function BillingPage() {
 
                 {isCurrent && (
                   <button
-                    onClick={handleCancelSubscription}
+                    onClick={() => setIsCancelModalOpen(true)}
                     disabled={isLoading}
                     className="w-full mt-3 py-2.5 rounded-xl font-bold text-sm transition-all border border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                   >
@@ -587,6 +585,33 @@ export default function BillingPage() {
           z-index: 20;
         }
       `}</style>
+
+      {isCancelModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 text-center transform scale-100 transition-all animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Cancel Your Subscription?</h3>
+            <p className="text-sm text-slate-500 leading-relaxed mb-6">
+              Are you sure you want to proceed? Your operational features will be instantly downgraded to our free plan metrics.
+            </p>
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              <button
+                onClick={() => setIsCancelModalOpen(false)}
+                disabled={isLoading}
+                className="border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl py-3 text-sm font-semibold transition-colors disabled:opacity-50"
+              >
+                Keep Plan
+              </button>
+              <button
+                onClick={handleCancelSubscription}
+                disabled={isLoading}
+                className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl py-3 text-sm font-semibold transition-colors shadow-sm shadow-rose-100 disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                {isLoading ? "Cancelling..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
