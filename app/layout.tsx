@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   },
   description: "RESTDIGI is an advanced restaurant operations framework enabling seamless digital menu infrastructure, instant table-side ordering, and real-time kitchen display synchronization.",
   metadataBase: new URL("https://www.restdigi.online"),
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: "/favicon-tab.png",
     shortcut: "/favicon-tab.png",
