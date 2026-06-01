@@ -99,90 +99,304 @@ export default function Home() {
             <p className="text-gray-500 font-medium max-w-2xl mx-auto">Give your customers a fast, zero-wait self-ordering experience.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
-              <div className="absolute top-6 right-6 text-6xl font-black text-orange-100 select-none">01</div>
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 relative z-10">
-                <QrCode className="w-7 h-7 text-orange-600" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Card 01 - Scan */}
+            <div className="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-slate-200 to-slate-50 bg-clip-text text-transparent select-none">01</div>
+              {/* Top Asset Box */}
+              <div className="flex-1 flex items-center justify-center py-6 mb-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+                <div className="flex flex-col items-center">
+                  <div className="relative w-[90px] h-[115px] bg-white rounded-lg shadow-md border border-slate-200 p-2.5 flex flex-col items-center justify-between transition-transform group-hover:scale-105 duration-300">
+                    <span className="text-[6px] font-extrabold text-orange-600 tracking-wider">RESTDIGI</span>
+                    <div className="w-12 h-12 bg-slate-50 border border-slate-200 rounded p-1 flex items-center justify-center">
+                      <QrCode className="w-10 h-10 text-slate-950" />
+                    </div>
+                    <span className="text-[5px] bg-orange-600 text-white font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider scale-90">Scan Menu</span>
+                  </div>
+                  <div className="w-[110px] h-2 bg-slate-300 rounded-full -mt-1 shadow-sm relative z-10"></div>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 relative z-10">Scan</h3>
-              <p className="text-gray-500 leading-relaxed relative z-10">
-                Customer scans the crisp, custom table-specific QR frame on arrival.
-              </p>
+              {/* Text Content at base */}
+              <div className="relative z-10 text-left">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Scan</h3>
+                <p className="text-gray-500 leading-relaxed text-sm">
+                  Customer scans the crisp, custom table-specific QR frame on arrival.
+                </p>
+              </div>
             </div>
 
-            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
-              <div className="absolute top-6 right-6 text-6xl font-black text-blue-100 select-none">02</div>
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 relative z-10">
-                <svg className="w-7 h-7 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
+            {/* Card 02 - View */}
+            <div className="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-slate-200 to-slate-50 bg-clip-text text-transparent select-none">02</div>
+              {/* Top Asset Box */}
+              <div className="flex-1 flex items-center justify-center py-4 mb-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+                <div className="w-[140px] h-[240px] bg-slate-950 rounded-2xl p-1.5 mx-auto border-2 border-slate-800 shadow-lg flex flex-col justify-between overflow-hidden relative transition-transform group-hover:scale-105 duration-300">
+                  <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-2 bg-slate-800 rounded-full z-20"></div>
+                  <div className="flex-1 bg-white rounded-xl p-2 pt-4 flex flex-col gap-2 overflow-hidden select-none text-left">
+                    <div className="flex gap-1.5 pb-1 border-b border-slate-50">
+                      <div className="w-7 h-3 rounded-full bg-orange-600"></div>
+                      <div className="w-7 h-3 rounded-full bg-slate-100"></div>
+                      <div className="w-7 h-3 rounded-full bg-slate-100"></div>
+                    </div>
+                    <div className="flex flex-col gap-2 flex-1">
+                      <div className="flex gap-1.5 items-center p-1 bg-slate-50 rounded-md border border-slate-100">
+                        <div className="w-6 h-6 rounded bg-slate-200 animate-pulse shrink-0"></div>
+                        <div className="flex-1 space-y-1">
+                          <div className="w-12 h-1.5 bg-slate-300 rounded animate-pulse"></div>
+                          <div className="w-8 h-1 bg-slate-200 rounded animate-pulse"></div>
+                        </div>
+                      </div>
+                      <div className="flex gap-1.5 items-center p-1 bg-slate-50 rounded-md border border-slate-100">
+                        <div className="w-6 h-6 rounded bg-slate-200 animate-pulse shrink-0"></div>
+                        <div className="flex-1 space-y-1">
+                          <div className="w-10 h-1.5 bg-slate-300 rounded animate-pulse"></div>
+                          <div className="w-6 h-1 bg-slate-200 rounded animate-pulse"></div>
+                        </div>
+                      </div>
+                      <div className="flex gap-1.5 items-center p-1 bg-slate-50 rounded-md border border-slate-100">
+                        <div className="w-6 h-6 rounded bg-slate-200 animate-pulse shrink-0"></div>
+                        <div className="flex-1 space-y-1">
+                          <div className="w-14 h-1.5 bg-slate-300 rounded animate-pulse"></div>
+                          <div className="w-7 h-1 bg-slate-200 rounded animate-pulse"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 relative z-10">View</h3>
-              <p className="text-gray-500 leading-relaxed relative z-10">
-                A lightning-fast digital menu renders on any mobile browser in under 1 second.
-              </p>
+              {/* Text Content at base */}
+              <div className="relative z-10 text-left">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">View</h3>
+                <p className="text-gray-500 leading-relaxed text-sm">
+                  A lightning-fast digital menu renders on any mobile browser in under 1 second.
+                </p>
+              </div>
             </div>
 
-            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
-              <div className="absolute top-6 right-6 text-6xl font-black text-orange-100 select-none">03</div>
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 relative z-10">
-                <svg className="w-7 h-7 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m5 12 5-5L20 17" />
-                </svg>
+            {/* Card 03 - Order Instantly */}
+            <div className="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-slate-200 to-slate-50 bg-clip-text text-transparent select-none">03</div>
+              {/* Top Asset Box */}
+              <div className="flex-1 flex items-center justify-center py-6 mb-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+                <div className="w-full max-w-[210px] bg-white rounded-xl shadow-md border border-slate-200 p-3 flex flex-col justify-between relative transition-transform group-hover:scale-105 duration-300 text-left">
+                  <div>
+                    <div className="flex justify-between items-center pb-1.5 border-b border-slate-100 mb-2">
+                      <span className="text-[8px] font-bold text-slate-800">Your Basket</span>
+                      <span className="text-[7px] text-slate-400 font-semibold">Table 05</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center text-[7px] font-medium text-slate-600">
+                        <span>1x Double Cheese Burger</span>
+                        <span className="font-bold text-slate-900">₹180</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[7px] font-medium text-slate-600">
+                        <span>2x Mint Mojito</span>
+                        <span className="font-bold text-slate-900">₹240</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-2.5 pt-1.5 border-t border-slate-100">
+                    <div className="flex justify-between items-center text-[8px] font-bold text-slate-800 mb-1.5">
+                      <span>Total Amount</span>
+                      <span>₹420</span>
+                    </div>
+                    <div className="bg-emerald-50 border border-emerald-100 rounded-lg py-1 px-1.5 flex items-center gap-1 justify-center">
+                      <span className="w-1 h-1 bg-emerald-500 rounded-full animate-ping"></span>
+                      <span className="text-[7px] text-emerald-700 font-extrabold tracking-tight uppercase">Sent to Kitchen!</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 relative z-10">Order Instantly</h3>
-              <p className="text-gray-500 leading-relaxed relative z-10">
-                Multi-item cart selection with quantities lets them send orders straight to the live KOT dashboard without chasing waiters.
-              </p>
+              {/* Text Content at base */}
+              <div className="relative z-10 text-left">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Order Instantly</h3>
+                <p className="text-gray-500 leading-relaxed text-sm">
+                  Multi-item cart selection with quantities lets them send orders straight to the live KOT dashboard without chasing waiters.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="features" className="bg-slate-50 py-24 border-t border-b border-gray-100">
+      <section id="features" className="bg-white py-24 border-t border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in-up">
-            <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Metrics & Analytics</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-4 mb-4">Deep Performance Insights</h2>
-            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Track your catalog scans, dish popularity, and weekly metrics telemetry automatically.</p>
+            <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Features Showcase</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-4 mb-4">Engineered for Restaurant Success</h2>
+            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Discover how RESTDIGI modernizes your operations and drives customer engagement.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
-              <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 mb-6">
-                <QrCode className="w-7 h-7" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-12">
+            {/* Column 1: Smart QR Menu */}
+            <div className="border border-slate-100 rounded-3xl bg-slate-50/50 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300">
+              <div className="flex-1 flex items-center justify-center py-6">
+                {/* Mobile Mockup */}
+                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
+                  {/* Notch */}
+                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
+                  {/* Screen Content */}
+                  <div className="flex-1 bg-white p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left">
+                    <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                      <span className="text-[10px] font-extrabold text-orange-600 tracking-tight">RestDigi Bistro</span>
+                      <span className="text-[7px] px-1.5 py-0.5 rounded-full bg-slate-100 font-bold text-slate-600">Table 05</span>
+                    </div>
+
+                    <div className="flex gap-1 py-1.5 overflow-x-hidden border-b border-slate-50">
+                      <span className="text-[6px] bg-orange-600 text-white px-1.5 py-0.5 rounded-full font-bold">Pizza</span>
+                      <span className="text-[6px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Burgers</span>
+                      <span className="text-[6px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Drinks</span>
+                    </div>
+
+                    <div className="mt-1.5 space-y-1.5 flex-1 overflow-hidden">
+                      <div className="flex gap-1.5 items-center p-1 bg-slate-50/80 rounded-lg">
+                        <div className="w-8 h-8 rounded bg-orange-100 flex items-center justify-center text-[11px] shrink-0">🍕</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[8px] font-bold text-slate-800 truncate">Spicy Truffle Pizza</div>
+                          <div className="text-[6px] text-slate-400 font-medium">Hot honey, mushroom</div>
+                        </div>
+                        <div className="text-[8px] font-bold text-slate-800 shrink-0">₹399</div>
+                      </div>
+                      <div className="flex gap-1.5 items-center p-1 bg-slate-50/80 rounded-lg">
+                        <div className="w-8 h-8 rounded bg-orange-100 flex items-center justify-center text-[11px] shrink-0">🍔</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[8px] font-bold text-slate-800 truncate">Loaded Beef Burger</div>
+                          <div className="text-[6px] text-slate-400 font-medium">Double cheese, fries</div>
+                        </div>
+                        <div className="text-[8px] font-bold text-slate-800 shrink-0">₹279</div>
+                      </div>
+                    </div>
+
+                    <div className="mt-auto bg-orange-600 text-white rounded-lg py-1 px-2 text-[8px] font-bold shadow-sm flex justify-between items-center">
+                      <span>3 Items in Cart</span>
+                      <span className="flex items-center gap-0.5">Order <ChevronRight className="w-2 h-2" /></span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Total QR Scans Counter</h3>
-              <p className="text-gray-500 leading-relaxed text-sm">
-                Track customer engagement velocity seamlessly across all active tables with automated metric counters.
-              </p>
+              <div className="mt-6 text-left">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Smart QR Menu</h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                  Seat more guests, display your real-time menu card, and accept instant table orders flawlessly without manual lags.
+                </p>
+              </div>
             </div>
 
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 mb-6">
-                <TrendingUp className="w-7 h-7" />
+            {/* Column 2: Kitchen Display Framework */}
+            <div className="border border-slate-100 rounded-3xl bg-slate-50/50 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300">
+              <div className="flex-1 flex items-center justify-center py-6">
+                {/* Tablet Mockup */}
+                <div className="relative mx-auto w-full max-w-[270px] h-[190px] bg-slate-900 rounded-2xl shadow-lg border-4 border-slate-800 overflow-hidden flex flex-col text-left">
+                  <div className="bg-slate-850 px-2.5 py-1.5 flex justify-between items-center text-[8px] text-slate-300 font-bold border-b border-slate-800">
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                      Active Kitchen Console
+                    </span>
+                    <span className="text-[7px] text-slate-400">Live Sync</span>
+                  </div>
+                  <div className="p-2 grid grid-cols-2 gap-2 flex-1 bg-slate-950 overflow-hidden">
+                    <div className="bg-slate-850 border border-slate-800 rounded-lg p-1.5 flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-center border-b border-slate-800 pb-1 mb-1">
+                          <span className="text-[8px] font-extrabold text-orange-400">#042</span>
+                          <span className="text-[6px] text-slate-400 font-bold">Table 02</span>
+                        </div>
+                        <ul className="text-[7px] text-slate-300 space-y-0.5 font-medium">
+                          <li className="flex justify-between"><span>1x Truffle Pizza</span><span className="text-slate-500">x1</span></li>
+                          <li className="flex justify-between"><span>2x Citrus Mojito</span><span className="text-slate-500">x2</span></li>
+                        </ul>
+                      </div>
+                      <div className="mt-1.5 flex justify-between items-center border-t border-slate-800/5 pt-1">
+                        <span className="text-[6px] text-slate-400 font-medium">4m ago</span>
+                        <span className="text-[6px] bg-amber-500/15 text-amber-400 font-extrabold px-1 py-0.5 rounded leading-none">PREPARING</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-850 border border-slate-800 rounded-lg p-1.5 flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-center border-b border-slate-800 pb-1 mb-1">
+                          <span className="text-[8px] font-extrabold text-orange-400">#041</span>
+                          <span className="text-[6px] text-slate-400 font-bold">Table 11</span>
+                        </div>
+                        <ul className="text-[7px] text-slate-300 space-y-0.5 font-medium">
+                          <li className="flex justify-between"><span>1x Loaded Burger</span><span className="text-slate-500">x1</span></li>
+                          <li className="flex justify-between"><span>1x Truffle Pizza</span><span className="text-slate-500">x1</span></li>
+                        </ul>
+                      </div>
+                      <div className="mt-1.5 flex justify-between items-center border-t border-slate-800/5 pt-1">
+                        <span className="text-[6px] text-slate-400 font-medium">9m ago</span>
+                        <span className="text-[6px] bg-emerald-500/15 text-emerald-400 font-extrabold px-1 py-0.5 rounded leading-none">READY</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Top Item of the Week</h3>
-              <p className="text-gray-500 leading-relaxed text-sm">
-                Identify inventory winners dynamically through computational weekly telemetry metrics.
-              </p>
+              <div className="mt-6 text-left">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Kitchen Display Engine</h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                  Route structural incoming table receipts directly onto an active terminal display—no misplacement, zero paper chaos.
+                </p>
+              </div>
             </div>
 
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
-              <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 mb-6">
-                <BarChart3 className="w-7 h-7" />
+            {/* Column 3: Live Analytics Telemetry */}
+            <div className="border border-slate-100 rounded-3xl bg-slate-50/50 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300">
+              <div className="flex-1 flex items-center justify-center py-6">
+                {/* Dashboard Analytics Mockup */}
+                <div className="relative mx-auto w-full max-w-[270px] h-[190px] bg-white rounded-2xl shadow-lg border border-slate-100 p-3 flex flex-col justify-between overflow-hidden text-left">
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Live Revenue Metrics</span>
+                      <span className="text-[7px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full font-extrabold">+32.6% today</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 mb-2">
+                      <div className="bg-slate-50 p-1.5 rounded-lg border border-slate-100/50">
+                        <div className="text-[6px] text-slate-400 font-semibold uppercase tracking-tight">Today's Sales</div>
+                        <div className="text-[10px] font-extrabold text-slate-900 mt-0.5">₹18,640</div>
+                      </div>
+                      <div className="bg-slate-50 p-1.5 rounded-lg border border-slate-100/50">
+                        <div className="text-[6px] text-slate-400 font-semibold uppercase tracking-tight">Total Orders</div>
+                        <div className="text-[10px] font-extrabold text-slate-900 mt-0.5">58 Orders</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 flex flex-col justify-end min-h-[60px] relative mt-1">
+                    <svg className="w-full h-full overflow-visible" viewBox="0 0 100 35" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="telemetryGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#ea580c" stopOpacity="0.25" />
+                          <stop offset="100%" stopColor="#ea580c" stopOpacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M 0 35 L 0 30 L 15 24 L 30 28 L 48 18 L 65 14 L 82 8 L 100 3 L 100 35 Z" fill="url(#telemetryGradient)"></path>
+                      <path d="M 0 30 L 15 24 L 30 28 L 48 18 L 65 14 L 82 8 L 100 3" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                      <circle cx="100" cy="3" r="2.5" fill="#ea580c" stroke="#ffffff" strokeWidth="1"></circle>
+                    </svg>
+
+                    <div className="flex justify-between items-center text-[6px] text-slate-400 pt-1 mt-1 border-t border-slate-100">
+                      <span>12:00 PM</span>
+                      <span>3:00 PM</span>
+                      <span>6:00 PM</span>
+                      <span>9:00 PM</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Advanced Analytics Dashboard</h3>
-              <p className="text-gray-500 leading-relaxed text-sm">
-                Render visual data streams and item-view performance graphs right inside your pocket.
-              </p>
+              <div className="mt-6 text-left">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Live Analytics Engine</h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                  Get real-time operational reports, automated inventory tracking logs, and weekly top-selling telemetry points.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-white py-24 border-t border-b border-gray-100">
+      {/* Engineered for Restaurant Success Section */}
+      <section className="bg-slate-50 py-24 border-t border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Premium Capabilities</span>
@@ -191,27 +405,99 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
-              <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
-                <TrendingUp className="w-7 h-7 text-orange-600" />
+            {/* Card 1: SEO Boost */}
+            <div className="bg-white p-8 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8 hover:-translate-y-1 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
+              <div className="flex-1 text-left">
+                <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
+                  <TrendingUp className="w-6 h-6 text-orange-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">Automated Local SEO Boost</h3>
+                <p className="text-gray-500 leading-relaxed text-sm">
+                  RESTDIGI dynamically optimizes your restaurant’s online presence, pushing your physical location to the top of local Google search maps and discoverability indexes automatically.
+                </p>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">Automated Local SEO Boost</h3>
-              <p className="text-gray-500 leading-relaxed">
-                RESTDIGI dynamically optimizes your restaurant’s online presence, pushing your physical location to the top of local Google search maps and discoverability indexes automatically.
-              </p>
+              {/* Asset Box on the right */}
+              <div className="w-full md:w-[240px] shrink-0 flex items-center justify-center">
+                {/* Google Search Results / Local Maps micro-widget */}
+                <div className="w-full max-w-[220px] bg-white rounded-2xl shadow-sm border border-slate-200 p-3 flex flex-col gap-2.5 text-left relative overflow-hidden select-none transition-transform group-hover:scale-105 duration-300">
+                  {/* Google Logo & Search Box */}
+                  <div className="flex items-center gap-1.5 pb-2 border-b border-slate-100">
+                    <span className="text-[10px] font-extrabold text-blue-600">G</span>
+                    <div className="flex-1 h-3.5 bg-slate-100 rounded-full flex items-center px-1.5 justify-between">
+                      <span className="text-[6px] text-slate-400 font-medium">restaurants near me</span>
+                      <span className="text-[6px] text-slate-350">🔍</span>
+                    </div>
+                  </div>
+                  {/* Search Result Card */}
+                  <div className="flex flex-col gap-1.5 relative z-10">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="text-[9px] font-bold text-slate-900 flex items-center gap-1">
+                          RestDigi Cafe
+                          <span className="text-[7px] text-emerald-600 bg-emerald-50 px-1 py-0.2 rounded font-extrabold leading-none">#1 Rank</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-[7px] text-amber-500 font-bold mt-0.5">
+                          5.0 ★★★★★ <span className="text-slate-400 font-medium">(242 reviews)</span>
+                        </div>
+                      </div>
+                      {/* Local Maps Pin drops over search card */}
+                      <div className="text-xl -mt-1 text-red-500 animate-bounce">📍</div>
+                    </div>
+                    <div className="text-[6px] text-slate-400 font-medium">
+                      Open now • 15 min away • Srinagar, J&K
+                    </div>
+                    <div className="flex gap-1.5 mt-1">
+                      <span className="text-[6px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full border border-slate-200">Directions</span>
+                      <span className="text-[6px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full border border-slate-200">Call Now</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
-              <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-6">
-                <svg className="w-7 h-7 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect width="18" height="18" x="3" y="3" rx="2" />
-                  <path d="M3 9h18M9 21V9" />
-                </svg>
+            {/* Card 2: KOT Automation Matrix */}
+            <div className="bg-white p-8 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8 hover:-translate-y-1 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
+              <div className="flex-1 text-left">
+                <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center mb-6">
+                  <svg className="w-6 h-6 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="18" height="18" x="3" y="3" rx="2" />
+                    <path d="M3 9h18M9 21V9" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">Live KOT Automation Matrix</h3>
+                <p className="text-gray-500 leading-relaxed text-sm">
+                  High-volume programmatic looping chime alerts keep your kitchen instantly updated on incoming table modifications.
+                </p>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">Live KOT Automation Matrix</h3>
-              <p className="text-gray-500 leading-relaxed">
-                High-volume programmatic looping chime alerts keep your kitchen instantly updated on incoming table modifications.
-              </p>
+              {/* Asset Box on the right */}
+              <div className="w-full md:w-[240px] shrink-0 flex items-center justify-center">
+                {/* Kitchen Screen Terminal Layout */}
+                <div className="w-full max-w-[220px] bg-slate-900 rounded-2xl shadow-sm border border-slate-800 p-3 flex flex-col gap-2 text-left relative overflow-hidden select-none text-[8px] text-slate-300 transition-transform group-hover:scale-105 duration-300">
+                  <div className="flex justify-between items-center pb-1.5 border-b border-slate-800 font-bold">
+                    <span>Terminal 01</span>
+                    <span className="text-slate-500 text-[6px]">Syncing...</span>
+                  </div>
+                  {/* Table Row Workflows */}
+                  <div className="space-y-1.5">
+                    {/* Row 1 */}
+                    <div className="flex justify-between items-center p-1.5 bg-slate-800 rounded border border-slate-700">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-bold text-orange-400">Truffle Pizza</span>
+                        <span className="text-[6px] text-slate-400">Table 4 • Qty: 1</span>
+                      </div>
+                      <span className="text-[6px] bg-amber-500/25 text-amber-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Preparing</span>
+                    </div>
+                    {/* Row 2 */}
+                    <div className="flex justify-between items-center p-1.5 bg-slate-800 rounded border border-slate-700">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-bold text-orange-400">Citrus Mojito</span>
+                        <span className="text-[6px] text-slate-400">Table 9 • Qty: 2</span>
+                      </div>
+                      <span className="text-[6px] bg-emerald-500/25 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Ready</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -220,7 +506,7 @@ export default function Home() {
       {/* Pricing Section */}
       <section id="pricing" className="bg-slate-50 py-24 border-t border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <div className="text-center mb-12 animate-fade-in-up">
             <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Pricing Plans</span>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-4 mb-4">Choose Your Perfect Plan</h2>
@@ -262,237 +548,221 @@ export default function Home() {
             )}
           </div>
 
-          {/* 4-Tier Grid Subscription Matrix */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
-            {/* Basic Plan */}
-            <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-md pt-12">
-              <div className="absolute top-0 left-0 right-0 bg-orange-600 text-white text-[9px] font-bold py-2 px-4 text-center tracking-wide uppercase leading-tight z-10">
-                First 5 Registered Businesses Get 1 Month Free! (Early Bird Promotional Activation)
-              </div>
-              <div className="flex-1 flex flex-col">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Basic Plan</h3>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-extrabold text-gray-900">₹{isAnnual ? 1499 : 149}</span>
-                  <span className="text-gray-500 font-medium text-sm">{isAnnual ? '/yr' : '/mo'}</span>
-                </div>
-                {isAnnual && (
-                  <div className="mb-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Save ~16%
-                    </span>
-                  </div>
-                )}
-                {!isAnnual && <div className="mb-4 h-[22px]" />}
-                <p className="text-sm text-gray-500 mb-6 font-medium leading-relaxed">
-                  Perfect to get started and test the waters with your digital menu.
-                </p>
-                <ul className="space-y-4 flex-1 mb-8">
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Up to 12 Menu Items</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Up to 5 Digital Tables</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
-                    <X className="w-5 h-5 text-rose-400 shrink-0" />
-                    <span>SEO Ranking Optimization</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
-                    <X className="w-5 h-5 text-rose-400 shrink-0" />
-                    <span>Top Selling Dish Analytics</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
-                    <X className="w-5 h-5 text-rose-400 shrink-0" />
-                    <span>Total QR Scans Metric Counter</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
-                    <X className="w-5 h-5 text-rose-400 shrink-0" />
-                    <span>Menu Item View Performance Graphs</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
-                    <X className="w-5 h-5 text-rose-400 shrink-0" />
-                    <span>Direct 24/7 Support & Assistance</span>
-                  </li>
-                </ul>
-                <Link
-                  href="/register"
-                  className="w-full py-3 rounded-xl font-bold transition-all text-center bg-gray-900 hover:bg-gray-800 text-white shadow-sm hover:shadow-md block"
-                >
-                  Get Started
-                </Link>
-              </div>
-            </div>
+          {/* Comparison Matrix Table */}
+          <div className="w-full overflow-x-auto border border-slate-200/60 rounded-3xl bg-white shadow-sm">
+            <table className="w-full min-w-[850px] border-collapse text-left">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/50">
+                  <th className="p-6 text-xl font-extrabold text-slate-900 w-[28%] align-top">
+                    <div className="flex flex-col justify-between h-full">
+                      <span>Pricing Matrix</span>
+                      <span className="text-xs text-slate-400 font-medium mt-2">Compare plans side-by-side</span>
+                    </div>
+                  </th>
 
-            {/* Pro Plan */}
-            <div className="bg-white rounded-3xl p-8 border border-orange-500 ring-2 ring-orange-500 shadow-lg flex flex-col relative overflow-hidden transition-all duration-300 md:-translate-y-2">
-              <div className="absolute top-0 right-0 bg-orange-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
-                Popular
-              </div>
-              <div className="flex-1 flex flex-col">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Pro Plan</h3>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-extrabold text-gray-900">₹{isAnnual ? 7899 : 699}</span>
-                  <span className="text-gray-500 font-medium text-sm">{isAnnual ? '/yr' : '/mo'}</span>
-                </div>
-                {isAnnual && (
-                  <div className="mb-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Save ~6%
-                    </span>
-                  </div>
-                )}
-                {!isAnnual && <div className="mb-4 h-[22px]" />}
-                <p className="text-sm text-gray-500 mb-6 font-medium leading-relaxed">
-                  Everything you need to run and optimize your active digital menu.
-                </p>
-                <ul className="space-y-4 flex-1 mb-8">
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Up to 20 Menu Items</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Up to 15 Digital Tables</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>SEO Ranking Optimization</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Top Selling Dish Analytics</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Total QR Scans Metric Counter</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
-                    <X className="w-5 h-5 text-rose-400 shrink-0" />
-                    <span>Menu Item View Performance Graphs</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
-                    <X className="w-5 h-5 text-rose-400 shrink-0" />
-                    <span>Direct 24/7 Support & Assistance</span>
-                  </li>
-                </ul>
-                <Link
-                  href="/register"
-                  className="w-full py-3 rounded-xl font-bold transition-all text-center bg-orange-600 hover:bg-orange-700 text-white shadow-md hover:shadow-lg block"
-                >
-                  Get Started
-                </Link>
-              </div>
-            </div>
+                  {/* Basic Plan Header */}
+                  <th className="p-6 w-[18%] align-top relative">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200"></div>
+                    <div className="font-bold text-slate-800 text-lg">Basic</div>
+                    <div className="text-2xl font-extrabold text-slate-900 mt-2">
+                      ₹{isAnnual ? 1499 : 149}
+                      <span className="text-xs text-slate-400 font-medium">/{isAnnual ? 'yr' : 'mo'}</span>
+                    </div>
+                    {isAnnual && (
+                      <span className="inline-block text-[9px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-extrabold mt-1">
+                        Save ~16%
+                      </span>
+                    )}
+                    <div className="text-[9px] text-orange-600 font-bold mt-2 leading-tight uppercase bg-orange-50/50 p-1.5 rounded border border-orange-100/50">
+                      1 Month Free basic tier!
+                    </div>
+                  </th>
 
-            {/* Premium Plan */}
-            <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-md">
-              <div className="flex-1 flex flex-col">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Premium Plan</h3>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-extrabold text-gray-900">₹{isAnnual ? 10499 : 999}</span>
-                  <span className="text-gray-500 font-medium text-sm">{isAnnual ? '/yr' : '/mo'}</span>
-                </div>
-                {isAnnual && (
-                  <div className="mb-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Save ~12%
-                    </span>
-                  </div>
-                )}
-                {!isAnnual && <div className="mb-4 h-[22px]" />}
-                <p className="text-sm text-gray-500 mb-6 font-medium leading-relaxed">
-                  For growing brands looking for deeper data and direct metrics.
-                </p>
-                <ul className="space-y-4 flex-1 mb-8">
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Up to 23 Menu Items</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Up to 17 Digital Tables</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>SEO Ranking Optimization</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Top Selling Dish Analytics</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Total QR Scans Metric Counter</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Menu Item View Performance Graphs</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-rose-400 line-through text-opacity-50 text-gray-400">
-                    <X className="w-5 h-5 text-rose-400 shrink-0" />
-                    <span>Direct 24/7 Support & Assistance</span>
-                  </li>
-                </ul>
-                <Link
-                  href="/register"
-                  className="w-full py-3 rounded-xl font-bold transition-all text-center bg-gray-900 hover:bg-gray-800 text-white shadow-sm hover:shadow-md block"
-                >
-                  Get Started
-                </Link>
-              </div>
-            </div>
+                  {/* Pro Plan Header */}
+                  <th className="p-6 w-[18%] align-top relative bg-orange-50/10 border-x border-orange-100/50">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-orange-500"></div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-slate-800 text-lg">Pro</span>
+                      <span className="text-[8px] bg-orange-500 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0">Popular</span>
+                    </div>
+                    <div className="text-2xl font-extrabold text-slate-900 mt-2">
+                      ₹{isAnnual ? 7899 : 699}
+                      <span className="text-xs text-slate-400 font-medium">/{isAnnual ? 'yr' : 'mo'}</span>
+                    </div>
+                    {isAnnual && (
+                      <span className="inline-block text-[9px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-extrabold mt-1">
+                        Save ~6%
+                      </span>
+                    )}
+                  </th>
 
-            {/* Enterprise Plan */}
-            <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-md">
-              <div className="flex-1 flex flex-col">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Enterprise Plan</h3>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-xl font-extrabold text-gray-900 leading-tight">Custom / Contact Us</span>
-                </div>
-                <div className="mb-4 h-[22px]" />
-                <p className="text-sm text-gray-500 mb-6 font-medium leading-relaxed">
-                  Fully tailored setup limits and direct enterprise priority support.
-                </p>
-                <ul className="space-y-4 flex-1 mb-8">
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Manual Scalable Items (As per your custom need)</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Unlimited Digital Tables</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>SEO Ranking Optimization</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Top Selling Dish Analytics</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Total QR Scans Metric Counter</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Menu Item View Performance Graphs</span>
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm font-medium text-gray-700">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span>Direct 24/7 Support & Assistance</span>
-                  </li>
-                </ul>
-                <a
-                  href="mailto:support@restdigi.online?subject=Enterprise%20Plan%20Inquiry"
-                  className="w-full py-3 rounded-xl font-bold transition-all text-center bg-gray-900 hover:bg-gray-800 text-white shadow-sm hover:shadow-md block"
-                >
-                  Contact Sales
-                </a>
-              </div>
-            </div>
+                  {/* Premium Plan Header */}
+                  <th className="p-6 w-[18%] align-top relative">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200"></div>
+                    <div className="font-bold text-slate-800 text-lg">Premium</div>
+                    <div className="text-2xl font-extrabold text-slate-900 mt-2">
+                      ₹{isAnnual ? 10499 : 999}
+                      <span className="text-xs text-slate-400 font-medium">/{isAnnual ? 'yr' : 'mo'}</span>
+                    </div>
+                    {isAnnual && (
+                      <span className="inline-block text-[9px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-extrabold mt-1">
+                        Save ~12%
+                      </span>
+                    )}
+                  </th>
+
+                  {/* Enterprise Plan Header */}
+                  <th className="p-6 w-[18%] align-top relative">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-slate-900"></div>
+                    <div className="font-bold text-slate-800 text-lg">Enterprise</div>
+                    <div className="text-2xl font-extrabold text-slate-900 mt-2">Custom</div>
+                    <span className="inline-block text-[9px] text-slate-400 font-medium mt-1">Tailored Limits</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-sm">
+
+                {/* Row 1: Item & Menu Limits */}
+                <tr className="even:bg-slate-50/40">
+                  <td className="p-5 font-semibold text-slate-700">Item & Menu Limits</td>
+                  <td className="p-5 text-slate-600">Up to 12 Menu Items</td>
+                  <td className="p-5 text-slate-800 font-semibold bg-orange-50/5 border-x border-orange-100/30">Up to 20 Menu Items</td>
+                  <td className="p-5 text-slate-600">Up to 23 Menu Items</td>
+                  <td className="p-5 text-slate-600 font-medium">Custom / Scalable</td>
+                </tr>
+
+                {/* Row 2: Tables allocation boundaries */}
+                <tr className="even:bg-slate-50/40">
+                  <td className="p-5 font-semibold text-slate-700">Tables Allocation</td>
+                  <td className="p-5 text-slate-600">Up to 5 Tables</td>
+                  <td className="p-5 text-slate-800 font-semibold bg-orange-50/5 border-x border-orange-100/30">Up to 15 Tables</td>
+                  <td className="p-5 text-slate-600">Up to 17 Tables</td>
+                  <td className="p-5 text-slate-600 font-medium">Custom Tables</td>
+                </tr>
+
+                {/* Row 3: Live Sales Counter telemetry loops */}
+                <tr className="even:bg-slate-50/40">
+                  <td className="p-5 font-semibold text-slate-700">Live Sales Counter</td>
+                  <td className="p-5">
+                    <X className="w-5 h-5 text-rose-400" />
+                  </td>
+                  <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                  <td className="p-5">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                  <td className="p-5">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                </tr>
+
+                {/* Row 4: Weekly Top Dish telemetry trackers */}
+                <tr className="even:bg-slate-50/40">
+                  <td className="p-5 font-semibold text-slate-700">Weekly Top Dish Analytics</td>
+                  <td className="p-5">
+                    <X className="w-5 h-5 text-rose-400" />
+                  </td>
+                  <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                  <td className="p-5">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                  <td className="p-5">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                </tr>
+
+                {/* Row 5: Detailed Item View Analytics graphs */}
+                <tr className="even:bg-slate-50/40">
+                  <td className="p-5 font-semibold text-slate-700">Detailed Item View Analytics</td>
+                  <td className="p-5">
+                    <X className="w-5 h-5 text-rose-400" />
+                  </td>
+                  <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
+                    <X className="w-5 h-5 text-rose-400" />
+                  </td>
+                  <td className="p-5">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                  <td className="p-5">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                </tr>
+
+                {/* Row 6: SEO Ranking Optimization */}
+                <tr className="even:bg-slate-50/40">
+                  <td className="p-5 font-semibold text-slate-700">Automated Local SEO Boost</td>
+                  <td className="p-5">
+                    <X className="w-5 h-5 text-rose-400" />
+                  </td>
+                  <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                  <td className="p-5">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                  <td className="p-5">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                </tr>
+
+                {/* Row 7: Direct 24/7 Priority Support */}
+                <tr className="even:bg-slate-50/40">
+                  <td className="p-5 font-semibold text-slate-700">Direct 24/7 Priority Support</td>
+                  <td className="p-5">
+                    <X className="w-5 h-5 text-rose-400" />
+                  </td>
+                  <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
+                    <X className="w-5 h-5 text-rose-400" />
+                  </td>
+                  <td className="p-5">
+                    <X className="w-5 h-5 text-rose-400" />
+                  </td>
+                  <td className="p-5">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                </tr>
+
+                {/* Action Buttons Row */}
+                <tr>
+                  <td className="p-5"></td>
+                  <td className="p-5">
+                    <Link
+                      href="/register"
+                      className="block w-full py-2.5 px-4 text-center text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all shadow-sm"
+                    >
+                      Get Started
+                    </Link>
+                  </td>
+                  <td className="p-5 bg-orange-50/10 border-x border-orange-100/40">
+                    <Link
+                      href="/register"
+                      className="block w-full py-2.5 px-4 text-center text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-all shadow-md hover:shadow-lg"
+                    >
+                      Get Started
+                    </Link>
+                  </td>
+                  <td className="p-5">
+                    <Link
+                      href="/register"
+                      className="block w-full py-2.5 px-4 text-center text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all shadow-sm"
+                    >
+                      Get Started
+                    </Link>
+                  </td>
+                  <td className="p-5">
+                    <a
+                      href="mailto:support@restdigi.online?subject=Enterprise%20Plan%20Inquiry"
+                      className="block w-full py-2.5 px-4 text-center text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all shadow-sm"
+                    >
+                      Contact Sales
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
         </div>
