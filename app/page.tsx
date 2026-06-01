@@ -146,7 +146,7 @@ export default function Home() {
       </section>
 
       {/* Advanced Metrics Features Section */}
-      <section className="bg-slate-50 py-24 border-t border-b border-gray-100">
+      <section id="features" className="bg-slate-50 py-24 border-t border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in-up">
             <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Metrics & Analytics</span>
@@ -191,7 +191,7 @@ export default function Home() {
       </section>
 
       {/* Premium Growth Features */}
-      <section id="features" className="bg-white py-24 border-t border-b border-gray-100">
+      <section className="bg-white py-24 border-t border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Premium Capabilities</span>
