@@ -92,7 +92,6 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Frictionless 3-Step Dining Journey */}
       <section className="bg-white py-24 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -101,7 +100,6 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Step 1: Scan */}
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
               <div className="absolute top-6 right-6 text-6xl font-black text-orange-100 select-none">01</div>
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 relative z-10">
@@ -113,7 +111,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Step 2: View */}
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
               <div className="absolute top-6 right-6 text-6xl font-black text-blue-100 select-none">02</div>
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 relative z-10">
@@ -128,7 +125,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Step 3: Order Instantly */}
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
               <div className="absolute top-6 right-6 text-6xl font-black text-orange-100 select-none">03</div>
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 relative z-10">
@@ -145,7 +141,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Advanced Metrics Features Section */}
       <section id="features" className="bg-slate-50 py-24 border-t border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in-up">
@@ -154,7 +149,6 @@ export default function Home() {
             <p className="text-gray-500 font-medium max-w-2xl mx-auto">Track your catalog scans, dish popularity, and weekly metrics telemetry automatically.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
-            {/* Card 1 */}
             <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
               <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 mb-6">
                 <QrCode className="w-7 h-7" />
@@ -165,7 +159,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Card 2 */}
             <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
               <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 mb-6">
                 <TrendingUp className="w-7 h-7" />
@@ -176,7 +169,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Card 3 */}
             <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
               <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 mb-6">
                 <BarChart3 className="w-7 h-7" />
@@ -190,7 +182,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Premium Growth Features */}
       <section className="bg-white py-24 border-t border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -200,7 +191,6 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Automated Local SEO Boost */}
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
               <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
                 <TrendingUp className="w-7 h-7 text-orange-600" />
@@ -211,7 +201,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Live KOT Automation Matrix */}
             <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
               <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-6">
                 <svg className="w-7 h-7 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
