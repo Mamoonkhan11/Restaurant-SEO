@@ -92,46 +92,6 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Advanced Metrics Features Section */}
-      <section className="bg-white border-t border-b border-gray-100 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-16">
-            {/* Card 1 */}
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
-              <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 mb-6">
-                <QrCode className="w-7 h-7" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Total QR Scans Counter</h3>
-              <p className="text-gray-500 leading-relaxed text-sm">
-                Track customer engagement velocity seamlessly across all active tables with automated metric counters.
-              </p>
-            </div>
-
-            {/* Card 2 */}
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 mb-6">
-                <TrendingUp className="w-7 h-7" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Top Item of the Week</h3>
-              <p className="text-gray-500 leading-relaxed text-sm">
-                Identify inventory winners dynamically through computational weekly telemetry metrics.
-              </p>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
-              <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 mb-6">
-                <BarChart3 className="w-7 h-7" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Advanced Analytics Dashboard</h3>
-              <p className="text-gray-500 leading-relaxed text-sm">
-                Render visual data streams and item-view performance graphs right inside your pocket.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Frictionless 3-Step Dining Journey */}
       <section className="bg-white py-24 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -185,8 +145,53 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Advanced Metrics Features Section */}
+      <section className="bg-slate-50 py-24 border-t border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 animate-fade-in-up">
+            <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Metrics & Analytics</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-4 mb-4">Deep Performance Insights</h2>
+            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Track your catalog scans, dish popularity, and weekly metrics telemetry automatically.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+            {/* Card 1 */}
+            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 mb-6">
+                <QrCode className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Total QR Scans Counter</h3>
+              <p className="text-gray-500 leading-relaxed text-sm">
+                Track customer engagement velocity seamlessly across all active tables with automated metric counters.
+              </p>
+            </div>
+
+            {/* Card 2 */}
+            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 mb-6">
+                <TrendingUp className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Top Item of the Week</h3>
+              <p className="text-gray-500 leading-relaxed text-sm">
+                Identify inventory winners dynamically through computational weekly telemetry metrics.
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600 mb-6">
+                <BarChart3 className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Advanced Analytics Dashboard</h3>
+              <p className="text-gray-500 leading-relaxed text-sm">
+                Render visual data streams and item-view performance graphs right inside your pocket.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Premium Growth Features */}
-      <section id="features" className="bg-slate-50 py-24 border-t border-b border-gray-100">
+      <section id="features" className="bg-white py-24 border-t border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Premium Capabilities</span>
@@ -196,7 +201,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Automated Local SEO Boost */}
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 hover:shadow-xl transition-shadow duration-300 relative">
+            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
               <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
                 <TrendingUp className="w-7 h-7 text-orange-600" />
               </div>
@@ -207,7 +212,7 @@ export default function Home() {
             </div>
 
             {/* Live KOT Automation Matrix */}
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 hover:shadow-xl transition-shadow duration-300 relative">
+            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow duration-300 relative">
               <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-6">
                 <svg className="w-7 h-7 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect width="18" height="18" x="3" y="3" rx="2" />
