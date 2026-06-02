@@ -568,9 +568,6 @@ export default function AdminDashboardOverview() {
           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-2">
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Items</p>
-              <div className="p-2 bg-orange-50 text-orange-600 rounded-xl">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-              </div>
             </div>
             <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalItems} <span className="text-sm font-semibold text-gray-400">dishes</span></p>
           </div>
@@ -643,29 +640,15 @@ export default function AdminDashboardOverview() {
                   </div>
                 ) : (
                   recentActivity.map((activity, index) => {
-                    let Icon = <span className="text-[10px]">📝</span>;
-                    let bgColor = "bg-orange-500";
-
-                    if (activity.action_type === 'STOCK_UPDATE') {
-                      Icon = <span className="text-[10px]">📦</span>;
-                      bgColor = "bg-orange-500";
-                    } else if (activity.action_type === 'SETTINGS_CHANGE') {
-                      Icon = <span className="text-[10px]">⚙️</span>;
-                      bgColor = "bg-gray-700";
-                    } else if (activity.action_type === 'MENU_CHANGE') {
-                      Icon = <span className="text-[10px]">🍔</span>;
-                      bgColor = "bg-green-500";
-                    }
-
                     return (
                       <div key={activity.id || index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
                         {/* Timeline line */}
                         {index !== recentActivity.length - 1 && (
                           <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
                         )}
-                        {/* Dot */}
-                        <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white ${bgColor} shadow-sm flex items-center justify-center`}>
-                          {Icon}
+                        {/* Dot with numbering */}
+                        <div className="absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white bg-orange-600 shadow-sm flex items-center justify-center">
+                          <span className="text-[11px] font-extrabold text-white">{index + 1}</span>
                         </div>
 
                         <div>
