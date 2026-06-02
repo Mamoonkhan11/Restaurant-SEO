@@ -22,7 +22,7 @@ async function handleCron(req) {
 
     const { data: leads, error: dbError } = await supabaseAdmin
       .from('marketing_leads')
-      .select('id, email, restaurant_name, last_emailed_at, unsubscribed')
+      .select('id, owner_email, restaurant_name, last_emailed_at, unsubscribed')
       .eq('unsubscribed', false)
       .or(`last_emailed_at.is.null,last_emailed_at.lt.${targetTime}`)
       .limit(20);
@@ -42,7 +42,7 @@ async function handleCron(req) {
     for (const lead of leads) {
       try {
         const brandName = lead.restaurant_name || 'Your Restaurant';
-        const recipientEmail = lead.email;
+        const recipientEmail = lead.owner_email;
 
         const htmlContent = `<!DOCTYPE html>
 <html>
@@ -211,8 +211,8 @@ async function handleCron(req) {
         dispatchedCount++;
         results.push({ email: recipientEmail, status: 'dispatched' });
       } catch (err) {
-        console.error(`Error dispatching marketing email to ${lead.email}:`, err.message);
-        results.push({ email: lead.email, status: 'failed', error: err.message });
+        console.error(`Error dispatching marketing email to ${lead.owner_email}:`, err.message);
+        results.push({ email: lead.owner_email, status: 'failed', error: err.message });
       }
     }
 

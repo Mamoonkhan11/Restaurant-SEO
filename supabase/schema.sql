@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS marketing_leads (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   restaurant_name TEXT NOT NULL,
-  email TEXT NOT NULL UNIQUE,
+  owner_email TEXT NOT NULL UNIQUE,
   last_emailed_at TIMESTAMP WITH TIME ZONE,
   unsubscribed BOOLEAN DEFAULT false NOT NULL
 );
