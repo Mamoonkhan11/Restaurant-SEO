@@ -25,7 +25,7 @@ export async function POST(req) {
     <a href="https://www.restdigi.online/dashboard" style="display: inline-block; background-color: #ea580c; color: #ffffff; text-decoration: none; font-weight: bold; padding: 12px 24px; border-radius: 8px;">Go to Dashboard Workspace</a>
   </p>
   
-  <p>Got stuck somewhere? Reply to this email or contact us at <a href="mailto:support@restdigi.online" style="color: #D32F2F; text-decoration: underline; font-weight: bold;">support@restdigi.online</a> or <a href="mailto:mamoon@restdigi.online" style="color: #D32F2F; text-decoration: underline; font-weight: bold;">mamoon@restdigi.online</a>. Let's eliminate order latency together!</p>
+  <p>Got stuck somewhere? Reply to this email or contact us at <a href="mailto:support@restdigi.online" style="color: #D32F2F; text-decoration: underline; font-weight: bold;">support@restdigi.online</a>. Let's eliminate order latency together!</p>
   
   <p style="margin-top: 24px;">
     Cheers,<br>
