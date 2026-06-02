@@ -104,3 +104,7 @@ CREATE TABLE IF NOT EXISTS marketing_leads (
   last_emailed_at TIMESTAMP WITH TIME ZONE,
   unsubscribed BOOLEAN DEFAULT false NOT NULL
 );
+
+-- Alter restaurants to add last_seen_at and last_retention_emailed_at columns
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS last_retention_emailed_at TIMESTAMP WITH TIME ZONE;

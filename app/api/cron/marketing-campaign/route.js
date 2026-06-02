@@ -44,140 +44,32 @@ async function handleCron(req) {
         const brandName = lead.restaurant_name || 'Your Restaurant';
         const recipientEmail = lead.owner_email;
 
-        const htmlContent = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      background-color: #FFF8F6;
-      color: #111111;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .card {
-      background-color: #ffffff;
-      border: 1px solid #F5F5F5;
-      border-radius: 20px;
-      padding: 32px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-    }
-    .logo {
-      font-size: 24px;
-      font-weight: 800;
-      color: #D32F2F;
-      margin-bottom: 24px;
-      letter-spacing: 1px;
-    }
-    .logo span {
-      color: #FF9100;
-    }
-    .greeting {
-      font-size: 18px;
-      font-weight: bold;
-      color: #111111;
-      margin-bottom: 16px;
-    }
-    .text {
-      font-size: 15px;
-      line-height: 1.6;
-      color: #555555;
-      margin-bottom: 20px;
-    }
-    .pillars {
-      margin: 24px 0;
-      padding-left: 0;
-      list-style-type: none;
-    }
-    .pillar-item {
-      margin-bottom: 16px;
-      padding-left: 24px;
-      position: relative;
-      font-size: 14px;
-      color: #333333;
-    }
-    .pillar-item::before {
-      content: "•";
-      position: absolute;
-      left: 0;
-      top: 2px;
-    }
-    .pillar-title {
-      font-weight: bold;
-      color: #111111;
-    }
-    .cta-wrapper {
-      margin: 32px 0 16px 0;
-      text-align: center;
-    }
-    .cta-button {
-      display: inline-block;
-      background-color: #ea580c;
-      color: #ffffff !important;
-      text-decoration: none !important;
-      font-weight: bold;
-      font-size: 16px;
-      padding: 14px 28px;
-      border-radius: 9999px;
-      box-shadow: 0 4px 12px rgba(234, 88, 12, 0.2);
-    }
-    .footer {
-      font-size: 11px;
-      color: #888888;
-      margin-top: 30px;
-      text-align: center;
-      border-top: 1px solid #F5F5F5;
-      padding-top: 20px;
-    }
-    .footer a {
-      color: #888888;
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="card">
-      <div class="logo">REST<span>DIGI</span></div>
-      <div class="greeting">Hey Team ${brandName},</div>
-      <p class="text">
-        We noticed how manual ordering and lost paper KOTs challenge fast-paced operations. If order leaks and slow table turnovers are hurting your margins, it is time for a digital change.
-      </p>
-      
-      <ul class="pillars">
-        <li class="pillar-item">
-          <span class="pillar-title">Automated Smart QR Menus:</span> Eliminates table-waiting times completely by letting guests scan, view, and place orders directly from their browsers in under 5 seconds.
-        </li>
-        <li class="pillar-item">
-          <span class="pillar-title">Instantaneous Kitchen Displays:</span> Routes digital receipts directly to kitchen screens, eliminating paper loss, confusion, and preparation chaos.
-        </li>
-        <li class="pillar-item">
-          <span class="pillar-title">Live Telemetry Analytics:</span> Provides live sales tracking and automatic weekly dish popularity metrics straight to your dashboard, making it easy to track your weekly top items.
-        </li>
-      </ul>
-
-      <p class="text">
-        Register your restaurant live today to secure a completely <strong>1 Month FREE Early Bird Account</strong>.
-      </p>
-
-      <div class="cta-wrapper">
-        <a href="https://www.restdigi.online" class="cta-button">Claim Your 1 Month Free Account</a>
-      </div>
-
-      <div class="footer">
-        © 2026 RestDigi Team. All rights reserved.<br>
-        If you want to unsubscribe, click <a href="https://www.restdigi.online/api/unsubscribe?email=${encodeURIComponent(recipientEmail)}">here</a>.
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
+        const htmlContent = `<div style="font-family: Arial, sans-serif; font-size: 16px; color: #111111; line-height: 1.6; max-width: 600px; padding: 20px 0;">
+  <p>Hey Team ${brandName},</p>
+  
+  <p>We noticed how manual ordering and lost paper KOTs challenge fast-paced operations. If order leaks and slow table turnovers are hurting your margins, it is time for a digital change.</p>
+  
+  <p>RestDigi automates your operations in three ways:</p>
+  
+  <ul>
+    <li style="margin-bottom: 12px;"><strong>Automated Smart QR Menus:</strong> Eliminates table-waiting times completely by letting guests scan, view, and place orders directly from their browsers in under 5 seconds.</li>
+    <li style="margin-bottom: 12px;"><strong>Instantaneous Kitchen Displays:</strong> Routes digital receipts directly to kitchen screens, eliminating paper loss, confusion, and preparation chaos.</li>
+    <li style="margin-bottom: 12px;"><strong>Live Telemetry Analytics:</strong> Provides live sales tracking and automatic weekly dish popularity metrics straight to your dashboard, making it easy to track your weekly top items.</li>
+  </ul>
+  
+  <p>Register your restaurant live today to secure a completely <strong>1 Month FREE Early Bird Account</strong>.</p>
+  
+  <p>Claim your 1 Month Free Account here: <a href="https://www.restdigi.online" style="color: #D32F2F; font-weight: bold; text-decoration: underline;">Claim Your 1 Month Free Account</a></p>
+  
+  <p style="margin-top: 24px;">
+    Best regards,<br>
+    RestDigi Growth Team
+  </p>
+  
+  <p style="font-size: 11px; color: #888888; margin-top: 30px; border-top: 1px solid #F5F5F5; padding-top: 20px;">
+    If you want to unsubscribe, click <a href="https://www.restdigi.online/api/unsubscribe?email=${encodeURIComponent(recipientEmail)}" style="color: #888888; text-decoration: underline;">here</a>.
+  </p>
+</div>`;
 
         const response = await fetch('https://api.brevo.com/v3/smtp/email', {
           method: 'POST',

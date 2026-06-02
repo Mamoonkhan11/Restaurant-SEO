@@ -297,6 +297,21 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
       setRestaurant(restaurantData);
 
       if (restaurantData) {
+        // Update last_seen_at if it's null or older than 1 hour to optimize writes
+        const lastSeen = restaurantData.last_seen_at;
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        if (!lastSeen || new Date(lastSeen) < oneHourAgo) {
+          supabase
+            .from('restaurants')
+            .update({ last_seen_at: new Date().toISOString() })
+            .eq('id', restaurantData.id)
+            .then(({ error }) => {
+              if (error) {
+                console.error("Error updating last_seen_at:", error);
+              }
+            });
+        }
+
         const { data: paymentsData, error: paymentsErr } = await supabase
           .from('payments')
           .select('*')

@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/marketing-campaign",
       "schedule": "30 6 * * *"
+    },
+    {
+      "path": "/api/cron/user-retention",
+      "schedule": "0 7 * * *"
     }
   ]
 }

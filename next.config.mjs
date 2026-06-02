@@ -13,6 +13,15 @@ const nextConfig = {
     ],
     dangerouslyAllowSVG: true,
   },
+  async redirects() {
+    return [
+      {
+        source: '/dashboard/billing',
+        destination: '/admin/billing',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
