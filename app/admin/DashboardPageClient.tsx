@@ -84,7 +84,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         },
         (payload) => {
           if (payload.new && payload.new.restaurant_id === restaurantId) {
-            console.log(" REALTIME ORDER UPDATE DETECTED:", payload.new.id, payload.new.status);
+            console.log("REALTIME ORDER UPDATE DETECTED:", payload.new.id, payload.new.status);
             setLiveOrders(prev => {
               if (payload.new.status === 'served' || payload.new.status === 'cancelled') {
                 return prev.filter(o => o.id !== payload.new.id);

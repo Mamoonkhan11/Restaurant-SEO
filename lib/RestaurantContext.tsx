@@ -44,6 +44,20 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
   const audioMutedRef = useRef(audioMuted);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const restaurantRef = useRef<any>(null);
+  const scheduledOscillatorsRef = useRef<OscillatorNode[]>([]);
+
+  const stopAllOscillators = () => {
+    if (scheduledOscillatorsRef.current.length > 0) {
+      scheduledOscillatorsRef.current.forEach(osc => {
+        try {
+          osc.stop();
+        } catch (e) {
+          // Already stopped or not started
+        }
+      });
+      scheduledOscillatorsRef.current = [];
+    }
+  };
 
   useEffect(() => {
     restaurantRef.current = restaurant;
@@ -102,7 +116,13 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
           gainNode.connect(ctx.destination);
 
           osc.start(startTime);
-          osc.stop(startTime + noteDecay + 0.1);
+          const stopTime = startTime + noteDecay + 0.1;
+          osc.stop(stopTime);
+
+          scheduledOscillatorsRef.current.push(osc);
+          setTimeout(() => {
+            scheduledOscillatorsRef.current = scheduledOscillatorsRef.current.filter(o => o !== osc);
+          }, (roundStart + (idx * noteDelay) + noteDecay + 0.5) * 1000);
         });
       });
     } catch (err) {
@@ -127,6 +147,7 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
       }
     } else {
       setIsAlerting(false);
+      stopAllOscillators();
     }
   };
 
@@ -141,10 +162,14 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
   }, [isAlerting, audioMuted]);
 
   useEffect(() => {
-    if (!isAlerting) return;
+    if (!isAlerting) {
+      stopAllOscillators();
+      return;
+    }
 
     const stopAlerting = () => {
       setIsAlerting(false);
+      stopAllOscillators();
     };
 
     window.addEventListener('click', stopAlerting);
