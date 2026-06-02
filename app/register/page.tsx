@@ -113,6 +113,21 @@ export default function RegisterPage() {
           throw new Error(dbError.message);
         }
 
+        // Trigger welcome email in the background without blocking the UI flow
+        fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: trimmedEmail,
+            name: trimmedFullName,
+            restaurantName: trimmedBusinessName,
+          }),
+        }).catch((err) => {
+          console.error("Error triggering welcome email notification:", err);
+        });
+
         setIsSubmitted(true);
       }
     } catch (err: any) {
