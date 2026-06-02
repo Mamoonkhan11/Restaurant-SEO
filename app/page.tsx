@@ -285,47 +285,52 @@ export default function Home() {
             {/* Column 2: Kitchen Display Framework */}
             <div className="border border-slate-100 rounded-3xl bg-slate-50/50 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300">
               <div className="flex-1 flex items-center justify-center py-6">
-                {/* Tablet Mockup */}
-                <div className="relative mx-auto w-full max-w-[270px] h-[190px] bg-slate-900 rounded-2xl shadow-lg border-4 border-slate-800 overflow-hidden flex flex-col text-left">
-                  <div className="bg-slate-850 px-2.5 py-1.5 flex justify-between items-center text-[8px] text-slate-300 font-bold border-b border-slate-800">
-                    <span className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                      Active Kitchen Console
-                    </span>
-                    <span className="text-[7px] text-slate-400">Live Sync</span>
-                  </div>
-                  <div className="p-2 grid grid-cols-2 gap-2 flex-1 bg-slate-950 overflow-hidden">
-                    <div className="bg-slate-850 border border-slate-800 rounded-lg p-1.5 flex flex-col justify-between">
-                      <div>
-                        <div className="flex justify-between items-center border-b border-slate-800 pb-1 mb-1">
-                          <span className="text-[8px] font-extrabold text-orange-400">#042</span>
-                          <span className="text-[6px] text-slate-400 font-bold">Table 02</span>
-                        </div>
-                        <ul className="text-[7px] text-slate-300 space-y-0.5 font-medium">
-                          <li className="flex justify-between"><span>1x Truffle Pizza</span><span className="text-slate-500">x1</span></li>
-                          <li className="flex justify-between"><span>2x Citrus Mojito</span><span className="text-slate-500">x2</span></li>
-                        </ul>
-                      </div>
-                      <div className="mt-1.5 flex justify-between items-center border-t border-slate-800/5 pt-1">
-                        <span className="text-[6px] text-slate-400 font-medium">4m ago</span>
-                        <span className="text-[6px] bg-amber-500/15 text-amber-400 font-extrabold px-1 py-0.5 rounded leading-none">PREPARING</span>
-                      </div>
+                {/* Mobile Mockup */}
+                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
+                  {/* Notch */}
+                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
+                  {/* Screen Content */}
+                  <div className="flex-1 bg-slate-900 p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left">
+                    <div className="bg-slate-900 pb-2 flex justify-between items-center text-[8px] text-slate-300 font-bold border-b border-slate-800 mb-2">
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                        Kitchen Console
+                      </span>
+                      <span className="text-[6px] text-slate-450">Active</span>
                     </div>
-
-                    <div className="bg-slate-850 border border-slate-800 rounded-lg p-1.5 flex flex-col justify-between">
-                      <div>
-                        <div className="flex justify-between items-center border-b border-slate-800 pb-1 mb-1">
-                          <span className="text-[8px] font-extrabold text-orange-400">#041</span>
-                          <span className="text-[6px] text-slate-400 font-bold">Table 11</span>
+                    <div className="flex-1 flex flex-col gap-2 overflow-hidden">
+                      {/* Ticket 1 */}
+                      <div className="bg-slate-850 border border-slate-800 rounded-lg p-1.5 flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-center border-b border-slate-800/60 pb-1 mb-1">
+                            <span className="text-[8px] font-extrabold text-orange-400">#042</span>
+                            <span className="text-[6px] text-slate-400 font-bold">Table 02</span>
+                          </div>
+                          <ul className="text-[7px] text-slate-300 space-y-0.5 font-medium">
+                            <li className="flex justify-between"><span>1x Truffle Pizza</span><span className="text-slate-500">x1</span></li>
+                            <li className="flex justify-between"><span>2x Citrus Mojito</span><span className="text-slate-500">x2</span></li>
+                          </ul>
                         </div>
-                        <ul className="text-[7px] text-slate-300 space-y-0.5 font-medium">
-                          <li className="flex justify-between"><span>1x Loaded Burger</span><span className="text-slate-500">x1</span></li>
-                          <li className="flex justify-between"><span>1x Truffle Pizza</span><span className="text-slate-500">x1</span></li>
-                        </ul>
+                        <div className="mt-1.5 flex justify-between items-center border-t border-slate-800/60 pt-1">
+                          <span className="text-[6px] text-slate-400 font-medium">4m ago</span>
+                          <span className="text-[6px] bg-amber-500/15 text-amber-400 font-extrabold px-1 py-0.5 rounded leading-none">PREPARING</span>
+                        </div>
                       </div>
-                      <div className="mt-1.5 flex justify-between items-center border-t border-slate-800/5 pt-1">
-                        <span className="text-[6px] text-slate-400 font-medium">9m ago</span>
-                        <span className="text-[6px] bg-emerald-500/15 text-emerald-400 font-extrabold px-1 py-0.5 rounded leading-none">READY</span>
+                      {/* Ticket 2 */}
+                      <div className="bg-slate-850 border border-slate-800 rounded-lg p-1.5 flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-center border-b border-slate-800/60 pb-1 mb-1">
+                            <span className="text-[8px] font-extrabold text-orange-400">#041</span>
+                            <span className="text-[6px] text-slate-400 font-bold">Table 11</span>
+                          </div>
+                          <ul className="text-[7px] text-slate-300 space-y-0.5 font-medium">
+                            <li className="flex justify-between"><span>1x Loaded Burger</span><span className="text-slate-500">x1</span></li>
+                          </ul>
+                        </div>
+                        <div className="mt-1.5 flex justify-between items-center border-t border-slate-800/60 pt-1">
+                          <span className="text-[6px] text-slate-400 font-medium">9m ago</span>
+                          <span className="text-[6px] bg-emerald-500/15 text-emerald-400 font-extrabold px-1 py-0.5 rounded leading-none">READY</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -342,44 +347,46 @@ export default function Home() {
             {/* Column 3: Live Analytics Telemetry */}
             <div className="border border-slate-100 rounded-3xl bg-slate-50/50 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300">
               <div className="flex-1 flex items-center justify-center py-6">
-                {/* Dashboard Analytics Mockup */}
-                <div className="relative mx-auto w-full max-w-[270px] h-[190px] bg-white rounded-2xl shadow-lg border border-slate-100 p-3 flex flex-col justify-between overflow-hidden text-left">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Live Revenue Metrics</span>
-                      <span className="text-[7px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full font-extrabold">+32.6% today</span>
+                {/* Mobile Mockup */}
+                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
+                  {/* Notch */}
+                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
+                  {/* Screen Content */}
+                  <div className="flex-1 bg-white p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left">
+                    <div className="flex justify-between items-center mb-2.5">
+                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Live Revenue</span>
+                      <span className="text-[7px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full font-extrabold">+32.6%</span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 mb-2">
+                    <div className="grid grid-cols-2 gap-2 mb-2.5">
                       <div className="bg-slate-50 p-1.5 rounded-lg border border-slate-100/50">
-                        <div className="text-[6px] text-slate-400 font-semibold uppercase tracking-tight">Today's Sales</div>
-                        <div className="text-[10px] font-extrabold text-slate-900 mt-0.5">₹18,640</div>
+                        <div className="text-[6px] text-slate-400 font-semibold uppercase tracking-tight">Today</div>
+                        <div className="text-[9px] font-extrabold text-slate-900 mt-0.5">₹18,640</div>
                       </div>
                       <div className="bg-slate-50 p-1.5 rounded-lg border border-slate-100/50">
-                        <div className="text-[6px] text-slate-400 font-semibold uppercase tracking-tight">Total Orders</div>
-                        <div className="text-[10px] font-extrabold text-slate-900 mt-0.5">58 Orders</div>
+                        <div className="text-[6px] text-slate-400 font-semibold uppercase tracking-tight">Orders</div>
+                        <div className="text-[9px] font-extrabold text-slate-900 mt-0.5">58 Qty</div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex-1 flex flex-col justify-end min-h-[60px] relative mt-1">
-                    <svg className="w-full h-full overflow-visible" viewBox="0 0 100 35" preserveAspectRatio="none">
-                      <defs>
-                        <linearGradient id="telemetryGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#ea580c" stopOpacity="0.25" />
-                          <stop offset="100%" stopColor="#ea580c" stopOpacity="0.0" />
-                        </linearGradient>
-                      </defs>
-                      <path d="M 0 35 L 0 30 L 15 24 L 30 28 L 48 18 L 65 14 L 82 8 L 100 3 L 100 35 Z" fill="url(#telemetryGradient)"></path>
-                      <path d="M 0 30 L 15 24 L 30 28 L 48 18 L 65 14 L 82 8 L 100 3" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"></path>
-                      <circle cx="100" cy="3" r="2.5" fill="#ea580c" stroke="#ffffff" strokeWidth="1"></circle>
-                    </svg>
+                    <div className="flex-1 flex flex-col justify-end min-h-[100px] relative mt-1">
+                      <svg className="w-full h-full overflow-visible" viewBox="0 0 100 50" preserveAspectRatio="none">
+                        <defs>
+                          <linearGradient id="telemetryBentoGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#ea580c" stopOpacity="0.25" />
+                            <stop offset="100%" stopColor="#ea580c" stopOpacity="0.0" />
+                          </linearGradient>
+                        </defs>
+                        <path d="M 0 50 L 0 40 L 15 32 L 30 38 L 48 24 L 65 18 L 82 10 L 100 4 L 100 50 Z" fill="url(#telemetryBentoGradient)"></path>
+                        <path d="M 0 40 L 15 32 L 30 38 L 48 24 L 65 18 L 82 10 L 100 4" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                        <circle cx="100" cy="4" r="2.5" fill="#ea580c" stroke="#ffffff" strokeWidth="1"></circle>
+                      </svg>
 
-                    <div className="flex justify-between items-center text-[6px] text-slate-400 pt-1 mt-1 border-t border-slate-100">
-                      <span>12:00 PM</span>
-                      <span>3:00 PM</span>
-                      <span>6:00 PM</span>
-                      <span>9:00 PM</span>
+                      <div className="flex justify-between items-center text-[5px] text-slate-400 pt-1 mt-1 border-t border-slate-100">
+                        <span>12:00 PM</span>
+                        <span>4:00 PM</span>
+                        <span>8:00 PM</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -409,39 +416,56 @@ export default function Home() {
             <div className="flex flex-col items-center text-center md:text-left md:items-start p-6 sm:p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
               {/* Centering layout wrapper */}
               <div className="w-full flex justify-center items-center mb-6">
-                <div className="w-full max-w-[280px] sm:max-w-[340px] h-auto object-contain transition-transform duration-300 hover:scale-[1.02] flex justify-center items-center">
-                  {/* Google Search Results / Local Maps micro-widget */}
-                  <div className="w-full max-w-[220px] bg-white rounded-2xl shadow-sm border border-slate-200 p-3 flex flex-col gap-2.5 text-left relative overflow-hidden select-none">
-                    {/* Google Logo & Search Box */}
-                    <div className="flex items-center gap-1.5 pb-2 border-b border-slate-100">
-                      <span className="text-[10px] font-extrabold text-blue-600">G</span>
-                      <div className="flex-1 h-3.5 bg-slate-100 rounded-full flex items-center px-1.5 justify-between">
-                        <span className="text-[6px] text-slate-400 font-medium">restaurants near me</span>
-                        <span className="text-[6px] text-slate-350">🔍</span>
+                {/* Mobile Mockup */}
+                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
+                  {/* Notch */}
+                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
+                  {/* Screen Content */}
+                  <div className="flex-1 bg-white p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left justify-between">
+                    <div className="flex flex-col gap-2">
+                      {/* Google Logo & Search Box */}
+                      <div className="flex items-center gap-1.5 pb-2 border-b border-slate-100">
+                        <span className="text-[10px] font-extrabold text-blue-600">G</span>
+                        <div className="flex-1 h-3.5 bg-slate-100 rounded-full flex items-center px-1.5 justify-between">
+                          <span className="text-[6px] text-slate-400 font-medium">restaurants near me</span>
+                          <span className="text-[6px] text-slate-350">🔍</span>
+                        </div>
+                      </div>
+                      {/* Search Result Card */}
+                      <div className="flex flex-col gap-1.5 relative z-10 border border-slate-100 p-1.5 rounded-xl bg-slate-50/50">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="text-[8px] font-bold text-slate-900 flex items-center gap-0.5">
+                              RestDigi Cafe
+                              <span className="text-[6px] text-emerald-600 bg-emerald-50 px-1 py-0.2 rounded font-extrabold leading-none">#1 Rank</span>
+                            </div>
+                            <div className="flex items-center gap-0.5 text-[6px] text-amber-500 font-bold mt-0.5">
+                              5.0 ★★★★★ <span className="text-slate-450 font-medium">(242)</span>
+                            </div>
+                          </div>
+                          {/* Local Maps Pin drops over search card */}
+                          <div className="text-sm -mt-0.5 text-red-500 animate-bounce">📍</div>
+                        </div>
+                        <div className="text-[5px] text-slate-400 font-medium">
+                          Open now • 15 min away
+                        </div>
+                        <div className="flex gap-1 mt-0.5">
+                          <span className="text-[5px] bg-white text-slate-650 font-bold px-1.5 py-0.5 rounded-full border border-slate-200">Directions</span>
+                          <span className="text-[5px] bg-white text-slate-650 font-bold px-1.5 py-0.5 rounded-full border border-slate-200">Call Now</span>
+                        </div>
                       </div>
                     </div>
-                    {/* Search Result Card */}
-                    <div className="flex flex-col gap-1.5 relative z-10">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="text-[9px] font-bold text-slate-900 flex items-center gap-1">
-                            RestDigi Cafe
-                            <span className="text-[7px] text-emerald-600 bg-emerald-50 px-1 py-0.2 rounded font-extrabold leading-none">#1 Rank</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-[7px] text-amber-500 font-bold mt-0.5">
-                            5.0 ★★★★★ <span className="text-slate-400 font-medium">(242 reviews)</span>
-                          </div>
-                        </div>
-                        {/* Local Maps Pin drops over search card */}
-                        <div className="text-xl -mt-1 text-red-500 animate-bounce">📍</div>
+                    {/* Simulated Map View at the bottom */}
+                    <div className="h-[120px] bg-blue-50 border border-blue-100 rounded-xl relative overflow-hidden flex items-center justify-center">
+                      {/* Simulated map lines */}
+                      <div className="absolute inset-0 opacity-20">
+                        <div className="absolute w-[2px] h-full bg-slate-500 left-12"></div>
+                        <div className="absolute w-[2px] h-full bg-slate-500 left-28"></div>
+                        <div className="absolute h-[2px] w-full bg-slate-500 top-10"></div>
+                        <div className="absolute h-[2px] w-full bg-slate-500 top-20"></div>
                       </div>
-                      <div className="text-[6px] text-slate-400 font-medium">
-                        Open now • 15 min away • Srinagar, J&K
-                      </div>
-                      <div className="flex gap-1.5 mt-1">
-                        <span className="text-[6px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full border border-slate-200">Directions</span>
-                        <span className="text-[6px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full border border-slate-200">Call Now</span>
-                      </div>
+                      <div className="absolute text-xl animate-bounce">📍</div>
+                      <div className="absolute bottom-1 right-1 bg-white/90 text-[5px] px-1 rounded font-bold border border-slate-200">Map View</div>
                     </div>
                   </div>
                 </div>
@@ -458,30 +482,41 @@ export default function Home() {
             <div className="flex flex-col items-center text-center md:text-left md:items-start p-6 sm:p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
               {/* Centering layout wrapper */}
               <div className="w-full flex justify-center items-center mb-6">
-                <div className="w-full max-w-[280px] sm:max-w-[340px] h-auto object-contain transition-transform duration-300 hover:scale-[1.02] flex justify-center items-center">
-                  {/* Kitchen Screen Terminal Layout */}
-                  <div className="w-full max-w-[220px] bg-slate-900 rounded-2xl shadow-sm border border-slate-800 p-3 flex flex-col gap-2 text-left relative overflow-hidden select-none text-[8px] text-slate-300">
-                    <div className="flex justify-between items-center pb-1.5 border-b border-slate-800 font-bold">
-                      <span>Terminal 01</span>
-                      <span className="text-slate-500 text-[6px]">Syncing...</span>
+                {/* Mobile Mockup */}
+                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
+                  {/* Notch */}
+                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
+                  {/* Screen Content */}
+                  <div className="flex-1 bg-slate-900 p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left">
+                    <div className="flex justify-between items-center pb-2 border-b border-slate-800 font-bold mb-2">
+                      <span className="text-[8px] text-slate-300">Terminal 01</span>
+                      <span className="text-slate-500 text-[6px] animate-pulse">Syncing...</span>
                     </div>
                     {/* Table Row Workflows */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-2 flex-1">
                       {/* Row 1 */}
-                      <div className="flex justify-between items-center p-1.5 bg-slate-800 rounded border border-slate-700">
+                      <div className="flex justify-between items-center p-1.5 bg-slate-850 rounded border border-slate-800">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-orange-400">Truffle Pizza</span>
+                          <span className="font-bold text-[8px] text-orange-400">Truffle Pizza</span>
                           <span className="text-[6px] text-slate-400">Table 4 • Qty: 1</span>
                         </div>
                         <span className="text-[6px] bg-amber-500/25 text-amber-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Preparing</span>
                       </div>
                       {/* Row 2 */}
-                      <div className="flex justify-between items-center p-1.5 bg-slate-800 rounded border border-slate-700">
+                      <div className="flex justify-between items-center p-1.5 bg-slate-850 rounded border border-slate-800">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-orange-400">Citrus Mojito</span>
+                          <span className="font-bold text-[8px] text-orange-400">Citrus Mojito</span>
                           <span className="text-[6px] text-slate-400">Table 9 • Qty: 2</span>
                         </div>
                         <span className="text-[6px] bg-emerald-500/25 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Ready</span>
+                      </div>
+                      {/* Row 3 */}
+                      <div className="flex justify-between items-center p-1.5 bg-slate-850 rounded border border-slate-800">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-bold text-[8px] text-orange-400">Beef Burger</span>
+                          <span className="text-[6px] text-slate-400">Table 1 • Qty: 1</span>
+                        </div>
+                        <span className="text-[6px] bg-amber-500/25 text-amber-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Preparing</span>
                       </div>
                     </div>
                   </div>
