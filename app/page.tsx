@@ -476,7 +476,7 @@ export default function Home() {
                         <div className="flex justify-between items-start">
                           <div>
                             <div className="text-[8px] font-bold text-slate-900 flex items-center gap-0.5">
-                              RestDigi Cafe
+                              Your Restaurant Name
                               <span className="text-[6px] text-emerald-600 bg-emerald-50 px-1 py-0.2 rounded font-extrabold leading-none">#1 Rank</span>
                             </div>
                             <div className="flex items-center gap-0.5 text-[6px] text-amber-500 font-bold mt-0.5">
@@ -553,7 +553,7 @@ export default function Home() {
                       {/* Row 3 */}
                       <div className="flex justify-between items-center p-1.5 bg-slate-850 rounded border border-slate-800">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-[8px] text-orange-400">Beef Burger</span>
+                          <span className="font-bold text-[8px] text-orange-400">Chicken Burger</span>
                           <span className="text-[6px] text-slate-400">Table 1 • Qty: 1</span>
                         </div>
                         <span className="text-[6px] bg-amber-500/25 text-amber-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Preparing</span>

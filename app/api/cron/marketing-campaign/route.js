@@ -152,7 +152,7 @@ async function handleCron(req) {
       
       <ul class="pillars">
         <li class="pillar-item">
-          <span class="pillar-title">Automated Smart QR Menus:</span> Eliminates table-waiting times completely by letting guests scan, view, and place orders directly from their browsers in under 1 second.
+          <span class="pillar-title">Automated Smart QR Menus:</span> Eliminates table-waiting times completely by letting guests scan, view, and place orders directly from their browsers in under 5 seconds.
         </li>
         <li class="pillar-item">
           <span class="pillar-title">Instantaneous Kitchen Displays:</span> Routes digital receipts directly to kitchen screens, eliminating paper loss, confusion, and preparation chaos.
