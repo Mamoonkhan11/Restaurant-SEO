@@ -105,15 +105,40 @@ export default function Home() {
               <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-slate-200 to-slate-50 bg-clip-text text-transparent select-none">01</div>
               {/* Top Asset Box */}
               <div className="flex-1 flex items-center justify-center py-6 mb-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                <div className="flex flex-col items-center">
-                  <div className="relative w-[90px] h-[115px] bg-white rounded-lg shadow-md border border-slate-200 p-2.5 flex flex-col items-center justify-between transition-transform group-hover:scale-105 duration-300">
-                    <span className="text-[6px] font-extrabold text-orange-600 tracking-wider">RESTDIGI</span>
-                    <div className="w-12 h-12 bg-slate-50 border border-slate-200 rounded p-1 flex items-center justify-center">
-                      <QrCode className="w-10 h-10 text-slate-950" />
+                {/* Mobile Mockup */}
+                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
+                  {/* Notch */}
+                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
+                  {/* Screen Content */}
+                  <div className="flex-1 bg-slate-900 p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left relative justify-between text-white">
+                    {/* Camera view header */}
+                    <div className="flex justify-between items-center text-[7px] text-slate-300 font-bold border-b border-slate-800/40 pb-1 mb-1">
+                      <span>Camera</span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                        Scanning...
+                      </span>
                     </div>
-                    <span className="text-[5px] bg-orange-600 text-white font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider scale-90">Scan Menu</span>
+                    {/* Viewfinder brackets and QR */}
+                    <div className="flex-1 flex items-center justify-center relative my-4">
+                      {/* Target brackets */}
+                      <div className="absolute w-24 h-24 border-2 border-white/20 rounded-xl flex items-center justify-center">
+                        {/* Brackets corners */}
+                        <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-orange-500 -mt-[2px] -ml-[2px] rounded-tl-sm"></div>
+                        <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-orange-500 -mt-[2px] -mr-[2px] rounded-tr-sm"></div>
+                        <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-orange-500 -mb-[2px] -ml-[2px] rounded-bl-sm"></div>
+                        <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-orange-500 -mb-[2px] -mr-[2px] rounded-br-sm"></div>
+                        {/* QR Code vector */}
+                        <QrCode className="w-12 h-12 text-white" />
+                      </div>
+                      {/* Laser scanning line */}
+                      <div className="w-24 h-[1px] bg-orange-500 absolute animate-bounce shadow-[0_0_8px_#ea580c]"></div>
+                    </div>
+                    {/* Bottom label */}
+                    <div className="text-[7px] text-slate-400 text-center font-bold pb-1 bg-slate-950/40 py-1 rounded">
+                      Align QR Menu on Table
+                    </div>
                   </div>
-                  <div className="w-[110px] h-2 bg-slate-300 rounded-full -mt-1 shadow-sm relative z-10"></div>
                 </div>
               </div>
               {/* Text Content at base */}
@@ -129,35 +154,44 @@ export default function Home() {
             <div className="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
               <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-slate-200 to-slate-50 bg-clip-text text-transparent select-none">02</div>
               {/* Top Asset Box */}
-              <div className="flex-1 flex items-center justify-center py-4 mb-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                <div className="w-[140px] h-[240px] bg-slate-950 rounded-2xl p-1.5 mx-auto border-2 border-slate-800 shadow-lg flex flex-col justify-between overflow-hidden relative transition-transform group-hover:scale-105 duration-300">
-                  <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-2 bg-slate-800 rounded-full z-20"></div>
-                  <div className="flex-1 bg-white rounded-xl p-2 pt-4 flex flex-col gap-2 overflow-hidden select-none text-left">
-                    <div className="flex gap-1.5 pb-1 border-b border-slate-50">
-                      <div className="w-7 h-3 rounded-full bg-orange-600"></div>
-                      <div className="w-7 h-3 rounded-full bg-slate-100"></div>
-                      <div className="w-7 h-3 rounded-full bg-slate-100"></div>
+              <div className="flex-1 flex items-center justify-center py-6 mb-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+                {/* Mobile Mockup */}
+                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
+                  {/* Notch */}
+                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
+                  {/* Screen Content */}
+                  <div className="flex-1 bg-white p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left">
+                    <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                      <span className="text-[10px] font-extrabold text-orange-600 tracking-tight">RestDigi Bistro</span>
+                      <span className="text-[7px] px-1.5 py-0.5 rounded-full bg-slate-100 font-bold text-slate-650">Table 05</span>
                     </div>
-                    <div className="flex flex-col gap-2 flex-1">
-                      <div className="flex gap-1.5 items-center p-1 bg-slate-50 rounded-md border border-slate-100">
-                        <div className="w-6 h-6 rounded bg-slate-200 animate-pulse shrink-0"></div>
-                        <div className="flex-1 space-y-1">
-                          <div className="w-12 h-1.5 bg-slate-300 rounded animate-pulse"></div>
+
+                    <div className="flex gap-1 py-1.5 overflow-x-hidden border-b border-slate-50">
+                      <span className="text-[6px] bg-orange-600 text-white px-1.5 py-0.5 rounded-full font-bold">Pizza</span>
+                      <span className="text-[6px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Burgers</span>
+                      <span className="text-[6px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Drinks</span>
+                    </div>
+
+                    <div className="mt-1.5 space-y-1.5 flex-1 overflow-hidden">
+                      <div className="flex gap-1.5 items-center p-1 bg-slate-50/80 rounded-lg">
+                        <div className="w-8 h-8 rounded bg-slate-100 animate-pulse shrink-0"></div>
+                        <div className="flex-1 space-y-1 min-w-0">
+                          <div className="w-14 h-2 bg-slate-300 rounded animate-pulse"></div>
                           <div className="w-8 h-1 bg-slate-200 rounded animate-pulse"></div>
                         </div>
                       </div>
-                      <div className="flex gap-1.5 items-center p-1 bg-slate-50 rounded-md border border-slate-100">
-                        <div className="w-6 h-6 rounded bg-slate-200 animate-pulse shrink-0"></div>
-                        <div className="flex-1 space-y-1">
-                          <div className="w-10 h-1.5 bg-slate-300 rounded animate-pulse"></div>
+                      <div className="flex gap-1.5 items-center p-1 bg-slate-50/80 rounded-lg">
+                        <div className="w-8 h-8 rounded bg-slate-100 animate-pulse shrink-0"></div>
+                        <div className="flex-1 space-y-1 min-w-0">
+                          <div className="w-12 h-2 bg-slate-300 rounded animate-pulse"></div>
                           <div className="w-6 h-1 bg-slate-200 rounded animate-pulse"></div>
                         </div>
                       </div>
-                      <div className="flex gap-1.5 items-center p-1 bg-slate-50 rounded-md border border-slate-100">
-                        <div className="w-6 h-6 rounded bg-slate-200 animate-pulse shrink-0"></div>
-                        <div className="flex-1 space-y-1">
-                          <div className="w-14 h-1.5 bg-slate-300 rounded animate-pulse"></div>
-                          <div className="w-7 h-1 bg-slate-200 rounded animate-pulse"></div>
+                      <div className="flex gap-1.5 items-center p-1 bg-slate-50/80 rounded-lg">
+                        <div className="w-8 h-8 rounded bg-slate-100 animate-pulse shrink-0"></div>
+                        <div className="flex-1 space-y-1 min-w-0">
+                          <div className="w-16 h-2 bg-slate-300 rounded animate-pulse"></div>
+                          <div className="w-10 h-1 bg-slate-200 rounded animate-pulse"></div>
                         </div>
                       </div>
                     </div>
@@ -178,31 +212,37 @@ export default function Home() {
               <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-slate-200 to-slate-50 bg-clip-text text-transparent select-none">03</div>
               {/* Top Asset Box */}
               <div className="flex-1 flex items-center justify-center py-6 mb-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                <div className="w-full max-w-[210px] bg-white rounded-xl shadow-md border border-slate-200 p-3 flex flex-col justify-between relative transition-transform group-hover:scale-105 duration-300 text-left">
-                  <div>
-                    <div className="flex justify-between items-center pb-1.5 border-b border-slate-100 mb-2">
-                      <span className="text-[8px] font-bold text-slate-800">Your Basket</span>
-                      <span className="text-[7px] text-slate-400 font-semibold">Table 05</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-center text-[7px] font-medium text-slate-600">
-                        <span>1x Double Cheese Burger</span>
-                        <span className="font-bold text-slate-900">₹180</span>
+                {/* Mobile Mockup */}
+                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
+                  {/* Notch */}
+                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
+                  {/* Screen Content */}
+                  <div className="flex-1 bg-white p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left justify-between">
+                    <div>
+                      <div className="flex justify-between items-center pb-1.5 border-b border-slate-100 mb-2">
+                        <span className="text-[9px] font-bold text-slate-850">Your Basket</span>
+                        <span className="text-[7px] text-slate-400 font-semibold">Table 05</span>
                       </div>
-                      <div className="flex justify-between items-center text-[7px] font-medium text-slate-600">
-                        <span>2x Mint Mojito</span>
-                        <span className="font-bold text-slate-900">₹240</span>
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between items-center text-[7px] font-medium text-slate-650">
+                          <span>1x Double Cheese Burger</span>
+                          <span className="font-bold text-slate-900">₹180</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[7px] font-medium text-slate-650">
+                          <span>2x Mint Mojito</span>
+                          <span className="font-bold text-slate-900">₹240</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="mt-2.5 pt-1.5 border-t border-slate-100">
-                    <div className="flex justify-between items-center text-[8px] font-bold text-slate-800 mb-1.5">
-                      <span>Total Amount</span>
-                      <span>₹420</span>
-                    </div>
-                    <div className="bg-emerald-50 border border-emerald-100 rounded-lg py-1 px-1.5 flex items-center gap-1 justify-center">
-                      <span className="w-1 h-1 bg-emerald-500 rounded-full animate-ping"></span>
-                      <span className="text-[7px] text-emerald-700 font-extrabold tracking-tight uppercase">Sent to Kitchen!</span>
+                    <div className="mt-2.5 pt-1.5 border-t border-slate-100">
+                      <div className="flex justify-between items-center text-[8px] font-bold text-slate-855 mb-1.5">
+                        <span>Total Amount</span>
+                        <span>₹420</span>
+                      </div>
+                      <div className="bg-emerald-50 border border-emerald-100 rounded-lg py-1.5 px-1.5 flex items-center gap-1 justify-center shadow-sm">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping shrink-0"></span>
+                        <span className="text-[7px] text-emerald-700 font-extrabold tracking-tight uppercase">Sent to Kitchen!</span>
+                      </div>
                     </div>
                   </div>
                 </div>
