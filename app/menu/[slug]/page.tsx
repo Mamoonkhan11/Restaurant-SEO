@@ -69,8 +69,10 @@ export default async function DigitalMenu({
     initialCategories = uniqueCategories;
   }
 
-  // Fire-and-forget scan count increment
-  supabase.rpc('increment_scans', { row_id: restaurant.id }).then();
+  // Fire-and-forget scan count increment only when scanning a table QR code (table parameter present)
+  if (tableNo) {
+    supabase.rpc('increment_scans', { row_id: restaurant.id }).then();
+  }
 
   return (
     <MenuClient 
