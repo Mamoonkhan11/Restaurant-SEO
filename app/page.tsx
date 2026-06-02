@@ -40,6 +40,8 @@ export default function Home() {
                 src="/restdigi-logo.png"
                 className="h-10 sm:h-12 lg:h-16 w-auto object-contain transition-transform hover:scale-105"
                 alt="RESTDIGI Logo"
+                fetchPriority="high"
+                loading="eager"
               />
             </div>
             <div className="flex items-center gap-3 sm:gap-4">
@@ -62,20 +64,20 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col items-center justify-center pt-32 pb-20 px-4 sm:px-6 lg:px-8 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 border border-orange-100 text-orange-700 text-sm font-bold mb-8 animate-fade-in-up">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 border border-orange-100 text-orange-700 text-sm font-bold mb-8">
           <span className="flex h-2 w-2 rounded-full bg-orange-600 animate-pulse"></span>
           RESTDIGI — The Future of Dining
         </div>
 
-        <h1 className="max-w-4xl text-5xl sm:text-6xl md:text-7xl font-extrabold text-gray-900 tracking-tight leading-[1.1] mb-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+        <h1 className="max-w-4xl text-5xl sm:text-6xl md:text-7xl font-extrabold text-gray-900 tracking-tight leading-[1.1] mb-6">
           Stop Making Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">Customers Wait</span> to Order.
         </h1>
 
-        <p className="max-w-3xl text-lg sm:text-xl text-gray-500 mb-10 font-medium animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+        <p className="max-w-3xl text-lg sm:text-xl text-gray-500 mb-10 font-medium">
           Don't let long queues and short staff kill your restaurant's sales. With RESTDIGI, customers simply Scan, View, and Place Orders Instantly right from their tables. No apps. No waiting. Just pure speed.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+        <div className="flex flex-col sm:flex-row gap-4">
           <Link
             href="/admin"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all bg-orange-600 rounded-full hover:bg-orange-700 hover:shadow-lg hover:-translate-y-1 group"
@@ -967,6 +969,7 @@ export default function Home() {
                 src="/restdigi-logo.png"
                 className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105"
                 alt="RESTDIGI Logo"
+                loading="lazy"
               />
               <p className="text-slate-500 text-sm leading-relaxed">
                 Modernizing local dining ecosystems with high-speed digital tools.
