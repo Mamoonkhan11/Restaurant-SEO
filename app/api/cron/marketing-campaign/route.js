@@ -189,7 +189,7 @@ async function handleCron(req) {
           body: JSON.stringify({
             sender: { name: "RestDigi Support", email: "noreply@restdigi.online" },
             to: [{ email: recipientEmail, name: brandName }],
-            subject: `Transforming manual dining chaos into zero-latency operations at ${brandName} `,
+            subject: "Is your restaurant leaking revenue? Stop manual order delays today",
             htmlContent: htmlContent
           })
         });
