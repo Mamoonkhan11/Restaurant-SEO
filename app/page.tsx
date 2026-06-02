@@ -202,7 +202,7 @@ export default function Home() {
               <div className="relative z-10 text-left">
                 <h3 className="text-xl font-bold text-gray-900 mb-3">View</h3>
                 <p className="text-gray-500 leading-relaxed text-sm">
-                  A lightning-fast digital menu renders on any mobile browser in under 1 second.
+                  A lightning-fast digital menu renders on any mobile browser in under 5 seconds.
                 </p>
               </div>
             </div>
