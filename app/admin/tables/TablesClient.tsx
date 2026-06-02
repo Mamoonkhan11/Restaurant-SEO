@@ -94,7 +94,7 @@ export default function TablesPage() {
       });
 
       const dataUrl = canvas.toDataURL('image/png');
-      
+
       const link = document.createElement('a');
       const sanitizedRestaurantName = (restaurant.name || 'Restaurant').replace(/[^a-z0-9]/gi, '_');
       const sanitizedTableNo = (selectedTable.table_no || 'Table').replace(/[^a-z0-9]/gi, '_');
@@ -300,7 +300,8 @@ export default function TablesPage() {
 
   return wrapWithLock(
     <div className="p-4 sm:p-8 max-w-6xl mx-auto min-h-screen bg-[#F9FAFB] font-sans">
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @page {
           size: auto;
           margin: 0mm;
@@ -349,7 +350,7 @@ export default function TablesPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 print:hidden">
-        
+
         {/* Left Side: Controls & List */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
@@ -384,8 +385,8 @@ export default function TablesPage() {
               const isSelected = selectedTable?.id === table.id;
               const isLive = liveOrders.some(o => o.table_no === table.table_no);
               return (
-                <div 
-                  key={table.id} 
+                <div
+                  key={table.id}
                   onClick={() => setSelectedTable(table)}
                   className={`bg-white p-4 rounded-xl border transition-all cursor-pointer shadow-sm flex items-center justify-between ${isSelected ? 'border-gray-900 ring-1 ring-gray-900' : 'border-gray-100 hover:border-gray-200'}`}
                 >
@@ -398,8 +399,8 @@ export default function TablesPage() {
                       )}
                     </div>
                   </div>
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); handleDelete(table.id); }} 
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDelete(table.id); }}
                     className="text-gray-400 hover:text-red-600 transition-colors p-2 rounded-lg hover:bg-gray-50"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -428,7 +429,7 @@ export default function TablesPage() {
                       <h3 className="text-xl font-bold text-[#111827] tracking-tight uppercase leading-tight">{restaurant?.name || 'Restaurant Name'}</h3>
                       <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest leading-tight">{selectedTable.table_no}</p>
                     </div>
-                    
+
                     <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8 flex justify-center items-center">
                       <QRCodeSVG
                         value={`${origin}/menu/${restaurant?.slug}?tableId=${selectedTable.id}`}
@@ -438,14 +439,14 @@ export default function TablesPage() {
                         level="H"
                       />
                     </div>
-                    
+
                     <div className="text-center">
                       <p className="text-sm font-bold text-[#111827] tracking-widest uppercase leading-tight">Contactless Dining</p>
                       <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest leading-tight">Scan for Menu</p>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="w-[320px] space-y-3 print:hidden">
                   <a
                     href={`${origin}/menu/${restaurant?.slug}?tableId=${selectedTable.id}`}

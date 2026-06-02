@@ -22,7 +22,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
     initialData?.category ? !standardCategories.includes(initialData.category) : false
   );
 
-  const [sizes, setSizes] = useState<{label: string, price: string}[]>(() => {
+  const [sizes, setSizes] = useState<{ label: string, price: string }[]>(() => {
     if (initialData?.sizes) {
       if (typeof initialData.sizes === 'string') {
         try {
@@ -69,7 +69,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
     try {
       setIsUploading(true);
       let imageUrl = previewUrl;
-      
+
       if (imageFile) {
         imageUrl = await uploadDishImage(imageFile, 'dishes');
       }
@@ -89,7 +89,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
         image_url: imageUrl,
         ...(initialData?.id ? { id: initialData.id } : {})
       };
-      
+
       // Ensure we don't send price if the DB doesn't have it anymore
       delete finalData.price;
 
@@ -111,7 +111,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6 overflow-y-auto flex-1">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Dish Name</label>
@@ -129,8 +129,8 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Category</label>
               {!isCustomCategory ? (
-                <select 
-                  {...register('category')} 
+                <select
+                  {...register('category')}
                   onChange={(e) => {
                     if (e.target.value === 'custom') {
                       setIsCustomCategory(true);
@@ -148,14 +148,14 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
                 </select>
               ) : (
                 <div className="relative">
-                  <input 
-                    {...register('category')} 
+                  <input
+                    {...register('category')}
                     autoFocus
-                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium" 
+                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium"
                     placeholder="Type custom category..."
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => {
                       setIsCustomCategory(false);
                       setValue('category', standardCategories[0]);
@@ -218,7 +218,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
               <div>
                 <input
                   type="text"
-                  placeholder="Offer Tag (e.g. Eid Special 🌙, 50% Off)"
+                  placeholder="Offer Tag (e.g. Eid Special , 50% Off)"
                   value={offerTag}
                   onChange={(e) => setOfferTag(e.target.value)}
                   className="w-full px-5 py-3 bg-white border border-orange-200 rounded-xl text-orange-900 placeholder-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium"
