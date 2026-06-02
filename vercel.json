@@ -2,7 +2,11 @@
   "crons": [
     {
       "path": "/api/cron/owner-marketing",
-      "schedule": "0 10 * * 2,5"
+      "schedule": "30 5 * * 2,5"
+    },
+    {
+      "path": "/api/cron/marketing-campaign",
+      "schedule": "30 8 */2 * *"
     }
   ]
 }

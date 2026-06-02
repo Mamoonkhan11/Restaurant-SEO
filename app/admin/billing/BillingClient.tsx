@@ -140,7 +140,7 @@ export default function BillingPage() {
           }
         },
         prefill: {
-          name: restaurant?.owner_name || "",
+          name: restaurant?.digital_signature || "",
           contact: "",
         },
         theme: {

@@ -406,97 +406,92 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Card 1: SEO Boost */}
-            <div className="bg-white p-8 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8 hover:-translate-y-1 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
-              <div className="flex-1 text-left">
-                <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
-                  <TrendingUp className="w-6 h-6 text-orange-600" />
+            <div className="flex flex-col items-center text-center md:text-left md:items-start p-6 sm:p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
+              {/* Centering layout wrapper */}
+              <div className="w-full flex justify-center items-center mb-6">
+                <div className="w-full max-w-[280px] sm:max-w-[340px] h-auto object-contain transition-transform duration-300 hover:scale-[1.02] flex justify-center items-center">
+                  {/* Google Search Results / Local Maps micro-widget */}
+                  <div className="w-full max-w-[220px] bg-white rounded-2xl shadow-sm border border-slate-200 p-3 flex flex-col gap-2.5 text-left relative overflow-hidden select-none">
+                    {/* Google Logo & Search Box */}
+                    <div className="flex items-center gap-1.5 pb-2 border-b border-slate-100">
+                      <span className="text-[10px] font-extrabold text-blue-600">G</span>
+                      <div className="flex-1 h-3.5 bg-slate-100 rounded-full flex items-center px-1.5 justify-between">
+                        <span className="text-[6px] text-slate-400 font-medium">restaurants near me</span>
+                        <span className="text-[6px] text-slate-350">🔍</span>
+                      </div>
+                    </div>
+                    {/* Search Result Card */}
+                    <div className="flex flex-col gap-1.5 relative z-10">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="text-[9px] font-bold text-slate-900 flex items-center gap-1">
+                            RestDigi Cafe
+                            <span className="text-[7px] text-emerald-600 bg-emerald-50 px-1 py-0.2 rounded font-extrabold leading-none">#1 Rank</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-[7px] text-amber-500 font-bold mt-0.5">
+                            5.0 ★★★★★ <span className="text-slate-400 font-medium">(242 reviews)</span>
+                          </div>
+                        </div>
+                        {/* Local Maps Pin drops over search card */}
+                        <div className="text-xl -mt-1 text-red-500 animate-bounce">📍</div>
+                      </div>
+                      <div className="text-[6px] text-slate-400 font-medium">
+                        Open now • 15 min away • Srinagar, J&K
+                      </div>
+                      <div className="flex gap-1.5 mt-1">
+                        <span className="text-[6px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full border border-slate-200">Directions</span>
+                        <span className="text-[6px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full border border-slate-200">Call Now</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">Automated Local SEO Boost</h3>
-                <p className="text-gray-500 leading-relaxed text-sm">
+              </div>
+              <div className="w-full">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2 mb-3 leading-snug">Automated Local SEO Boost</h3>
+                <p className="text-gray-500 leading-relaxed text-sm sm:text-base font-medium">
                   RESTDIGI dynamically optimizes your restaurant’s online presence, pushing your physical location to the top of local Google search maps and discoverability indexes automatically.
                 </p>
-              </div>
-              {/* Asset Box on the right */}
-              <div className="w-full md:w-[240px] shrink-0 flex items-center justify-center">
-                {/* Google Search Results / Local Maps micro-widget */}
-                <div className="w-full max-w-[220px] bg-white rounded-2xl shadow-sm border border-slate-200 p-3 flex flex-col gap-2.5 text-left relative overflow-hidden select-none transition-transform group-hover:scale-105 duration-300">
-                  {/* Google Logo & Search Box */}
-                  <div className="flex items-center gap-1.5 pb-2 border-b border-slate-100">
-                    <span className="text-[10px] font-extrabold text-blue-600">G</span>
-                    <div className="flex-1 h-3.5 bg-slate-100 rounded-full flex items-center px-1.5 justify-between">
-                      <span className="text-[6px] text-slate-400 font-medium">restaurants near me</span>
-                      <span className="text-[6px] text-slate-350">🔍</span>
-                    </div>
-                  </div>
-                  {/* Search Result Card */}
-                  <div className="flex flex-col gap-1.5 relative z-10">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="text-[9px] font-bold text-slate-900 flex items-center gap-1">
-                          RestDigi Cafe
-                          <span className="text-[7px] text-emerald-600 bg-emerald-50 px-1 py-0.2 rounded font-extrabold leading-none">#1 Rank</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-[7px] text-amber-500 font-bold mt-0.5">
-                          5.0 ★★★★★ <span className="text-slate-400 font-medium">(242 reviews)</span>
-                        </div>
-                      </div>
-                      {/* Local Maps Pin drops over search card */}
-                      <div className="text-xl -mt-1 text-red-500 animate-bounce">📍</div>
-                    </div>
-                    <div className="text-[6px] text-slate-400 font-medium">
-                      Open now • 15 min away • Srinagar, J&K
-                    </div>
-                    <div className="flex gap-1.5 mt-1">
-                      <span className="text-[6px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full border border-slate-200">Directions</span>
-                      <span className="text-[6px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full border border-slate-200">Call Now</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
             {/* Card 2: KOT Automation Matrix */}
-            <div className="bg-white p-8 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8 hover:-translate-y-1 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
-              <div className="flex-1 text-left">
-                <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center mb-6">
-                  <svg className="w-6 h-6 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect width="18" height="18" x="3" y="3" rx="2" />
-                    <path d="M3 9h18M9 21V9" />
-                  </svg>
+            <div className="flex flex-col items-center text-center md:text-left md:items-start p-6 sm:p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
+              {/* Centering layout wrapper */}
+              <div className="w-full flex justify-center items-center mb-6">
+                <div className="w-full max-w-[280px] sm:max-w-[340px] h-auto object-contain transition-transform duration-300 hover:scale-[1.02] flex justify-center items-center">
+                  {/* Kitchen Screen Terminal Layout */}
+                  <div className="w-full max-w-[220px] bg-slate-900 rounded-2xl shadow-sm border border-slate-800 p-3 flex flex-col gap-2 text-left relative overflow-hidden select-none text-[8px] text-slate-300">
+                    <div className="flex justify-between items-center pb-1.5 border-b border-slate-800 font-bold">
+                      <span>Terminal 01</span>
+                      <span className="text-slate-500 text-[6px]">Syncing...</span>
+                    </div>
+                    {/* Table Row Workflows */}
+                    <div className="space-y-1.5">
+                      {/* Row 1 */}
+                      <div className="flex justify-between items-center p-1.5 bg-slate-800 rounded border border-slate-700">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-bold text-orange-400">Truffle Pizza</span>
+                          <span className="text-[6px] text-slate-400">Table 4 • Qty: 1</span>
+                        </div>
+                        <span className="text-[6px] bg-amber-500/25 text-amber-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Preparing</span>
+                      </div>
+                      {/* Row 2 */}
+                      <div className="flex justify-between items-center p-1.5 bg-slate-800 rounded border border-slate-700">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-bold text-orange-400">Citrus Mojito</span>
+                          <span className="text-[6px] text-slate-400">Table 9 • Qty: 2</span>
+                        </div>
+                        <span className="text-[6px] bg-emerald-500/25 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Ready</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">Live KOT Automation Matrix</h3>
-                <p className="text-gray-500 leading-relaxed text-sm">
+              </div>
+              <div className="w-full">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2 mb-3 leading-snug">Live KOT Automation Matrix</h3>
+                <p className="text-gray-500 leading-relaxed text-sm sm:text-base font-medium">
                   High-volume programmatic looping chime alerts keep your kitchen instantly updated on incoming table modifications.
                 </p>
-              </div>
-              {/* Asset Box on the right */}
-              <div className="w-full md:w-[240px] shrink-0 flex items-center justify-center">
-                {/* Kitchen Screen Terminal Layout */}
-                <div className="w-full max-w-[220px] bg-slate-900 rounded-2xl shadow-sm border border-slate-800 p-3 flex flex-col gap-2 text-left relative overflow-hidden select-none text-[8px] text-slate-300 transition-transform group-hover:scale-105 duration-300">
-                  <div className="flex justify-between items-center pb-1.5 border-b border-slate-800 font-bold">
-                    <span>Terminal 01</span>
-                    <span className="text-slate-500 text-[6px]">Syncing...</span>
-                  </div>
-                  {/* Table Row Workflows */}
-                  <div className="space-y-1.5">
-                    {/* Row 1 */}
-                    <div className="flex justify-between items-center p-1.5 bg-slate-800 rounded border border-slate-700">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-bold text-orange-400">Truffle Pizza</span>
-                        <span className="text-[6px] text-slate-400">Table 4 • Qty: 1</span>
-                      </div>
-                      <span className="text-[6px] bg-amber-500/25 text-amber-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Preparing</span>
-                    </div>
-                    {/* Row 2 */}
-                    <div className="flex justify-between items-center p-1.5 bg-slate-800 rounded border border-slate-700">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-bold text-orange-400">Citrus Mojito</span>
-                        <span className="text-[6px] text-slate-400">Table 9 • Qty: 2</span>
-                      </div>
-                      <span className="text-[6px] bg-emerald-500/25 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Ready</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

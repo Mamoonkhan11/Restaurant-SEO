@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 const emailMatrix = [
   {
@@ -44,9 +44,9 @@ const emailMatrix = [
   }
 ];
 
-function getEmailHtml(id, name, subject, contentBody, ctaText) {
+function getEmailHtml(id, digital_signature, subject, contentBody, ctaText) {
   return `<div style="font-family: Arial, sans-serif; font-size: 16px; color: #111111; line-height: 1.6; max-width: 600px; padding: 20px 0;">
-  <p>Hi ${name},</p>
+  <p>Hi ${digital_signature},</p>
   <p>${contentBody}</p>
   <p>You can check it out here: <a href="https://www.restdigi.online/admin/billing" style="color: #D32F2F; font-weight: bold; text-decoration: underline;">${ctaText}</a></p>
   <p>Best regards,<br>Mamoon<br>Founder, RESTDIGI</p>
@@ -61,9 +61,19 @@ async function handleCron(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: restaurants, error: dbError } = await supabase
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+
+    const { data: restaurants, error: dbError } = await supabaseAdmin
       .from('restaurants')
-      .select('id, email, name, email_sequence_step, unsubscribed')
+      .select('id, email, name, digital_signature, email_sequence_step, unsubscribed')
       .eq('terms_accepted', true);
 
     if (dbError) {
@@ -87,7 +97,7 @@ async function handleCron(req) {
 
         const htmlContent = getEmailHtml(
           restaurant.id,
-          restaurant.name || 'Restaurant Partner',
+          restaurant.digital_signature || restaurant.name || 'Restaurant Partner',
           emailData.subject,
           emailData.body,
           emailData.ctaText
@@ -102,7 +112,7 @@ async function handleCron(req) {
           },
           body: JSON.stringify({
             sender: { name: "RESTDIGI TEAM", email: "noreply@restdigi.online" },
-            to: [{ email: restaurant.email, name: restaurant.name || "Restaurant Partner" }],
+            to: [{ email: restaurant.email, name: restaurant.digital_signature || restaurant.name || "Restaurant Partner" }],
             subject: emailData.subject,
             htmlContent: htmlContent
           })
@@ -113,7 +123,7 @@ async function handleCron(req) {
           throw new Error(`Brevo API error (${response.status}): ${errorMsg}`);
         }
 
-        const { error: updateError } = await supabase
+        const { error: updateError } = await supabaseAdmin
           .from('restaurants')
           .update({ email_sequence_step: currentStep + 1 })
           .eq('id', restaurant.id);
