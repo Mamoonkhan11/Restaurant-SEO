@@ -18,33 +18,31 @@ async function handleCron(req) {
       },
     });
 
-    const { data: restaurants, error: dbError } = await supabaseAdmin
-      .from('restaurants')
-      .select('digital_signature, email, name, terms_accepted, unsubscribed');
+    const targetTime = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+    const { data: leads, error: dbError } = await supabaseAdmin
+      .from('marketing_leads')
+      .select('id, email, restaurant_name, last_emailed_at, unsubscribed')
+      .eq('unsubscribed', false)
+      .or(`last_emailed_at.is.null,last_emailed_at.lt.${targetTime}`)
+      .limit(20);
 
     if (dbError) {
-      console.error('Error fetching restaurants for marketing campaign cron:', dbError);
+      console.error('Error fetching marketing leads:', dbError);
       return NextResponse.json({ error: 'Database query failed', details: dbError.message }, { status: 500 });
     }
 
-    const targets = (restaurants || []).filter(r => {
-      if (!r.email || r.unsubscribed === true) return false;
-      const isTermsAccepted = r.terms_accepted === true;
-      const hasValidOwner = r.digital_signature && r.digital_signature.trim() !== '';
-      return isTermsAccepted || hasValidOwner;
-    });
-
-    if (targets.length === 0) {
-      return NextResponse.json({ success: true, dispatched_count: 0, message: 'No eligible recipients found.' });
+    if (!leads || leads.length === 0) {
+      return NextResponse.json({ success: true, targets_dispatched: 0, message: 'No eligible leads found.' });
     }
 
+    let dispatchedCount = 0;
     const results = [];
 
-    for (const restaurant of targets) {
+    for (const lead of leads) {
       try {
-        const ownerName = restaurant.digital_signature || 'Restaurant Partner';
-        const brandName = restaurant.name || 'Your Restaurant';
-        const recipientEmail = restaurant.email;
+        const brandName = lead.restaurant_name || 'Your Restaurant';
+        const recipientEmail = lead.email;
 
         const htmlContent = `<!DOCTYPE html>
 <html>
@@ -147,29 +145,29 @@ async function handleCron(req) {
   <div class="container">
     <div class="card">
       <div class="logo">REST<span>DIGI</span></div>
-      <div class="greeting">Hi ${ownerName},</div>
+      <div class="greeting">Hey Team ${brandName},</div>
       <p class="text">
-        Running a busy kitchen at <strong>${brandName}</strong> shouldn't mean dealing with angry customers and misplaced order receipts. If order leaks and slow table turnovers are hurting your margins, it is time for a digital change.
+        We noticed how manual ordering and lost paper KOTs challenge fast-paced operations. If order leaks and slow table turnovers are hurting your margins, it is time for a digital change.
       </p>
       
       <ul class="pillars">
         <li class="pillar-item">
-          <span class="pillar-title">Smart QR Menu Framework:</span> Eliminates table-waiting times completely by letting guests scan, view, and place orders directly from their browsers in under 1 second.
+          <span class="pillar-title">Automated Smart QR Menus:</span> Eliminates table-waiting times completely by letting guests scan, view, and place orders directly from their browsers in under 1 second.
         </li>
         <li class="pillar-item">
-          <span class="pillar-title">Live KOT Automation Matrix:</span> Routes digital receipts directly to kitchen screens, eliminating paper loss, confusion, and preparation chaos.
+          <span class="pillar-title">Instantaneous Kitchen Displays:</span> Routes digital receipts directly to kitchen screens, eliminating paper loss, confusion, and preparation chaos.
         </li>
         <li class="pillar-item">
-          <span class="pillar-title">Live Telemetry Analytics Hub:</span> Provides live sales tracking and automatic weekly dish popularity metrics straight to your dashboard.
+          <span class="pillar-title">Live Telemetry Analytics:</span> Provides live sales tracking and automatic weekly dish popularity metrics straight to your dashboard, making it easy to track your weekly top items.
         </li>
       </ul>
 
       <p class="text">
-        To support our early restaurant partners, the first 5 registered merchants get our premium operational tier completely <strong>1 Month FREE</strong>.
+        Register your restaurant live today to secure a completely <strong>1 Month FREE Early Bird Account</strong>.
       </p>
 
       <div class="cta-wrapper">
-        <a href="https://www.restdigi.online" class="cta-button">Claim Your Free Digital Menu</a>
+        <a href="https://www.restdigi.online" class="cta-button">Claim Your 1 Month Free Account</a>
       </div>
 
       <div class="footer">
@@ -189,9 +187,9 @@ async function handleCron(req) {
             'api-key': process.env.BREVO_API_KEY || ''
           },
           body: JSON.stringify({
-            sender: { name: "RestDigi Support Team", email: "noreply@restdigi.online" },
-            to: [{ email: recipientEmail, name: ownerName }],
-            subject: "Is your restaurant leaking revenue? Stop manual order delays today",
+            sender: { name: "RestDigi Growth Team", email: "noreply@restdigi.online" },
+            to: [{ email: recipientEmail, name: brandName }],
+            subject: `Transforming manual dining chaos into zero-latency operations at ${brandName} `,
             htmlContent: htmlContent
           })
         });
@@ -201,18 +199,26 @@ async function handleCron(req) {
           throw new Error(`Brevo API error (${response.status}): ${errorMsg}`);
         }
 
+        const { error: updateError } = await supabaseAdmin
+          .from('marketing_leads')
+          .update({ last_emailed_at: new Date().toISOString() })
+          .eq('id', lead.id);
+
+        if (updateError) {
+          throw new Error(`Supabase last_emailed_at update failed: ${updateError.message}`);
+        }
+
+        dispatchedCount++;
         results.push({ email: recipientEmail, status: 'dispatched' });
       } catch (err) {
-        console.error(`Error dispatching marketing email to ${restaurant.email}:`, err.message);
-        results.push({ email: restaurant.email, status: 'failed', error: err.message });
+        console.error(`Error dispatching marketing email to ${lead.email}:`, err.message);
+        results.push({ email: lead.email, status: 'failed', error: err.message });
       }
     }
 
-    const dispatchedCount = results.filter(r => r.status === 'dispatched').length;
-
     return NextResponse.json({
       success: true,
-      dispatched_count: dispatchedCount,
+      targets_dispatched: dispatchedCount,
       details: results
     });
 
