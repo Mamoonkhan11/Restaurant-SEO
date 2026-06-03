@@ -1044,12 +1044,12 @@ export default function Home() {
                   </a>
                 </li>
                 <li>
-                  <a href="https://instagram.com/restdigii" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                  <a href="https://instagram.com/restdigi" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
                     Instagram
                   </a>
                 </li>
                 <li>
-                  <a href="https://youtube.com/restdigii" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
+                  <a href="https://www.youtube.com/@RESTDIGI" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
                     YouTube
                   </a>
                 </li>
