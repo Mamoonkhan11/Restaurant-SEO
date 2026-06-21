@@ -9,7 +9,7 @@ export default function BillingPage() {
   const { restaurant, refreshRestaurant } = useRestaurant();
   const [isLoading, setIsLoading] = useState(false);
   const [payments, setPayments] = useState<any[]>([]);
-  const [isAnnual, setIsAnnual] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(true);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   useEffect(() => {
@@ -229,74 +229,59 @@ export default function BillingPage() {
   const plans = [
     {
       id: 'basic',
-      name: 'Basic Plan',
-      price: isAnnual ? 1499 : 149,
-      period: isAnnual ? '/yr' : '/mo',
-      savings: isAnnual ? 'Save ~16%' : null,
-      description: 'Perfect to get started and test the waters with your digital menu.',
-      banner: 'First 5 Registered Businesses Get 1 Month Free! (Basic Tier Features Locked)',
+      name: 'Basic Dine-In Plan',
+      price: 19999,
+      period: '/yr',
+      savings: null,
+      description: 'Perfect for local cafes, and fast-food joints looking to fully automate their ordering table-by-table.',
       features: [
-        { name: 'Up to 12 Menu Items', included: true },
-        { name: 'Up to 5 Digital Tables', included: true },
-        { name: 'SEO Ranking Optimization', included: false },
-        { name: 'Top Selling Dish Analytics', included: false },
-        { name: 'Total QR Scans Metric Counter', included: false },
-        { name: 'Menu Item View Performance Graphs', included: false },
-        { name: 'Direct 24/7 Support & Assistance', included: false }
+        { name: 'Up to 50 Menu Items', included: true },
+        { name: 'Up to 10 Digital Tables', included: true },
+        { name: '100% Native RestDigi Order Processing (Zero third-party app jumps)', included: true },
+        { name: 'Instant Mobile Kitchen Notification Queue', included: true },
+        { name: 'Total QR Scans Metric Counter', included: true },
+        { name: 'Menu Item View Performance Graphs', included: true },
+        { name: 'Direct 24/7 Support & Assistance', included: true }
       ],
       highlight: false
     },
     {
       id: 'pro',
-      name: 'Pro Plan',
-      price: isAnnual ? 7899 : 699,
-      period: isAnnual ? '/yr' : '/mo',
-      savings: isAnnual ? 'Save ~6%' : null,
-      description: 'Everything you need to run and optimize your active digital menu.',
+      name: 'Pro Live-KOT Plan',
+      price: 39999,
+      period: '/yr',
+      savings: null,
+      description: 'Built for high-volume, premium cafes and busy fine-dining spots to eliminate waiter overhead completely.',
+      banner: 'Most Popular',
       features: [
-        { name: 'Up to 20 Menu Items', included: true },
-        { name: 'Up to 15 Digital Tables', included: true },
-        { name: 'SEO Ranking Optimization', included: true },
+        { name: 'Unlimited Menu Items', included: true },
+        { name: 'Up to 30 Digital Tables', included: true },
+        { name: '100% Native RestDigi Checkout Pipeline', included: true },
+        { name: 'Instant Kitchen Order Ticket (KOT) Desktop Dashboard', included: true },
+        { name: 'Automated Sound Alerts for New Orders', included: true },
+        { name: 'Automated Google Review & Local SEO Booster', included: true },
         { name: 'Top Selling Dish Analytics', included: true },
-        { name: 'Total QR Scans Metric Counter', included: true },
-        { name: 'Menu Item View Performance Graphs', included: false },
-        { name: 'Direct 24/7 Support & Assistance', included: false }
+        { name: 'Priority 24/7 Support & Assistance', included: true }
       ],
       highlight: true
     },
     {
       id: 'premium',
-      name: 'Premium Plan',
-      price: isAnnual ? 10499 : 999,
-      period: isAnnual ? '/yr' : '/mo',
-      savings: isAnnual ? 'Save ~12%' : null,
-      description: 'For growing brands looking for deeper data and direct metrics.',
-      features: [
-        { name: 'Up to 23 Menu Items', included: true },
-        { name: 'Up to 17 Digital Tables', included: true },
-        { name: 'SEO Ranking Optimization', included: true },
-        { name: 'Top Selling Dish Analytics', included: true },
-        { name: 'Total QR Scans Metric Counter', included: true },
-        { name: 'Menu Item View Performance Graphs', included: true },
-        { name: 'Direct 24/7 Support & Assistance', included: false }
-      ],
-      highlight: false
-    },
-    {
-      id: 'enterprise',
-      name: 'Enterprise Plan',
-      price: 'Custom / Contact Us',
-      period: '',
+      name: 'Premium Houseboat & Hotel Plan',
+      price: 64999,
+      period: '/yr',
       savings: null,
-      description: 'Fully tailored setup limits and direct enterprise priority support.',
+      description: 'Tailor-made for Dal Lake houseboats and hotels to run entirely seamless, app-free in-room room service.',
       features: [
-        { name: 'Manual Scalable Items (As per your custom need)', included: true },
-        { name: 'Unlimited Digital Tables', included: true },
-        { name: 'SEO Ranking Optimization', included: true },
+        { name: 'Unlimited Menu Items', included: true },
+        { name: 'Up to 60 Digital Rooms / Houseboat Decks', included: true },
+        { name: 'In-Room Native QR Order Routing Architecture', included: true },
+        { name: 'Floating Delivery Shikara Status Monitor', included: true },
+        { name: 'Instant Kitchen Order Ticket (KOT) Dashboard', included: true },
+        { name: 'Automated Sound Alerts for New Orders', included: true },
+        { name: 'Automated Google Review & Local SEO Booster', included: true },
         { name: 'Top Selling Dish Analytics', included: true },
-        { name: 'Total QR Scans Metric Counter', included: true },
-        { name: 'Menu Item View Performance Graphs', included: true },
-        { name: 'Direct 24/7 Support & Assistance', included: true }
+        { name: 'Dedicated Account Manager Support', included: true }
       ],
       highlight: false
     }
@@ -305,23 +290,20 @@ export default function BillingPage() {
   const getCtaLabel = (planId: string) => {
     if (currentPlan === planId) {
       if (daysRemaining <= 5) {
-        return isBasicTrial ? 'Upgrade Plan' : 'Upgrade Now';
+        return 'Renew Now';
       }
       return 'Current Plan';
     }
 
     if (planId === 'basic') {
       const hasUsedTrial = payments.length > 0;
-      return (currentPlan === 'free' && !hasUsedTrial) ? 'Start Free Month' : 'Switch to Basic';
+      return (currentPlan === 'free' && !hasUsedTrial) ? 'Start Free Month' : 'Activate Basic Dine-In';
     }
     if (planId === 'pro') {
-      return (currentPlan === 'premium' || currentPlan === 'enterprise') ? 'Switch to Pro' : 'Upgrade to Pro';
+      return 'Upgrade to Pro Live-KOT';
     }
     if (planId === 'premium') {
-      return currentPlan === 'enterprise' ? 'Switch to Premium' : 'Upgrade to Premium';
-    }
-    if (planId === 'enterprise') {
-      return 'Contact Sales';
+      return 'Upgrade to Premium';
     }
     return 'Upgrade';
   };
@@ -374,43 +356,18 @@ export default function BillingPage() {
         )}
       </div>
 
-      {/* Premium Sliding Billing Cycle Toggle */}
-      <div className="flex flex-col items-center justify-center space-y-3 py-4">
-        <div className="relative bg-gray-100 p-1 rounded-full grid grid-cols-2 w-72 border border-gray-200 shadow-inner">
-          <div
-            className="absolute top-1 bottom-1 bg-white rounded-full shadow-md transition-all duration-300 ease-out"
-            style={{
-              left: isAnnual ? 'calc(50% + 1px)' : '4px',
-              width: 'calc(50% - 5px)',
-            }}
-          />
-          <button
-            onClick={() => setIsAnnual(false)}
-            className={`relative z-10 py-2 text-sm font-bold rounded-full transition-colors duration-200 flex justify-center items-center ${!isAnnual ? 'text-gray-950' : 'text-gray-400 hover:text-gray-700'
-              }`}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setIsAnnual(true)}
-            className={`relative z-10 py-2 text-sm font-bold rounded-full transition-colors duration-200 flex justify-center items-center gap-1.5 ${isAnnual ? 'text-gray-950' : 'text-gray-400 hover:text-gray-700'
-              }`}
-          >
-            Annually
-            <span className="text-[10px] bg-emerald-500 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider scale-95">
-              Save
-            </span>
-          </button>
-        </div>
-        {isAnnual && (
-          <p className="text-xs font-semibold text-emerald-600 animate-fade-in">
-            Smart choice! Saving up to 16% on annual packages.
-          </p>
-        )}
+      {/* Yearly Billing Banner */}
+      <div className="flex flex-col items-center justify-center space-y-2 py-4">
+        <span className="text-xs font-extrabold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100 animate-fade-in">
+          Yearly Subscriptions
+        </span>
+        <p className="text-sm font-medium text-gray-500 animate-fade-in">
+          All RestDigi subscription plans are billed annually.
+        </p>
       </div>
 
-      {/* 4-Tier Grid Subscription Matrix */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
+      {/* 3-Tier Grid Subscription Matrix */}
+      <div className="grid grid-cols-1 md:grid-cols-3 max-w-6xl mx-auto gap-8 items-stretch">
         {plans.map((plan) => {
           const isCurrent = currentPlan === plan.id;
           const isCurrentExpiring = currentPlan === plan.id && daysRemaining <= 5;

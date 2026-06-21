@@ -278,10 +278,17 @@ export default function AdminDashboardOverview() {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [activeModalTitle, setActiveModalTitle] = useState<string | null>(null);
   const [historicalStats, setHistoricalStats] = useState<any[]>([]);
-  const { planType, canViewRevenue, canViewAllAnalytics, isTrial, isExpired, isLoading: isSubLoading } = useSubscription();
+  const { planType, isTrial, isExpired, isLoading: isSubLoading } = useSubscription();
 
-  const showProLock = !canViewAllAnalytics;
-  const canViewAdvancedAnalytics = ['premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired);
+  // Basic Dine-In Plan (and above) has access to Total Scans and Item View Performance Graphs
+  const hasBasicAccess = ['basic', 'pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired);
+  
+  // Pro Live-KOT Plan (and above) has access to Top Selling Dish Analytics
+  const hasProAccess = ['pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired);
+
+  const showTotalScansLock = !hasBasicAccess;
+  const showTopSellingDishLock = !hasProAccess;
+  const canViewAdvancedAnalytics = hasBasicAccess;
 
   const router = useRouter();
   useEffect(() => {
@@ -521,26 +528,26 @@ export default function AdminDashboardOverview() {
           {/* Total Scans Card */}
           <div
             onClick={() => {
-              if (showProLock) {
-                setActiveModalTitle('UpgradeToProTotalScans');
+              if (showTotalScansLock) {
+                setActiveModalTitle('UpgradeToBasicTotalScans');
               } else {
                 setActiveModalTitle('Total Scans');
               }
             }}
             className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative cursor-pointer group"
           >
-            <div className={`flex flex-col h-full ${showProLock ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
+            <div className={`flex flex-col h-full ${showTotalScansLock ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
               <div className="flex justify-between items-start mb-2">
                 <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Scans</p>
               </div>
-              <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{showProLock ? '999' : totalScans}</p>
+              <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{showTotalScansLock ? '999' : totalScans}</p>
             </div>
           </div>
 
           {/* Top Selling Dish Card */}
           <div
             onClick={() => {
-              if (showProLock) {
+              if (showTopSellingDishLock) {
                 setActiveModalTitle('UpgradeToProTopSellingDish');
               } else {
                 setActiveModalTitle('Top Selling Dish');
@@ -548,12 +555,12 @@ export default function AdminDashboardOverview() {
             }}
             className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative cursor-pointer group"
           >
-            <div className={`flex flex-col h-full ${showProLock ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
+            <div className={`flex flex-col h-full ${showTopSellingDishLock ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
               <div className="flex justify-between items-start mb-2">
                 <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Top Selling Dish</p>
               </div>
               <p className="text-xl font-extrabold text-gray-900 mt-0.5 truncate max-w-[140px]" title={topDish}>
-                {showProLock ? 'XXXXXXXXXX' : topDish}
+                {showTopSellingDishLock ? 'XXXXXXXXXX' : topDish}
               </p>
             </div>
           </div>
@@ -584,7 +591,7 @@ export default function AdminDashboardOverview() {
           <div
             onClick={() => {
               if (!canViewAdvancedAnalytics) {
-                setActiveModalTitle('UpgradeToPremiumAdvancedAnalytics');
+                setActiveModalTitle('UpgradeToBasicAdvancedAnalytics');
               }
             }}
             className={`lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col relative ${!canViewAdvancedAnalytics ? 'cursor-pointer' : ''}`}
@@ -675,7 +682,7 @@ export default function AdminDashboardOverview() {
               <>
                 <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
                   <h3 className="text-xl font-black text-gray-900">
-                    {activeModalTitle === 'UpgradeToPremiumAdvancedAnalytics' ? 'Upgrade to Premium' : 'Upgrade to Pro'}
+                    {activeModalTitle === 'UpgradeToProTopSellingDish' ? 'Upgrade to Pro' : 'Upgrade to Basic'}
                   </h3>
                   <button onClick={() => setActiveModalTitle(null)} className="text-gray-400 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-200 transition-colors">
                     <X className="w-5 h-5" />
@@ -686,25 +693,25 @@ export default function AdminDashboardOverview() {
                     <Lock className="w-8 h-8" />
                   </div>
                   <h4 className="text-lg font-bold text-gray-900">
-                    {activeModalTitle === 'UpgradeToProTotalScans'
+                    {activeModalTitle === 'UpgradeToBasicTotalScans'
                       ? 'Total Scans Metrics Locked'
-                      : activeModalTitle === 'UpgradeToPremiumAdvancedAnalytics'
+                      : activeModalTitle === 'UpgradeToBasicAdvancedAnalytics'
                         ? 'Advanced Analytics Locked'
                         : 'Top Selling Dish Locked'}
                   </h4>
                   <p className="text-sm text-gray-500 leading-relaxed">
-                    {activeModalTitle === 'UpgradeToProTotalScans'
-                      ? 'Upgrade to Pro to see the total scans and analyze customer traffic on your digital menu.'
-                      : activeModalTitle === 'UpgradeToPremiumAdvancedAnalytics'
-                        ? 'Upgrade to Premium to track all dish views, customer behavior, and detailed menu growth trends.'
-                        : 'Upgrade to Pro to identify your top selling dish and optimize your menu pricing.'}
+                    {activeModalTitle === 'UpgradeToBasicTotalScans'
+                      ? 'Upgrade to Basic Dine-In to see the total scans and analyze customer traffic on your digital menu.'
+                      : activeModalTitle === 'UpgradeToBasicAdvancedAnalytics'
+                        ? 'Upgrade to Basic Dine-In to track all dish views, customer behavior, and detailed menu growth trends.'
+                        : 'Upgrade to Pro Live-KOT to identify your top selling dish and optimize your menu pricing.'}
                   </p>
                   <Link
-                    href={activeModalTitle === 'UpgradeToPremiumAdvancedAnalytics' ? '/admin/billing#premium' : '/admin/billing#pro'}
+                    href={activeModalTitle === 'UpgradeToProTopSellingDish' ? '/admin/billing#pro' : '/admin/billing#basic'}
                     onClick={() => setActiveModalTitle(null)}
                     className="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white py-3.5 rounded-xl font-bold transition-all shadow-md text-sm text-center"
                   >
-                    {activeModalTitle === 'UpgradeToPremiumAdvancedAnalytics' ? 'Upgrade to Premium' : 'Upgrade to Pro'}
+                    {activeModalTitle === 'UpgradeToProTopSellingDish' ? 'Upgrade to Pro' : 'Upgrade to Basic'}
                   </Link>
                 </div>
               </>

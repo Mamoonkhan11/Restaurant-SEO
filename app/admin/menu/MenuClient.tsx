@@ -46,9 +46,9 @@ export default function MenuManagement() {
   const getPlanLimits = (plan: string) => {
     const limits: Record<string, { items: number; tables: number }> = {
       free: { items: 12, tables: 5 },
-      basic: { items: 12, tables: 5 },
-      pro: { items: 20, tables: 15 },
-      premium: { items: 23, tables: 17 },
+      basic: { items: 50, tables: 10 },
+      pro: { items: 999999, tables: 30 },
+      premium: { items: 999999, tables: 60 },
       enterprise: { items: 999999, tables: 999999 }
     };
     return limits[plan] || limits.free;

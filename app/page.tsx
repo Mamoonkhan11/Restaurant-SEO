@@ -7,7 +7,7 @@ import { QrCode, ChevronRight, TrendingUp, Check, X, BarChart3 } from 'lucide-re
 
 export default function Home() {
   const router = useRouter();
-  const [isAnnual, setIsAnnual] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(true);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -585,39 +585,14 @@ export default function Home() {
             <p className="text-gray-500 font-medium max-w-2xl mx-auto">Get started with our free basic trial, or upgrade to unlock advanced operations metrics.</p>
           </div>
 
-          {/* Premium Sliding Billing Cycle Toggle */}
-          <div className="flex flex-col items-center justify-center space-y-3 py-4 mb-12">
-            <div className="relative bg-gray-100 p-1 rounded-full grid grid-cols-2 w-72 border border-gray-200 shadow-inner">
-              <div
-                className="absolute top-1 bottom-1 bg-white rounded-full shadow-md transition-all duration-300 ease-out"
-                style={{
-                  left: isAnnual ? 'calc(50% + 1px)' : '4px',
-                  width: 'calc(50% - 5px)',
-                }}
-              />
-              <button
-                onClick={() => setIsAnnual(false)}
-                className={`relative z-10 py-2 text-sm font-bold rounded-full transition-colors duration-200 flex justify-center items-center ${!isAnnual ? 'text-gray-950' : 'text-gray-400 hover:text-gray-700'
-                  }`}
-              >
-                Monthly
-              </button>
-              <button
-                onClick={() => setIsAnnual(true)}
-                className={`relative z-10 py-2 text-sm font-bold rounded-full transition-colors duration-200 flex justify-center items-center gap-1.5 ${isAnnual ? 'text-gray-950' : 'text-gray-400 hover:text-gray-700'
-                  }`}
-              >
-                Annually
-                <span className="text-[10px] bg-emerald-500 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider scale-95">
-                  Save
-                </span>
-              </button>
-            </div>
-            {isAnnual && (
-              <p className="text-xs font-semibold text-emerald-600 animate-fade-in">
-                Smart choice! Saving up to 16% on annual packages.
-              </p>
-            )}
+          {/* Yearly Billing Banner */}
+          <div className="flex flex-col items-center justify-center space-y-2 py-4 mb-12">
+            <span className="text-xs font-extrabold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100">
+              Yearly Subscriptions
+            </span>
+            <p className="text-sm font-medium text-gray-500">
+              All RestDigi plans are billed annually for maximum savings.
+            </p>
           </div>
 
           {/* Comparison Matrix Table */}
@@ -625,70 +600,53 @@ export default function Home() {
             <table className="w-full min-w-[850px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/50">
-                  <th className="p-6 text-xl font-extrabold text-slate-900 w-[28%] align-top">
+                  <th className="p-6 text-xl font-extrabold text-slate-900 w-[40%] align-top">
                     <div className="flex flex-col justify-between h-full">
                       <span>Pricing Matrix</span>
                       <span className="text-xs text-slate-400 font-medium mt-2">Compare plans side-by-side</span>
                     </div>
                   </th>
 
-                  {/* Basic Plan Header */}
-                  <th className="p-6 w-[18%] align-top relative">
+                  {/* Basic Dine-In Plan Header */}
+                  <th className="p-6 w-[20%] align-top relative">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200"></div>
-                    <div className="font-bold text-slate-800 text-lg">Basic</div>
+                    <div className="font-bold text-slate-800 text-lg">Basic Dine-In</div>
                     <div className="text-2xl font-extrabold text-slate-900 mt-2">
-                      ₹{isAnnual ? 1499 : 149}
-                      <span className="text-xs text-slate-400 font-medium">/{isAnnual ? 'yr' : 'mo'}</span>
+                      ₹19,999
+                      <span className="text-xs text-slate-400 font-medium">/yr</span>
                     </div>
-                    {isAnnual && (
-                      <span className="inline-block text-[9px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-extrabold mt-1">
-                        Save ~16%
-                      </span>
-                    )}
-                    <div className="text-[9px] text-orange-600 font-bold mt-2 leading-tight uppercase bg-orange-50/50 p-1.5 rounded border border-orange-100/50">
-                      1 Month Free basic tier!
-                    </div>
+                    <span className="inline-block text-[9px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded font-bold mt-2">
+                      Billed Annually
+                    </span>
                   </th>
 
-                  {/* Pro Plan Header */}
-                  <th className="p-6 w-[18%] align-top relative bg-orange-50/10 border-x border-orange-100/50">
+                  {/* Pro Live-KOT Plan Header */}
+                  <th className="p-6 w-[20%] align-top relative bg-orange-50/10 border-x border-orange-100/50">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-orange-500"></div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-bold text-slate-800 text-lg">Pro</span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-bold text-slate-800 text-lg">Pro Live-KOT</span>
                       <span className="text-[8px] bg-orange-500 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0">Popular</span>
                     </div>
                     <div className="text-2xl font-extrabold text-slate-900 mt-2">
-                      ₹{isAnnual ? 7899 : 699}
-                      <span className="text-xs text-slate-400 font-medium">/{isAnnual ? 'yr' : 'mo'}</span>
+                      ₹39,999
+                      <span className="text-xs text-slate-400 font-medium">/yr</span>
                     </div>
-                    {isAnnual && (
-                      <span className="inline-block text-[9px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-extrabold mt-1">
-                        Save ~6%
-                      </span>
-                    )}
+                    <span className="inline-block text-[9px] text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded font-extrabold mt-2">
+                      Billed Annually
+                    </span>
                   </th>
 
-                  {/* Premium Plan Header */}
-                  <th className="p-6 w-[18%] align-top relative">
+                  {/* Premium Houseboat & Hotel Plan Header */}
+                  <th className="p-6 w-[20%] align-top relative">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200"></div>
-                    <div className="font-bold text-slate-800 text-lg">Premium</div>
+                    <div className="font-bold text-slate-800 text-lg">Premium Houseboat</div>
                     <div className="text-2xl font-extrabold text-slate-900 mt-2">
-                      ₹{isAnnual ? 10499 : 999}
-                      <span className="text-xs text-slate-400 font-medium">/{isAnnual ? 'yr' : 'mo'}</span>
+                      ₹64,999
+                      <span className="text-xs text-slate-400 font-medium">/yr</span>
                     </div>
-                    {isAnnual && (
-                      <span className="inline-block text-[9px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-extrabold mt-1">
-                        Save ~12%
-                      </span>
-                    )}
-                  </th>
-
-                  {/* Enterprise Plan Header */}
-                  <th className="p-6 w-[18%] align-top relative">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-slate-900"></div>
-                    <div className="font-bold text-slate-800 text-lg">Enterprise</div>
-                    <div className="text-2xl font-extrabold text-slate-900 mt-2">Custom</div>
-                    <span className="inline-block text-[9px] text-slate-400 font-medium mt-1">Tailored Limits</span>
+                    <span className="inline-block text-[9px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded font-bold mt-2">
+                      Billed Annually
+                    </span>
                   </th>
                 </tr>
               </thead>
@@ -697,31 +655,26 @@ export default function Home() {
                 {/* Row 1: Item & Menu Limits */}
                 <tr className="even:bg-slate-50/40">
                   <td className="p-5 font-semibold text-slate-700">Item & Menu Limits</td>
-                  <td className="p-5 text-slate-600">Up to 12 Menu Items</td>
-                  <td className="p-5 text-slate-800 font-semibold bg-orange-50/5 border-x border-orange-100/30">Up to 20 Menu Items</td>
-                  <td className="p-5 text-slate-600">Up to 23 Menu Items</td>
-                  <td className="p-5 text-slate-600 font-medium">Custom / Scalable</td>
+                  <td className="p-5 text-slate-600">Up to 50 Menu Items</td>
+                  <td className="p-5 text-slate-800 font-semibold bg-orange-50/5 border-x border-orange-100/30">Unlimited Menu Items</td>
+                  <td className="p-5 text-slate-600">Unlimited Menu Items</td>
                 </tr>
 
                 {/* Row 2: Tables allocation boundaries */}
                 <tr className="even:bg-slate-50/40">
                   <td className="p-5 font-semibold text-slate-700">Tables Allocation</td>
-                  <td className="p-5 text-slate-600">Up to 5 Tables</td>
-                  <td className="p-5 text-slate-800 font-semibold bg-orange-50/5 border-x border-orange-100/30">Up to 15 Tables</td>
-                  <td className="p-5 text-slate-600">Up to 17 Tables</td>
-                  <td className="p-5 text-slate-600 font-medium">Custom Tables</td>
+                  <td className="p-5 text-slate-600">Up to 10 Tables</td>
+                  <td className="p-5 text-slate-800 font-semibold bg-orange-50/5 border-x border-orange-100/30">Up to 30 Tables</td>
+                  <td className="p-5 text-slate-600">Up to 60 Rooms / Decks</td>
                 </tr>
 
-                {/* Row 3: Live Sales Counter telemetry loops */}
+                {/* Row 3: Native Order Routing */}
                 <tr className="even:bg-slate-50/40">
-                  <td className="p-5 font-semibold text-slate-700">Live Sales Counter</td>
+                  <td className="p-5 font-semibold text-slate-700">Native Order Routing</td>
                   <td className="p-5">
-                    <X className="w-5 h-5 text-rose-400" />
-                  </td>
-                  <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
                     <Check className="w-5 h-5 text-emerald-500" />
                   </td>
-                  <td className="p-5">
+                  <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
                     <Check className="w-5 h-5 text-emerald-500" />
                   </td>
                   <td className="p-5">
@@ -741,21 +694,15 @@ export default function Home() {
                   <td className="p-5">
                     <Check className="w-5 h-5 text-emerald-500" />
                   </td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
                 </tr>
 
                 {/* Row 5: Detailed Item View Analytics graphs */}
                 <tr className="even:bg-slate-50/40">
                   <td className="p-5 font-semibold text-slate-700">Detailed Item View Analytics</td>
                   <td className="p-5">
-                    <X className="w-5 h-5 text-rose-400" />
+                    <Check className="w-5 h-5 text-emerald-500" />
                   </td>
                   <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
-                    <X className="w-5 h-5 text-rose-400" />
-                  </td>
-                  <td className="p-5">
                     <Check className="w-5 h-5 text-emerald-500" />
                   </td>
                   <td className="p-5">
@@ -775,25 +722,19 @@ export default function Home() {
                   <td className="p-5">
                     <Check className="w-5 h-5 text-emerald-500" />
                   </td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
                 </tr>
 
                 {/* Row 7: Direct 24/7 Priority Support */}
                 <tr className="even:bg-slate-50/40">
                   <td className="p-5 font-semibold text-slate-700">Direct 24/7 Priority Support</td>
                   <td className="p-5">
-                    <X className="w-5 h-5 text-rose-400" />
+                    <span className="text-xs text-slate-500 font-semibold">Standard 24/7 Support</span>
                   </td>
                   <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
-                    <X className="w-5 h-5 text-rose-400" />
+                    <span className="text-xs text-orange-600 font-bold">Priority 24/7 Support</span>
                   </td>
                   <td className="p-5">
-                    <X className="w-5 h-5 text-rose-400" />
-                  </td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
+                    <span className="text-xs text-slate-600 font-bold">Dedicated Account Manager</span>
                   </td>
                 </tr>
 
@@ -823,14 +764,6 @@ export default function Home() {
                     >
                       Get Started
                     </Link>
-                  </td>
-                  <td className="p-5">
-                    <a
-                      href="mailto:support@restdigi.online?subject=Enterprise%20Plan%20Inquiry"
-                      className="block w-full py-2.5 px-4 text-center text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all shadow-sm"
-                    >
-                      Contact Sales
-                    </a>
                   </td>
                 </tr>
               </tbody>
