@@ -600,7 +600,7 @@ export default function Home() {
             <table className="w-full min-w-[850px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/50">
-                  <th className="p-6 text-xl font-extrabold text-slate-900 w-[40%] align-top">
+                  <th className="p-6 text-xl font-extrabold text-slate-900 w-[36%] align-top">
                     <div className="flex flex-col justify-between h-full">
                       <span>Pricing Matrix</span>
                       <span className="text-xs text-slate-400 font-medium mt-2">Compare plans side-by-side</span>
@@ -608,7 +608,7 @@ export default function Home() {
                   </th>
 
                   {/* Basic Dine-In Plan Header */}
-                  <th className="p-6 w-[20%] align-top relative">
+                  <th className="p-6 w-[16%] align-top relative">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200"></div>
                     <div className="font-bold text-slate-800 text-lg">Basic Dine-In</div>
                     <div className="text-2xl font-extrabold text-slate-900 mt-2">
@@ -621,7 +621,7 @@ export default function Home() {
                   </th>
 
                   {/* Pro Live-KOT Plan Header */}
-                  <th className="p-6 w-[20%] align-top relative bg-orange-50/10 border-x border-orange-100/50">
+                  <th className="p-6 w-[16%] align-top relative bg-orange-50/10 border-x border-orange-100/50">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-orange-500"></div>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="font-bold text-slate-800 text-lg">Pro Live-KOT</span>
@@ -632,12 +632,12 @@ export default function Home() {
                       <span className="text-xs text-slate-400 font-medium">/yr</span>
                     </div>
                     <span className="inline-block text-[9px] text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded font-extrabold mt-2">
-                      Billed Annually
+                      14-Day Free Trial
                     </span>
                   </th>
 
                   {/* Premium Houseboat & Hotel Plan Header */}
-                  <th className="p-6 w-[20%] align-top relative">
+                  <th className="p-6 w-[16%] align-top relative">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200"></div>
                     <div className="font-bold text-slate-800 text-lg">Premium Houseboat</div>
                     <div className="text-2xl font-extrabold text-slate-900 mt-2">
@@ -646,6 +646,16 @@ export default function Home() {
                     </div>
                     <span className="inline-block text-[9px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded font-bold mt-2">
                       Billed Annually
+                    </span>
+                  </th>
+
+                  {/* Enterprise Network Plan Header */}
+                  <th className="p-6 w-[16%] align-top relative">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-slate-900"></div>
+                    <div className="font-bold text-slate-800 text-lg">Enterprise Network</div>
+                    <div className="text-2xl font-extrabold text-slate-900 mt-2">Custom</div>
+                    <span className="inline-block text-[9px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded font-bold mt-2">
+                      Contact Us
                     </span>
                   </th>
                 </tr>
@@ -658,6 +668,7 @@ export default function Home() {
                   <td className="p-5 text-slate-600">Up to 50 Menu Items</td>
                   <td className="p-5 text-slate-800 font-semibold bg-orange-50/5 border-x border-orange-100/30">Unlimited Menu Items</td>
                   <td className="p-5 text-slate-600">Unlimited Menu Items</td>
+                  <td className="p-5 text-slate-600 font-medium">Unlimited Multi-Outlet</td>
                 </tr>
 
                 {/* Row 2: Tables allocation boundaries */}
@@ -666,6 +677,7 @@ export default function Home() {
                   <td className="p-5 text-slate-600">Up to 10 Tables</td>
                   <td className="p-5 text-slate-800 font-semibold bg-orange-50/5 border-x border-orange-100/30">Up to 30 Tables</td>
                   <td className="p-5 text-slate-600">Up to 60 Rooms / Decks</td>
+                  <td className="p-5 text-slate-600 font-medium">Unlimited & Dashboards</td>
                 </tr>
 
                 {/* Row 3: Native Order Routing */}
@@ -675,6 +687,9 @@ export default function Home() {
                     <Check className="w-5 h-5 text-emerald-500" />
                   </td>
                   <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                  <td className="p-5">
                     <Check className="w-5 h-5 text-emerald-500" />
                   </td>
                   <td className="p-5">
@@ -694,6 +709,9 @@ export default function Home() {
                   <td className="p-5">
                     <Check className="w-5 h-5 text-emerald-500" />
                   </td>
+                  <td className="p-5">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
                 </tr>
 
                 {/* Row 5: Detailed Item View Analytics graphs */}
@@ -703,6 +721,9 @@ export default function Home() {
                     <Check className="w-5 h-5 text-emerald-500" />
                   </td>
                   <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
+                  <td className="p-5">
                     <Check className="w-5 h-5 text-emerald-500" />
                   </td>
                   <td className="p-5">
@@ -722,6 +743,9 @@ export default function Home() {
                   <td className="p-5">
                     <Check className="w-5 h-5 text-emerald-500" />
                   </td>
+                  <td className="p-5">
+                    <Check className="w-5 h-5 text-emerald-500" />
+                  </td>
                 </tr>
 
                 {/* Row 7: Direct 24/7 Priority Support */}
@@ -735,6 +759,9 @@ export default function Home() {
                   </td>
                   <td className="p-5">
                     <span className="text-xs text-slate-600 font-bold">Dedicated Account Manager</span>
+                  </td>
+                  <td className="p-5">
+                    <span className="text-xs text-slate-900 font-bold">Enterprise-Grade Support</span>
                   </td>
                 </tr>
 
@@ -764,6 +791,14 @@ export default function Home() {
                     >
                       Get Started
                     </Link>
+                  </td>
+                  <td className="p-5">
+                    <a
+                      href="mailto:support@restdigi.online?subject=Enterprise%20Network%20Plan%20Inquiry&body=Hi%20RestDigi%20Team%2C%0A%0AI'm%20interested%20in%20the%20Enterprise%20Network%20Plan%20for%20my%20restaurant%20chain.%20Please%20contact%20me%20with%20details."
+                      className="block w-full py-2.5 px-4 text-center text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all shadow-sm"
+                    >
+                      Contact Sales Team
+                    </a>
                   </td>
                 </tr>
               </tbody>

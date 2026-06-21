@@ -14,7 +14,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const { isTrial, daysLeft, isExpired, planType } = useSubscription();
   const showExpiredOverlay = isExpired && pathname !== '/admin/billing';
   const isUrgent = daysLeft !== null && daysLeft <= 5;
-  const isPromoUser = planType === 'basic' && payments && payments.some(p => p.plan_tier === 'basic' && p.payment_gateway === 'system_promo');
+  const isPromoUser = planType === 'pro' && payments && payments.some(p => p.plan_tier === 'pro' && p.payment_gateway === 'system_promo');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

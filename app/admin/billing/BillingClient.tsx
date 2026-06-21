@@ -162,12 +162,12 @@ export default function BillingPage() {
     setIsLoading(true);
     try {
       const newExpiry = new Date();
-      newExpiry.setDate(newExpiry.getDate() + 30); // 30 days trial
+      newExpiry.setDate(newExpiry.getDate() + 14); // 14 days trial
 
       const { error } = await supabase
         .from('restaurants')
         .update({
-          plan_type: 'basic',
+          plan_type: 'pro',
           subscription_status: 'active',
           expiry_date: newExpiry.toISOString()
         })
@@ -179,15 +179,15 @@ export default function BillingPage() {
       await supabase.from('payments').insert({
         restaurant_id: restaurant?.id,
         amount: 0,
-        plan_tier: 'basic',
-        billing_cycle: 'monthly',
+        plan_tier: 'pro',
+        billing_cycle: 'yearly',
         status: 'success',
         payment_gateway: 'system_promo',
-        description: 'Automated 1-Month Early Adopter Promotional Free Activation',
+        description: 'Automated 14-Day Pro Live-KOT Free Pilot',
         created_at: new Date().toISOString()
       });
 
-      toast.success('Successfully activated your 1-Month Free Trial of Basic Plan!');
+      toast.success('Successfully activated your 14-Day Free Trial of Pro Live-KOT Plan!');
       await refreshRestaurant();
       await fetchPayments();
     } catch (err: any) {
@@ -252,7 +252,7 @@ export default function BillingPage() {
       period: '/yr',
       savings: null,
       description: 'Built for high-volume, premium cafes and busy fine-dining spots to eliminate waiter overhead completely.',
-      banner: 'Most Popular',
+      banner: '14-Day Free Trial Available',
       features: [
         { name: 'Unlimited Menu Items', included: true },
         { name: 'Up to 30 Digital Tables', included: true },
@@ -284,6 +284,25 @@ export default function BillingPage() {
         { name: 'Dedicated Account Manager Support', included: true }
       ],
       highlight: false
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise Network Plan',
+      price: 'Custom Pricing',
+      period: '/ Contact Us',
+      savings: null,
+      description: 'Fully tailored multi-outlet setup limits and direct enterprise priority support for major local restaurant chains.',
+      features: [
+        { name: 'Unlimited Menu Items across Multiple Outlets', included: true },
+        { name: 'Unlimited Digital Tables & Multi-Location Dashboards', included: true },
+        { name: 'Custom Third-Party POS API Integrations', included: true },
+        { name: 'Dedicated Infrastructure Hosting Setup', included: true },
+        { name: 'Top Selling Dish Analytics', included: true },
+        { name: 'Total QR Scans Metric Counter', included: true },
+        { name: 'Menu Item View Performance Graphs', included: true },
+        { name: 'Enterprise-Grade Priority Support', included: true }
+      ],
+      highlight: false
     }
   ];
 
@@ -296,22 +315,25 @@ export default function BillingPage() {
     }
 
     if (planId === 'basic') {
-      const hasUsedTrial = payments.length > 0;
-      return (currentPlan === 'free' && !hasUsedTrial) ? 'Start Free Month' : 'Activate Basic Dine-In';
+      return 'Activate Basic Dine-In';
     }
     if (planId === 'pro') {
-      return 'Upgrade to Pro Live-KOT';
+      const hasUsedTrial = payments.length > 0;
+      return (currentPlan === 'free' && !hasUsedTrial) ? 'Start 14-Day Free Trial' : 'Upgrade to Pro Live-KOT';
     }
     if (planId === 'premium') {
       return 'Upgrade to Premium';
+    }
+    if (planId === 'enterprise') {
+      return 'Contact Sales Team';
     }
     return 'Upgrade';
   };
 
   const mailtoUrl = `mailto:support@restdigi.online?subject=${encodeURIComponent(
-    `Enterprise Plan Inquiry - ${restaurant?.name || ''}`
+    `Enterprise Network Plan Inquiry - ${restaurant?.name || ''}`
   )}&body=${encodeURIComponent(
-    `Hi RESTDIGI Team,\n\nI'm interested in the Enterprise Plan for my restaurant "${restaurant?.name || ''}" (ID: ${restaurant?.id || ''}). Please contact me with details.`
+    `Hi RESTDIGI Team,\n\nI'm interested in the Enterprise Network Plan for my restaurant "${restaurant?.name || ''}" (ID: ${restaurant?.id || ''}). Please contact me with details.`
   )}`;
 
   return (
@@ -366,8 +388,8 @@ export default function BillingPage() {
         </p>
       </div>
 
-      {/* 3-Tier Grid Subscription Matrix */}
-      <div className="grid grid-cols-1 md:grid-cols-3 max-w-6xl mx-auto gap-8 items-stretch">
+      {/* 4-Tier Grid Subscription Matrix */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
         {plans.map((plan) => {
           const isCurrent = currentPlan === plan.id;
           const isCurrentExpiring = currentPlan === plan.id && daysRemaining <= 5;
@@ -438,12 +460,12 @@ export default function BillingPage() {
 
                 <button
                   onClick={() => {
-                    if (plan.id === 'basic') {
+                    if (plan.id === 'pro') {
                       const hasUsedTrial = payments.length > 0;
                       if (currentPlan === 'free' && !hasUsedTrial) {
                         handleStartFreeTrial();
                       } else {
-                        handleUpgrade('basic', plan.price as number, isAnnual);
+                        handleUpgrade('pro', plan.price as number, isAnnual);
                       }
                     } else if (plan.id === 'enterprise') {
                       window.location.href = mailtoUrl;

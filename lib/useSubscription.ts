@@ -23,12 +23,11 @@ export const useSubscription = () => {
   const expiryDate = restaurant.expiry_date ? new Date(restaurant.expiry_date) : null;
   const now = new Date();
 
-  const isBasicTrial = planType === 'basic' && (
-    (payments && payments.some(p => p.plan_tier === 'basic' && p.payment_gateway === 'system_promo')) ||
-    (!payments || !payments.some(p => p.plan_tier === 'basic' && p.payment_gateway === 'razorpay' && p.status === 'success'))
+  const isProTrial = planType === 'pro' && (
+    (payments && payments.some(p => p.plan_tier === 'pro' && p.payment_gateway === 'system_promo'))
   );
 
-  const isTrial = (planType === 'free' && !!trialEndsAt) || isBasicTrial;
+  const isTrial = (planType === 'free' && !!trialEndsAt) || isProTrial;
   const isExpired = planType !== 'free' && expiryDate
     ? now > expiryDate
     : (trialEndsAt ? now > trialEndsAt : false);
