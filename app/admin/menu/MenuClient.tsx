@@ -166,7 +166,7 @@ export default function MenuManagement() {
         <div className="pointer-events-none select-none blur-md opacity-60">
           {content}
         </div>
-        <div className="absolute inset-0 flex items-center justify-center p-4 z-20 pointer-events-auto">
+        <div className="absolute inset-0 flex items-start justify-center pt-12 sm:pt-24 p-4 z-20 pointer-events-auto">
           <div className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/20 animate-fade-in-up">
             <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
               <Lock className="w-8 h-8" />
