@@ -11,12 +11,28 @@ export default async function DigitalMenu({
   params: { slug: string };
   searchParams: { tableId?: string; table?: string };
 }) {
-  // Fetch Restaurant
-  const { data: restaurant } = await supabase
+  // Fetch Restaurant and Tables (if tableId present) in parallel
+  const restaurantPromise = supabase
     .from('restaurants')
     .select('*')
     .eq('slug', params.slug)
     .single();
+
+  const tablePromise = searchParams.tableId
+    ? supabase
+        .from('tables')
+        .select('restaurant_id, table_no')
+        .eq('id', searchParams.tableId)
+        .single()
+    : Promise.resolve({ data: null });
+
+  const [restaurantResult, tableResult] = await Promise.all([
+    restaurantPromise,
+    tablePromise
+  ]);
+
+  const restaurant = restaurantResult.data;
+  const tableRecord = tableResult.data;
 
   if (!restaurant) {
     return (
@@ -62,23 +78,10 @@ export default async function DigitalMenu({
     }
   }
 
-  let restaurantIdToFetch = restaurant.id;
-  let tableNo: string | undefined = undefined;
+  const restaurantIdToFetch = (searchParams.tableId && tableRecord) ? tableRecord.restaurant_id : restaurant.id;
+  const tableNo = (searchParams.tableId && tableRecord) ? tableRecord.table_no : undefined;
 
-  if (searchParams.tableId) {
-    const { data: tableRecord } = await supabase
-      .from('tables')
-      .select('restaurant_id, table_no')
-      .eq('id', searchParams.tableId)
-      .single();
-
-    if (tableRecord) {
-      restaurantIdToFetch = tableRecord.restaurant_id;
-      tableNo = tableRecord.table_no;
-    }
-  }
-
-  // Fetch Dishes
+  // Fetch Dishes using the resolved restaurant ID
   const { data: dishesData, error: dishesError } = await supabase
     .from('dishes')
     .select('*')

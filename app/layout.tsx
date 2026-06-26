@@ -71,6 +71,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://ybfpqcbxzrswnpnxektg.supabase.co" />
+        <link rel="dns-prefetch" href="https://ybfpqcbxzrswnpnxektg.supabase.co" />
+      </head>
       <body className={`${jakarta.variable} font-sans`}>
         {children}
         <script

@@ -108,3 +108,14 @@ CREATE TABLE IF NOT EXISTS marketing_leads (
 -- Alter restaurants to add last_seen_at and last_retention_emailed_at columns
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS last_retention_emailed_at TIMESTAMP WITH TIME ZONE;
+
+-- Create performance indexes for optimized lookup speeds
+CREATE INDEX IF NOT EXISTS idx_restaurants_slug ON public.restaurants(slug);
+CREATE INDEX IF NOT EXISTS idx_restaurants_owner_id ON public.restaurants(owner_id);
+CREATE INDEX IF NOT EXISTS idx_dishes_restaurant_id ON public.dishes(restaurant_id);
+CREATE INDEX IF NOT EXISTS idx_dishes_category ON public.dishes(category);
+CREATE INDEX IF NOT EXISTS idx_tables_restaurant_id ON public.tables(restaurant_id);
+CREATE INDEX IF NOT EXISTS idx_tables_qr_slug ON public.tables(qr_slug);
+CREATE INDEX IF NOT EXISTS idx_orders_restaurant_id ON public.orders(restaurant_id);
+CREATE INDEX IF NOT EXISTS idx_orders_restaurant_status ON public.orders(restaurant_id, status);
+CREATE INDEX IF NOT EXISTS idx_payments_restaurant_id ON public.payments(restaurant_id);

@@ -50,12 +50,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4 lg:py-5">
             <div className="flex items-center py-1 sm:py-2">
-              <img
+              <Image
                 src="/restdigi-logo.png"
-                className="h-10 sm:h-12 lg:h-16 w-auto object-contain transition-transform hover:scale-105 brightness-110"
                 alt="RESTDIGI Logo"
-                fetchPriority="high"
-                loading="eager"
+                width={160}
+                height={48}
+                className="h-10 sm:h-12 lg:h-16 w-auto object-contain transition-transform hover:scale-105 brightness-110"
+                priority
               />
             </div>
             <div className="flex items-center gap-4 sm:gap-6">
@@ -794,10 +795,12 @@ export default function Home() {
 
             {/* Column 1 */}
             <div className="space-y-4">
-              <img
+              <Image
                 src="/restdigi-logo.png"
-                className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105 brightness-110"
                 alt="RESTDIGI Logo"
+                width={120}
+                height={36}
+                className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105 brightness-110"
                 loading="lazy"
               />
               <p className="text-gray-400 text-sm leading-relaxed max-w-xs">

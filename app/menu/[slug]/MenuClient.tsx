@@ -5,14 +5,24 @@ import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { X, MessageCircle, Loader2, Search, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+const formatTableNumber = (name?: string) => {
+  if (!name) return '';
+  const trimmed = name.trim();
+  if (/^table\b/i.test(trimmed)) return trimmed;
+  return `Table ${trimmed}`;
+};
+
 const MenuHeader = React.memo(({ restaurant, menuBlocked, tableNo }: { restaurant: any, menuBlocked: boolean, tableNo?: string }) => (
   <div className="pt-8 pb-6 px-4 flex flex-col items-center justify-center bg-transparent relative z-10">
     <div className="w-24 h-24 sm:w-28 sm:h-28 bg-white/5 rounded-full border border-white/10 flex items-center justify-center overflow-hidden mb-3 relative shadow-sm transition-transform hover:scale-105">
       {restaurant?.logo_url ? (
-        <img 
+        <Image 
           src={restaurant.logo_url} 
           alt="Logo" 
-          className="w-full h-full object-cover" 
+          fill
+          sizes="(max-width: 768px) 96px, 112px"
+          priority
+          className="object-cover" 
           key={restaurant.logo_url} 
         />
       ) : (
@@ -26,7 +36,7 @@ const MenuHeader = React.memo(({ restaurant, menuBlocked, tableNo }: { restauran
     </h1>
     {tableNo && (
       <span className="mt-2 px-3 py-1 rounded-full bg-white/5 text-white font-extrabold text-[10px] tracking-wider border border-white/10 uppercase shadow-sm">
-        Table {tableNo}
+        {formatTableNumber(tableNo)}
       </span>
     )}
   </div>
@@ -77,7 +87,7 @@ export default function MenuClient({
   const [dishQuantity, setDishQuantity] = useState(1);
 
   const handleCallWaiter = () => {
-    const tableText = tableNo ? `Table ${tableNo}` : 'our table';
+    const tableText = tableNo ? formatTableNumber(tableNo).toLowerCase() : 'our table';
     const msg = `Hi! I need assistance at ${tableText}. Could a waiter please come over?`;
     const whatsappNum = (restaurant?.whatsapp_number || '').replace(/[^0-9]/g, '');
     if (whatsappNum) {
@@ -660,7 +670,7 @@ export default function MenuClient({
                     <p className="text-gray-400 font-medium sm:text-lg">No dishes found matching your search.</p>
                   </div>
                 ) : (
-                  categories.map((cat) => {
+                  categories.map((cat, catIdx) => {
                     const categoryDishes = groupedDishes[cat];
                     if (!categoryDishes || categoryDishes.length === 0) return null;
 
@@ -709,7 +719,7 @@ export default function MenuClient({
                                       sizes="(max-width: 640px) 96px, 112px"
                                       alt={item.name}
                                       className="object-cover"
-                                      loading="lazy"
+                                      priority={catIdx === 0 && idx < 4}
                                     />
                                   ) : (
                                     <span className="text-2xl font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
@@ -846,9 +856,11 @@ export default function MenuClient({
               {/* Powered By Footer — inside the dark container to keep visual contrast */}
               <footer className="w-full text-center py-10 mt-16 border-t border-white/5 shrink-0 flex flex-col items-center justify-center gap-1.5">
                 <span className="text-[9px] tracking-widest font-black uppercase text-gray-500">Powered By</span>
-                <img 
+                <Image 
                   src="/restdigi-logo.png" 
                   alt="RESTDIGI" 
+                  width={90}
+                  height={20}
                   className="h-5 w-auto object-contain drop-shadow-[0_0_8px_rgba(234,88,12,0.6)] select-none" 
                 />
               </footer>
@@ -1090,7 +1102,7 @@ export default function MenuClient({
                                   <h3 className="text-xl font-black text-[#0F1012] leading-none">KOT Confirmed</h3>
                                 </div>
                                 <span className="bg-[#EA580C] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-[0_0_12px_rgba(234,88,12,0.2)]">
-                                  Table {tableNo || '-'}
+                                  {formatTableNumber(tableNo) || '-'}
                                 </span>
                               </div>
                               
@@ -1216,7 +1228,7 @@ export default function MenuClient({
                                       KOT Ticket #{orderIdx + 1}
                                     </span>
                                     <span className="text-sm font-black text-white leading-none">
-                                      {tableNo ? `Table ${tableNo}` : 'WhatsApp Order'}
+                                      {tableNo ? formatTableNumber(tableNo) : 'WhatsApp Order'}
                                     </span>
                                   </div>
                                   <div className="flex flex-col items-end gap-1">
