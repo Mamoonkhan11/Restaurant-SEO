@@ -104,7 +104,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   const wrapWithLock = (content: React.ReactNode) => {
     if (isSubLoading) {
       return (
-        <div className="bg-white p-6 rounded-2xl border border-orange-200 shadow-sm flex items-center justify-center mb-8 relative min-h-[200px]">
+        <div className="bg-white p-8 rounded-3xl border border-orange-100 shadow-sm flex items-center justify-center mb-8 relative min-h-[220px]">
           <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
         </div>
       );
@@ -113,21 +113,21 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
 
     return (
       <div className="relative w-full mb-8">
-        <div className="pointer-events-none select-none blur-md opacity-60">
+        <div className="pointer-events-none select-none blur-md opacity-50">
           {content}
         </div>
         <div className="absolute inset-0 flex items-center justify-center p-4 z-20 pointer-events-auto">
-          <div className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/20 animate-fade-in-up">
-            <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Lock className="w-8 h-8" />
+          <div className="bg-white/70 backdrop-blur-xl p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] max-w-md w-full text-center border border-white/40 animate-fade-in-up">
+            <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-100 shadow-sm">
+              <Lock className="w-7 h-7" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No Active Plan</h3>
+            <h3 className="text-xl font-black text-gray-900 mb-2">No Active Plan</h3>
             <p className="text-sm text-gray-500 mb-6 leading-relaxed">
               Please select a subscription tier from the Billing panel to unlock these management interfaces.
             </p>
             <Link
               href="/admin/billing"
-              className="inline-block bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-colors"
+              className="inline-block bg-gradient-to-r from-orange-600 to-red-500 hover:from-orange-700 hover:to-red-600 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-[0_4px_15px_rgba(234,88,12,0.2)] transition-all hover:scale-[1.02]"
             >
               Go to Billing
             </Link>
@@ -138,21 +138,21 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   };
 
   return wrapWithLock(
-    <div className="bg-white p-6 rounded-2xl border border-orange-200 shadow-sm flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
-      <div className="absolute top-0 left-0 w-full h-1 bg-orange-500"></div>
+    <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.02)] flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
+      <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-500 to-red-500"></div>
       <div className="mb-6 flex justify-between items-center">
         <div>
           <h3 className="text-xl font-black text-gray-900 flex flex-wrap items-center gap-2">
             <span>Live Kitchen Orders (KOT)</span>
             {liveOrders.filter(o => o.status === 'pending').length > 0 && (
-              <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-bold animate-pulse">
+              <span className="bg-red-100 text-red-600 text-xs px-2.5 py-1 rounded-full font-bold animate-pulse">
                 {liveOrders.filter(o => o.status === 'pending').length} Action Required
               </span>
             )}
             {!audioMuted ? (
               <button
                 onClick={handleToggleAudio}
-                className="bg-orange-100 hover:bg-orange-200 text-orange-800 text-[11px] px-2.5 py-1 rounded-full font-bold border border-orange-200 transition-colors cursor-pointer"
+                className="bg-orange-50 hover:bg-orange-100 text-orange-700 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-orange-200/50 transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
                 title="Click to Mute Notifications"
               >
                 Tap Here to Disable Audio
@@ -160,7 +160,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             ) : (
               <button
                 onClick={handleToggleAudio}
-                className="bg-orange-50 hover:bg-orange-100 text-orange-700 text-[11px] px-2.5 py-1 rounded-full font-bold border border-orange-200/60 transition-colors animate-pulse cursor-pointer"
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-slate-200 transition-colors animate-pulse flex items-center gap-1 cursor-pointer shadow-sm"
                 title="Click to Enable Audio"
               >
                 Tap Here to Enable Audio
@@ -174,15 +174,15 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
       {liveOrders.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {liveOrders.map(order => (
-            <div key={order.id} className={`p-6 rounded-2xl border ${order.status === 'pending' ? 'border-amber-200 bg-amber-50/30' : order.status === 'preparing' ? 'border-orange-200 bg-orange-50/30' : 'border-gray-100 bg-white'} shadow-sm relative transition-all duration-200 ease-in-out hover:shadow-md flex flex-col`}>
-              <div className="flex justify-between items-start mb-4 border-b border-gray-100 pb-4">
+            <div key={order.id} className={`p-6 rounded-2xl border transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md flex flex-col relative ${order.status === 'pending' ? 'border-amber-200 bg-amber-50/20 shadow-[0_4px_15px_rgba(245,158,11,0.03)]' : order.status === 'preparing' ? 'border-orange-200 bg-orange-50/20 shadow-[0_4px_15px_rgba(249,115,22,0.03)]' : 'border-slate-100 bg-white shadow-sm'}`}>
+              <div className="flex justify-between items-start mb-4 border-b border-slate-100 pb-4">
                 <div>
-                  <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1 block">Table</span>
+                  <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-1 block">Table</span>
                   <h4 className="font-black text-[#111827] text-2xl leading-none">{order.table_no}</h4>
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded">
+                    <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest bg-slate-50 px-2.5 py-1 rounded border border-slate-100">
                       {timeAgo(order.created_at)}
                     </span>
                     <button
@@ -208,7 +208,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 {order.items?.map((item: any, idx: number) => (
                   <div key={idx} className="flex justify-between items-start text-sm group transition-all duration-200">
                     <div className="flex items-start gap-3">
-                      <span className="text-[#111827] font-black bg-gray-100 px-2 py-1 rounded-md text-xs">{item.quantity}x</span>
+                      <span className="text-[#111827] font-black bg-slate-100 px-2 py-0.5 rounded text-xs">{item.quantity}x</span>
                       <div className="flex flex-col">
                         <span className="font-bold text-[#111827] leading-tight">{item.name}</span>
                         {item.size && item.size !== 'Standard' && <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mt-0.5">{item.size}</span>}
@@ -219,8 +219,8 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 ))}
               </div>
 
-              <div className="pt-4 border-t border-dashed border-gray-200 flex justify-between items-center mb-6">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Amount</span>
+              <div className="pt-4 border-t border-dashed border-slate-200/80 flex justify-between items-center mb-6">
+                <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Total Amount</span>
                 <span className="text-xl font-black text-[#111827] tabular-nums">₹{Number(order.total_amount || 0).toFixed(2)}</span>
               </div>
 
@@ -230,7 +230,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                     onClick={async () => {
                       await supabase.from('orders').update({ status: 'preparing' }).eq('id', order.id);
                     }}
-                    className="flex-1 bg-[#111827] hover:bg-black text-white text-sm font-bold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+                    className="flex-1 bg-slate-900 hover:bg-black text-white text-sm font-extrabold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
                   >
                     Start Preparing
                   </button>
@@ -240,7 +240,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                     onClick={async () => {
                       await supabase.from('orders').update({ status: 'served' }).eq('id', order.id);
                     }}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98]"
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
                   >
                     Mark as Served
                   </button>
@@ -251,9 +251,9 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         </div>
       ) : (
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-full max-w-2xl py-16 flex flex-col items-center justify-center border-2 border-dashed border-orange-100 bg-orange-50/30 rounded-2xl">
-            <h3 className="text-black font-black text-xl">No Active Orders</h3>
-            <p className="text-gray-600 font-medium mt-1 text-base">Waiting for fresh KOT orders to arrive...</p>
+          <div className="w-full max-w-2xl py-16 flex flex-col items-center justify-center border-2 border-dashed border-orange-100 bg-orange-50/10 rounded-3xl">
+            <h3 className="text-slate-900 font-black text-xl">No Active Orders</h3>
+            <p className="text-slate-500 font-semibold mt-1 text-sm">Waiting for fresh KOT orders to arrive...</p>
           </div>
         </div>
       )}
@@ -515,9 +515,14 @@ export default function AdminDashboardOverview() {
       <div className="max-w-6xl mx-auto space-y-8">
 
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Welcome, {ownerName}</h1>
-          <p className="mt-1 text-gray-500">Here's what's happening with your digital menu today.</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-6">
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              Welcome, {ownerName}
+              <span className="text-xs font-extrabold bg-orange-100 text-orange-800 px-3 py-0.5 rounded-full border border-orange-200">Owner</span>
+            </h1>
+            <p className="mt-1 text-sm text-slate-500 font-medium">Here's what's happening with your digital menu today.</p>
+          </div>
         </div>
 
         {restaurantId && <LiveOrderQueue restaurantId={restaurantId} />}
@@ -534,13 +539,14 @@ export default function AdminDashboardOverview() {
                 setActiveModalTitle('Total Scans');
               }
             }}
-            className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative cursor-pointer group"
+            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.04)] transition-all duration-300 relative cursor-pointer group"
           >
             <div className={`flex flex-col h-full ${showTotalScansLock ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
-              <div className="flex justify-between items-start mb-2">
-                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Scans</p>
+              <div className="flex justify-between items-start mb-3">
+                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Total Scans</p>
+                <span className="text-slate-400 p-2 bg-slate-50 rounded-xl group-hover:bg-orange-50 group-hover:text-orange-600 transition-colors"><TrendingUp className="w-4 h-4" /></span>
               </div>
-              <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{showTotalScansLock ? '999' : totalScans}</p>
+              <p className="text-3xl font-black text-slate-900 mt-1">{showTotalScansLock ? '999' : totalScans}</p>
             </div>
           </div>
 
@@ -553,32 +559,33 @@ export default function AdminDashboardOverview() {
                 setActiveModalTitle('Top Selling Dish');
               }
             }}
-            className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative cursor-pointer group"
+            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.04)] transition-all duration-300 relative cursor-pointer group"
           >
             <div className={`flex flex-col h-full ${showTopSellingDishLock ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
-              <div className="flex justify-between items-start mb-2">
-                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Top Selling Dish</p>
+              <div className="flex justify-between items-start mb-3">
+                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Top Selling Dish</p>
+                <span className="text-slate-400 p-2 bg-slate-50 rounded-xl group-hover:bg-orange-50 group-hover:text-orange-600 transition-colors"><Sparkles className="w-4 h-4" /></span>
               </div>
-              <p className="text-xl font-extrabold text-gray-900 mt-0.5 truncate max-w-[140px]" title={topDish}>
+              <p className="text-xl font-black text-slate-900 mt-1 truncate max-w-[140px]" title={topDish}>
                 {showTopSellingDishLock ? 'XXXXXXXXXX' : topDish}
               </p>
             </div>
           </div>
 
           {/* Total Items Card */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Items</p>
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.04)] transition-all duration-300 group">
+            <div className="flex justify-between items-start mb-3">
+              <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Total Items</p>
             </div>
-            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalItems} <span className="text-sm font-semibold text-gray-400">dishes</span></p>
+            <p className="text-3xl font-black text-slate-900 mt-1">{totalItems} <span className="text-xs text-slate-400 font-bold">dishes</span></p>
           </div>
 
           {/* Total Tables Card */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Tables</p>
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.04)] transition-all duration-300 group">
+            <div className="flex justify-between items-start mb-3">
+              <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Total Tables</p>
             </div>
-            <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{totalTables} <span className="text-sm font-semibold text-gray-400">tables</span></p>
+            <p className="text-3xl font-black text-slate-900 mt-1">{totalTables} <span className="text-xs text-slate-400 font-bold">tables</span></p>
           </div>
         </div>
 

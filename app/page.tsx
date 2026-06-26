@@ -29,31 +29,44 @@ export default function Home() {
     };
   }, [router]);
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 selection:bg-orange-200">
+    <div className="min-h-screen flex flex-col bg-[#07080B] text-[#E5E7EB] font-sans selection:bg-orange-600/30 selection:text-white relative overflow-hidden">
+      
+      {/* Background Radial Glows */}
+      <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-orange-600/15 blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-[30%] left-[-20%] w-[800px] h-[800px] rounded-full bg-red-600/5 blur-[150px] pointer-events-none"></div>
+      <div className="absolute bottom-[10%] right-[-25%] w-[700px] h-[700px] rounded-full bg-orange-500/5 blur-[150px] pointer-events-none"></div>
+      
+      {/* Frosted Glass Overlay */}
+      <div className="absolute inset-0 bg-[#07080B]/55 backdrop-blur-[90px] pointer-events-none z-0"></div>
+
+      {/* Light Orange Ambient Glows (Vibrant Highlights) */}
+      <div className="absolute top-[-5%] right-[5%] w-[550px] h-[550px] rounded-full bg-orange-500/15 blur-[110px] pointer-events-none mix-blend-screen z-0"></div>
+      <div className="absolute top-[25%] left-[-10%] w-[650px] h-[650px] rounded-full bg-amber-500/10 blur-[130px] pointer-events-none mix-blend-screen z-0"></div>
+      <div className="absolute bottom-[20%] right-[-8%] w-[600px] h-[600px] rounded-full bg-orange-500/12 blur-[120px] pointer-events-none mix-blend-screen z-0"></div>
 
       {/* Navigation */}
-      <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+      <nav className="fixed w-full z-50 bg-[#090A0F]/80 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-3 sm:py-4 lg:py-5">
+          <div className="flex justify-between items-center py-4 lg:py-5">
             <div className="flex items-center py-1 sm:py-2">
               <img
                 src="/restdigi-logo.png"
-                className="h-10 sm:h-12 lg:h-16 w-auto object-contain transition-transform hover:scale-105"
+                className="h-10 sm:h-12 lg:h-16 w-auto object-contain transition-transform hover:scale-105 brightness-110"
                 alt="RESTDIGI Logo"
                 fetchPriority="high"
                 loading="eager"
               />
             </div>
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-4 sm:gap-6">
               <Link
                 href="/admin"
-                className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+                className="text-sm font-semibold text-gray-400 hover:text-white transition-colors"
               >
                 Admin Login
               </Link>
               <Link
                 href="/register"
-                className="text-sm font-bold bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-colors shadow-sm"
+                className="text-sm font-bold bg-orange-600 text-white px-5 py-2.5 rounded-full hover:bg-orange-700 transition-all hover:shadow-[0_0_20px_rgba(234,88,12,0.4)]"
               >
                 Get Started
               </Link>
@@ -63,739 +76,667 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center pt-32 pb-20 px-4 sm:px-6 lg:px-8 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 border border-orange-100 text-orange-700 text-sm font-bold mb-8">
-          <span className="flex h-2 w-2 rounded-full bg-orange-600 animate-pulse"></span>
-          RESTDIGI — The Future of Dining
-        </div>
+      <header className="flex-1 flex items-center justify-center pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center text-left">
+          
+          {/* Left Column (Content) */}
+          <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.08] mb-2 select-none">
+              Enjoy <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-red-500 to-orange-600 hover:scale-105 hover:-rotate-1 transition-transform duration-300 cursor-default">Delicious Food</span> in Your <span className="inline-block hover:text-orange-400 hover:scale-105 hover:rotate-1 transition-all duration-300 cursor-default">Healthy Life</span>
+            </h1>
 
-        <h1 className="max-w-4xl text-5xl sm:text-6xl md:text-7xl font-extrabold text-gray-900 tracking-tight leading-[1.1] mb-6">
-          Stop Making Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">Customers Wait</span> to Order.
-        </h1>
+            <p className="text-base sm:text-lg text-gray-400 font-medium leading-relaxed max-w-2xl">
+              Skip queues and staff shortages. Customers scan QR codes, browse your dynamic digital menu, and order in seconds. No apps, zero waiting.
+            </p>
 
-        <p className="max-w-3xl text-lg sm:text-xl text-gray-500 mb-10 font-medium">
-          Don't let long queues and short staff kill your restaurant's sales. With RESTDIGI, customers simply Scan, View, and Place Orders Instantly right from their tables. No apps. No waiting. Just pure speed.
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Link
-            href="/admin"
-            className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all bg-orange-600 rounded-full hover:bg-orange-700 hover:shadow-lg hover:-translate-y-1 group"
-          >
-            Launch Your Digital Menu
-            <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <Link
-            href="/menu/restdigi"
-            className="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-gray-700 transition-all bg-white border-2 border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300"
-          >
-            View Demo Menu
-          </Link>
-        </div>
-      </main>
-
-      <section className="bg-white py-24 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Frictionless 3-Step Dining Journey</h2>
-            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Give your customers a fast, zero-wait self-ordering experience.</p>
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <Link
+                href="/admin"
+                className="inline-flex items-center justify-center px-8 py-4 text-base font-extrabold text-white transition-all bg-orange-600 rounded-full hover:bg-orange-700 hover:shadow-[0_0_25px_rgba(234,88,12,0.5)] hover:-translate-y-0.5 group"
+              >
+                Launch Your Digital Menu
+                <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                href="/menu/restdigi"
+                className="inline-flex items-center justify-center px-8 py-4 text-base font-extrabold text-gray-300 transition-all bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:text-white"
+              >
+                View Demo Menu
+              </Link>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 01 - Scan */}
-            <div className="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-              <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-slate-200 to-slate-50 bg-clip-text text-transparent select-none">01</div>
-              {/* Top Asset Box */}
-              <div className="flex-1 flex items-center justify-center py-6 mb-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                {/* Mobile Mockup */}
-                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
-                  {/* Notch */}
-                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
-                  {/* Screen Content */}
-                  <div className="flex-1 bg-slate-900 p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left relative justify-between text-white">
-                    {/* Camera view header */}
-                    <div className="flex justify-between items-center text-[7px] text-slate-300 font-bold border-b border-slate-800/40 pb-1 mb-1">
-                      <span>Camera</span>
-                      <span className="flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
-                        Scanning...
-                      </span>
+          {/* Right Column (Circular Overlapping Food Plates) */}
+          <div className="lg:col-span-5 relative w-full h-[400px] md:h-[500px] flex items-center justify-center select-none mt-8 lg:mt-0">
+            {/* Glowing Backdrop Blob */}
+            <div className="absolute w-[300px] h-[300px] md:w-[380px] md:h-[380px] rounded-full bg-orange-500/20 blur-[75px] pointer-events-none animate-pulse"></div>
+            <div className="absolute w-[200px] h-[200px] rounded-full bg-amber-400/20 blur-[50px] pointer-events-none animate-pulse mix-blend-screen"></div>
+                        {/* Main Central Plate (Kashmiri Wazwan) */}
+            <div className="absolute z-10 w-[240px] h-[240px] md:w-[320px] md:h-[320px] rounded-full border-4 border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-500 hover:scale-105 group">
+              <img 
+                src="/kashmiri_wazwan_trami.jpg" 
+                alt="Kashmiri Wazwan Plate" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+                <span className="text-white text-xs font-bold uppercase tracking-wider bg-orange-600 px-3 py-1 rounded-full">Kashmiri Wazwan</span>
+              </div>
+            </div>
+
+            {/* Top-Left Floating Plate (Chicken Biryani) */}
+            <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20 w-[110px] h-[110px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white/10 shadow-[0_10px_25px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-700 hover:scale-110 hover:-translate-y-2 animate-float-slow group">
+              <img 
+                src="/chicken_biryani.jpg" 
+                alt="Chicken Biryani Plate" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2">
+                <span className="text-white text-[9px] font-bold uppercase tracking-wider bg-orange-600 px-2 py-0.5 rounded-full">Biryani</span>
+              </div>
+            </div>
+
+            {/* Bottom-Left Floating Plate (Momos) */}
+            <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 z-20 w-[110px] h-[110px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white/10 shadow-[0_10px_25px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-700 hover:scale-110 hover:translate-y-2 animate-float-slow group">
+              <img 
+                src="/momos.jpg" 
+                alt="Momos Plate" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2">
+                <span className="text-white text-[9px] font-bold uppercase tracking-wider bg-orange-600 px-2 py-0.5 rounded-full">Momos</span>
+              </div>
+            </div>
+
+            {/* Bottom-Right Floating Plate (Spaghetti Pasta) */}
+            <div className="absolute bottom-4 right-4 md:bottom-8 md:right-8 z-20 w-[110px] h-[110px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white/10 shadow-[0_10px_25px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-700 hover:scale-110 hover:translate-y-2 animate-float-mid group">
+              <img 
+                src="/spaghetti_pasta.png" 
+                alt="Spaghetti Pasta Plate" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2">
+                <span className="text-white text-[9px] font-bold uppercase tracking-wider bg-orange-600 px-2 py-0.5 rounded-full">Pasta</span>
+              </div>
+            </div>
+
+            {/* Top-Right Floating Plate (Vegetable Salad) */}
+            <div className="absolute top-8 right-8 md:top-16 md:right-16 z-20 w-[80px] h-[80px] md:w-[110px] md:h-[110px] rounded-full border-2 border-white/10 shadow-[0_10px_25px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-700 hover:scale-110 hover:-translate-y-1 animate-float-fast group">
+              <img 
+                src="/vegetable_salad.png" 
+                alt="Vegetable Salad Plate" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-1">
+                <span className="text-white text-[8px] font-bold uppercase tracking-wider bg-orange-600 px-1.5 py-0.5 rounded-full">Salad</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </header>
+
+      {/* Frictionless 3-Step Dining Journey Section */}
+      <section className="bg-[#0B0C10] py-24 border-t border-white/5 relative z-10 overflow-hidden">
+        {/* Section Ambient Glows */}
+        <div className="absolute top-[20%] left-[-10%] w-[450px] h-[450px] rounded-full bg-orange-500/10 blur-[100px] pointer-events-none mix-blend-screen"></div>
+        <div className="absolute bottom-[10%] right-[-10%] w-[450px] h-[450px] rounded-full bg-amber-500/8 blur-[100px] pointer-events-none mix-blend-screen"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <span className="text-xs font-bold tracking-wider text-orange-500 uppercase bg-orange-950/40 px-3.5 py-1.5 rounded-full border border-orange-500/20">Operations Workflow</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mt-4 mb-4">Frictionless 3-Step Dining Journey</h2>
+            <p className="text-gray-400 font-medium max-w-2xl mx-auto">Give your customers a fast, zero-wait self-ordering experience they will talk about.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            {/* Step 1 - Scan */}
+            <div className="p-8 bg-white/[0.03] backdrop-blur-md rounded-3xl border border-white/10 flex flex-col justify-between hover:border-orange-500/30 hover:bg-white/[0.05] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-white/10 to-transparent bg-clip-text text-transparent select-none">01</div>
+              
+              {/* Graphic Asset representation */}
+              <div className="flex-1 flex items-center justify-center py-8 mb-8 bg-white/[0.02] backdrop-blur-sm rounded-2xl border border-white/5 relative">
+                {/* Laser QR Scan Preview Box */}
+                <div className="relative w-[220px] h-[150px] bg-slate-950/80 border border-white/10 rounded-2xl p-4 overflow-hidden flex flex-col justify-between shadow-2xl backdrop-blur-sm">
+                  <div className="flex justify-between items-center text-[8px] text-gray-400 font-bold border-b border-white/5 pb-1">
+                    <span>Scan Sensor</span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                      Ready
+                    </span>
+                  </div>
+                  
+                  <div className="flex-1 flex items-center justify-center relative my-2">
+                    <div className="absolute w-20 h-20 border border-white/10 rounded-lg flex items-center justify-center">
+                      {/* Targets */}
+                      <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-orange-500 rounded-tl-sm"></div>
+                      <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-orange-500 rounded-tr-sm"></div>
+                      <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-orange-500 rounded-bl-sm"></div>
+                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-orange-500 rounded-br-sm"></div>
+                      <QrCode className="w-10 h-10 text-white" />
                     </div>
-                    {/* Viewfinder brackets and QR */}
-                    <div className="flex-1 flex items-center justify-center relative my-4">
-                      {/* Target brackets */}
-                      <div className="absolute w-24 h-24 border-2 border-white/20 rounded-xl flex items-center justify-center">
-                        {/* Brackets corners */}
-                        <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-orange-500 -mt-[2px] -ml-[2px] rounded-tl-sm"></div>
-                        <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-orange-500 -mt-[2px] -mr-[2px] rounded-tr-sm"></div>
-                        <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-orange-500 -mb-[2px] -ml-[2px] rounded-bl-sm"></div>
-                        <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-orange-500 -mb-[2px] -mr-[2px] rounded-br-sm"></div>
-                        {/* QR Code vector */}
-                        <QrCode className="w-12 h-12 text-white" />
-                      </div>
-                      {/* Laser scanning line */}
-                      <div className="w-24 h-[1px] bg-orange-500 absolute animate-bounce shadow-[0_0_8px_#ea580c]"></div>
-                    </div>
-                    {/* Bottom label */}
-                    <div className="text-[7px] text-slate-400 text-center font-bold pb-1 bg-slate-950/40 py-1 rounded">
-                      Align QR Menu on Table
-                    </div>
+                    {/* Laser line overlay */}
+                    <div className="w-20 h-[2px] bg-orange-500 absolute animate-bounce shadow-[0_0_8px_#ea580c]"></div>
+                  </div>
+
+                  <div className="text-[8px] text-center text-gray-400 bg-white/5 py-1 rounded">
+                    Align code with viewfinder
                   </div>
                 </div>
               </div>
-              {/* Text Content at base */}
+
               <div className="relative z-10 text-left">
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Scan</h3>
-                <p className="text-gray-500 leading-relaxed text-sm">
-                  Customer scans the crisp, custom table-specific QR frame on arrival.
+                <h3 className="text-xl font-bold text-white mb-2">Scan</h3>
+                <p className="text-gray-400 leading-relaxed text-sm">
+                  Customers scan a crisp, high-contrast QR code placed directly at their dining tables.
                 </p>
               </div>
             </div>
 
-            {/* Card 02 - View */}
-            <div className="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-              <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-slate-200 to-slate-50 bg-clip-text text-transparent select-none">02</div>
-              {/* Top Asset Box */}
-              <div className="flex-1 flex items-center justify-center py-6 mb-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                {/* Mobile Mockup */}
-                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
-                  {/* Notch */}
-                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
-                  {/* Screen Content */}
-                  <div className="flex-1 bg-white p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left">
-                    <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                      <span className="text-[10px] font-extrabold text-orange-600 tracking-tight">RestDigi Bistro</span>
-                      <span className="text-[7px] px-1.5 py-0.5 rounded-full bg-slate-100 font-bold text-slate-650">Table 05</span>
+            {/* Step 2 - View (Kashmiri Wazwan Image preview) */}
+            <div className="p-8 bg-white/[0.03] backdrop-blur-md rounded-3xl border border-white/10 flex flex-col justify-between hover:border-orange-500/30 hover:bg-white/[0.05] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-white/10 to-transparent bg-clip-text text-transparent select-none">02</div>
+              
+              {/* Graphic Asset representation */}
+              <div className="flex-1 flex items-center justify-center py-8 mb-8 bg-white/[0.02] backdrop-blur-sm rounded-2xl border border-white/5 relative">
+                {/* Elegant Food View Item Container */}
+                <div className="relative w-[220px] h-[150px] bg-slate-950/80 border border-white/10 rounded-2xl overflow-hidden flex flex-col justify-between shadow-2xl backdrop-blur-sm group/item">
+                  <div className="w-full h-[65%] relative">
+                    <img src="/kashmiri_wazwan.jpg" className="w-full h-full object-cover brightness-90 group-hover/item:scale-105 transition-transform duration-500" alt="Wazwan Menu View" />
+                    <span className="absolute top-2 left-2 text-[7px] font-extrabold bg-orange-600 text-white px-1.5 py-0.5 rounded uppercase">Best Seller</span>
+                  </div>
+                  
+                  <div className="p-2 flex-1 flex flex-col justify-between text-left">
+                    <div className="flex justify-between items-start">
+                      <span className="text-[10px] font-black text-white truncate max-w-[120px]">Kashmiri Wazwan Trami</span>
+                      <span className="text-[10px] font-black text-orange-400 shrink-0">₹499</span>
                     </div>
-
-                    <div className="flex gap-1 py-1.5 overflow-x-hidden border-b border-slate-50">
-                      <span className="text-[6px] bg-orange-600 text-white px-1.5 py-0.5 rounded-full font-bold">Pizza</span>
-                      <span className="text-[6px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Burgers</span>
-                      <span className="text-[6px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Drinks</span>
-                    </div>
-
-                    <div className="mt-1.5 space-y-1.5 flex-1 overflow-hidden">
-                      <div className="flex gap-1.5 items-center p-1 bg-slate-50/80 rounded-lg">
-                        <div className="w-8 h-8 rounded bg-slate-100 animate-pulse shrink-0"></div>
-                        <div className="flex-1 space-y-1 min-w-0">
-                          <div className="w-14 h-2 bg-slate-300 rounded animate-pulse"></div>
-                          <div className="w-8 h-1 bg-slate-200 rounded animate-pulse"></div>
-                        </div>
-                      </div>
-                      <div className="flex gap-1.5 items-center p-1 bg-slate-50/80 rounded-lg">
-                        <div className="w-8 h-8 rounded bg-slate-100 animate-pulse shrink-0"></div>
-                        <div className="flex-1 space-y-1 min-w-0">
-                          <div className="w-12 h-2 bg-slate-300 rounded animate-pulse"></div>
-                          <div className="w-6 h-1 bg-slate-200 rounded animate-pulse"></div>
-                        </div>
-                      </div>
-                      <div className="flex gap-1.5 items-center p-1 bg-slate-50/80 rounded-lg">
-                        <div className="w-8 h-8 rounded bg-slate-100 animate-pulse shrink-0"></div>
-                        <div className="flex-1 space-y-1 min-w-0">
-                          <div className="w-16 h-2 bg-slate-300 rounded animate-pulse"></div>
-                          <div className="w-10 h-1 bg-slate-200 rounded animate-pulse"></div>
-                        </div>
-                      </div>
-                    </div>
+                    <p className="text-[7px] text-gray-400 truncate mt-0.5">Classic seekh kebab, rista, and rich saffron rice.</p>
                   </div>
                 </div>
               </div>
-              {/* Text Content at base */}
+
               <div className="relative z-10 text-left">
-                <h3 className="text-xl font-bold text-gray-900 mb-3">View</h3>
-                <p className="text-gray-500 leading-relaxed text-sm">
-                  A lightning-fast digital menu renders on any mobile browser in under 5 seconds.
+                <h3 className="text-xl font-bold text-white mb-2">View</h3>
+                <p className="text-gray-400 leading-relaxed text-sm">
+                  A high-speed interactive digital menu loads immediately in their mobile browser—smooth category filter panels.
                 </p>
               </div>
             </div>
 
-            {/* Card 03 - Order Instantly */}
-            <div className="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
-              <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-slate-200 to-slate-50 bg-clip-text text-transparent select-none">03</div>
-              {/* Top Asset Box */}
-              <div className="flex-1 flex items-center justify-center py-6 mb-6 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                {/* Mobile Mockup */}
-                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
-                  {/* Notch */}
-                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
-                  {/* Screen Content */}
-                  <div className="flex-1 bg-white p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left justify-between">
-                    <div>
-                      <div className="flex justify-between items-center pb-1.5 border-b border-slate-100 mb-2">
-                        <span className="text-[9px] font-bold text-slate-850">Your Basket</span>
-                        <span className="text-[7px] text-slate-400 font-semibold">Table 05</span>
+            {/* Step 3 - Order Instantly (Chicken Biryani Checkout state) */}
+            <div className="p-8 bg-white/[0.03] backdrop-blur-md rounded-3xl border border-white/10 flex flex-col justify-between hover:border-orange-500/30 hover:bg-white/[0.05] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-white/10 to-transparent bg-clip-text text-transparent select-none">03</div>
+              
+              {/* Graphic Asset representation */}
+              <div className="flex-1 flex items-center justify-center py-8 mb-8 bg-white/[0.02] backdrop-blur-sm rounded-2xl border border-white/5 relative">
+                {/* Checkout cart panel */}
+                <div className="relative w-[220px] h-[150px] bg-slate-950/80 border border-white/10 rounded-2xl p-3.5 overflow-hidden flex flex-col justify-between shadow-2xl backdrop-blur-sm">
+                  <div>
+                    <div className="flex justify-between items-center pb-1.5 border-b border-white/5 mb-2">
+                      <span className="text-[9px] font-black text-white">Your Table Order</span>
+                      <span className="text-[7px] text-gray-400 font-bold bg-white/5 px-1 py-0.2 rounded">T-05</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center text-[7px] font-bold text-gray-300">
+                        <span>1x Chicken Biryani Platter</span>
+                        <span className="font-extrabold text-white">₹399</span>
                       </div>
-                      <div className="space-y-1.5">
-                        <div className="flex justify-between items-center text-[7px] font-medium text-slate-650">
-                          <span>1x Double Cheese Burger</span>
-                          <span className="font-bold text-slate-900">₹180</span>
-                        </div>
-                        <div className="flex justify-between items-center text-[7px] font-medium text-slate-650">
-                          <span>2x Mint Mojito</span>
-                          <span className="font-bold text-slate-900">₹240</span>
-                        </div>
+                      <div className="flex justify-between items-center text-[7px] font-bold text-gray-400">
+                        <span>1x Vegetable Salad Salad</span>
+                        <span className="font-extrabold text-white">₹150</span>
                       </div>
                     </div>
-                    <div className="mt-2.5 pt-1.5 border-t border-slate-100">
-                      <div className="flex justify-between items-center text-[8px] font-bold text-slate-855 mb-1.5">
-                        <span>Total Amount</span>
-                        <span>₹420</span>
-                      </div>
-                      <div className="bg-emerald-50 border border-emerald-100 rounded-lg py-1.5 px-1.5 flex items-center gap-1 justify-center shadow-sm">
-                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping shrink-0"></span>
-                        <span className="text-[7px] text-emerald-700 font-extrabold tracking-tight uppercase">Sent to Kitchen!</span>
-                      </div>
+                  </div>
+
+                  <div className="border-t border-white/5 pt-2">
+                    <div className="flex justify-between items-center text-[8px] font-extrabold text-white mb-2">
+                      <span>Total Amount</span>
+                      <span className="text-orange-400">₹549</span>
+                    </div>
+                    <div className="bg-emerald-950/60 border border-emerald-500/20 rounded-lg py-1 px-2 flex items-center gap-1.5 justify-center">
+                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span>
+                      <span className="text-[7px] text-emerald-400 font-extrabold uppercase tracking-wide">Sent to Kitchen Display!</span>
                     </div>
                   </div>
                 </div>
               </div>
-              {/* Text Content at base */}
+
               <div className="relative z-10 text-left">
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Order Instantly</h3>
-                <p className="text-gray-500 leading-relaxed text-sm">
-                  Multi-item cart selection with quantities lets them send orders straight to the live KOT dashboard without chasing waiters.
+                <h3 className="text-xl font-bold text-white mb-2">Order Instantly</h3>
+                <p className="text-gray-400 leading-relaxed text-sm">
+                  Add items to cart and check out in seconds. Orders route straight to the kitchen display screen automatically.
                 </p>
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
-      <section id="features" className="bg-white py-24 border-t border-b border-gray-100">
+      {/* Engineered for Restaurant Success Section (Features Showcase) */}
+      <section id="features" className="bg-[#090A0F] py-24 border-t border-white/5 relative z-10 overflow-hidden">
+        {/* Section Ambient Glows */}
+        <div className="absolute top-[30%] right-[-15%] w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px] pointer-events-none mix-blend-screen"></div>
+        <div className="absolute bottom-[5%] left-[-10%] w-[500px] h-[500px] rounded-full bg-amber-500/8 blur-[100px] pointer-events-none mix-blend-screen"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in-up">
-            <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Features Showcase</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-4 mb-4">Engineered for Restaurant Success</h2>
-            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Discover how RESTDIGI modernizes your operations and drives customer engagement.</p>
+            <span className="text-xs font-bold tracking-wider text-orange-500 uppercase bg-orange-950/40 px-3.5 py-1.5 rounded-full border border-orange-500/20">Core Platform Features</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mt-4 mb-4">Engineered for Restaurant Success</h2>
+            <p className="text-gray-400 font-medium max-w-2xl mx-auto">Discover how RESTDIGI modernizes your daily operations and drives order conversion rates.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-12">
-            {/* Column 1: Smart QR Menu */}
-            <div className="border border-slate-100 rounded-3xl bg-slate-50/50 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 my-12">
+            
+            {/* Feature 1: Smart QR Menu */}
+            <div className="border border-white/10 rounded-3xl bg-white/[0.03] backdrop-blur-md p-6 hover:border-orange-500/30 hover:bg-white/[0.05] transition-all duration-300 flex flex-col justify-between group">
               <div className="flex-1 flex items-center justify-center py-6">
-                {/* Mobile Mockup */}
-                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
-                  {/* Notch */}
-                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
-                  {/* Screen Content */}
-                  <div className="flex-1 bg-white p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left">
-                    <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                      <span className="text-[10px] font-extrabold text-orange-600 tracking-tight">RestDigi Bistro</span>
-                      <span className="text-[7px] px-1.5 py-0.5 rounded-full bg-slate-100 font-bold text-slate-600">Table 05</span>
-                    </div>
-
-                    <div className="flex gap-1 py-1.5 overflow-x-hidden border-b border-slate-50">
-                      <span className="text-[6px] bg-orange-600 text-white px-1.5 py-0.5 rounded-full font-bold">Pizza</span>
-                      <span className="text-[6px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Burgers</span>
-                      <span className="text-[6px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-bold">Drinks</span>
-                    </div>
-
-                    <div className="mt-1.5 space-y-1.5 flex-1 overflow-hidden">
-                      <div className="flex gap-1.5 items-center p-1 bg-slate-50/80 rounded-lg">
-                        <div className="w-8 h-8 rounded bg-orange-100 flex items-center justify-center text-[11px] shrink-0">🍕</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[8px] font-bold text-slate-800 truncate">Spicy Truffle Pizza</div>
-                          <div className="text-[6px] text-slate-400 font-medium">Hot honey, mushroom</div>
-                        </div>
-                        <div className="text-[8px] font-bold text-slate-800 shrink-0">₹399</div>
-                      </div>
-                      <div className="flex gap-1.5 items-center p-1 bg-slate-50/80 rounded-lg">
-                        <div className="w-8 h-8 rounded bg-orange-100 flex items-center justify-center text-[11px] shrink-0">🍔</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[8px] font-bold text-slate-800 truncate">Loaded Beef Burger</div>
-                          <div className="text-[6px] text-slate-400 font-medium">Double cheese, fries</div>
-                        </div>
-                        <div className="text-[8px] font-bold text-slate-800 shrink-0">₹279</div>
-                      </div>
-                    </div>
-
-                    <div className="mt-auto bg-orange-600 text-white rounded-lg py-1 px-2 text-[8px] font-bold shadow-sm flex justify-between items-center">
-                      <span>3 Items in Cart</span>
-                      <span className="flex items-center gap-0.5">Order <ChevronRight className="w-2 h-2" /></span>
+                {/* Visual Plate Backdrop layout */}
+                <div className="relative w-full h-[200px] rounded-2xl overflow-hidden border border-white/5 shadow-2xl flex items-center justify-center">
+                  <img src="/thali_platter.png" alt="Smart QR Menu Thali Platter" className="absolute inset-0 w-full h-full object-cover brightness-[0.4] group-hover:scale-105 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
+                  
+                  <div className="relative z-10 p-4 w-full h-full flex flex-col justify-between text-left">
+                    <span className="self-start text-[8px] font-extrabold text-orange-400 bg-orange-950/60 border border-orange-500/20 px-2 py-0.5 rounded uppercase">Dynamic Content</span>
+                    
+                    <div className="space-y-1">
+                      <div className="text-xs font-extrabold text-white">Interactive Table Card</div>
+                      <div className="text-[9px] text-gray-400">Updates live when dishes change. Filter by dietary types in seconds.</div>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="mt-6 text-left">
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Smart QR Menu</h3>
-                <p className="text-sm text-slate-500 leading-relaxed font-medium">
-                  Seat more guests, display your real-time menu card, and accept instant table orders flawlessly without manual lags.
+                <h3 className="text-lg font-bold text-white mb-2">Smart QR Menu</h3>
+                <p className="text-sm text-gray-400 leading-relaxed font-medium">
+                  Boost seat turnover rates, display beautiful visual menu items, and allow self-checkout with zero manual friction.
                 </p>
               </div>
             </div>
 
-            {/* Column 2: Kitchen Display Framework */}
-            <div className="border border-slate-100 rounded-3xl bg-slate-50/50 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300">
+            {/* Feature 2: Kitchen Display Console */}
+            <div className="border border-white/10 rounded-3xl bg-white/[0.03] backdrop-blur-md p-6 hover:border-orange-500/30 hover:bg-white/[0.05] transition-all duration-300 flex flex-col justify-between group">
               <div className="flex-1 flex items-center justify-center py-6">
-                {/* Mobile Mockup */}
-                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
-                  {/* Notch */}
-                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
-                  {/* Screen Content */}
-                  <div className="flex-1 bg-slate-900 p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left">
-                    <div className="bg-slate-900 pb-2 flex justify-between items-center text-[8px] text-slate-300 font-bold border-b border-slate-800 mb-2">
-                      <span className="flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                        Kitchen Console
-                      </span>
-                      <span className="text-[6px] text-slate-450">Active</span>
-                    </div>
-                    <div className="flex-1 flex flex-col gap-2 overflow-hidden">
-                      {/* Ticket 1 */}
-                      <div className="bg-slate-850 border border-slate-800 rounded-lg p-1.5 flex flex-col justify-between">
-                        <div>
-                          <div className="flex justify-between items-center border-b border-slate-800/60 pb-1 mb-1">
-                            <span className="text-[8px] font-extrabold text-orange-400">#042</span>
-                            <span className="text-[6px] text-slate-400 font-bold">Table 02</span>
-                          </div>
-                          <ul className="text-[7px] text-slate-300 space-y-0.5 font-medium">
-                            <li className="flex justify-between"><span>1x Truffle Pizza</span><span className="text-slate-500">x1</span></li>
-                            <li className="flex justify-between"><span>2x Citrus Mojito</span><span className="text-slate-500">x2</span></li>
-                          </ul>
-                        </div>
-                        <div className="mt-1.5 flex justify-between items-center border-t border-slate-800/60 pt-1">
-                          <span className="text-[6px] text-slate-400 font-medium">4m ago</span>
-                          <span className="text-[6px] bg-amber-500/15 text-amber-400 font-extrabold px-1 py-0.5 rounded leading-none">PREPARING</span>
-                        </div>
+                {/* Kitchen Console Mockup Display */}
+                <div className="w-full h-[200px] bg-slate-950 border border-white/5 rounded-2xl p-4 overflow-y-hidden flex flex-col gap-3">
+                  <div className="pb-1.5 flex justify-between items-center text-[9px] text-gray-300 font-bold border-b border-white/5">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                      Kitchen Terminal
+                    </span>
+                    <span className="text-[7px] text-gray-400 font-bold">Sync Active</span>
+                  </div>
+                  
+                  <div className="flex-1 flex flex-col gap-2.5 overflow-hidden">
+                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-2.5 flex flex-col justify-between text-left">
+                      <div className="flex justify-between items-center border-b border-white/5 pb-1 mb-1.5">
+                        <span className="text-[9px] font-black text-orange-400">T-05</span>
+                        <span className="text-[7px] text-gray-400">Received 3m ago</span>
                       </div>
-                      {/* Ticket 2 */}
-                      <div className="bg-slate-850 border border-slate-800 rounded-lg p-1.5 flex flex-col justify-between">
-                        <div>
-                          <div className="flex justify-between items-center border-b border-slate-800/60 pb-1 mb-1">
-                            <span className="text-[8px] font-extrabold text-orange-400">#041</span>
-                            <span className="text-[6px] text-slate-400 font-bold">Table 11</span>
-                          </div>
-                          <ul className="text-[7px] text-slate-300 space-y-0.5 font-medium">
-                            <li className="flex justify-between"><span>1x Loaded Burger</span><span className="text-slate-500">x1</span></li>
-                          </ul>
-                        </div>
-                        <div className="mt-1.5 flex justify-between items-center border-t border-slate-800/60 pt-1">
-                          <span className="text-[6px] text-slate-400 font-medium">9m ago</span>
-                          <span className="text-[6px] bg-emerald-500/15 text-emerald-400 font-extrabold px-1 py-0.5 rounded leading-none">READY</span>
-                        </div>
+                      <div className="flex justify-between items-center text-[8px] font-bold text-white">
+                        <span>1x Garlic Butter Naan</span>
+                        <span>Preparing</span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-2.5 flex flex-col justify-between text-left opacity-60">
+                      <div className="flex justify-between items-center border-b border-white/5 pb-1 mb-1.5">
+                        <span className="text-[9px] font-black text-orange-400">T-02</span>
+                        <span className="text-[7px] text-gray-400">Ready 10m ago</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[8px] font-bold text-white">
+                        <span>2x Lemon Mint Chillers</span>
+                        <span>Served</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="mt-6 text-left">
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Kitchen Display Engine</h3>
-                <p className="text-sm text-slate-500 leading-relaxed font-medium">
-                  Route structural incoming table receipts directly onto an active terminal display—no misplacement, zero paper chaos.
+                <h3 className="text-lg font-bold text-white mb-2">Kitchen Display Engine</h3>
+                <p className="text-sm text-gray-400 leading-relaxed font-medium">
+                  Incoming orders display directly on kitchen tablets in real-time. Eliminates paper wait sheets and prevents missed items.
                 </p>
               </div>
             </div>
 
-            {/* Column 3: Live Analytics Telemetry */}
-            <div className="border border-slate-100 rounded-3xl bg-slate-50/50 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300">
+            {/* Feature 3: Live Analytics Dashboard */}
+            <div className="border border-white/10 rounded-3xl bg-white/[0.03] backdrop-blur-md p-6 hover:border-orange-500/30 hover:bg-white/[0.05] transition-all duration-300 flex flex-col justify-between group">
               <div className="flex-1 flex items-center justify-center py-6">
-                {/* Mobile Mockup */}
-                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
-                  {/* Notch */}
-                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
-                  {/* Screen Content */}
-                  <div className="flex-1 bg-white p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left">
-                    <div className="flex justify-between items-center mb-2.5">
-                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Live Revenue</span>
-                      <span className="text-[7px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full font-extrabold">+32.6%</span>
-                    </div>
+                {/* Live Analytics Dashboard widget */}
+                <div className="w-full h-[200px] bg-slate-950 border border-white/5 rounded-2xl p-5 flex flex-col justify-between text-left">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-wider">Live Revenue Trend</span>
+                    <span className="text-[8px] text-emerald-500 bg-emerald-950/60 border border-emerald-500/20 px-1.5 py-0.5 rounded font-extrabold">+42.8%</span>
+                  </div>
 
-                    <div className="grid grid-cols-2 gap-2 mb-2.5">
-                      <div className="bg-slate-50 p-1.5 rounded-lg border border-slate-100/50">
-                        <div className="text-[6px] text-slate-400 font-semibold uppercase tracking-tight">Today</div>
-                        <div className="text-[9px] font-extrabold text-slate-900 mt-0.5">₹18,640</div>
-                      </div>
-                      <div className="bg-slate-50 p-1.5 rounded-lg border border-slate-100/50">
-                        <div className="text-[6px] text-slate-400 font-semibold uppercase tracking-tight">Orders</div>
-                        <div className="text-[9px] font-extrabold text-slate-900 mt-0.5">58 Qty</div>
-                      </div>
-                    </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xl font-extrabold text-white">₹24,850</span>
+                    <span className="text-[7px] text-gray-400">82 orders placed today</span>
+                  </div>
 
-                    <div className="flex-1 flex flex-col justify-end min-h-[100px] relative mt-1">
-                      <svg className="w-full h-full overflow-visible" viewBox="0 0 100 50" preserveAspectRatio="none">
-                        <defs>
-                          <linearGradient id="telemetryBentoGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#ea580c" stopOpacity="0.25" />
-                            <stop offset="100%" stopColor="#ea580c" stopOpacity="0.0" />
-                          </linearGradient>
-                        </defs>
-                        <path d="M 0 50 L 0 40 L 15 32 L 30 38 L 48 24 L 65 18 L 82 10 L 100 4 L 100 50 Z" fill="url(#telemetryBentoGradient)"></path>
-                        <path d="M 0 40 L 15 32 L 30 38 L 48 24 L 65 18 L 82 10 L 100 4" fill="none" stroke="#ea580c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"></path>
-                        <circle cx="100" cy="4" r="2.5" fill="#ea580c" stroke="#ffffff" strokeWidth="1"></circle>
-                      </svg>
-
-                      <div className="flex justify-between items-center text-[5px] text-slate-400 pt-1 mt-1 border-t border-slate-100">
-                        <span>12:00 PM</span>
-                        <span>4:00 PM</span>
-                        <span>8:00 PM</span>
-                      </div>
-                    </div>
+                  <div className="flex-1 flex flex-col justify-end h-[60px] relative mt-2">
+                    <svg className="w-full h-full overflow-visible" viewBox="0 0 100 50" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="glowChartGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#ea580c" stopOpacity="0.25" />
+                          <stop offset="100%" stopColor="#ea580c" stopOpacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M 0 50 L 0 45 L 20 30 L 40 38 L 60 20 L 80 15 L 100 8 L 100 50 Z" fill="url(#glowChartGradient)"></path>
+                      <path d="M 0 45 L 20 30 L 40 38 L 60 20 L 80 15 L 100 8" fill="none" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+                      <circle cx="100" cy="8" r="2.5" fill="#ea580c"></circle>
+                    </svg>
                   </div>
                 </div>
               </div>
               <div className="mt-6 text-left">
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Live Analytics Engine</h3>
-                <p className="text-sm text-slate-500 leading-relaxed font-medium">
-                  Get real-time operational reports, automated inventory tracking logs, and weekly top-selling telemetry points.
+                <h3 className="text-lg font-bold text-white mb-2">Live Analytics Engine</h3>
+                <p className="text-sm text-gray-400 leading-relaxed font-medium">
+                  Track table performance, item popularity views, revenue margins, and scan traffic from a single secure admin center.
                 </p>
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* Engineered for Restaurant Success Section */}
-      <section className="bg-slate-50 py-24 border-t border-b border-gray-100">
+      {/* Engineered for Restaurant Success Section (Premium Capabilities) */}
+      <section className="bg-[#0B0C10] py-24 border-t border-white/5 relative z-10 overflow-hidden">
+        {/* Section Ambient Glows */}
+        <div className="absolute top-[10%] left-[-10%] w-[450px] h-[450px] rounded-full bg-orange-600/10 blur-[100px] pointer-events-none mix-blend-screen"></div>
+        <div className="absolute bottom-[20%] right-[-10%] w-[450px] h-[450px] rounded-full bg-amber-500/10 blur-[100px] pointer-events-none mix-blend-screen"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Premium Capabilities</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-4 mb-4">Engineered for Restaurant Success</h2>
-            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Unlock next-level performance and automation designed to scale your operations.</p>
+            <span className="text-xs font-bold tracking-wider text-orange-500 uppercase bg-orange-950/40 px-3.5 py-1.5 rounded-full border border-orange-500/20">Growth Accelerators</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mt-4 mb-4 font-black">Engineered for Restaurant Success</h2>
+            <p className="text-gray-400 font-medium max-w-2xl mx-auto">Elevate restaurant visibility and speed with advanced modules built to perform.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
             {/* Card 1: SEO Boost */}
-            <div className="flex flex-col items-center text-center md:text-left md:items-start p-6 sm:p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
-              {/* Centering layout wrapper */}
-              <div className="w-full flex justify-center items-center mb-6">
-                {/* Mobile Mockup */}
-                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
-                  {/* Notch */}
-                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
-                  {/* Screen Content */}
-                  <div className="flex-1 bg-white p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left justify-between">
-                    <div className="flex flex-col gap-2">
-                      {/* Google Logo & Search Box */}
-                      <div className="flex items-center gap-1.5 pb-2 border-b border-slate-100">
-                        <span className="text-[10px] font-extrabold text-blue-600">G</span>
-                        <div className="flex-1 h-3.5 bg-slate-100 rounded-full flex items-center px-1.5 justify-between">
-                          <span className="text-[6px] text-slate-400 font-medium">restaurants near me</span>
-                          <span className="text-[6px] text-slate-350">🔍</span>
-                        </div>
-                      </div>
-                      {/* Search Result Card */}
-                      <div className="flex flex-col gap-1.5 relative z-10 border border-slate-100 p-1.5 rounded-xl bg-slate-50/50">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="text-[8px] font-bold text-slate-900 flex items-center gap-0.5">
-                              Your Restaurant Name
-                              <span className="text-[6px] text-emerald-600 bg-emerald-50 px-1 py-0.2 rounded font-extrabold leading-none">#1 Rank</span>
-                            </div>
-                            <div className="flex items-center gap-0.5 text-[6px] text-amber-500 font-bold mt-0.5">
-                              5.0 ★★★★★ <span className="text-slate-450 font-medium">(242)</span>
-                            </div>
-                          </div>
-                          {/* Local Maps Pin drops over search card */}
-                          <div className="text-sm -mt-0.5 text-red-500 animate-bounce">📍</div>
-                        </div>
-                        <div className="text-[5px] text-slate-400 font-medium">
-                          Open now • 15 min away
-                        </div>
-                        <div className="flex gap-1 mt-0.5">
-                          <span className="text-[5px] bg-white text-slate-650 font-bold px-1.5 py-0.5 rounded-full border border-slate-200">Directions</span>
-                          <span className="text-[5px] bg-white text-slate-650 font-bold px-1.5 py-0.5 rounded-full border border-slate-200">Call Now</span>
-                        </div>
-                      </div>
+            <div className="flex flex-col items-center text-center md:text-left md:items-start p-8 bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-3xl hover:border-orange-500/30 hover:bg-white/[0.05] transition-all duration-300 overflow-hidden relative group">
+              <div className="w-full flex justify-center items-center mb-8 relative">
+                {/* Simulated Google Listing Card */}
+                <div className="w-full max-w-[280px] bg-slate-950 border border-white/5 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-2xl">
+                  <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                    <span className="text-[11px] font-black text-blue-500">Google</span>
+                    <div className="flex-1 h-3.5 bg-white/5 rounded-full flex items-center px-2 justify-between">
+                      <span className="text-[6px] text-gray-400">restaurants near me</span>
+                      <span className="text-[6px] text-gray-400">🔍</span>
                     </div>
-                    {/* Simulated Map View at the bottom */}
-                    <div className="h-[120px] bg-blue-50 border border-blue-100 rounded-xl relative overflow-hidden flex items-center justify-center">
-                      {/* Simulated map lines */}
-                      <div className="absolute inset-0 opacity-20">
-                        <div className="absolute w-[2px] h-full bg-slate-500 left-12"></div>
-                        <div className="absolute w-[2px] h-full bg-slate-500 left-28"></div>
-                        <div className="absolute h-[2px] w-full bg-slate-500 top-10"></div>
-                        <div className="absolute h-[2px] w-full bg-slate-500 top-20"></div>
+                  </div>
+
+                  <div className="border border-white/5 p-2 rounded-xl bg-white/[0.02]">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="text-[10px] font-extrabold text-white flex items-center gap-1">
+                          Your Restaurant Outlet
+                          <span className="text-[6px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/20 px-1 py-0.2 rounded font-extrabold">#1 Rank</span>
+                        </div>
+                        <div className="flex items-center gap-0.5 text-[7px] text-amber-500 font-bold mt-0.5">
+                          5.0 ★★★★★ <span className="text-gray-400 font-medium">(256 reviews)</span>
+                        </div>
                       </div>
-                      <div className="absolute text-xl animate-bounce">📍</div>
-                      <div className="absolute bottom-1 right-1 bg-white/90 text-[5px] px-1 rounded font-bold border border-slate-200">Map View</div>
+                      <span className="text-xs text-red-500 animate-bounce">📍</span>
                     </div>
+                    <div className="text-[6px] text-gray-400 mt-1">Authentic Traditional Wazwan & Biryani Specialities</div>
                   </div>
                 </div>
               </div>
+
               <div className="w-full">
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2 mb-3 leading-snug">Automated Local SEO Boost</h3>
-                <p className="text-gray-500 leading-relaxed text-sm sm:text-base font-medium">
-                  RESTDIGI dynamically optimizes your restaurant’s online presence, pushing your physical location to the top of local Google search maps and discoverability indexes automatically.
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 leading-snug">Automated Local SEO Boost</h3>
+                <p className="text-gray-400 leading-relaxed text-sm sm:text-base font-medium">
+                  RESTDIGI optimizes your digital menu structure, helping search engine crawlers rank your dishes higher and pushing your location to the top of Google Maps search listings.
                 </p>
               </div>
             </div>
 
             {/* Card 2: KOT Automation Matrix */}
-            <div className="flex flex-col items-center text-center md:text-left md:items-start p-6 sm:p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-300 overflow-hidden relative group">
-              {/* Centering layout wrapper */}
-              <div className="w-full flex justify-center items-center mb-6">
-                {/* Mobile Mockup */}
-                <div className="relative mx-auto w-[190px] h-[310px] bg-slate-950 rounded-[38px] shadow-lg border-[6px] border-slate-800 overflow-hidden flex flex-col">
-                  {/* Notch */}
-                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-14 h-3 bg-slate-800 rounded-full z-20"></div>
-                  {/* Screen Content */}
-                  <div className="flex-1 bg-slate-900 p-2.5 pt-7 flex flex-col font-sans select-none overflow-hidden text-left">
-                    <div className="flex justify-between items-center pb-2 border-b border-slate-800 font-bold mb-2">
-                      <span className="text-[8px] text-slate-300">Terminal 01</span>
-                      <span className="text-slate-500 text-[6px] animate-pulse">Syncing...</span>
+            <div className="flex flex-col items-center text-center md:text-left md:items-start p-8 bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-3xl hover:border-orange-500/30 hover:bg-white/[0.05] transition-all duration-300 overflow-hidden relative group">
+              <div className="w-full flex justify-center items-center mb-8 relative">
+                {/* Active kitchen console card */}
+                <div className="w-full max-w-[280px] bg-slate-950 border border-white/5 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-2xl">
+                  <div className="flex justify-between items-center pb-2 border-b border-white/5">
+                    <span className="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Sync Matrix Terminal</span>
+                    <span className="text-[6px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/20 px-1.5 py-0.5 rounded font-extrabold">Synced</span>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="p-2 bg-white/[0.02] border border-white/5 rounded flex justify-between items-center">
+                      <div>
+                        <div className="text-[8px] font-black text-white">1x Chicken Biryani</div>
+                        <div className="text-[6px] text-gray-400">Table 05 • Waiter Bypass</div>
+                      </div>
+                      <span className="text-[6px] bg-orange-950/60 text-orange-400 border border-orange-500/20 px-1.5 py-0.5 rounded font-extrabold">Preparing</span>
                     </div>
-                    {/* Table Row Workflows */}
-                    <div className="space-y-2 flex-1">
-                      {/* Row 1 */}
-                      <div className="flex justify-between items-center p-1.5 bg-slate-850 rounded border border-slate-800">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-[8px] text-orange-400">Truffle Pizza</span>
-                          <span className="text-[6px] text-slate-400">Table 4 • Qty: 1</span>
-                        </div>
-                        <span className="text-[6px] bg-amber-500/25 text-amber-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Preparing</span>
+
+                    <div className="p-2 bg-white/[0.02] border border-white/5 rounded flex justify-between items-center">
+                      <div>
+                        <div className="text-[8px] font-black text-white">1x Kashmiri Wazwan Rogan Josh</div>
+                        <div className="text-[6px] text-gray-400">Table 03 • Waiter Bypass</div>
                       </div>
-                      {/* Row 2 */}
-                      <div className="flex justify-between items-center p-1.5 bg-slate-850 rounded border border-slate-800">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-[8px] text-orange-400">Citrus Mojito</span>
-                          <span className="text-[6px] text-slate-400">Table 9 • Qty: 2</span>
-                        </div>
-                        <span className="text-[6px] bg-emerald-500/25 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Ready</span>
-                      </div>
-                      {/* Row 3 */}
-                      <div className="flex justify-between items-center p-1.5 bg-slate-850 rounded border border-slate-800">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-[8px] text-orange-400">Chicken Burger</span>
-                          <span className="text-[6px] text-slate-400">Table 1 • Qty: 1</span>
-                        </div>
-                        <span className="text-[6px] bg-amber-500/25 text-amber-400 font-extrabold px-1.5 py-0.5 rounded leading-none">Preparing</span>
-                      </div>
+                      <span className="text-[6px] bg-emerald-950/60 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-extrabold">Ready</span>
                     </div>
                   </div>
                 </div>
               </div>
+
               <div className="w-full">
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2 mb-3 leading-snug">Live KOT Automation Matrix</h3>
-                <p className="text-gray-500 leading-relaxed text-sm sm:text-base font-medium">
-                  High-volume programmatic looping chime alerts keep your kitchen instantly updated on incoming table modifications.
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 leading-snug">Live KOT Automation Matrix</h3>
+                <p className="text-gray-400 leading-relaxed text-sm sm:text-base font-medium">
+                  High-speed order synchronization pipelines stream table orders straight into KOT tickets. Reduces server overhead, double keying, and time delays.
                 </p>
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="bg-slate-50 py-24 border-t border-b border-gray-100">
+      <section id="pricing" className="bg-[#090A0F] py-24 border-t border-white/5 relative z-10 overflow-hidden">
+        {/* Section Ambient Glows */}
+        <div className="absolute top-[40%] right-[-10%] w-[600px] h-[600px] rounded-full bg-orange-500/10 blur-[135px] pointer-events-none mix-blend-screen"></div>
+        <div className="absolute bottom-[10%] left-[-15%] w-[550px] h-[550px] rounded-full bg-amber-600/8 blur-[120px] pointer-events-none mix-blend-screen"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <div className="text-center mb-12 animate-fade-in-up">
-            <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Pricing Plans</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-4 mb-4">Choose Your Perfect Plan</h2>
-            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Get started with our free basic trial, or upgrade to unlock advanced operations metrics.</p>
+          <div className="text-center mb-12">
+            <span className="text-xs font-bold tracking-wider text-orange-500 uppercase bg-orange-950/40 px-3.5 py-1.5 rounded-full border border-orange-500/20">Pricing Plans</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mt-4 mb-4">Choose Your Perfect Plan</h2>
+            <p className="text-gray-400 font-medium max-w-2xl mx-auto">Get started with a free trial, or choose our popular plans to unlock advanced operation statistics.</p>
           </div>
 
-          {/* Yearly Billing Banner */}
-          <div className="flex flex-col items-center justify-center space-y-2 py-4 mb-12">
-            <span className="text-xs font-extrabold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100">
+          {/* Billing Info */}
+          <div className="flex flex-col items-center justify-center space-y-2 mb-12">
+            <span className="text-xs font-extrabold text-orange-500 uppercase tracking-widest bg-orange-950/40 px-3.5 py-1.5 rounded-full border border-orange-500/20">
               Yearly Subscriptions
             </span>
-            <p className="text-sm font-medium text-gray-500">
+            <p className="text-sm font-semibold text-gray-400">
               All RestDigi plans are billed annually for maximum savings.
             </p>
           </div>
 
-          {/* Comparison Matrix Table */}
-          <div className="w-full overflow-x-auto border border-slate-200/60 rounded-3xl bg-white shadow-sm">
-            <table className="w-full min-w-[850px] border-collapse text-left">
+          {/* Pricing Table (Dark Theme Integration) */}
+          <div className="w-full overflow-x-auto border border-white/10 rounded-3xl bg-[#0B0C10] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+            <table className="w-full min-w-[900px] border-collapse text-left">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/50">
-                  <th className="p-6 text-xl font-extrabold text-slate-900 w-[36%] align-top">
+                <tr className="border-b border-white/5 bg-white/[0.01]">
+                  <th className="p-6 text-lg font-extrabold text-white w-[30%] align-top">
                     <div className="flex flex-col justify-between h-full">
                       <span>Pricing Matrix</span>
-                      <span className="text-xs text-slate-400 font-medium mt-2">Compare plans side-by-side</span>
+                      <span className="text-xs text-gray-400 font-medium mt-1">Compare plans side-by-side</span>
                     </div>
                   </th>
 
                   {/* Basic Dine-In Plan Header */}
-                  <th className="p-6 w-[16%] align-top relative">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200"></div>
-                    <div className="font-bold text-slate-800 text-lg">Basic Dine-In</div>
-                    <div className="text-2xl font-extrabold text-slate-900 mt-2">
+                  <th className="p-6 w-[17.5%] align-top relative">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-white/10"></div>
+                    <div className="font-bold text-white text-base">Basic Dine-In</div>
+                    <div className="text-2xl font-extrabold text-white mt-2">
                       ₹19,999
-                      <span className="text-xs text-slate-400 font-medium">/yr</span>
+                      <span className="text-xs text-gray-400 font-medium">/yr</span>
                     </div>
-                    <span className="inline-block text-[9px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded font-bold mt-2">
+                    <span className="inline-block text-[9px] text-gray-400 bg-white/5 px-2 py-0.5 rounded font-bold mt-2">
                       Billed Annually
                     </span>
                   </th>
 
-                  {/* Pro Live-KOT Plan Header */}
-                  <th className="p-6 w-[16%] align-top relative bg-orange-50/10 border-x border-orange-100/50">
+                  {/* Pro Live-KOT Plan Header (Highlighted) */}
+                  <th className="p-6 w-[17.5%] align-top relative bg-orange-500/[0.02] border-x border-orange-500/10">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-orange-500"></div>
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="font-bold text-slate-800 text-lg">Pro Live-KOT</span>
-                      <span className="text-[8px] bg-orange-500 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0">Popular</span>
+                      <span className="font-bold text-white text-base">Pro Live-KOT</span>
+                      <span className="text-[8px] bg-orange-600 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0 shadow-md shadow-orange-600/20">Popular</span>
                     </div>
-                    <div className="text-2xl font-extrabold text-slate-900 mt-2">
+                    <div className="text-2xl font-extrabold text-white mt-2">
                       ₹39,999
-                      <span className="text-xs text-slate-400 font-medium">/yr</span>
+                      <span className="text-xs text-gray-400 font-medium">/yr</span>
                     </div>
-                    <span className="inline-block text-[9px] text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded font-extrabold mt-2">
+                    <span className="inline-block text-[9px] text-orange-400 bg-orange-950/40 px-2 py-0.5 rounded font-extrabold mt-2">
                       14-Day Free Trial
                     </span>
                   </th>
 
                   {/* Premium Houseboat & Hotel Plan Header */}
-                  <th className="p-6 w-[16%] align-top relative">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200"></div>
-                    <div className="font-bold text-slate-800 text-lg">Premium Houseboat</div>
-                    <div className="text-2xl font-extrabold text-slate-900 mt-2">
+                  <th className="p-6 w-[17.5%] align-top relative">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-white/10"></div>
+                    <div className="font-bold text-white text-base">Premium Houseboat</div>
+                    <div className="text-2xl font-extrabold text-white mt-2">
                       ₹64,999
-                      <span className="text-xs text-slate-400 font-medium">/yr</span>
+                      <span className="text-xs text-gray-400 font-medium">/yr</span>
                     </div>
-                    <span className="inline-block text-[9px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded font-bold mt-2">
+                    <span className="inline-block text-[9px] text-gray-400 bg-white/5 px-2 py-0.5 rounded font-bold mt-2">
                       Billed Annually
                     </span>
                   </th>
 
                   {/* Enterprise Network Plan Header */}
-                  <th className="p-6 w-[16%] align-top relative">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-slate-900"></div>
-                    <div className="font-bold text-slate-800 text-lg">Enterprise Network</div>
-                    <div className="text-2xl font-extrabold text-slate-900 mt-2">Custom</div>
-                    <span className="inline-block text-[9px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded font-bold mt-2">
-                      Contact Us
+                  <th className="p-6 w-[17.5%] align-top relative">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-white/20"></div>
+                    <div className="font-bold text-white text-base">Enterprise Network</div>
+                    <div className="text-2xl font-extrabold text-white mt-2">Custom</div>
+                    <span className="inline-block text-[9px] text-gray-400 bg-white/5 px-2 py-0.5 rounded font-bold mt-2">
+                      Contact Sales
                     </span>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
+              <tbody className="divide-y divide-white/5 text-sm">
 
                 {/* Row 1: Item & Menu Limits */}
-                <tr className="even:bg-slate-50/40">
-                  <td className="p-5 font-semibold text-slate-700">Item & Menu Limits</td>
-                  <td className="p-5 text-slate-600">Up to 50 Menu Items</td>
-                  <td className="p-5 text-slate-800 font-semibold bg-orange-50/5 border-x border-orange-100/30">Unlimited Menu Items</td>
-                  <td className="p-5 text-slate-600">Unlimited Menu Items</td>
-                  <td className="p-5 text-slate-600 font-medium">Unlimited Multi-Outlet</td>
+                <tr className="even:bg-white/[0.01]">
+                  <td className="p-5 font-semibold text-gray-300">Item & Menu Limits</td>
+                  <td className="p-5 text-gray-400">Up to 50 Menu Items</td>
+                  <td className="p-5 text-white font-semibold bg-orange-500/[0.01] border-x border-orange-500/5">Unlimited Menu Items</td>
+                  <td className="p-5 text-gray-400">Unlimited Menu Items</td>
+                  <td className="p-5 text-gray-400 font-semibold">Unlimited Multi-Outlet</td>
                 </tr>
 
                 {/* Row 2: Tables allocation boundaries */}
-                <tr className="even:bg-slate-50/40">
-                  <td className="p-5 font-semibold text-slate-700">Tables Allocation</td>
-                  <td className="p-5 text-slate-600">Up to 10 Tables</td>
-                  <td className="p-5 text-slate-800 font-semibold bg-orange-50/5 border-x border-orange-100/30">Up to 30 Tables</td>
-                  <td className="p-5 text-slate-600">Up to 60 Rooms / Decks</td>
-                  <td className="p-5 text-slate-600 font-medium">Unlimited & Dashboards</td>
+                <tr className="even:bg-white/[0.01]">
+                  <td className="p-5 font-semibold text-gray-300">Tables Allocation</td>
+                  <td className="p-5 text-gray-400">Up to 10 Tables</td>
+                  <td className="p-5 text-white font-semibold bg-orange-500/[0.01] border-x border-orange-500/5">Up to 30 Tables</td>
+                  <td className="p-5 text-gray-400">Up to 60 Rooms / Decks</td>
+                  <td className="p-5 text-gray-400 font-semibold">Unlimited & Dashboards</td>
                 </tr>
 
                 {/* Row 3: Native Order Routing */}
-                <tr className="even:bg-slate-50/40">
-                  <td className="p-5 font-semibold text-slate-700">Native Order Routing</td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
-                  <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
+                <tr className="even:bg-white/[0.01]">
+                  <td className="p-5 font-semibold text-gray-300">Native Order Routing</td>
+                  <td className="p-5 text-gray-400">100% Native RestDigi</td>
+                  <td className="p-5 text-white font-semibold bg-orange-500/[0.01] border-x border-orange-500/5">100% Native RestDigi</td>
+                  <td className="p-5 text-gray-400">100% Native RestDigi</td>
+                  <td className="p-5 text-gray-400 font-semibold">Dedicated Infrastructure</td>
                 </tr>
 
-                {/* Row 4: Weekly Top Dish telemetry trackers */}
-                <tr className="even:bg-slate-50/40">
-                  <td className="p-5 font-semibold text-slate-700">Weekly Top Dish Analytics</td>
-                  <td className="p-5">
-                    <X className="w-5 h-5 text-rose-400" />
-                  </td>
-                  <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
+                {/* Row 4: Kitchen notification console */}
+                <tr className="even:bg-white/[0.01]">
+                  <td className="p-5 font-semibold text-gray-300">Kitchen Notification</td>
+                  <td className="p-5 text-gray-400">Mobile Queue Notification</td>
+                  <td className="p-5 text-white font-semibold bg-orange-500/[0.01] border-x border-orange-500/5">Instant Desktop KOT Console</td>
+                  <td className="p-5 text-gray-400">Multi-KOT Room Mapping</td>
+                  <td className="p-5 text-gray-400 font-semibold">Custom API POS Link</td>
                 </tr>
 
-                {/* Row 5: Detailed Item View Analytics graphs */}
-                <tr className="even:bg-slate-50/40">
-                  <td className="p-5 font-semibold text-slate-700">Detailed Item View Analytics</td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
-                  <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
+                {/* Row 5: Analytics metrics */}
+                <tr className="even:bg-white/[0.01]">
+                  <td className="p-5 font-semibold text-gray-300">Analytics Level</td>
+                  <td className="p-5 text-gray-400">QR Scans Counter Only</td>
+                  <td className="p-5 text-white font-semibold bg-orange-500/[0.01] border-x border-orange-500/5">Top Selling Dishes & Scans</td>
+                  <td className="p-5 text-gray-400">Advanced Room Occupancy</td>
+                  <td className="p-5 text-gray-400 font-semibold">Enterprise Consolidated Metrics</td>
                 </tr>
 
-                {/* Row 6: SEO Ranking Optimization */}
-                <tr className="even:bg-slate-50/40">
-                  <td className="p-5 font-semibold text-slate-700">Automated Local SEO Boost</td>
-                  <td className="p-5">
-                    <X className="w-5 h-5 text-rose-400" />
-                  </td>
-                  <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
-                  <td className="p-5">
-                    <Check className="w-5 h-5 text-emerald-500" />
-                  </td>
+                {/* Row 6: Sound Alerts */}
+                <tr className="even:bg-white/[0.01]">
+                  <td className="p-5 font-semibold text-gray-300">Chime Alerts</td>
+                  <td className="p-5 text-gray-400">No</td>
+                  <td className="p-5 text-white font-semibold bg-orange-500/[0.01] border-x border-orange-500/5">Automated Sound Alerts</td>
+                  <td className="p-5 text-gray-400">Automated Sound Alerts</td>
+                  <td className="p-5 text-gray-400 font-semibold">Custom Alert Integrations</td>
                 </tr>
 
-                {/* Row 7: Direct 24/7 Priority Support */}
-                <tr className="even:bg-slate-50/40">
-                  <td className="p-5 font-semibold text-slate-700">Direct 24/7 Priority Support</td>
-                  <td className="p-5">
-                    <span className="text-xs text-slate-500 font-semibold">Standard 24/7 Support</span>
-                  </td>
-                  <td className="p-5 bg-orange-50/5 border-x border-orange-100/30">
-                    <span className="text-xs text-orange-600 font-bold">Priority 24/7 Support</span>
-                  </td>
-                  <td className="p-5">
-                    <span className="text-xs text-slate-600 font-bold">Dedicated Account Manager</span>
-                  </td>
-                  <td className="p-5">
-                    <span className="text-xs text-slate-900 font-bold">Enterprise-Grade Support</span>
-                  </td>
+                {/* Row 7: Google Review & SEO Booster */}
+                <tr className="even:bg-white/[0.01]">
+                  <td className="p-5 font-semibold text-gray-300">Google SEO Booster</td>
+                  <td className="p-5 text-gray-400">No</td>
+                  <td className="p-5 text-white font-semibold bg-orange-500/[0.01] border-x border-orange-500/5">Included</td>
+                  <td className="p-5 text-gray-400">Included</td>
+                  <td className="p-5 text-gray-400 font-semibold">Included</td>
                 </tr>
 
-                {/* Action Buttons Row */}
+                {/* Row 8: Support Availability */}
+                <tr className="even:bg-white/[0.01]">
+                  <td className="p-5 font-semibold text-gray-300">Support Priority</td>
+                  <td className="p-5 text-gray-400">Direct 24/7 Support</td>
+                  <td className="p-5 text-white font-semibold bg-orange-500/[0.01] border-x border-orange-500/5">Priority 24/7 Support</td>
+                  <td className="p-5 text-gray-400">VIP Premium Support</td>
+                  <td className="p-5 text-gray-400 font-semibold">Dedicated Account Manager</td>
+                </tr>
+
+                {/* Row 9: CTA Action Buttons */}
                 <tr>
-                  <td className="p-5"></td>
-                  <td className="p-5">
+                  <td className="p-6"></td>
+                  
+                  {/* Basic CTA */}
+                  <td className="p-6">
                     <Link
-                      href="/register"
-                      className="block w-full py-2.5 px-4 text-center text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all shadow-sm"
+                      href="/register?plan=basic"
+                      className="block text-center text-xs font-bold bg-white/5 text-white hover:bg-white/10 py-3 px-2 rounded-xl transition-colors border border-white/5"
                     >
-                      Get Started
+                      Activate Basic Dine-In
                     </Link>
                   </td>
-                  <td className="p-5 bg-orange-50/10 border-x border-orange-100/40">
+
+                  {/* Pro CTA */}
+                  <td className="p-6 bg-orange-500/[0.02] border-x border-orange-500/10">
                     <Link
-                      href="/register"
-                      className="block w-full py-2.5 px-4 text-center text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-all shadow-md hover:shadow-lg"
+                      href="/register?plan=pro"
+                      className="block text-center text-xs font-bold bg-orange-600 text-white hover:bg-orange-700 py-3 px-2 rounded-xl transition-all shadow-lg shadow-orange-600/15"
                     >
-                      Get Started
+                      Try Pro For Free
                     </Link>
                   </td>
-                  <td className="p-5">
+
+                  {/* Premium CTA */}
+                  <td className="p-6">
                     <Link
-                      href="/register"
-                      className="block w-full py-2.5 px-4 text-center text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all shadow-sm"
+                      href="/register?plan=premium"
+                      className="block text-center text-xs font-bold bg-white/5 text-white hover:bg-white/10 py-3 px-2 rounded-xl transition-colors border border-white/5"
                     >
-                      Get Started
+                      Upgrade to Premium
                     </Link>
                   </td>
-                  <td className="p-5">
+
+                  {/* Enterprise CTA */}
+                  <td className="p-6">
                     <a
-                      href="mailto:support@restdigi.online?subject=Enterprise%20Network%20Plan%20Inquiry&body=Hi%20RestDigi%20Team%2C%0A%0AI'm%20interested%20in%20the%20Enterprise%20Network%20Plan%20for%20my%20restaurant%20chain.%20Please%20contact%20me%20with%20details."
-                      className="block w-full py-2.5 px-4 text-center text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-xl transition-all shadow-sm"
+                      href="mailto:support@restdigi.online?subject=RestDigi%20Enterprise%20Plan%20Inquiry&body=Hi%20RestDigi%20Sales%20Team%2C%0A%0AI%20am%20interested%20in%20learning%20more%20about%20the%20Enterprise%20Network%20Plan%20for%20my%20restaurant%20chain.%20Please%20get%20in%20touch.%0A%0ABest%20regards%2C"
+                      className="block text-center text-xs font-bold bg-white/5 text-white hover:bg-white/10 py-3 px-2 rounded-xl transition-colors border border-white/5"
                     >
                       Contact Sales Team
                     </a>
@@ -809,117 +750,91 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="bg-white py-24 border-t border-gray-100">
+      <section id="faq" className="bg-transparent py-24 border-t border-white/5 relative z-10 overflow-hidden">
+        {/* FAQ Section Ambient Glows */}
+        <div className="absolute top-[10%] left-[-15%] w-[600px] h-[600px] rounded-full bg-orange-500/12 blur-[130px] pointer-events-none mix-blend-screen z-0"></div>
+        <div className="absolute bottom-[5%] right-[-10%] w-[550px] h-[550px] rounded-full bg-amber-500/8 blur-[120px] pointer-events-none mix-blend-screen z-0"></div>
+        
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 animate-fade-in-up">
-            <span className="text-xs font-bold tracking-wider text-orange-600 uppercase bg-orange-50 px-3 py-1 rounded-full border border-orange-100">FAQ</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mt-4 mb-4" style={{ color: '#111111' }}>Frequently Asked Questions</h2>
-            <p className="text-gray-500 font-medium max-w-2xl mx-auto">Got questions? We've got answers. Explore our support topics below.</p>
+          <div className="text-center mb-16">
+            <span className="text-xs font-bold tracking-wider text-orange-500 uppercase bg-orange-950/40 px-3.5 py-1.5 rounded-full border border-orange-500/20">FAQ</span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-4 mb-4">Frequently Asked Questions</h2>
+            <p className="text-gray-400 font-medium max-w-2xl mx-auto">Have questions about our operations? Explore our support responses below.</p>
           </div>
 
           <div className="space-y-4 max-w-3xl mx-auto">
             {/* Q1 */}
-            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
-              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
-                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>What exactly is RestDigi, and how does it work?</span>
-                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
+            <details className="group border border-white/10 rounded-2xl bg-white/[0.03] backdrop-blur-md p-6 hover:border-orange-500/30 hover:shadow-orange-500/5 hover:-translate-y-0.5 transition-all duration-200 relative z-10 shadow-lg">
+              <summary className="flex justify-between items-center font-bold text-white cursor-pointer list-none select-none">
+                <span className="text-base sm:text-lg pr-4">What exactly is RestDigi, and how does it work?</span>
+                <span className="text-orange-500 transition-transform duration-200 group-open:rotate-45 shrink-0">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
                 </span>
               </summary>
-              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
-                RestDigi is a cloud-native restaurant operating framework. You simply generate a customized QR code for your tables. Customers scan the QR to view your interactive digital menu and place orders instantly. The order is routed straight to your kitchen display system—eliminating manual paper tracking completely.
+              <div className="mt-4 text-gray-400 text-sm sm:text-base leading-relaxed border-t border-white/5 pt-4">
+                RestDigi is a cloud-native restaurant operating platform. You generate customized QR codes for tables, and customers scan them to order food directly from mobile browsers. Orders flow straight into kitchen consoles—replacing paper order logs completely.
               </div>
             </details>
 
             {/* Q2 */}
-            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
-              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
-                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>Do my customers need to download any mobile application to scan the menu?</span>
-                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
+            <details className="group border border-white/10 rounded-2xl bg-white/[0.03] backdrop-blur-md p-6 hover:border-orange-500/30 hover:shadow-orange-500/5 hover:-translate-y-0.5 transition-all duration-200 relative z-10 shadow-lg">
+              <summary className="flex justify-between items-center font-bold text-white cursor-pointer list-none select-none">
+                <span className="text-base sm:text-lg pr-4">Do my customers need to download any application?</span>
+                <span className="text-orange-500 transition-transform duration-200 group-open:rotate-45 shrink-0">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
                 </span>
               </summary>
-              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
-                No apps are required! Customers can simply scan the table QR code using their default smartphone camera or any standard scanner app, and your full high-speed menu will open instantly inside their mobile web browser.
+              <div className="mt-4 text-gray-400 text-sm sm:text-base leading-relaxed border-t border-white/5 pt-4">
+                No apps required! Customers scan the QR code with their default smartphone camera and the menu opens in their standard mobile web browser instantly.
               </div>
             </details>
 
             {/* Q3 */}
-            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
-              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
-                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>What is the "Free Basic Tier for First Comers" offer?</span>
-                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
+            <details className="group border border-white/10 rounded-2xl bg-white/[0.03] backdrop-blur-md p-6 hover:border-orange-500/30 hover:shadow-orange-500/5 hover:-translate-y-0.5 transition-all duration-200 relative z-10 shadow-lg">
+              <summary className="flex justify-between items-center font-bold text-white cursor-pointer list-none select-none">
+                <span className="text-base sm:text-lg pr-4">Can I update my menu prices and items in real-time?</span>
+                <span className="text-orange-500 transition-transform duration-200 group-open:rotate-45 shrink-0">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
                 </span>
               </summary>
-              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
-                To support local restaurant communities, we are running an exclusive Early Bird launch frame. The first 5 users/outlets to register on RestDigi will get our core operational infrastructure (including the dynamic digital QR menu and basic telemetry analytics) completely FREE for one month—zero monthly hosting fees, zero catches.
+              <div className="mt-4 text-gray-400 text-sm sm:text-base leading-relaxed border-t border-white/5 pt-4">
+                Yes, completely! Any changes you make to pricing, availability, or dish details in your secure admin dashboard update instantly on the digital menu without needing to print new QR codes.
               </div>
             </details>
 
             {/* Q4 */}
-            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
-              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
-                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>How does the successful referral commission system work?</span>
-                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
+            <details className="group border border-white/10 rounded-2xl bg-white/[0.03] backdrop-blur-md p-6 hover:border-orange-500/30 hover:shadow-orange-500/5 hover:-translate-y-0.5 transition-all duration-200 relative z-10 shadow-lg">
+              <summary className="flex justify-between items-center font-bold text-white cursor-pointer list-none select-none">
+                <span className="text-base sm:text-lg pr-4">Do I need special hardware to run the kitchen console?</span>
+                <span className="text-orange-500 transition-transform duration-200 group-open:rotate-45 shrink-0">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
                 </span>
               </summary>
-              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
-                We love growing with our community! If you refer another cafe or restaurant owner to RestDigi, you earn a premium cash payout or software credits as soon as your referred user upgrades and makes their first successful purchase of our Pro, Premium or Enterprise tier plans. For commission information, you can contact <a href="mailto:support@restdigi.online" className="text-orange-600 hover:text-orange-700 underline font-semibold">support@restdigi.online</a>.
+              <div className="mt-4 text-gray-400 text-sm sm:text-base leading-relaxed border-t border-white/5 pt-4">
+                No, RestDigi is designed to run on any device with a standard web browser. You can use any tablet, smartphone, laptop, or desktop computer already in your kitchen to monitor incoming orders.
               </div>
             </details>
 
             {/* Q5 */}
-            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
-              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
-                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>How long does it take to set up my entire restaurant menu live?</span>
-                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
+            <details className="group border border-white/10 rounded-2xl bg-white/[0.03] backdrop-blur-md p-6 hover:border-orange-500/30 hover:shadow-orange-500/5 hover:-translate-y-0.5 transition-all duration-200 relative z-10 shadow-lg">
+              <summary className="flex justify-between items-center font-bold text-white cursor-pointer list-none select-none">
+                <span className="text-base sm:text-lg pr-4">Do you offer plans for multi-location restaurant chains?</span>
+                <span className="text-orange-500 transition-transform duration-200 group-open:rotate-45 shrink-0">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
                 </span>
               </summary>
-              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
-                Under 10 minutes. After completing your quick registration panel, add item, add prices, and hit publish. Your custom tables QR code sheet will be generated automatically for immediate printing.
-              </div>
-            </details>
-
-            {/* Q6 */}
-            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
-              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
-                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>Can I track my restaurant sales data when I am away or at home?</span>
-                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                  </svg>
-                </span>
-              </summary>
-              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
-                Yes! RestDigi is a 100% cloud-synced system. You can open your customized live owner dashboard from any smartphone, laptop, or tablet in the world to track real-time tables and menu, total scan counts, and your top-performing menu items.
-              </div>
-            </details>
-
-            {/* Q7 */}
-            <details className="group border border-slate-100 rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all duration-200">
-              <summary className="flex justify-between items-center font-bold text-gray-900 cursor-pointer list-none select-none">
-                <span className="text-base sm:text-lg pr-4" style={{ color: '#111111' }}>Is there a contract, or can I cancel my subscription anytime?</span>
-                <span className="text-orange-600 transition-transform duration-200 group-open:rotate-45 shrink-0">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                  </svg>
-                </span>
-              </summary>
-              <div className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-50 pt-4">
-                There are absolutely no locked contracts or hidden liabilities. You can scale your tiers, downgrade to our base assets, or cancel your active premium subscriptions inside your admin control panel whenever you wish with a single click.
+              <div className="mt-4 text-gray-400 text-sm sm:text-base leading-relaxed border-t border-white/5 pt-4">
+                Absolutely! Our Enterprise Network Plan is fully customizable for major chains and franchise systems. It features unlimited locations, dedicated hosting configurations, custom third-party POS API integrations, and direct enterprise priority support. Contact sales at support@restdigi.online to discuss custom setups.
               </div>
             </details>
           </div>
@@ -927,120 +842,97 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 pt-12 border-t border-slate-100">
+      <footer className="bg-gradient-to-b from-white/[0.01] to-white/[0.03] backdrop-blur-xl border-t border-white/10 relative z-10 overflow-hidden py-16">
+        {/* Footer Ambient Glows */}
+        <div className="absolute bottom-[-30%] left-[25%] w-[600px] h-[400px] rounded-full bg-orange-500/15 blur-[125px] pointer-events-none mix-blend-screen z-0"></div>
+        <div className="absolute top-[-10%] right-[15%] w-[450px] h-[450px] rounded-full bg-amber-500/10 blur-[115px] pointer-events-none mix-blend-screen z-0"></div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 pb-12">
 
-            {/* Column 1 (Branding Node) */}
+            {/* Column 1 */}
             <div className="space-y-4">
               <img
                 src="/restdigi-logo.png"
-                className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105"
+                className="h-10 sm:h-12 w-auto object-contain transition-transform hover:scale-105 brightness-110"
                 alt="RESTDIGI Logo"
                 loading="lazy"
               />
-              <p className="text-slate-500 text-sm leading-relaxed">
-                Modernizing local dining ecosystems with high-speed digital tools.
+              <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+                Modernizing local dining ecosystems with high-speed digital tools and interactive, glassmorphic menus.
               </p>
-              <div className="text-xs text-slate-400">
-                &copy; 2026 RestDigi. All rights reserved.
-              </div>
             </div>
 
-            {/* Column 2 (Product Assets) */}
+            {/* Column 2 */}
             <div className="space-y-4">
-              <h3 className="text-slate-900 font-bold text-sm tracking-wider uppercase">
-                Product
-              </h3>
+              <h3 className="text-white font-bold text-sm tracking-wider uppercase">Product</h3>
               <ul className="space-y-3">
-                <li>
-                  <Link href="#features" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#pricing" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
-                    Pricing Tiers
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#faq" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
-                    FAQ Section
-                  </Link>
-                </li>
+                <li><Link href="#features" className="text-gray-400 hover:text-orange-500 hover:translate-x-1.5 inline-block transition-all duration-200 text-sm font-medium">Features</Link></li>
+                <li><Link href="#pricing" className="text-gray-400 hover:text-orange-500 hover:translate-x-1.5 inline-block transition-all duration-200 text-sm font-medium">Pricing Tiers</Link></li>
+                <li><Link href="#faq" className="text-gray-400 hover:text-orange-500 hover:translate-x-1.5 inline-block transition-all duration-200 text-sm font-medium">FAQ</Link></li>
               </ul>
             </div>
 
-            {/* Column 3 (Legal Framework Documents) */}
+            {/* Column 3 */}
             <div className="space-y-4">
-              <h3 className="text-slate-900 font-bold text-sm tracking-wider uppercase">
-                Legal
-              </h3>
+              <h3 className="text-white font-bold text-sm tracking-wider uppercase">Legal</h3>
               <ul className="space-y-3">
-                <li>
-                  <Link href="/privacy-policy" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/terms-and-conditions" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
-                    Terms & Conditions
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/refund-policy" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
-                    Cancellation & Refund
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact-us" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
-                    Contact Us
-                  </Link>
-                </li>
+                <li><Link href="/privacy-policy" className="text-gray-400 hover:text-orange-500 hover:translate-x-1.5 inline-block transition-all duration-200 text-sm font-medium">Privacy Policy</Link></li>
+                <li><Link href="/terms-and-conditions" className="text-gray-400 hover:text-orange-500 hover:translate-x-1.5 inline-block transition-all duration-200 text-sm font-medium">Terms & Conditions</Link></li>
+                <li><Link href="/refund-policy" className="text-gray-400 hover:text-orange-500 hover:translate-x-1.5 inline-block transition-all duration-200 text-sm font-medium">Cancellation & Refund</Link></li>
+                <li><Link href="/contact-us" className="text-gray-400 hover:text-orange-500 hover:translate-x-1.5 inline-block transition-all duration-200 text-sm font-medium">Contact Us</Link></li>
               </ul>
             </div>
 
-            {/* Column 4 (Social Footprint Connect) */}
+            {/* Column 4 */}
             <div className="space-y-4">
-              <h3 className="text-slate-900 font-bold text-sm tracking-wider uppercase">
-                Social
-              </h3>
+              <h3 className="text-white font-bold text-sm tracking-wider uppercase">Social</h3>
               <ul className="space-y-3">
-                <li>
-                  <a href="https://twitter.com/restdigii" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
-                    Twitter (X)
-                  </a>
-                </li>
-                <li>
-                  <a href="https://instagram.com/restdigi" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
-                    Instagram
-                  </a>
-                </li>
-                <li>
-                  <a href="https://www.youtube.com/@RESTDIGI" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-900 transition-colors text-sm font-medium">
-                    YouTube
-                  </a>
-                </li>
+                <li><a href="https://twitter.com/restdigii" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-orange-500 hover:translate-x-1.5 inline-block transition-all duration-200 text-sm font-medium">Twitter (X)</a></li>
+                <li><a href="https://instagram.com/restdigi" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-orange-500 hover:translate-x-1.5 inline-block transition-all duration-200 text-sm font-medium">Instagram</a></li>
+                <li><a href="https://www.youtube.com/@RESTDIGI" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-orange-500 hover:translate-x-1.5 inline-block transition-all duration-200 text-sm font-medium">YouTube</a></li>
               </ul>
             </div>
 
           </div>
+
+          {/* Bottom Bar */}
+          <div className="mt-12 pt-8 border-t border-white/5 text-center">
+            <p className="text-xs text-gray-500">
+              &copy; 2026 RestDigi. All rights reserved. Crafted for premium digital dining.
+            </p>
+          </div>
         </div>
       </footer>
 
+      {/* Floating Plate Micro-animations */}
       <style>{`
-        @keyframes fadeInUp { 
-          from { opacity: 0; transform: translateY(20px); } 
-          to { opacity: 1; transform: translateY(0); } 
+        @keyframes floatSlow {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-10px) rotate(3deg); }
         }
-        .animate-fade-in-up { 
-          animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-          opacity: 0;
+        @keyframes floatMid {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(10px) rotate(-3deg); }
+        }
+        @keyframes floatFast {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-7px); }
+        }
+        .animate-float-slow {
+          animation: floatSlow 7s ease-in-out infinite;
+        }
+        .animate-float-mid {
+          animation: floatMid 6s ease-in-out infinite;
+        }
+        .animate-float-fast {
+          animation: floatFast 5s ease-in-out infinite;
         }
         summary::-webkit-details-marker {
           display: none;
         }
       `}</style>
+
     </div>
   );
 }

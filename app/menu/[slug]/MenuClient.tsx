@@ -5,10 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { X, MessageCircle, Loader2, Search, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const MenuHeader = React.memo(({ restaurant, menuBlocked }: { restaurant: any, menuBlocked: boolean }) => (
-  <div className="pt-8 pb-6 px-4 flex flex-col items-center justify-center bg-white relative z-10">
-    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-full border border-gray-100 flex items-center justify-center overflow-hidden mb-3 relative shadow-sm">
+const MenuHeader = React.memo(({ restaurant, menuBlocked, tableNo }: { restaurant: any, menuBlocked: boolean, tableNo?: string }) => (
+  <div className="pt-8 pb-6 px-4 flex flex-col items-center justify-center bg-transparent relative z-10">
+    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/5 rounded-full border border-white/10 flex items-center justify-center overflow-hidden mb-3 relative shadow-sm transition-transform hover:scale-105">
       {restaurant?.logo_url ? (
         <img 
           src={restaurant.logo_url} 
@@ -17,20 +16,23 @@ const MenuHeader = React.memo(({ restaurant, menuBlocked }: { restaurant: any, m
           key={restaurant.logo_url} 
         />
       ) : (
-        <span className="text-3xl font-black text-[#111827]">
+        <span className="text-2xl font-black text-white">
           {restaurant?.name?.charAt(0) || 'L'}
         </span>
       )}
     </div>
-    <h1 className="text-xl sm:text-2xl font-black text-[#111827] tracking-tight text-center">
+    <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight text-center">
       {restaurant?.name || 'Restaurant Name'}
     </h1>
-    <p className="text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-widest mt-1 text-center">
-      Digital Menu
-    </p>
+    {tableNo && (
+      <span className="mt-2 px-3 py-1 rounded-full bg-white/5 text-white font-extrabold text-[10px] tracking-wider border border-white/10 uppercase shadow-sm">
+        Table {tableNo}
+      </span>
+    )}
   </div>
 ));
 MenuHeader.displayName = 'MenuHeader';
+
 const springTransition = { type: "spring" as const, stiffness: 550, damping: 40 };
 
 export default function MenuClient({
@@ -73,6 +75,17 @@ export default function MenuClient({
   const [cart, setCart] = useState<any[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [dishQuantity, setDishQuantity] = useState(1);
+
+  const handleCallWaiter = () => {
+    const tableText = tableNo ? `Table ${tableNo}` : 'our table';
+    const msg = `Hi! I need assistance at ${tableText}. Could a waiter please come over?`;
+    const whatsappNum = (restaurant?.whatsapp_number || '').replace(/[^0-9]/g, '');
+    if (whatsappNum) {
+      window.open(`https://wa.me/${whatsappNum}?text=${msg}`, '_blank');
+    } else {
+      alert('WhatsApp assistance is not configured for this restaurant.');
+    }
+  };
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -396,8 +409,8 @@ export default function MenuClient({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-gray-400" />
+      <div className="min-h-screen bg-[#07080B] flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-orange-500" />
       </div>
     );
   }
@@ -412,7 +425,21 @@ export default function MenuClient({
   const menuBlocked = isExpiredWithGrace();
 
   return (
-    <div className="min-h-screen flex flex-col bg-white pb-24 font-sans relative selection:bg-gray-200">
+    <div className="min-h-screen flex flex-col bg-[#07080B] text-white pb-24 font-sans relative selection:bg-orange-600/30 overflow-hidden">
+      {/* Background Radial Glows — left, center & right, low opacity */}
+      {/* LEFT side */}
+      <div className="absolute top-[5%] left-[-12%] w-[420px] h-[420px] rounded-full bg-orange-600/10 blur-[90px] pointer-events-none z-0"></div>
+      <div className="absolute top-[45%] left-[-10%] w-[380px] h-[380px] rounded-full bg-amber-500/8 blur-[100px] pointer-events-none z-0"></div>
+      <div className="absolute bottom-[5%] left-[-8%] w-[350px] h-[350px] rounded-full bg-orange-500/10 blur-[80px] pointer-events-none z-0"></div>
+      {/* CENTER */}
+      <div className="absolute top-[2%] left-[50%] -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-amber-500/8 blur-[110px] pointer-events-none z-0"></div>
+      <div className="absolute top-[42%] left-[50%] -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-orange-600/7 blur-[120px] pointer-events-none z-0"></div>
+      <div className="absolute bottom-[2%] left-[50%] -translate-x-1/2 w-[380px] h-[380px] rounded-full bg-amber-400/8 blur-[100px] pointer-events-none z-0"></div>
+      {/* RIGHT side */}
+      <div className="absolute top-[5%] right-[-12%] w-[420px] h-[420px] rounded-full bg-orange-600/10 blur-[90px] pointer-events-none z-0"></div>
+      <div className="absolute top-[45%] right-[-10%] w-[380px] h-[380px] rounded-full bg-amber-500/8 blur-[100px] pointer-events-none z-0"></div>
+      <div className="absolute bottom-[5%] right-[-8%] w-[350px] h-[350px] rounded-full bg-orange-500/10 blur-[80px] pointer-events-none z-0"></div>
+
       {restaurant && (
         <script
           type="application/ld+json"
@@ -455,7 +482,7 @@ export default function MenuClient({
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .theme-ring:focus { 
           outline: none !important; 
-          box-shadow: 0 0 0 2px #000000 !important; 
+          box-shadow: 0 0 0 2px #EA580C !important; 
           border-color: transparent !important; 
         }
         /* Prevent mobile copy/selection overlay for a native app feel */
@@ -463,6 +490,7 @@ export default function MenuClient({
           -webkit-touch-callout: none;
           -webkit-user-select: none;
           user-select: none;
+          background-color: #07080B;
         }
         /* Allow selection only on inputs */
         input, textarea {
@@ -472,352 +500,375 @@ export default function MenuClient({
       `}</style>
 
       {/* Minimal Top Header */}
-      <MenuHeader restaurant={restaurant} menuBlocked={menuBlocked} />
+      <MenuHeader restaurant={restaurant} menuBlocked={menuBlocked} tableNo={tableNo || undefined} />
 
-      <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-6">
-        {menuBlocked ? (
+      {menuBlocked ? (
+        <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-6 relative z-10">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 mt-16 text-center animate-fade-in">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <AlertCircle className="w-10 h-10 text-gray-400" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Menu Unavailable</h2>
-            <p className="text-gray-500 font-medium">This menu is temporarily unavailable. Please contact the restaurant owner.</p>
+            <h2 className="text-2xl font-bold text-white mb-2">Menu Unavailable</h2>
+            <p className="text-gray-400 font-medium">This menu is temporarily unavailable. Please contact the restaurant owner.</p>
           </div>
-        ) : (
-          <>
+        </main>
+      ) : (
+        <>
+          {/* Recommended/Special Offers Section (Warm Cream Background replaced with Dark Glass) */}
+          <div className="w-full max-w-4xl mx-auto px-4 pt-4 pb-2 relative z-10">
             {/* Special Offers Section */}
             {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).length > 0 && (
-              <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-8 mt-12 pt-2">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <span className="text-orange-500">✨</span> Offers for You
+              <div className="mb-4">
+                <h2 className="text-lg sm:text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-orange-500">✨</span> Recommended For You
                 </h2>
-                <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x">
-                  {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).map(item => (
-                    <motion.div
-                      key={`offer-${item.id}`}
-                      onClick={() => handleDishClick(item)}
-                      whileTap={{ scale: 0.98 }}
-                      className="min-w-[260px] max-w-[260px] bg-white rounded-3xl p-3 flex gap-3 shadow-sm border border-orange-100 relative overflow-visible snap-center cursor-pointer hover:shadow-md transition-all shrink-0"
-                    >
-                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100/50 shrink-0 overflow-hidden relative border border-orange-50/50 flex items-center justify-center">
-                        {item.image_url ? (
-                          <Image src={item.image_url} fill sizes="80px" alt={item.name} className="object-cover" />
-                        ) : (
-                          <span className="text-xl font-black text-orange-400 uppercase select-none">{item.name.charAt(0)}</span>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <h3 className="text-base font-bold text-gray-900 truncate">{item.name}</h3>
-                          {/* Secure Strict Conditional Badge Rendering */}
-                          {item.special_tag && item.special_tag.trim() !== "" && (
-                            <span className="bg-brand-orange text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+                <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x pl-1 pr-4">
+                  {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).map(item => {
+                    const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
+                    
+                    return (
+                      <motion.div
+                        key={`offer-${item.id}`}
+                        onClick={() => handleDishClick(item)}
+                        whileTap={{ scale: 0.98 }}
+                        className="min-w-[280px] max-w-[280px] bg-white/[0.03] backdrop-blur-md rounded-[32px] p-5 flex flex-col justify-between shadow-xl border border-white/10 relative overflow-visible snap-center cursor-pointer hover:border-white/20 transition-all duration-300 shrink-0"
+                      >
+                        {/* Tags */}
+                        <div className="flex justify-between items-start w-full relative z-10">
+                          <span className={`w-3.5 h-3.5 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0 mt-0.5`}>
+                            <div className={`w-2 h-2 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}></div>
+                          </span>
+                          
+                          {item.special_tag && item.special_tag.trim() !== "" ? (
+                            <span className="bg-orange-500/10 text-orange-450 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider border border-orange-500/20">
                               {item.special_tag}
+                            </span>
+                          ) : (
+                            <span className="bg-amber-500/10 text-amber-450 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider border border-amber-500/20">
+                              Popular
                             </span>
                           )}
                         </div>
-                        <span className="text-sm font-black text-gray-900 mt-1 block">
-                          ₹{getDishPrice(item)}
-                        </span>
-                      </div>
-                      {item.offer_tag && item.restaurant_id === initialRestaurant.id && (
-                        <div
-                          className="absolute z-[50] -bottom-[10px] -right-[8px] -rotate-[3deg] whitespace-nowrap font-black text-[10px] sm:text-xs text-white px-3 py-1.5 shadow-xl border-2 border-white"
-                          style={{
-                            backgroundColor: '#f97316',
-                            borderRadius: '12px 4px 12px 4px'
-                          }}
-                        >
-                          {item.offer_tag}
+
+                        {/* Centered Dish Image */}
+                        <div className="my-4 flex justify-center w-full relative">
+                          <div className="w-28 h-28 rounded-full overflow-hidden relative shadow-md border border-white/5 bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center">
+                            {item.image_url ? (
+                              <Image src={item.image_url} fill sizes="112px" alt={item.name} className="object-cover" />
+                            ) : (
+                              <span className="text-3xl font-black text-gray-500 uppercase select-none">{item.name.charAt(0)}</span>
+                            )}
+                          </div>
+                          
+                          {item.offer_tag && (
+                            <span className="absolute -bottom-2 -right-1 bg-orange-500/20 text-orange-400 text-[9px] font-black px-2.5 py-1 rounded-md border border-orange-500/30 shadow-sm uppercase tracking-wide animate-pulse">
+                              {item.offer_tag}
+                            </span>
+                          )}
                         </div>
-                      )}
-                    </motion.div>
-                  ))}
+
+                        {/* Dish Meta */}
+                        <div className="text-left w-full mt-2">
+                          <h3 className="text-lg font-black text-white leading-snug line-clamp-1">{item.name}</h3>
+                          <div className="flex items-center justify-between mt-2.5">
+                            <span className="text-base font-black text-amber-400 tabular-nums">
+                              ₹{getDishPrice(item)}
+                            </span>
+                            <span className="bg-[#EA580C] hover:bg-orange-600 text-white text-[10px] font-extrabold px-3.5 py-1.5 rounded-full shadow-[0_0_12px_rgba(234,88,12,0.3)] transition-colors">
+                              ADD +
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </div>
             )}
+          </div>
 
-            {/* Search Bar */}
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 mb-6 mt-8">
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 group-focus-within:text-black transition-colors" />
-                </div>
-                <input
-                  type="text"
-                  className="block w-full pl-14 pr-10 py-4 sm:py-5 text-sm sm:text-base bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 theme-ring transition-all shadow-sm font-medium"
-                  placeholder="Search for a dish..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-900 transition-colors"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Quick Jump Bar */}
-            {categories.length > 0 && (
-              <div className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm">
-                <div className="max-w-3xl mx-auto py-3 flex gap-2 overflow-x-auto scrollbar-hide snap-x scroll-pl-4 sm:scroll-pl-6 pl-4 sm:pl-6 pr-4 sm:pr-6">
-                  {categories.map((cat) => (
+          {/* Curved Dark Sheet Container (Full Width Edge-to-Edge) */}
+          <div className="w-full bg-white/[0.02] backdrop-blur-md rounded-t-[40px] border-t border-white/10 shadow-[0_-12px_40px_rgba(0,0,0,0.6)] relative mt-8 pb-32">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+              
+              {/* Search Bar */}
+              <div className="mb-8">
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400 group-focus-within:text-white transition-colors" />
+                  </div>
+                  <input
+                    type="text"
+                    className="block w-full pl-14 pr-10 py-4 sm:py-5 text-sm sm:text-base bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/40 focus:ring-1 focus:ring-orange-500/40 transition-all shadow-sm font-medium"
+                    placeholder="Search for a dish..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  {searchQuery && (
                     <button
-                      key={cat}
-                      onClick={() => {
-                        setActiveCategory(cat);
-                        setHasTappedCategory(true);
-                        const el = document.getElementById(`category-${cat}`);
-                        if (el) {
-                          const y = el.getBoundingClientRect().top + window.scrollY - 80;
-                          window.scrollTo({ top: y, behavior: 'smooth' });
-                        }
-                      }}
-                      className={`whitespace-nowrap shrink-0 px-5 py-2 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${activeCategory === cat
-                          ? 'text-white'
-                          : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
-                        }`}
-                      style={activeCategory === cat ? { backgroundColor: '#000000' } : {}}
+                      onClick={() => setSearchQuery('')}
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-white transition-colors"
                     >
-                      {cat}
+                      <X className="h-5 w-5" />
                     </button>
-                  ))}
+                  )}
                 </div>
               </div>
-            )}
 
-            {/* Menu List by Categories */}
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-12">
-              {dishes.length === 0 ? (
-                <div className="text-center py-20">
-                  <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-dashed border-gray-200">
-                    <AlertCircle className="h-8 w-8 text-gray-400" />
-                  </div>
-                  <p className="text-gray-500 font-medium sm:text-lg">No items available</p>
-                </div>
-              ) : Object.keys(groupedDishes).length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Search className="h-8 w-8 text-gray-400" />
-                  </div>
-                  <p className="text-gray-500 font-medium sm:text-lg">No dishes found matching your search.</p>
-                </div>
-              ) : (
-                categories.map((cat) => {
-                  const categoryDishes = groupedDishes[cat];
-                  if (!categoryDishes || categoryDishes.length === 0) return null;
-
-                  return (
-                    <div key={cat} id={`category-${cat}`} className="scroll-mt-24 pt-4">
-                      <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6">
+              {/* Quick Jump Bar */}
+              {categories.length > 0 && (
+                <div className="sticky top-0 z-40 backdrop-blur-sm py-4 mb-8 -mx-4 px-4 sm:-mx-6 sm:px-6">
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide snap-x">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => {
+                          setActiveCategory(cat);
+                          setHasTappedCategory(true);
+                          const el = document.getElementById(`category-${cat}`);
+                          if (el) {
+                            const y = el.getBoundingClientRect().top + window.scrollY - 100;
+                            window.scrollTo({ top: y, behavior: 'smooth' });
+                          }
+                        }}
+                        className={`whitespace-nowrap shrink-0 px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${activeCategory === cat
+                            ? 'text-white bg-[#EA580C] shadow-[0_0_12px_rgba(234,88,12,0.4)]'
+                            : 'bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10'
+                          }`}
+                      >
                         {cat}
-                      </h2>
-                      <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
-                        {categoryDishes.map((item: any, index: number) => {
-                          const sizeKey = item.sizes && Object.keys(item.sizes).length > 0
-                            ? Object.keys(item.sizes)[selectedSizes[item.id] || 0]
-                            : 'Standard';
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-                          const cartItem = cart.find(c => c.dish_id === item.id && c.size === sizeKey);
-                          const quantity = cartItem ? cartItem.quantity : 0;
-                          const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
+              {/* Menu List by Categories */}
+              <div className="space-y-12">
+                {dishes.length === 0 ? (
+                  <div className="text-center py-20">
+                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-dashed border-white/10">
+                      <AlertCircle className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-400 font-medium sm:text-lg">No items available</p>
+                  </div>
+                ) : Object.keys(groupedDishes).length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Search className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-400 font-medium sm:text-lg">No dishes found matching your search.</p>
+                  </div>
+                ) : (
+                  categories.map((cat) => {
+                    const categoryDishes = groupedDishes[cat];
+                    if (!categoryDishes || categoryDishes.length === 0) return null;
 
-                          return (
-                            <motion.div
-                              key={item.id}
-                              onClick={() => {
-                                handleDishClick(item);
-                              }}
-                              layoutId={`dish-${item.id}`}
-                              transition={springTransition}
-                              whileTap={{ scale: 0.98 }}
-                              className={`bg-white rounded-2xl p-3 sm:p-4 flex flex-row gap-4 items-center relative group shadow-sm border border-gray-100 transition-all duration-200 ${!item.is_available ? 'opacity-50 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-gray-200 hover:shadow-md'}`}
-                            >
-                              {/* Image */}
-                              <motion.div 
-                                layoutId={`dish-image-${item.id}`}
+                    return (
+                      <div key={cat} id={`category-${cat}`} className="scroll-mt-36 pt-4">
+                        <h2 className="text-2xl sm:text-3xl font-black text-white mb-6 flex items-center gap-2.5">
+                          {cat}
+                          <span className="text-[10px] font-black text-orange-400 bg-orange-400/10 border border-orange-450/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            Popular
+                          </span>
+                        </h2>
+                        
+                        <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
+                          {categoryDishes.map((item: any) => {
+                            const sizeKey = item.sizes && Object.keys(item.sizes).length > 0
+                              ? Object.keys(item.sizes)[selectedSizes[item.id] || 0]
+                              : 'Standard';
+
+                            const cartItem = cart.find(c => c.dish_id === item.id && c.size === sizeKey);
+                            const quantity = cartItem ? cartItem.quantity : 0;
+                            const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
+
+                            return (
+                              <motion.div
+                                key={item.id}
+                                onClick={() => {
+                                  handleDishClick(item);
+                                }}
+                                layoutId={`dish-${item.id}`}
                                 transition={springTransition}
-                                className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 shrink-0 overflow-hidden relative border border-gray-100 flex items-center justify-center"
+                                whileTap={{ scale: 0.98 }}
+                                className={`bg-white/[0.02] backdrop-blur-md rounded-2xl p-3 sm:p-4 flex flex-row gap-4 items-center relative group shadow-sm border border-white/5 transition-all duration-300 ${!item.is_available ? 'opacity-40 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-white/15 hover:bg-white/[0.04] hover:shadow-lg hover:shadow-black/20'}`}
                               >
-                                {item.image_url ? (
-                                  <Image
-                                    src={item.image_url}
-                                    fill
-                                    sizes="(max-width: 640px) 96px, 112px"
-                                    alt={item.name}
-                                    className="object-cover"
-                                    loading="lazy"
-                                  />
-                                ) : (
-                                  <span className="text-2xl font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
-                                )}
-                              </motion.div>
-
-                              {/* Info */}
-                              <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <div className={`w-3 h-3 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0`}>
-                                    <div className={`w-1.5 h-1.5 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}></div>
-                                  </div>
-                                  <motion.h3 
-                                    layoutId={`dish-title-${item.id}`}
-                                    transition={springTransition}
-                                    className="text-base sm:text-lg font-bold text-[#111827] truncate"
-                                  >
-                                    {item.name}
-                                  </motion.h3>
-                                  {/* Secure Strict Conditional Badge Rendering */}
-                                  {item.special_tag && item.special_tag.trim() !== "" && (
-                                    <span className="bg-brand-orange text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                      {item.special_tag}
-                                    </span>
+                                {/* Image */}
+                                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gradient-to-br from-white/5 to-white/10 shrink-0 overflow-hidden relative border border-white/5 flex items-center justify-center">
+                                  {item.image_url ? (
+                                    <Image
+                                      src={item.image_url}
+                                      fill
+                                      sizes="(max-width: 640px) 96px, 112px"
+                                      alt={item.name}
+                                      className="object-cover"
+                                      loading="lazy"
+                                    />
+                                  ) : (
+                                    <span className="text-2xl font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
                                   )}
                                 </div>
-                                {item.description && (
-                                  <p className="text-gray-500 text-xs sm:text-sm mt-0.5 line-clamp-2 leading-relaxed">
-                                    {item.description}
-                                  </p>
-                                )}
 
-                                {item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0 && (
-                                  <div className="mt-2 flex flex-wrap gap-1.5" onClick={e => e.stopPropagation()}>
-                                    {Object.entries(item.sizes).map(([label, _price], i: number) => {
-                                      const isSelected = (selectedSizes[item.id] || 0) === i;
-                                      return (
-                                        <button
-                                          key={i}
-                                          onClick={(e) => { e.stopPropagation(); setSelectedSizes({ ...selectedSizes, [item.id]: i }); }}
-                                          className={`px-2 py-1 text-[10px] uppercase tracking-wide font-bold rounded-lg transition-all ${isSelected ? 'bg-[#111827] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-                                        >
-                                          {label}
-                                        </button>
-                                      );
-                                    })}
+                                {/* Info */}
+                                <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <div className={`w-3 h-3 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0`}>
+                                      <div className={`w-1.5 h-1.5 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}></div>
+                                    </div>
+                                    <h3 className="text-base sm:text-lg font-bold text-white truncate">
+                                      {item.name}
+                                    </h3>
+                                    {/* Secure Strict Conditional Badge Rendering */}
+                                    {item.special_tag && item.special_tag.trim() !== "" && (
+                                      <span className="bg-orange-500/10 text-orange-400 border border-orange-500/20 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+                                        {item.special_tag}
+                                      </span>
+                                    )}
                                   </div>
-                                )}
+                                  {item.description && (
+                                    <p className="text-gray-450 text-xs sm:text-sm mt-0.5 line-clamp-2 leading-relaxed">
+                                      {item.description}
+                                    </p>
+                                  )}
 
-                                <div className="mt-3 flex items-center justify-between">
-                                  <motion.span 
-                                    layoutId={`dish-price-${item.id}`}
-                                    transition={springTransition}
-                                    className="text-base sm:text-lg font-black text-[#111827] tabular-nums"
-                                  >
-                                    ₹{getDishPrice(item)}
-                                  </motion.span>
-
-                                  {/* Add to Cart logic */}
-                                  {item.is_available && (
-                                    <div className="shrink-0 ml-4" onClick={(e) => e.stopPropagation()}>
-                                      {quantity > 0 ? (
-                                        <div className="flex items-center gap-3 bg-gray-100 border border-gray-200 px-1 py-1 rounded-full shadow-sm animate-fade-in">
+                                  {item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0 && (
+                                    <div className="mt-2 flex flex-wrap gap-1.5" onClick={e => e.stopPropagation()}>
+                                      {Object.entries(item.sizes).map(([label], i: number) => {
+                                        const isSelected = (selectedSizes[item.id] || 0) === i;
+                                        return (
                                           <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setCart(prev => {
-                                                const newCart = [...prev];
-                                                const idx = newCart.findIndex(c => c.dish_id === item.id && c.size === sizeKey);
-                                                if (idx >= 0) {
-                                                  newCart[idx].quantity -= 1;
-                                                  if (newCart[idx].quantity <= 0) newCart.splice(idx, 1);
-                                                }
-                                                return newCart;
-                                              });
-                                            }}
-                                            className="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 text-gray-500 rounded-full font-bold active:scale-95 transition-transform hover:bg-gray-50"
+                                            key={i}
+                                            onClick={(e) => { e.stopPropagation(); setSelectedSizes({ ...selectedSizes, [item.id]: i }); }}
+                                            className={`px-2 py-1 text-[10px] uppercase tracking-wide font-bold rounded-lg transition-all ${isSelected ? 'bg-[#EA580C] text-white shadow-[0_0_8px_rgba(234,88,12,0.4)]' : 'bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10'}`}
                                           >
-                                            -
+                                            {label}
                                           </button>
-                                          <span className="font-bold text-gray-900 text-sm w-4 text-center">{quantity}</span>
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              if (quantity < 10) {
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+
+                                  <div className="mt-3 flex items-center justify-between">
+                                    <span className="text-base sm:text-lg font-black text-amber-400 tabular-nums">
+                                      ₹{getDishPrice(item)}
+                                    </span>
+
+                                    {/* Add to Cart logic */}
+                                    {item.is_available && (
+                                      <div className="shrink-0 ml-4" onClick={(e) => e.stopPropagation()}>
+                                        {quantity > 0 ? (
+                                          <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-1 py-1 rounded-full shadow-sm animate-fade-in">
+                                            <button
+                                              onClick={(e) => {
+                                                e.stopPropagation();
                                                 setCart(prev => {
                                                   const newCart = [...prev];
                                                   const idx = newCart.findIndex(c => c.dish_id === item.id && c.size === sizeKey);
-                                                  if (idx >= 0) newCart[idx].quantity += 1;
+                                                  if (idx >= 0) {
+                                                    newCart[idx].quantity -= 1;
+                                                    if (newCart[idx].quantity <= 0) newCart.splice(idx, 1);
+                                                  }
                                                   return newCart;
                                                 });
-                                              }
+                                              }}
+                                              className="w-7 h-7 flex items-center justify-center bg-white/10 text-white rounded-full font-bold active:scale-95 transition-all hover:bg-white/20"
+                                            >
+                                              -
+                                            </button>
+                                            <span className="font-bold text-white text-sm w-4 text-center">{quantity}</span>
+                                            <button
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (quantity < 10) {
+                                                  setCart(prev => {
+                                                    const newCart = [...prev];
+                                                    const idx = newCart.findIndex(c => c.dish_id === item.id && c.size === sizeKey);
+                                                    if (idx >= 0) newCart[idx].quantity += 1;
+                                                    return newCart;
+                                                  });
+                                                }
+                                              }}
+                                              className="w-7 h-7 flex items-center justify-center bg-white/10 text-white rounded-full font-bold active:scale-95 transition-all hover:bg-white/20"
+                                            >
+                                              +
+                                            </button>
+                                          </div>
+                                        ) : (
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setCart(prev => [...prev, {
+                                                dish_id: item.id,
+                                                name: item.name,
+                                                price: Number(getDishPrice(item)),
+                                                quantity: 1,
+                                                size: sizeKey,
+                                                img: item.image_url
+                                              }]);
                                             }}
-                                            className="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 text-gray-500 rounded-full font-bold active:scale-95 transition-transform hover:bg-gray-50"
+                                            className="bg-[#EA580C] hover:bg-orange-600 text-white px-5 py-1.5 rounded-full font-black text-xs sm:text-sm transition-colors active:scale-95 shadow-sm"
                                           >
-                                            +
+                                            ADD
                                           </button>
-                                        </div>
-                                      ) : (
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setCart(prev => [...prev, {
-                                              dish_id: item.id,
-                                              name: item.name,
-                                              price: Number(getDishPrice(item)),
-                                              quantity: 1,
-                                              size: sizeKey,
-                                              img: item.image_url
-                                            }]);
-                                          }}
-                                          className="bg-[#F9FAFB] hover:bg-gray-100 text-[#111827] border border-gray-200 px-5 py-1.5 rounded-full font-bold text-sm transition-colors active:scale-95 shadow-sm"
-                                        >
-                                          ADD
-                                        </button>
-                                      )}
-                                    </div>
-                                  )}
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
 
-                              {item.is_special_offer && item.offer_tag && item.is_available && item.restaurant_id === initialRestaurant.id && (
-                                <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-[#111827] text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase">
-                                  {item.offer_tag}
-                                </div>
-                              )}
-                              {!item.is_available && (
-                                <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-gray-500 text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase">
-                                  Out of stock
-                                </div>
-                              )}
-                            </motion.div>
-                          );
-                        })}
+                                {item.is_special_offer && item.offer_tag && item.is_available && item.restaurant_id === initialRestaurant.id && (
+                                  <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-orange-500 text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase border-b border-l border-white/10">
+                                    {item.offer_tag}
+                                  </div>
+                                )}
+                                {!item.is_available && (
+                                  <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-gray-700 text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase">
+                                    Out of stock
+                                  </div>
+                                )}
+                              </motion.div>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </>
-        )}
-      </main>
+                    );
+                  })
+                )}
+              </div>
 
-      {/* Powered By Footer — always at page bottom */}
-      <footer className="w-full text-center py-6 mt-auto shrink-0">
-        <p className="text-[10px] tracking-widest font-black uppercase text-gray-400">Powered By</p>
-        <img src="/restdigi-logo.png" alt="RESTDIGI" className="h-6 mx-auto mt-1 opacity-70 object-contain" />
-      </footer>
+              {/* Powered By Footer — inside the dark container to keep visual contrast */}
+              <footer className="w-full text-center py-10 mt-16 border-t border-white/5 shrink-0">
+                <p className="text-[9px] tracking-widest font-black uppercase text-gray-500">Powered By</p>
+                <img src="/restdigi-logo.png" alt="RESTDIGI" className="h-5 mx-auto mt-2 opacity-50 object-contain brightness-0 invert" />
+              </footer>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Sticky Bottom Bar for Cart */}
       {cartItemCount > 0 && !showTracking && (
         <div className="fixed bottom-4 left-4 right-4 z-50 animate-slide-up sm:max-w-md sm:mx-auto">
-          <div className="bg-[#111827] text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between border border-gray-800">
+          <div 
+            onClick={() => {
+              setShowTracking(false);
+              setIsCartOpen(true);
+            }}
+            className="bg-[#EA580C] text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between border border-orange-500/20 hover:scale-[1.02] active:scale-98 transition-all cursor-pointer shadow-[0_0_20px_rgba(234,88,12,0.4)]"
+          >
             <div className="flex flex-col">
-              <span className="font-bold text-sm text-gray-300 uppercase tracking-widest">{cartItemCount} Items Added</span>
+              <span className="font-bold text-[10px] uppercase tracking-widest text-white/70">{cartItemCount} Items Added</span>
               <span className="font-black text-xl tabular-nums">₹{cartTotal.toFixed(2)}</span>
             </div>
-            <button
-              onClick={() => {
-                setShowTracking(false);
-                setIsCartOpen(true);
-              }}
-              className="bg-white text-[#111827] px-6 py-3 rounded-xl font-black shadow-md hover:bg-gray-100 active:scale-95 transition-all cursor-pointer"
-            >
-              View Cart & Order 🛒
-            </button>
+            <div className="flex items-center gap-2 font-black text-sm uppercase tracking-wider">
+              <span>View Cart & Order</span>
+              <span className="w-8 h-8 rounded-full bg-[#07080B] text-white flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 text-white">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </span>
+            </div>
           </div>
         </div>
       )}
@@ -830,10 +881,10 @@ export default function MenuClient({
               setShowTracking(true);
               setIsCartOpen(true);
             }}
-            className="bg-[#111827] text-white px-5 h-14 rounded-full shadow-lg flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-transform font-bold cursor-pointer"
+            className="bg-[#0F1012] text-white px-5 h-14 rounded-full shadow-lg border border-white/10 flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-transform font-bold cursor-pointer"
           >
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-sm tracking-wide">Track Order</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#EA580C] animate-pulse shadow-[0_0_8px_rgba(234,88,12,0.4)]"></span>
+            <span className="text-xs uppercase tracking-wider">Track Order</span>
           </button>
         )}
       </div>
@@ -856,20 +907,9 @@ export default function MenuClient({
               <motion.div
                 layoutId={`dish-${selectedDish.id}`}
                 transition={springTransition}
-                className="relative bg-white w-full h-[85vh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg rounded-t-[2rem] sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl pointer-events-auto"
+                className="relative bg-[#0F1012] border border-white/10 w-full h-[85vh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg rounded-t-[2rem] sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl pointer-events-auto"
               >
-                <button
-                  onClick={() => setSelectedDish(null)}
-                  className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/50 hover:bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-900 shadow-sm transition-all"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-
-                <motion.div 
-                  layoutId={`dish-image-${selectedDish.id}`} 
-                  transition={springTransition}
-                  className="relative h-64 sm:h-80 w-full bg-gradient-to-br from-gray-50 to-gray-100 shrink-0 flex items-center justify-center border-b border-gray-100"
-                >
+                <div className="relative h-64 sm:h-80 w-full bg-gradient-to-br from-white/5 to-white/10 shrink-0 flex items-center justify-center border-b border-white/10">
                   {selectedDish.image_url ? (
                     <>
                       <Image
@@ -879,36 +919,36 @@ export default function MenuClient({
                         alt={selectedDish.name}
                         className="object-cover"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20"></div>
                     </>
                   ) : (
-                    <span className="text-6xl font-black text-gray-300 uppercase select-none">{selectedDish.name.charAt(0)}</span>
+                    <span className="text-6xl font-black text-gray-500 uppercase select-none">{selectedDish.name.charAt(0)}</span>
                   )}
-                </motion.div>
 
-                <div className="p-6 sm:p-8 overflow-y-auto flex-1 bg-white">
+                  {/* X Close Button — always visible on top of image */}
+                  <button
+                    onClick={() => setSelectedDish(null)}
+                    className="absolute top-4 right-4 z-30 w-11 h-11 bg-black/60 hover:bg-black/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white border border-white/20 shadow-lg transition-all active:scale-90"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="p-6 sm:p-8 overflow-y-auto flex-1 bg-[#0F1012]">
                   <div className="flex justify-between items-start gap-4 mb-4">
-                    <motion.h2 
-                      layoutId={`dish-title-${selectedDish.id}`} 
-                      transition={springTransition}
-                      className="text-2xl sm:text-3xl font-black text-gray-900 leading-tight"
-                    >
+                    <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">
                       {selectedDish.name}
-                    </motion.h2>
-                    <motion.span 
-                      layoutId={`dish-price-${selectedDish.id}`} 
-                      transition={springTransition}
-                      className="text-2xl sm:text-3xl font-black text-gray-900 shrink-0"
-                    >
+                    </h2>
+                    <span className="text-2xl sm:text-3xl font-black text-amber-400 shrink-0">
                       ₹{getDishPrice(selectedDish)}
-                    </motion.span>
+                    </span>
                   </div>
 
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.15, delay: 0.05 }}
-                    className="text-gray-600 text-sm sm:text-base leading-relaxed mb-8"
+                    className="text-gray-350 text-sm sm:text-base leading-relaxed mb-8"
                   >
                     {selectedDish.description || "Prepared with fresh ingredients and our secret house spices."}
                   </motion.p>
@@ -918,7 +958,7 @@ export default function MenuClient({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2, delay: 0.1 }}
-                  className="p-4 sm:p-6 border-t border-gray-100 bg-white shrink-0"
+                  className="p-4 sm:p-6 border-t border-white/10 bg-[#0F1012] shrink-0"
                 >
                   {(() => {
                     const price = Number(getDishPrice(selectedDish));
@@ -928,17 +968,17 @@ export default function MenuClient({
 
                     return (
                       <div className="flex flex-col gap-4">
-                        <div className="flex items-center justify-between bg-gray-50 p-2 rounded-2xl border border-gray-100">
+                        <div className="flex items-center justify-between bg-white/5 p-2 rounded-2xl border border-white/10">
                           <button
                             onClick={() => setDishQuantity(Math.max(1, dishQuantity - 1))}
-                            className="w-12 h-12 flex items-center justify-center bg-white rounded-xl font-bold text-xl text-gray-900 shadow-sm border border-gray-200"
+                            className="w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-xl shadow-sm border border-white/10"
                           >
                             -
                           </button>
-                          <span className="font-black text-xl w-12 text-center text-black">{dishQuantity}</span>
+                          <span className="font-black text-xl w-12 text-center text-white">{dishQuantity}</span>
                           <button
                             onClick={() => setDishQuantity(Math.min(10, dishQuantity + 1))}
-                            className="w-12 h-12 flex items-center justify-center bg-white rounded-xl font-bold text-xl text-gray-900 shadow-sm border border-gray-200"
+                            className="w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-xl shadow-sm border border-white/10"
                           >
                             +
                           </button>
@@ -963,7 +1003,7 @@ export default function MenuClient({
                             });
                             setSelectedDish(null);
                           }}
-                          className="w-full bg-gray-900 hover:bg-black text-white py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-[1.02] flex items-center justify-between px-6 shadow-lg"
+                          className="w-full bg-[#EA580C] hover:bg-orange-600 text-white py-4 rounded-2xl font-black text-lg transition-transform hover:scale-[1.02] flex items-center justify-between px-6 shadow-[0_0_20px_rgba(234,88,12,0.4)]"
                         >
                           <span>Add to Cart</span>
                           <span>₹{(price * dishQuantity).toFixed(2)}</span>
@@ -987,237 +1027,341 @@ export default function MenuClient({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm"
+              onClick={() => setIsCartOpen(false)}
             />
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed bottom-0 inset-x-0 z-[70] bg-white rounded-t-[2rem] shadow-2xl flex flex-col max-h-[90vh] sm:max-w-md sm:mx-auto"
+              className="fixed bottom-0 inset-x-0 z-[70] bg-[#0F1012] border-t border-white/10 rounded-t-[2.5rem] shadow-2xl flex flex-col max-h-[92vh] sm:max-w-md sm:mx-auto text-white"
             >
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="absolute top-4 right-4 z-[80] w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-900 shadow-sm transition-all animate-fade-in"
+                className="absolute top-5 right-5 z-[80] w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white shadow-sm transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div className="p-4 flex justify-center shrink-0">
-                <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
+                <div className="w-12 h-1.5 bg-white/10 rounded-full" />
               </div>
 
-              <div className="px-6 pb-4 border-b border-gray-100 shrink-0">
-                <h2 className="text-2xl font-black text-gray-900">Your Order</h2>
+              <div className="px-6 pb-4 border-b border-white/5 shrink-0">
+                <h2 className="text-2xl font-black text-white">
+                  {showTracking ? "KOT Status" : "Your Cart"}
+                </h2>
               </div>
 
-              <div className="p-6 overflow-y-auto flex-1 bg-gray-50/50">
+              <div className="p-6 overflow-y-auto flex-1 space-y-6 scrollbar-hide">
                 {showTracking && activeOrderIds.length > 0 ? (
                   <div className="flex flex-col gap-6">
-                    <div className="flex justify-between items-center px-1">
-                      <span className="font-bold text-xs uppercase text-gray-400 tracking-wider">Active Track Queue</span>
-                      {trackedOrders.length > 0 && (
-                        <span className="text-xs font-black bg-orange-100 text-orange-600 px-2.5 py-1 rounded-full animate-pulse">
-                          {trackedOrders.filter(o => o.status === 'pending' || o.status === 'preparing').length} Active KOT
-                        </span>
-                      )}
-                    </div>
+                    {trackedOrders.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                        <Loader2 className="w-8 h-8 animate-spin text-[#EA580C] mb-3" />
+                        <p className="font-bold text-sm">Retrieving order details...</p>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Upper Card: KOT Confirmed */}
+                        {(() => {
+                          const activeOrdersList = [...trackedOrders].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+                          const primaryOrder = activeOrdersList[0];
+                          const orderTimeStr = primaryOrder 
+                            ? new Date(primaryOrder.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            : 'Just now';
 
-                    {trackedOrders.map((order, orderIdx) => {
-                      const orderItems = originalItemsCache[order.id] || order.items || [];
-                      const isOrderCancelled = order.status === 'cancelled';
-                      const isOrderServed = order.status === 'served';
-                      const isOrderPreparing = order.status === 'preparing';
-                      const isOrderPending = order.status === 'pending';
-
-                      return (
-                        <div
-                          key={order.id}
-                          className={`p-5 rounded-2xl border shadow-sm flex flex-col gap-4 relative overflow-hidden transition-all duration-200 ${isOrderPending ? 'border-amber-200 bg-amber-50/10' :
-                              isOrderPreparing ? 'border-orange-200 bg-orange-50/10' :
-                                isOrderServed ? 'border-emerald-200 bg-emerald-50/10' :
-                                  'border-gray-200 bg-gray-50/30'
-                            }`}
-                        >
-                          {/* Card Top Border Accent */}
-                          <div className={`absolute top-0 left-0 w-full h-1 ${isOrderPending ? 'bg-amber-400' :
-                              isOrderPreparing ? 'bg-orange-500' :
-                                isOrderServed ? 'bg-emerald-500' :
-                                  'bg-gray-400'
-                            }`} />
-
-                          {/* Card Header */}
-                          <div className="flex justify-between items-start border-b border-gray-100 pb-3">
-                            <div>
-                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block leading-none mb-1">
-                                Order #{orderIdx + 1}
-                              </span>
-                              <span className="text-sm font-black text-gray-900 leading-none">
-                                {tableNo ? `Table ${tableNo}` : 'WhatsApp Order'}
-                              </span>
+                          return (
+                            <div className="bg-white text-[#0F1012] rounded-3xl p-5 shadow-lg flex flex-col gap-4">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <span className="text-[10px] font-black text-gray-450 uppercase tracking-widest block mb-1">Kitchen Order Ticket</span>
+                                  <h3 className="text-xl font-black text-[#0F1012] leading-none">KOT Confirmed</h3>
+                                </div>
+                                <span className="bg-[#EA580C] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-[0_0_12px_rgba(234,88,12,0.2)]">
+                                  Table {tableNo || '-'}
+                                </span>
+                              </div>
+                              
+                              <div className="border-t border-gray-100 pt-3.5 flex justify-between items-center text-xs">
+                                <div>
+                                  <p className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-0.5">Order Time</p>
+                                  <p className="font-black text-gray-900">{orderTimeStr}</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-0.5">Est. Ready In</p>
+                                  <p className="font-black text-[#B27A23]">15 - 20 mins</p>
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex flex-col items-end gap-1">
-                              {isOrderPending && <span className="flex items-center gap-1 text-[11px] font-black text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending</span>}
-                              {isOrderPreparing && <span className="flex items-center gap-1 text-[11px] font-black text-orange-800 bg-orange-100 px-2 py-0.5 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Preparing</span>}
-                              {isOrderServed && <span className="flex items-center gap-1 text-[11px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
-                              {isOrderCancelled && <span className="flex items-center gap-1 text-[11px] font-black text-red-800 bg-red-100 px-2 py-0.5 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> Cancelled</span>}
-                            </div>
+                          );
+                        })()}
+
+                        {/* Middle Card: Cooking Animation */}
+                        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                          <div className="relative w-20 h-20 flex items-center justify-center mb-2">
+                            <motion.div
+                              animate={{ y: [0, -4, 0] }}
+                              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                              className="text-[#EA580C]"
+                            >
+                              <svg className="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <path d="M4 11h11a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3v-2a3 3 0 0 1 3-3Z" fill="currentColor" fillOpacity="0.05" />
+                                <path d="M18 14.5h4" strokeLinecap="round" />
+                                <motion.path
+                                  animate={{ opacity: [0.3, 1, 0.3], y: [1, -2, 1] }}
+                                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                                  d="M6 7c0-1.5 1-2.5 1-2.5M10 7c0-1.5 1-2.5 1-2.5M14 7c0-1.5 1-2.5 1-2.5"
+                                  strokeWidth="1.8"
+                                  strokeLinecap="round"
+                                />
+                              </svg>
+                            </motion.div>
                           </div>
+                          <p className="text-xs font-black text-white text-center uppercase tracking-wider mb-1">
+                            {orderStatus === 'pending' && "Order Queued"}
+                            {orderStatus === 'preparing' && "Preparing Meal"}
+                            {orderStatus === 'served' && "Meal Served"}
+                            {orderStatus === 'cancelled' && "Order Cancelled"}
+                          </p>
+                          <p className="text-[11px] text-gray-400 text-center max-w-[85%] leading-normal">
+                            {orderStatus === 'pending' && "Your ticket is received and will be sent to the kitchen shortly."}
+                            {orderStatus === 'preparing' && "The chef has started cooking your food with fresh ingredients."}
+                            {orderStatus === 'served' && "Your hot meal has been delivered. Bon appétit!"}
+                            {orderStatus === 'cancelled' && "This order ticket was cancelled. Please contact staff if this is an error."}
+                          </p>
+                        </div>
 
-                          {/* Card Body (Items) */}
-                          <div className="space-y-4">
-                            <AnimatePresence initial={false}>
-                              {orderItems.map((item: any, itemIdx: number) => {
-                                const dishDetail = dishes.find(d => d.id === item.dish_id);
-                                const imgUrl = dishDetail?.image_url;
+                        {/* Lower Card: Stepper */}
+                        <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 flex flex-col gap-6">
+                          <div className="relative pl-8 space-y-8">
+                            {/* Stepper Vertical line */}
+                            <div className="absolute top-2 bottom-2 left-[11px] w-[2px] bg-white/10">
+                              <motion.div
+                                initial={{ height: 0 }}
+                                animate={{
+                                  height:
+                                    orderStatus === 'pending' ? '0%' :
+                                    orderStatus === 'preparing' ? '50%' :
+                                    orderStatus === 'served' ? '100%' : '0%'
+                                }}
+                                transition={{ duration: 0.5, ease: "easeInOut" }}
+                                className="w-full bg-[#EA580C] shadow-[0_0_8px_rgba(234,88,12,0.4)]"
+                              />
+                            </div>
 
-                                const originalQty = item.quantity;
-                                const dbItem = order.items?.find((i: any) => i.dish_id === item.dish_id && i.size === item.size);
-                                const activeQty = isOrderCancelled ? 0 : (dbItem ? dbItem.quantity : 0);
-                                const cancelledQty = originalQty - activeQty;
-
-                                return (
-                                  <div key={itemIdx} className="flex flex-col gap-2">
-                                    {/* Active Item Block */}
-                                    {activeQty > 0 && (
-                                      <motion.div
-                                        key={`active-${item.dish_id}-${item.size || 'Standard'}`}
-                                        initial={{ opacity: 1, height: 'auto' }}
-                                        exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                                        className="flex gap-3 items-center"
-                                      >
-                                        <div className="w-10 h-10 rounded-xl bg-gray-100 overflow-hidden relative shrink-0 border border-gray-100 flex items-center justify-center">
-                                          {imgUrl ? (
-                                            <Image src={imgUrl} fill sizes="40px" alt={item.name} className="object-cover" />
-                                          ) : (
-                                            <span className="text-xs font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
-                                          )}
+                            {[
+                              { label: 'Order Received', desc: 'Added to live kitchen queue', active: orderStatus === 'pending' || orderStatus === 'preparing' || orderStatus === 'served' },
+                              { label: 'Cooking KOT', desc: 'Being prepared by the chefs', active: orderStatus === 'preparing' || orderStatus === 'served' },
+                              { label: 'Served & Ready', desc: 'Delivered hot to your table', active: orderStatus === 'served' }
+                            ].map((step, index) => {
+                              const isActive = step.active && orderStatus !== 'cancelled';
+                              return (
+                                <div key={index} className="relative flex gap-4 items-start">
+                                  {/* Dot / Indicator */}
+                                  <div className="absolute -left-[29px] top-1 z-10 flex items-center justify-center">
+                                    {isActive ? (
+                                      <div className="relative">
+                                        <div className="w-[24px] h-[24px] rounded-full bg-[#EA580C] flex items-center justify-center text-white font-black text-[10px] shadow-[0_0_12px_rgba(234,88,12,0.4)]">
+                                          <CheckCircle className="w-3.5 h-3.5 stroke-[3]" />
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                          <h4 className="font-bold text-sm text-gray-900 truncate">{item.name}</h4>
-                                          <div className="flex items-center gap-1.5 mt-0.5">
-                                            <span className="text-xs font-black text-gray-500">Qty: {activeQty}</span>
-                                            {item.size && item.size !== 'Standard' && (
-                                              <span className="text-[9px] bg-gray-50 text-gray-500 px-1 py-0.5 rounded border border-gray-100 font-bold uppercase tracking-wider">{item.size}</span>
-                                            )}
-                                          </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                          <span className="font-black text-sm text-gray-900 tabular-nums">₹{(item.price * activeQty).toFixed(2)}</span>
-                                          {isOrderPending && (
-                                            <button
-                                              onClick={async () => {
-                                                if (confirm(`Cancel "${item.name}" from your order?`)) {
-                                                  const updatedItems = order.items.filter(
-                                                    (i: any) => !(i.dish_id === item.dish_id && i.size === item.size)
-                                                  );
-                                                  const newTotal = updatedItems.reduce(
-                                                    (sum: number, curr: any) => sum + (curr.price * curr.quantity),
-                                                    0
-                                                  );
-
-                                                  if (updatedItems.length === 0) {
-                                                    await supabase
-                                                      .from('orders')
-                                                      .update({ status: 'cancelled', items: [], total_amount: 0 })
-                                                      .eq('id', order.id);
-                                                  } else {
-                                                    await supabase
-                                                      .from('orders')
-                                                      .update({ items: updatedItems, total_amount: newTotal })
-                                                      .eq('id', order.id);
-                                                  }
-                                                }
-                                              }}
-                                              className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-all cursor-pointer flex items-center justify-center shrink-0"
-                                              title="Cancel item"
-                                            >
-                                              <X className="w-3.5 h-3.5" />
-                                            </button>
-                                          )}
-                                        </div>
-                                      </motion.div>
-                                    )}
-
-                                    {/* Cancelled Item Block (Reflected on right side!) */}
-                                    {cancelledQty > 0 && (
-                                      <motion.div
-                                        key={`cancelled-${item.dish_id}-${item.size || 'Standard'}`}
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: 'auto' }}
-                                        className="flex gap-3 items-center opacity-60 line-through text-gray-400"
-                                      >
-                                        <div className="w-10 h-10 rounded-xl bg-gray-100 overflow-hidden relative shrink-0 border border-gray-100 flex items-center justify-center grayscale">
-                                          {imgUrl ? (
-                                            <Image src={imgUrl} fill sizes="40px" alt={item.name} className="object-cover" />
-                                          ) : (
-                                            <span className="text-xs font-black text-gray-400 uppercase select-none">{item.name.charAt(0)}</span>
-                                          )}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <h4 className="font-bold text-sm text-gray-400 truncate">{item.name}</h4>
-                                          <div className="flex items-center gap-1.5 mt-0.5">
-                                            <span className="text-xs font-medium text-gray-400">Qty: {cancelledQty}</span>
-                                            {item.size && item.size !== 'Standard' && (
-                                              <span className="text-[9px] bg-gray-50 text-gray-400 px-1 py-0.5 rounded border border-gray-100 font-bold uppercase tracking-wider">{item.size}</span>
-                                            )}
-                                          </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 shrink-0">
-                                          <span className="text-xs font-black text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-100 flex items-center gap-1">
-                                            Cancelled
-                                          </span>
-                                        </div>
-                                      </motion.div>
+                                        <span className="absolute -inset-1 rounded-full bg-[#EA580C]/30 animate-ping z-0" />
+                                      </div>
+                                    ) : (
+                                      <div className="w-[24px] h-[24px] rounded-full bg-[#16181B] border-2 border-white/20 flex items-center justify-center text-gray-500 font-bold text-xs" />
                                     )}
                                   </div>
-                                );
-                              })}
-                            </AnimatePresence>
-                          </div>
 
-                          {/* Card Footer (Order Total) */}
-                          <div className="border-t border-dashed border-gray-200 pt-3 flex justify-between items-center mt-1">
-                            <span className="font-bold text-xs text-gray-400 uppercase tracking-wide">KOT Total</span>
-                            <span className="font-black text-base text-gray-900 tabular-nums">
-                              ₹{Number(order.total_amount || 0).toFixed(2)}
-                            </span>
+                                  <div className="flex-1 min-w-0">
+                                    <h5 className={`font-black text-sm transition-colors ${isActive ? 'text-white' : 'text-gray-500'}`}>{step.label}</h5>
+                                    <p className={`text-xs mt-0.5 transition-colors ${isActive ? 'text-gray-300' : 'text-gray-655'}`}>{step.desc}</p>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
-                      );
-                    })}
 
-                    <button
-                      onClick={() => {
-                        setShowTracking(false);
-                        setIsCartOpen(false);
-                      }}
-                      className="w-full bg-[#111827] hover:bg-black text-white py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-95 cursor-pointer text-sm text-center mt-2"
-                    >
-                      Order More Items
-                    </button>
+                        {/* Detailed KOT Ticket Items List */}
+                        <div className="flex flex-col gap-4 mt-2">
+                          <span className="font-bold text-xs uppercase text-gray-500 tracking-wider px-1">KOT Ticket Details</span>
+                          
+                          {trackedOrders.map((order, orderIdx) => {
+                            const orderItems = originalItemsCache[order.id] || order.items || [];
+                            const isOrderCancelled = order.status === 'cancelled';
+                            const isOrderServed = order.status === 'served';
+                            const isOrderPreparing = order.status === 'preparing';
+                            const isOrderPending = order.status === 'pending';
+
+                            return (
+                              <div
+                                key={order.id}
+                                className="p-5 rounded-3xl bg-white/[0.02] border border-white/10 shadow-lg flex flex-col gap-4 relative overflow-hidden transition-all duration-200"
+                              >
+                                {/* Card Header */}
+                                <div className="flex justify-between items-start border-b border-white/5 pb-3">
+                                  <div>
+                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block leading-none mb-1">
+                                      KOT Ticket #{orderIdx + 1}
+                                    </span>
+                                    <span className="text-sm font-black text-white leading-none">
+                                      {tableNo ? `Table ${tableNo}` : 'WhatsApp Order'}
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-col items-end gap-1">
+                                    {isOrderPending && <span className="flex items-center gap-1 text-[10px] font-black text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Pending</span>}
+                                    {isOrderPreparing && <span className="flex items-center gap-1 text-[10px] font-black text-orange-400 bg-orange-400/10 border border-orange-400/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span> Preparing</span>}
+                                    {isOrderServed && <span className="flex items-center gap-1 text-[10px] font-black text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Served</span>}
+                                    {isOrderCancelled && <span className="flex items-center gap-1 text-[10px] font-black text-red-400 bg-red-400/10 border border-red-400/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-red-400"></span> Cancelled</span>}
+                                  </div>
+                                </div>
+
+                                {/* Items List */}
+                                <div className="space-y-4">
+                                  <AnimatePresence initial={false}>
+                                    {orderItems.map((item: any, itemIdx: number) => {
+                                      const dishDetail = dishes.find(d => d.id === item.dish_id);
+                                      const imgUrl = dishDetail?.image_url;
+
+                                      const originalQty = item.quantity;
+                                      const dbItem = order.items?.find((i: any) => i.dish_id === item.dish_id && i.size === item.size);
+                                      const activeQty = isOrderCancelled ? 0 : (dbItem ? dbItem.quantity : 0);
+                                      const cancelledQty = originalQty - activeQty;
+
+                                      return (
+                                        <div key={itemIdx} className="flex flex-col gap-2">
+                                          {activeQty > 0 && (
+                                            <motion.div
+                                              key={`active-${item.dish_id}-${item.size || 'Standard'}`}
+                                              initial={{ opacity: 1, height: 'auto' }}
+                                              exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                              className="flex gap-3 items-center"
+                                            >
+                                              <div className="w-10 h-10 rounded-xl bg-white/5 overflow-hidden relative shrink-0 border border-white/5 flex items-center justify-center">
+                                                {imgUrl ? (
+                                                  <Image src={imgUrl} fill sizes="40px" alt={item.name} className="object-cover" />
+                                                ) : (
+                                                  <span className="text-xs font-black text-gray-500 uppercase select-none">{item.name.charAt(0)}</span>
+                                                )}
+                                              </div>
+                                              <div className="flex-1 min-w-0">
+                                                <h4 className="font-bold text-sm text-white truncate">{item.name}</h4>
+                                                <div className="flex items-center gap-1.5 mt-0.5">
+                                                  <span className="text-xs font-black text-gray-400">Qty: {activeQty}</span>
+                                                  {item.size && item.size !== 'Standard' && (
+                                                    <span className="text-[9px] bg-white/5 text-gray-300 px-1 py-0.5 rounded border border-white/10 font-bold uppercase tracking-wider">{item.size}</span>
+                                                  )}
+                                                </div>
+                                              </div>
+                                              <div className="flex items-center gap-2">
+                                                <span className="font-black text-sm text-[#EA580C] tabular-nums">₹{(item.price * activeQty).toFixed(2)}</span>
+                                                {isOrderPending && (
+                                                  <button
+                                                    onClick={async () => {
+                                                      if (confirm(`Cancel "${item.name}" from your order?`)) {
+                                                        const updatedItems = order.items.filter(
+                                                          (i: any) => !(i.dish_id === item.dish_id && i.size === item.size)
+                                                        );
+                                                        const newTotal = updatedItems.reduce(
+                                                          (sum: number, curr: any) => sum + (curr.price * curr.quantity),
+                                                          0
+                                                        );
+
+                                                        if (updatedItems.length === 0) {
+                                                          await supabase
+                                                            .from('orders')
+                                                            .update({ status: 'cancelled', items: [], total_amount: 0 })
+                                                            .eq('id', order.id);
+                                                        } else {
+                                                          await supabase
+                                                            .from('orders')
+                                                            .update({ items: updatedItems, total_amount: newTotal })
+                                                            .eq('id', order.id);
+                                                        }
+                                                      }
+                                                    }}
+                                                    className="text-red-400 hover:text-red-300 p-1.5 rounded-lg hover:bg-red-500/10 transition-all cursor-pointer flex items-center justify-center shrink-0"
+                                                    title="Cancel item"
+                                                  >
+                                                    <X className="w-4 h-4" />
+                                                  </button>
+                                                )}
+                                              </div>
+                                            </motion.div>
+                                          )}
+
+                                          {cancelledQty > 0 && (
+                                            <motion.div
+                                              key={`cancelled-${item.dish_id}-${item.size || 'Standard'}`}
+                                              initial={{ opacity: 0, height: 0 }}
+                                              animate={{ opacity: 1, height: 'auto' }}
+                                              className="flex gap-3 items-center opacity-40 line-through text-gray-550"
+                                            >
+                                              <div className="w-10 h-10 rounded-xl bg-white/5 overflow-hidden relative shrink-0 border border-white/5 flex items-center justify-center grayscale">
+                                                {imgUrl ? (
+                                                  <Image src={imgUrl} fill sizes="40px" alt={item.name} className="object-cover" />
+                                                ) : (
+                                                  <span className="text-xs font-black text-gray-500 uppercase select-none">{item.name.charAt(0)}</span>
+                                                )}
+                                              </div>
+                                              <div className="flex-1 min-w-0">
+                                                <h4 className="font-bold text-sm text-gray-550 truncate">{item.name}</h4>
+                                                <div className="flex items-center gap-1.5 mt-0.5">
+                                                  <span className="text-xs font-medium text-gray-550">Qty: {cancelledQty}</span>
+                                                  {item.size && item.size !== 'Standard' && (
+                                                    <span className="text-[9px] bg-white/5 text-gray-550 px-1 py-0.5 rounded border border-white/10 font-bold uppercase tracking-wider">{item.size}</span>
+                                                  )}
+                                                </div>
+                                              </div>
+                                              <div className="flex items-center gap-2 shrink-0">
+                                                <span className="text-[9px] font-black text-red-400 bg-red-400/10 px-2 py-0.5 rounded border border-red-400/25 flex items-center gap-1">
+                                                  Cancelled
+                                                </span>
+                                              </div>
+                                            </motion.div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </AnimatePresence>
+                                </div>
+
+                                {/* Total */}
+                                <div className="border-t border-dashed border-white/10 pt-3 flex justify-between items-center mt-1">
+                                  <span className="font-bold text-xs text-gray-550 uppercase tracking-wide">Ticket Total</span>
+                                  <span className="font-black text-base text-[#EA580C] tabular-nums">
+                                    ₹{Number(order.total_amount || 0).toFixed(2)}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
                   </div>
                 ) : cart.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-                    <MessageCircle className="w-12 h-12 mb-4 opacity-50" />
-                    <p className="font-bold text-lg text-gray-900">Cart is empty</p>
-                    <p className="text-sm">Add some delicious dishes!</p>
+                  <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+                    <MessageCircle className="w-12 h-12 mb-4 opacity-30" />
+                    <p className="font-bold text-lg text-white">Cart is empty</p>
+                    <p className="text-sm text-gray-400 mt-1">Add some delicious dishes!</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {cart.map((item, idx) => (
-                      <div key={idx} className="flex gap-4 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm items-center">
-                        <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden relative shrink-0">
+                      <div key={idx} className="flex gap-4 bg-white/[0.03] p-3.5 rounded-2xl border border-white/10 shadow-sm items-center">
+                        <div className="w-16 h-16 rounded-xl bg-white/5 overflow-hidden relative shrink-0">
                           {item.img && <Image src={item.img} fill sizes="64px" alt={item.name} className="object-cover" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-gray-900 truncate">{item.name}</h4>
+                          <h4 className="font-bold text-white truncate">{item.name}</h4>
                           <div className="flex items-center justify-between mt-1">
-                            <span className="font-black text-gray-900">₹{item.price}</span>
-                            {item.size !== 'Standard' && <span className="text-xs text-gray-500">{item.size}</span>}
+                            <span className="font-black text-[#EA580C]">₹{item.price}</span>
+                            {item.size !== 'Standard' && <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">{item.size}</span>}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-100 shrink-0">
+                        <div className="flex items-center gap-2 bg-white/5 p-1 rounded-lg border border-white/10 shrink-0">
                           <button onClick={() => {
                             setCart(prev => {
                               const newCart = [...prev];
@@ -1225,15 +1369,15 @@ export default function MenuClient({
                               if (newCart[idx].quantity <= 0) newCart.splice(idx, 1);
                               return newCart;
                             });
-                          }} className="w-7 h-7 flex items-center justify-center font-bold bg-white rounded shadow-sm text-gray-600">-</button>
-                          <span className="font-bold w-4 text-center text-sm text-black">{item.quantity}</span>
+                          }} className="w-7 h-7 flex items-center justify-center font-bold bg-white/10 rounded shadow-sm text-white hover:bg-white/20 active:scale-95 transition-all">-</button>
+                          <span className="font-bold w-4 text-center text-sm text-white">{item.quantity}</span>
                           <button onClick={() => {
                             setCart(prev => {
                               const newCart = [...prev];
                               newCart[idx].quantity = Math.min(10, newCart[idx].quantity + 1);
                               return newCart;
                             });
-                          }} className="w-7 h-7 flex items-center justify-center font-bold bg-white rounded shadow-sm text-gray-600">+</button>
+                          }} className="w-7 h-7 flex items-center justify-center font-bold bg-white/10 rounded shadow-sm text-white hover:bg-white/20 active:scale-95 transition-all">+</button>
                         </div>
                       </div>
                     ))}
@@ -1241,74 +1385,96 @@ export default function MenuClient({
                 )}
               </div>
 
-              {!showTracking && cart.length > 0 && (
-                <div className="p-6 bg-white border-t border-gray-100 shrink-0">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="font-bold text-gray-500">Total Amount</span>
-                    <span className="font-black text-2xl text-gray-900">₹{cartTotal.toFixed(2)}</span>
-                  </div>
+              {/* Drawer Footer Actions */}
+              {showTracking && activeOrderIds.length > 0 ? (
+                <div className="p-6 bg-[#0F1012] border-t border-white/10 shrink-0 flex flex-col gap-3">
                   <button
-                    onClick={async () => {
-                      if (!tableNo) {
-                        const itemsList = cart.map(i => `${i.quantity}x ${i.name}`).join('%0A');
-                        const msg = `Hi! I would like to order:%0A${itemsList}%0ATotal: ₹${cartTotal.toFixed(2)}%0ACould you let me know if delivery is available?`;
-                        const whatsappNum = (restaurant?.whatsapp_number || '').replace(/[^0-9]/g, '');
-                        if (whatsappNum) {
-                          window.open(`https://wa.me/${whatsappNum}?text=${msg}`, '_blank');
-                        } else {
-                          alert('WhatsApp ordering is not configured for this restaurant.');
-                        }
-                        return;
-                      }
-
-                      setOrderStatus('pending');
-                      const payload = {
-                        restaurant_id: restaurant.id,
-                        table_no: tableNo,
-                        status: 'pending',
-                        items: cart.map(item => ({
-                          dish_id: item.dish_id,
-                          name: item.name,
-                          price: item.price,
-                          quantity: item.quantity,
-                          size: item.size
-                        })),
-                        total_amount: cartTotal
-                      };
-
-                      const { data, error } = await supabase.from('orders').insert(payload).select().single();
-                      if (error) {
-                        setOrderStatus('idle');
-                        alert('Failed to place order. Please try again.');
-                      } else {
-                        // Append to activeOrderIds list
-                        setActiveOrderIds(prev => {
-                          const updated = [...prev, data.id];
-                          if (typeof window !== 'undefined') {
-                            localStorage.setItem(`active_order_ids_${params.slug}`, JSON.stringify(updated));
-                          }
-                          return updated;
-                        });
-
-                        // Cache original items list for change comparisons
-                        setOriginalItemsCache(prev => {
-                          const updated = { ...prev, [data.id]: payload.items };
-                          if (typeof window !== 'undefined') {
-                            localStorage.setItem(`original_items_cache_${params.slug}`, JSON.stringify(updated));
-                          }
-                          return updated;
-                        });
-
-                        setOrderStatus('pending');
-                        setShowTracking(true);
-                        setCart([]); // Clear cart on success
-                      }
+                    onClick={() => {
+                      setShowTracking(false);
+                      setIsCartOpen(false);
                     }}
-                    className={`w-full py-4 rounded-2xl font-bold text-lg transition-transform active:scale-95 flex items-center justify-center gap-2 shadow-lg text-white cursor-pointer ${tableNo ? 'bg-orange-600 hover:bg-orange-700' : 'bg-[#25D366] hover:bg-[#1ebd5a]'}`}
+                    className="w-full bg-[#EA580C] text-white hover:bg-[#EA580C] py-4 rounded-2xl font-black transition-all shadow-[0_0_20px_rgba(234,88,12,0.4)] active:scale-95 cursor-pointer text-sm text-center"
                   >
-                    {tableNo ? 'Place KOT Order' : 'Order on WhatsApp'}
+                    Order More Items
+                  </button>
+                  <button
+                    onClick={handleCallWaiter}
+                    className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 py-4 rounded-2xl font-bold transition-all active:scale-95 cursor-pointer text-sm text-center flex items-center justify-center gap-2"
+                  >
+                    <MessageCircle className="w-4 h-4 text-orange-450" />
+                    Call Waiter (Table Assistance)
                   </button>
                 </div>
+              ) : (
+                !showTracking && cart.length > 0 && (
+                  <div className="p-6 bg-[#0F1012] border-t border-white/10 shrink-0">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="font-bold text-gray-400">Total Amount</span>
+                      <span className="font-black text-2xl text-white">₹{cartTotal.toFixed(2)}</span>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        if (!tableNo) {
+                          const itemsList = cart.map(i => `${i.quantity}x ${i.name}`).join('%0A');
+                          const msg = `Hi! I would like to order:%0A${itemsList}%0ATotal: ₹${cartTotal.toFixed(2)}%0ACould you let me know if delivery is available?`;
+                          const whatsappNum = (restaurant?.whatsapp_number || '').replace(/[^0-9]/g, '');
+                          if (whatsappNum) {
+                            window.open(`https://wa.me/${whatsappNum}?text=${msg}`, '_blank');
+                          } else {
+                            alert('WhatsApp ordering is not configured for this restaurant.');
+                          }
+                          return;
+                        }
+
+                        setOrderStatus('pending');
+                        const payload = {
+                          restaurant_id: restaurant.id,
+                          table_no: tableNo,
+                          status: 'pending',
+                          items: cart.map(item => ({
+                            dish_id: item.dish_id,
+                            name: item.name,
+                            price: item.price,
+                            quantity: item.quantity,
+                            size: item.size
+                          })),
+                          total_amount: cartTotal
+                        };
+
+                        const { data, error } = await supabase.from('orders').insert(payload).select().single();
+                        if (error) {
+                          setOrderStatus('idle');
+                          alert('Failed to place order. Please try again.');
+                        } else {
+                          // Append to activeOrderIds list
+                          setActiveOrderIds(prev => {
+                            const updated = [...prev, data.id];
+                            if (typeof window !== 'undefined') {
+                              localStorage.setItem(`active_order_ids_${params.slug}`, JSON.stringify(updated));
+                            }
+                            return updated;
+                          });
+
+                          // Cache original items list for change comparisons
+                          setOriginalItemsCache(prev => {
+                            const updated = { ...prev, [data.id]: payload.items };
+                            if (typeof window !== 'undefined') {
+                              localStorage.setItem(`original_items_cache_${params.slug}`, JSON.stringify(updated));
+                            }
+                            return updated;
+                          });
+
+                          setOrderStatus('pending');
+                          setShowTracking(true);
+                          setCart([]); // Clear cart on success
+                        }
+                      }}
+                      className={`w-full py-4 rounded-2xl font-black text-lg transition-transform active:scale-95 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(234,88,12,0.4)] text-white cursor-pointer bg-[#EA580C] hover:bg-orange-600`}
+                    >
+                      Place KOT Order
+                    </button>
+                  </div>
+                )
               )}
             </motion.div>
           </>
