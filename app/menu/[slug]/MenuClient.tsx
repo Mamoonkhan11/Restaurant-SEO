@@ -7,7 +7,7 @@ import { X, MessageCircle, Loader2, Search, MapPin, AlertCircle, CheckCircle } f
 import { motion, AnimatePresence } from 'framer-motion';
 const MenuHeader = React.memo(({ restaurant, menuBlocked, tableNo }: { restaurant: any, menuBlocked: boolean, tableNo?: string }) => (
   <div className="pt-8 pb-6 px-4 flex flex-col items-center justify-center bg-transparent relative z-10">
-    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/5 rounded-full border border-white/10 flex items-center justify-center overflow-hidden mb-3 relative shadow-sm transition-transform hover:scale-105">
+    <div className="w-24 h-24 sm:w-28 sm:h-28 bg-white/5 rounded-full border border-white/10 flex items-center justify-center overflow-hidden mb-3 relative shadow-sm transition-transform hover:scale-105">
       {restaurant?.logo_url ? (
         <img 
           src={restaurant.logo_url} 
@@ -16,12 +16,12 @@ const MenuHeader = React.memo(({ restaurant, menuBlocked, tableNo }: { restauran
           key={restaurant.logo_url} 
         />
       ) : (
-        <span className="text-2xl font-black text-white">
+        <span className="text-4xl font-black text-white">
           {restaurant?.name?.charAt(0) || 'L'}
         </span>
       )}
     </div>
-    <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight text-center">
+    <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight text-center">
       {restaurant?.name || 'Restaurant Name'}
     </h1>
     {tableNo && (
@@ -33,7 +33,7 @@ const MenuHeader = React.memo(({ restaurant, menuBlocked, tableNo }: { restauran
 ));
 MenuHeader.displayName = 'MenuHeader';
 
-const springTransition = { type: "spring" as const, stiffness: 550, damping: 40 };
+const springTransition = { type: "spring" as const, stiffness: 800, damping: 48 };
 
 export default function MenuClient({
   params,
@@ -49,7 +49,7 @@ export default function MenuClient({
   tableNo?: string
 }) {
   const searchParams = useSearchParams();
-  const tableNo = propTableNo || searchParams.get('table');
+  const tableNo = propTableNo;
   const [restaurant, setRestaurant] = useState<any>(initialRestaurant);
   const [dishes, setDishes] = useState<any[]>(initialDishes);
   const [categories, setCategories] = useState<string[]>(initialCategories);
@@ -674,7 +674,7 @@ export default function MenuClient({
                         </h2>
                         
                         <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
-                          {categoryDishes.map((item: any) => {
+                          {categoryDishes.map((item: any, idx: number) => {
                             const sizeKey = item.sizes && Object.keys(item.sizes).length > 0
                               ? Object.keys(item.sizes)[selectedSizes[item.id] || 0]
                               : 'Standard';
@@ -682,6 +682,12 @@ export default function MenuClient({
                             const cartItem = cart.find(c => c.dish_id === item.id && c.size === sizeKey);
                             const quantity = cartItem ? cartItem.quantity : 0;
                             const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
+                            const isStartItem = idx === 0;
+                            const cardBgBorderClasses = !item.is_available
+                              ? 'bg-white/[0.02] border-white/5 opacity-40 grayscale cursor-not-allowed'
+                              : isStartItem
+                                ? 'bg-orange-500/[0.02] border-orange-500/30 shadow-[0_0_18px_rgba(234,88,12,0.18)] cursor-pointer hover:border-orange-500/50 hover:bg-orange-500/[0.04] hover:shadow-[0_0_26px_rgba(234,88,12,0.28)]'
+                                : 'bg-white/[0.02] border-white/5 cursor-pointer hover:border-white/15 hover:bg-white/[0.04] hover:shadow-lg hover:shadow-black/20';
 
                             return (
                               <motion.div
@@ -692,7 +698,7 @@ export default function MenuClient({
                                 layoutId={`dish-${item.id}`}
                                 transition={springTransition}
                                 whileTap={{ scale: 0.98 }}
-                                className={`bg-white/[0.02] backdrop-blur-md rounded-2xl p-3 sm:p-4 flex flex-row gap-4 items-center relative group shadow-sm border border-white/5 transition-all duration-300 ${!item.is_available ? 'opacity-40 grayscale cursor-not-allowed' : 'cursor-pointer hover:border-white/15 hover:bg-white/[0.04] hover:shadow-lg hover:shadow-black/20'}`}
+                                className={`backdrop-blur-md rounded-2xl p-3 sm:p-4 flex flex-row gap-4 items-center relative group shadow-sm border transition-all duration-300 ${cardBgBorderClasses}`}
                               >
                                 {/* Image */}
                                 <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gradient-to-br from-white/5 to-white/10 shrink-0 overflow-hidden relative border border-white/5 flex items-center justify-center">
@@ -838,9 +844,13 @@ export default function MenuClient({
               </div>
 
               {/* Powered By Footer — inside the dark container to keep visual contrast */}
-              <footer className="w-full text-center py-10 mt-16 border-t border-white/5 shrink-0">
-                <p className="text-[9px] tracking-widest font-black uppercase text-gray-500">Powered By</p>
-                <img src="/restdigi-logo.png" alt="RESTDIGI" className="h-5 mx-auto mt-2 opacity-50 object-contain brightness-0 invert" />
+              <footer className="w-full text-center py-10 mt-16 border-t border-white/5 shrink-0 flex flex-col items-center justify-center gap-1.5">
+                <span className="text-[9px] tracking-widest font-black uppercase text-gray-500">Powered By</span>
+                <img 
+                  src="/restdigi-logo.png" 
+                  alt="RESTDIGI" 
+                  className="h-5 w-auto object-contain drop-shadow-[0_0_8px_rgba(234,88,12,0.6)] select-none" 
+                />
               </footer>
             </div>
           </div>
@@ -898,7 +908,7 @@ export default function MenuClient({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
+              transition={{ duration: 0.1 }}
               onClick={() => setSelectedDish(null)}
               className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm cursor-pointer"
             />
@@ -947,7 +957,7 @@ export default function MenuClient({
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 0.15, delay: 0.05 }}
+                    transition={{ duration: 0.1, delay: 0.02 }}
                     className="text-gray-350 text-sm sm:text-base leading-relaxed mb-8"
                   >
                     {selectedDish.description || "Prepared with fresh ingredients and our secret house spices."}
@@ -957,7 +967,7 @@ export default function MenuClient({
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2, delay: 0.1 }}
+                  transition={{ duration: 0.12, delay: 0.04 }}
                   className="p-4 sm:p-6 border-t border-white/10 bg-[#0F1012] shrink-0"
                 >
                   {(() => {

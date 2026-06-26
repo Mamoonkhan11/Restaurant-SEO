@@ -63,7 +63,7 @@ export default async function DigitalMenu({
   }
 
   let restaurantIdToFetch = restaurant.id;
-  let tableNo: string | undefined = searchParams.table;
+  let tableNo: string | undefined = undefined;
 
   if (searchParams.tableId) {
     const { data: tableRecord } = await supabase

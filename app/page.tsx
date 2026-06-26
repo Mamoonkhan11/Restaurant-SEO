@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import Image from 'next/image';
 import { QrCode, ChevronRight, TrendingUp, Check, X, BarChart3 } from 'lucide-react';
 
 export default function Home() {
@@ -30,12 +31,12 @@ export default function Home() {
   }, [router]);
   return (
     <div className="min-h-screen flex flex-col bg-[#07080B] text-[#E5E7EB] font-sans selection:bg-orange-600/30 selection:text-white relative overflow-hidden">
-      
+
       {/* Background Radial Glows */}
       <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-orange-600/15 blur-[120px] pointer-events-none"></div>
       <div className="absolute top-[30%] left-[-20%] w-[800px] h-[800px] rounded-full bg-red-600/5 blur-[150px] pointer-events-none"></div>
       <div className="absolute bottom-[10%] right-[-25%] w-[700px] h-[700px] rounded-full bg-orange-500/5 blur-[150px] pointer-events-none"></div>
-      
+
       {/* Frosted Glass Overlay */}
       <div className="absolute inset-0 bg-[#07080B]/55 backdrop-blur-[90px] pointer-events-none z-0"></div>
 
@@ -78,7 +79,7 @@ export default function Home() {
       {/* Hero Section */}
       <header className="flex-1 flex items-center justify-center pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center text-left">
-          
+
           {/* Left Column (Content) */}
           <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.08] mb-2 select-none">
@@ -111,63 +112,79 @@ export default function Home() {
             {/* Glowing Backdrop Blob */}
             <div className="absolute w-[300px] h-[300px] md:w-[380px] md:h-[380px] rounded-full bg-orange-500/20 blur-[75px] pointer-events-none animate-pulse"></div>
             <div className="absolute w-[200px] h-[200px] rounded-full bg-amber-400/20 blur-[50px] pointer-events-none animate-pulse mix-blend-screen"></div>
-                        {/* Main Central Plate (Kashmiri Wazwan) */}
+
+            {/* Main Central Plate (Kashmiri Wazwan) */}
             <div className="absolute z-10 w-[240px] h-[240px] md:w-[320px] md:h-[320px] rounded-full border-4 border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-500 hover:scale-105 group">
-              <img 
-                src="/kashmiri_wazwan_trami.jpg" 
-                alt="Kashmiri Wazwan Plate" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              <Image
+                src="/kashmiri_wazwan_trami.jpg"
+                alt="Kashmiri Wazwan Plate"
+                fill
+                sizes="(max-width: 768px) 240px, 320px"
+                priority
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4 z-20">
                 <span className="text-white text-xs font-bold uppercase tracking-wider bg-orange-600 px-3 py-1 rounded-full">Kashmiri Wazwan</span>
               </div>
             </div>
 
             {/* Top-Left Floating Plate (Chicken Biryani) */}
             <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20 w-[110px] h-[110px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white/10 shadow-[0_10px_25px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-700 hover:scale-110 hover:-translate-y-2 animate-float-slow group">
-              <img 
-                src="/chicken_biryani.jpg" 
-                alt="Chicken Biryani Plate" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              <Image
+                src="/chicken_biryani.jpg"
+                alt="Chicken Biryani Plate"
+                fill
+                sizes="(max-width: 768px) 110px, 150px"
+                priority
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2 z-20">
                 <span className="text-white text-[9px] font-bold uppercase tracking-wider bg-orange-600 px-2 py-0.5 rounded-full">Biryani</span>
               </div>
             </div>
 
             {/* Bottom-Left Floating Plate (Momos) */}
             <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 z-20 w-[110px] h-[110px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white/10 shadow-[0_10px_25px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-700 hover:scale-110 hover:translate-y-2 animate-float-slow group">
-              <img 
-                src="/momos.jpg" 
-                alt="Momos Plate" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              <Image
+                src="/momos.jpg"
+                alt="Momo Plate"
+                fill
+                sizes="(max-width: 768px) 110px, 150px"
+                priority
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2">
-                <span className="text-white text-[9px] font-bold uppercase tracking-wider bg-orange-600 px-2 py-0.5 rounded-full">Momos</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2 z-20">
+                <span className="text-white text-[9px] font-bold uppercase tracking-wider bg-orange-600 px-2 py-0.5 rounded-full">Momo</span>
               </div>
             </div>
 
             {/* Bottom-Right Floating Plate (Spaghetti Pasta) */}
             <div className="absolute bottom-4 right-4 md:bottom-8 md:right-8 z-20 w-[110px] h-[110px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white/10 shadow-[0_10px_25px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-700 hover:scale-110 hover:translate-y-2 animate-float-mid group">
-              <img 
-                src="/spaghetti_pasta.png" 
-                alt="Spaghetti Pasta Plate" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              <Image
+                src="/spaghetti_pasta.png"
+                alt="Spaghetti Pasta Plate"
+                fill
+                sizes="(max-width: 768px) 110px, 150px"
+                priority
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2 z-20">
                 <span className="text-white text-[9px] font-bold uppercase tracking-wider bg-orange-600 px-2 py-0.5 rounded-full">Pasta</span>
               </div>
             </div>
 
             {/* Top-Right Floating Plate (Vegetable Salad) */}
-            <div className="absolute top-8 right-8 md:top-16 md:right-16 z-20 w-[80px] h-[80px] md:w-[110px] md:h-[110px] rounded-full border-2 border-white/10 shadow-[0_10px_25px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-700 hover:scale-110 hover:-translate-y-1 animate-float-fast group">
-              <img 
-                src="/vegetable_salad.png" 
-                alt="Vegetable Salad Plate" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            <div className="absolute top-8 right-8 md:top-16 md:right-16 z-20 w-[110px] h-[110px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white/10 shadow-[0_10px_25px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-700 hover:scale-110 hover:-translate-y-1 animate-float-fast group">
+              <Image
+                src="/vegetable_salad.png"
+                alt="Vegetable Salad Plate"
+                fill
+                sizes="(max-width: 768px) 110px, 150px"
+                priority
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-1">
-                <span className="text-white text-[8px] font-bold uppercase tracking-wider bg-orange-600 px-1.5 py-0.5 rounded-full">Salad</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2 z-20">
+                <span className="text-white text-[9px] font-bold uppercase tracking-wider bg-orange-600 px-2 py-0.5 rounded-full">Salad</span>
               </div>
             </div>
 
@@ -188,39 +205,21 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
+
             {/* Step 1 - Scan */}
             <div className="p-8 bg-white/[0.03] backdrop-blur-md rounded-3xl border border-white/10 flex flex-col justify-between hover:border-orange-500/30 hover:bg-white/[0.05] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
               <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-white/10 to-transparent bg-clip-text text-transparent select-none">01</div>
-              
+
               {/* Graphic Asset representation */}
               <div className="flex-1 flex items-center justify-center py-8 mb-8 bg-white/[0.02] backdrop-blur-sm rounded-2xl border border-white/5 relative">
-                {/* Laser QR Scan Preview Box */}
-                <div className="relative w-[220px] h-[150px] bg-slate-950/80 border border-white/10 rounded-2xl p-4 overflow-hidden flex flex-col justify-between shadow-2xl backdrop-blur-sm">
-                  <div className="flex justify-between items-center text-[8px] text-gray-400 font-bold border-b border-white/5 pb-1">
-                    <span>Scan Sensor</span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
-                      Ready
-                    </span>
-                  </div>
-                  
-                  <div className="flex-1 flex items-center justify-center relative my-2">
-                    <div className="absolute w-20 h-20 border border-white/10 rounded-lg flex items-center justify-center">
-                      {/* Targets */}
-                      <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-orange-500 rounded-tl-sm"></div>
-                      <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-orange-500 rounded-tr-sm"></div>
-                      <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-orange-500 rounded-bl-sm"></div>
-                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-orange-500 rounded-br-sm"></div>
-                      <QrCode className="w-10 h-10 text-white" />
-                    </div>
-                    {/* Laser line overlay */}
-                    <div className="w-20 h-[2px] bg-orange-500 absolute animate-bounce shadow-[0_0_8px_#ea580c]"></div>
-                  </div>
-
-                  <div className="text-[8px] text-center text-gray-400 bg-white/5 py-1 rounded">
-                    Align code with viewfinder
-                  </div>
+                <div className="relative w-[220px] h-[150px] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                  <Image
+                    src="/qrscreen.png"
+                    alt="Scan Table QR Code"
+                    fill
+                    sizes="220px"
+                    className="object-contain bg-white"
+                  />
                 </div>
               </div>
 
@@ -235,23 +234,17 @@ export default function Home() {
             {/* Step 2 - View (Kashmiri Wazwan Image preview) */}
             <div className="p-8 bg-white/[0.03] backdrop-blur-md rounded-3xl border border-white/10 flex flex-col justify-between hover:border-orange-500/30 hover:bg-white/[0.05] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
               <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-white/10 to-transparent bg-clip-text text-transparent select-none">02</div>
-              
+
               {/* Graphic Asset representation */}
               <div className="flex-1 flex items-center justify-center py-8 mb-8 bg-white/[0.02] backdrop-blur-sm rounded-2xl border border-white/5 relative">
-                {/* Elegant Food View Item Container */}
-                <div className="relative w-[220px] h-[150px] bg-slate-950/80 border border-white/10 rounded-2xl overflow-hidden flex flex-col justify-between shadow-2xl backdrop-blur-sm group/item">
-                  <div className="w-full h-[65%] relative">
-                    <img src="/kashmiri_wazwan.jpg" className="w-full h-full object-cover brightness-90 group-hover/item:scale-105 transition-transform duration-500" alt="Wazwan Menu View" />
-                    <span className="absolute top-2 left-2 text-[7px] font-extrabold bg-orange-600 text-white px-1.5 py-0.5 rounded uppercase">Best Seller</span>
-                  </div>
-                  
-                  <div className="p-2 flex-1 flex flex-col justify-between text-left">
-                    <div className="flex justify-between items-start">
-                      <span className="text-[10px] font-black text-white truncate max-w-[120px]">Kashmiri Wazwan Trami</span>
-                      <span className="text-[10px] font-black text-orange-400 shrink-0">₹499</span>
-                    </div>
-                    <p className="text-[7px] text-gray-400 truncate mt-0.5">Classic seekh kebab, rista, and rich saffron rice.</p>
-                  </div>
+                <div className="relative w-[220px] h-[150px] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                  <Image
+                    src="/menu_catalog_screen.png"
+                    alt="Digital Menu Catalog"
+                    fill
+                    sizes="220px"
+                    className="object-cover brightness-90 hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
               </div>
 
@@ -266,38 +259,17 @@ export default function Home() {
             {/* Step 3 - Order Instantly (Chicken Biryani Checkout state) */}
             <div className="p-8 bg-white/[0.03] backdrop-blur-md rounded-3xl border border-white/10 flex flex-col justify-between hover:border-orange-500/30 hover:bg-white/[0.05] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
               <div className="absolute top-6 right-6 text-6xl font-black bg-gradient-to-br from-white/10 to-transparent bg-clip-text text-transparent select-none">03</div>
-              
+
               {/* Graphic Asset representation */}
               <div className="flex-1 flex items-center justify-center py-8 mb-8 bg-white/[0.02] backdrop-blur-sm rounded-2xl border border-white/5 relative">
-                {/* Checkout cart panel */}
-                <div className="relative w-[220px] h-[150px] bg-slate-950/80 border border-white/10 rounded-2xl p-3.5 overflow-hidden flex flex-col justify-between shadow-2xl backdrop-blur-sm">
-                  <div>
-                    <div className="flex justify-between items-center pb-1.5 border-b border-white/5 mb-2">
-                      <span className="text-[9px] font-black text-white">Your Table Order</span>
-                      <span className="text-[7px] text-gray-400 font-bold bg-white/5 px-1 py-0.2 rounded">T-05</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-center text-[7px] font-bold text-gray-300">
-                        <span>1x Chicken Biryani Platter</span>
-                        <span className="font-extrabold text-white">₹399</span>
-                      </div>
-                      <div className="flex justify-between items-center text-[7px] font-bold text-gray-400">
-                        <span>1x Vegetable Salad Salad</span>
-                        <span className="font-extrabold text-white">₹150</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-white/5 pt-2">
-                    <div className="flex justify-between items-center text-[8px] font-extrabold text-white mb-2">
-                      <span>Total Amount</span>
-                      <span className="text-orange-400">₹549</span>
-                    </div>
-                    <div className="bg-emerald-950/60 border border-emerald-500/20 rounded-lg py-1 px-2 flex items-center gap-1.5 justify-center">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span>
-                      <span className="text-[7px] text-emerald-400 font-extrabold uppercase tracking-wide">Sent to Kitchen Display!</span>
-                    </div>
-                  </div>
+                <div className="relative w-[220px] h-[150px] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                  <Image
+                    src="/kot_status_screen.png"
+                    alt="KOT Order Status"
+                    fill
+                    sizes="220px"
+                    className="object-cover brightness-95 hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
               </div>
 
@@ -326,23 +298,18 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 my-12">
-            
+
             {/* Feature 1: Smart QR Menu */}
             <div className="border border-white/10 rounded-3xl bg-white/[0.03] backdrop-blur-md p-6 hover:border-orange-500/30 hover:bg-white/[0.05] transition-all duration-300 flex flex-col justify-between group">
-              <div className="flex-1 flex items-center justify-center py-6">
-                {/* Visual Plate Backdrop layout */}
-                <div className="relative w-full h-[200px] rounded-2xl overflow-hidden border border-white/5 shadow-2xl flex items-center justify-center">
-                  <img src="/thali_platter.png" alt="Smart QR Menu Thali Platter" className="absolute inset-0 w-full h-full object-cover brightness-[0.4] group-hover:scale-105 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
-                  
-                  <div className="relative z-10 p-4 w-full h-full flex flex-col justify-between text-left">
-                    <span className="self-start text-[8px] font-extrabold text-orange-400 bg-orange-950/60 border border-orange-500/20 px-2 py-0.5 rounded uppercase">Dynamic Content</span>
-                    
-                    <div className="space-y-1">
-                      <div className="text-xs font-extrabold text-white">Interactive Table Card</div>
-                      <div className="text-[9px] text-gray-400">Updates live when dishes change. Filter by dietary types in seconds.</div>
-                    </div>
-                  </div>
+              <div className="flex-1 flex items-center justify-center py-6 w-full">
+                <div className="relative w-full h-[200px] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                  <Image
+                    src="/smart_qr_menu.jpg"
+                    alt="Smart QR Menu Interface"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 350px"
+                    className="object-cover brightness-95 group-hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
               </div>
               <div className="mt-6 text-left">
@@ -355,40 +322,15 @@ export default function Home() {
 
             {/* Feature 2: Kitchen Display Console */}
             <div className="border border-white/10 rounded-3xl bg-white/[0.03] backdrop-blur-md p-6 hover:border-orange-500/30 hover:bg-white/[0.05] transition-all duration-300 flex flex-col justify-between group">
-              <div className="flex-1 flex items-center justify-center py-6">
-                {/* Kitchen Console Mockup Display */}
-                <div className="w-full h-[200px] bg-slate-950 border border-white/5 rounded-2xl p-4 overflow-y-hidden flex flex-col gap-3">
-                  <div className="pb-1.5 flex justify-between items-center text-[9px] text-gray-300 font-bold border-b border-white/5">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                      Kitchen Terminal
-                    </span>
-                    <span className="text-[7px] text-gray-400 font-bold">Sync Active</span>
-                  </div>
-                  
-                  <div className="flex-1 flex flex-col gap-2.5 overflow-hidden">
-                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-2.5 flex flex-col justify-between text-left">
-                      <div className="flex justify-between items-center border-b border-white/5 pb-1 mb-1.5">
-                        <span className="text-[9px] font-black text-orange-400">T-05</span>
-                        <span className="text-[7px] text-gray-400">Received 3m ago</span>
-                      </div>
-                      <div className="flex justify-between items-center text-[8px] font-bold text-white">
-                        <span>1x Garlic Butter Naan</span>
-                        <span>Preparing</span>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-2.5 flex flex-col justify-between text-left opacity-60">
-                      <div className="flex justify-between items-center border-b border-white/5 pb-1 mb-1.5">
-                        <span className="text-[9px] font-black text-orange-400">T-02</span>
-                        <span className="text-[7px] text-gray-400">Ready 10m ago</span>
-                      </div>
-                      <div className="flex justify-between items-center text-[8px] font-bold text-white">
-                        <span>2x Lemon Mint Chillers</span>
-                        <span>Served</span>
-                      </div>
-                    </div>
-                  </div>
+              <div className="flex-1 flex items-center justify-center py-6 w-full">
+                <div className="relative w-full h-[200px] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                  <Image
+                    src="/kitchen_orders_screen.png"
+                    alt="Kitchen Display System Console"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 350px"
+                    className="object-cover brightness-95 group-hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
               </div>
               <div className="mt-6 text-left">
@@ -454,7 +396,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
+
             {/* Card 1: SEO Boost */}
             <div className="flex flex-col items-center text-center md:text-left md:items-start p-8 bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-3xl hover:border-orange-500/30 hover:bg-white/[0.05] transition-all duration-300 overflow-hidden relative group">
               <div className="w-full flex justify-center items-center mb-8 relative">
@@ -503,7 +445,7 @@ export default function Home() {
                     <span className="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Sync Matrix Terminal</span>
                     <span className="text-[6px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/20 px-1.5 py-0.5 rounded font-extrabold">Synced</span>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="p-2 bg-white/[0.02] border border-white/5 rounded flex justify-between items-center">
                       <div>
@@ -701,7 +643,7 @@ export default function Home() {
                 {/* Row 9: CTA Action Buttons */}
                 <tr>
                   <td className="p-6"></td>
-                  
+
                   {/* Basic CTA */}
                   <td className="p-6">
                     <Link
@@ -754,7 +696,7 @@ export default function Home() {
         {/* FAQ Section Ambient Glows */}
         <div className="absolute top-[10%] left-[-15%] w-[600px] h-[600px] rounded-full bg-orange-500/12 blur-[130px] pointer-events-none mix-blend-screen z-0"></div>
         <div className="absolute bottom-[5%] right-[-10%] w-[550px] h-[550px] rounded-full bg-amber-500/8 blur-[120px] pointer-events-none mix-blend-screen z-0"></div>
-        
+
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="text-xs font-bold tracking-wider text-orange-500 uppercase bg-orange-950/40 px-3.5 py-1.5 rounded-full border border-orange-500/20">FAQ</span>
@@ -846,7 +788,7 @@ export default function Home() {
         {/* Footer Ambient Glows */}
         <div className="absolute bottom-[-30%] left-[25%] w-[600px] h-[400px] rounded-full bg-orange-500/15 blur-[125px] pointer-events-none mix-blend-screen z-0"></div>
         <div className="absolute top-[-10%] right-[15%] w-[450px] h-[450px] rounded-full bg-amber-500/10 blur-[115px] pointer-events-none mix-blend-screen z-0"></div>
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 pb-12">
 
