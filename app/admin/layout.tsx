@@ -97,8 +97,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           <div className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
         )}
 
-        <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0B0C10] border-r border-white/5 text-gray-300 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          <div className="w-full flex items-center justify-center py-7 lg:py-10 border-b border-white/5 shrink-0">
+        <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white/[0.02] backdrop-blur-xl border-r border-white/10 text-white/90 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="w-full flex items-center justify-center py-7 lg:py-10 border-b border-white/10 shrink-0">
             <img
               src="/restdigi-logo.png"
               alt="RESTDIGI Logo"
@@ -113,7 +113,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                 <Link 
                   key={item.name} 
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 transform ${isActive ? 'bg-gradient-to-r from-orange-600 to-red-500 text-white shadow-[0_4px_12px_rgba(234,88,12,0.25)] scale-[1.02]' : 'text-gray-400 hover:bg-white/5 hover:text-white hover:translate-x-1'}`}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 transform ${isActive ? 'bg-gradient-to-r from-orange-600 to-red-500 text-white shadow-[0_4px_12px_rgba(234,88,12,0.25)] scale-[1.02]' : 'text-white/70 hover:bg-white/5 hover:text-white hover:translate-x-1'}`}
                   onClick={() => setIsSidebarOpen(false)}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,8 +125,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          <div className="p-4 border-t border-white/5 shrink-0">
-            <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 text-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl font-medium transition-colors focus:outline-none cursor-pointer">
+          <div className="p-4 border-t border-white/10 shrink-0">
+            <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 text-white/70 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl font-medium transition-colors focus:outline-none cursor-pointer">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
               Logout
             </button>
@@ -134,7 +134,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         </aside>
 
         <main className="flex-1 flex flex-col h-full overflow-hidden">
-          <header className="h-20 px-4 bg-[#0B0C10] border-b border-white/5 flex justify-between items-center md:hidden z-30 shrink-0">
+          <header className="h-20 px-4 bg-white/[0.02] backdrop-blur-xl border-b border-white/10 flex justify-between items-center md:hidden z-30 shrink-0">
             <button onClick={() => setIsSidebarOpen(true)} className="text-white hover:text-gray-300 focus:outline-none p-1.5 rounded-lg hover:bg-white/5 transition-colors">
               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>

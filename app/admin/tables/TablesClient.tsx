@@ -10,27 +10,27 @@ import html2canvas from 'html2canvas';
 import { useSubscription } from '@/lib/useSubscription';
 
 const TableSkeleton = () => (
-  <div className="p-4 sm:p-8 max-w-6xl mx-auto min-h-screen bg-[#F9FAFB] font-sans animate-pulse">
+  <div className="p-4 sm:p-8 max-w-6xl mx-auto min-h-screen bg-transparent font-sans animate-pulse text-white">
     {/* Header Skeleton */}
     <div className="mb-10 flex flex-col justify-center">
-      <div className="h-8 bg-gray-200/60 rounded-lg w-1/3 mb-2" />
-      <div className="h-4 bg-gray-200/60 rounded-lg w-1/2" />
+      <div className="h-8 bg-white/5 rounded-lg w-1/3 mb-2" />
+      <div className="h-4 bg-white/5 rounded-lg w-1/2" />
     </div>
 
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-fade-in-up">
       {/* Left Column: Form & List */}
       <div className="lg:col-span-5 space-y-6">
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-          <div className="h-10 bg-gray-200/60 rounded-lg w-full" />
+        <div className="bg-white/5 p-5 rounded-xl border border-white/10 shadow-sm">
+          <div className="h-10 bg-white/5 rounded-lg w-full" />
         </div>
         <div className="space-y-3">
           {[1, 2, 3, 4].map(n => (
-            <div key={n} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm h-14 flex items-center justify-between">
+            <div key={n} className="bg-white/5 p-4 rounded-xl border border-white/10 shadow-sm h-14 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-gray-200" />
-                <div className="h-4 bg-gray-200/60 rounded w-20" />
+                <div className="w-3 h-3 rounded-full bg-white/5" />
+                <div className="h-4 bg-white/5 rounded w-20" />
               </div>
-              <div className="w-8 h-8 bg-gray-200/60 rounded-lg" />
+              <div className="w-8 h-8 bg-white/5 rounded-lg" />
             </div>
           ))}
         </div>
@@ -38,11 +38,11 @@ const TableSkeleton = () => (
 
       {/* Right Column: Preview QR */}
       <div className="lg:col-span-7">
-        <div className="bg-white p-6 md:p-12 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center">
-          <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center w-[320px] h-[380px] shrink-0 justify-between">
-            <div className="w-3/4 h-6 bg-gray-200 rounded mb-4" />
-            <div className="w-[200px] h-[200px] bg-gray-200/60 rounded-lg" />
-            <div className="w-1/2 h-4 bg-gray-200 rounded" />
+        <div className="bg-white/5 p-6 md:p-12 rounded-2xl border border-white/10 shadow-sm flex flex-col items-center">
+          <div className="bg-white/5 p-8 rounded-xl border border-white/10 shadow-sm flex flex-col items-center w-[320px] h-[380px] shrink-0 justify-between">
+            <div className="w-3/4 h-6 bg-white/5 rounded mb-4" />
+            <div className="w-[200px] h-[200px] bg-white/5 rounded-lg" />
+            <div className="w-1/2 h-4 bg-white/5 rounded" />
           </div>
         </div>
       </div>
@@ -272,17 +272,17 @@ export default function TablesPage() {
           {content}
         </div>
         <div className="absolute inset-0 flex items-start justify-center pt-12 sm:pt-24 p-4 z-20 pointer-events-auto">
-          <div className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/20 animate-fade-in-up">
-            <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="bg-white/[0.03] backdrop-blur-xl p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.4)] max-w-md w-full text-center border border-white/10 animate-fade-in-up">
+            <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
               <Lock className="w-8 h-8" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No Active Plan</h3>
-            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+            <h3 className="text-xl font-bold text-white mb-2">No Active Plan</h3>
+            <p className="text-sm text-gray-400 mb-6 leading-relaxed">
               Please select a subscription tier from the Billing panel to unlock these management interfaces.
             </p>
             <Link
               href="/admin/billing"
-              className="inline-block bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-colors"
+              className="inline-block bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-all hover:shadow-[0_0_20px_rgba(234,88,12,0.3)] animate-pulse"
             >
               Go to Billing
             </Link>
@@ -299,7 +299,7 @@ export default function TablesPage() {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://vionys.com';
 
   return wrapWithLock(
-    <div className="p-4 sm:p-8 max-w-6xl mx-auto min-h-screen bg-[#F9FAFB] font-sans">
+    <div className="p-4 sm:p-8 max-w-6xl mx-auto min-h-screen bg-transparent font-sans text-white">
       <style dangerouslySetInnerHTML={{
         __html: `
         @page {
@@ -343,8 +343,8 @@ export default function TablesPage() {
         }
       `}} />
       <div className="mb-10 flex flex-col justify-center print:hidden">
-        <h1 className="text-3xl font-black text-[#111827] tracking-tight">Table Management</h1>
-        <p className="mt-1 text-gray-500 font-medium text-sm">
+        <h1 className="text-3xl font-black text-white tracking-tight">Table Management</h1>
+        <p className="mt-1 text-gray-400 font-medium text-sm">
           Add tables to generate specific ordering links and track orders (used {tables.length} of {limits.tables === 999999 ? 'unlimited' : limits.tables} tables).
         </p>
       </div>
@@ -353,9 +353,9 @@ export default function TablesPage() {
 
         {/* Left Side: Controls & List */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+          <div className="bg-white/[0.03] backdrop-blur-md p-5 rounded-[2rem] border border-white/10 shadow-lg">
             {isAddLocked && (
-              <div className="mb-4 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-100">
+              <div className="mb-4 text-xs font-semibold text-red-400 bg-red-500/10 p-2.5 rounded-lg border border-red-500/20">
                 Table limit reached. Please upgrade your plan in billing to add more tables.
               </div>
             )}
@@ -366,13 +366,13 @@ export default function TablesPage() {
                 value={newTableName}
                 onChange={(e) => setNewTableName(e.target.value)}
                 disabled={isAddLocked}
-                className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-[#111827] font-medium placeholder:text-gray-400 focus:bg-white focus:outline-none focus:border-gray-300 transition-all text-sm disabled:cursor-not-allowed disabled:opacity-75"
+                className="flex-1 px-4 py-2.5 bg-white/[0.02] border border-white/10 rounded-xl text-white font-medium placeholder:text-gray-550 focus:bg-white/[0.04] focus:outline-none focus:border-white/20 transition-all text-sm disabled:cursor-not-allowed disabled:opacity-75"
                 required
               />
               <button
                 type="submit"
                 disabled={isAdding || !newTableName.trim() || isAddLocked}
-                className="bg-[#111827] text-white px-5 py-2.5 rounded-lg font-bold hover:bg-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm shadow-sm"
+                className="bg-[#111827] text-white px-5 py-2.5 rounded-xl font-bold hover:bg-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm shadow-sm"
               >
                 {isAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                 Add
@@ -388,12 +388,12 @@ export default function TablesPage() {
                 <div
                   key={table.id}
                   onClick={() => setSelectedTable(table)}
-                  className={`bg-white p-4 rounded-xl border transition-all cursor-pointer shadow-sm flex items-center justify-between ${isSelected ? 'border-gray-900 ring-1 ring-gray-900' : 'border-gray-100 hover:border-gray-200'}`}
+                  className={`bg-white/[0.03] backdrop-blur-md p-4 rounded-2xl border transition-all cursor-pointer shadow-sm flex items-center justify-between ${isSelected ? 'border-orange-500 ring-1 ring-orange-500 bg-orange-500/[0.02]' : 'border-white/5 hover:border-white/15'}`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${isLive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-gray-200'}`}></div>
+                    <div className={`w-3 h-3 rounded-full ${isLive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-white/10'}`}></div>
                     <div className="flex flex-col">
-                      <h3 className="font-bold text-[#111827] text-sm tracking-tight leading-tight">{table.table_no}</h3>
+                      <h3 className="font-bold text-white text-sm tracking-tight leading-tight">{table.table_no}</h3>
                       {isLive && (
                         <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400 leading-tight mt-0.5">Occupied</span>
                       )}
@@ -401,7 +401,7 @@ export default function TablesPage() {
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDelete(table.id); }}
-                    className="text-gray-400 hover:text-red-600 transition-colors p-2 rounded-lg hover:bg-gray-50"
+                    className="text-gray-400 hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-white/5"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -410,9 +410,9 @@ export default function TablesPage() {
             })}
 
             {tables.length === 0 && (
-              <div className="col-span-full py-12 text-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50">
-                <h3 className="text-gray-500 font-bold">No tables added yet</h3>
-                <p className="text-sm text-gray-400 mt-1 font-medium">Add your first table to start generating QR links.</p>
+              <div className="col-span-full py-12 text-center border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
+                <h3 className="text-gray-450 font-bold">No tables added yet</h3>
+                <p className="text-sm text-gray-500 mt-1 font-medium">Add your first table to start generating QR links.</p>
               </div>
             )}
           </div>
@@ -420,14 +420,14 @@ export default function TablesPage() {
 
         {/* Right Side: QR Live Preview */}
         <div className="lg:col-span-7">
-          <div className="bg-white p-6 md:p-12 rounded-2xl border border-gray-100 shadow-sm sticky top-8 flex flex-col items-center">
+          <div className="bg-white/[0.03] backdrop-blur-md p-6 md:p-12 rounded-[2rem] border border-white/10 shadow-lg sticky top-8 flex flex-col items-center">
             {selectedTable ? (
               <>
                 <div id="printable-qr-frame" className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm inline-flex flex-col items-center mb-8 w-[320px] shrink-0 print:border-none print:shadow-none print:w-[100vw]">
                   <div className="qr-print-frame">
                     <div className="mb-8 text-center">
                       <h3 className="text-xl font-bold text-[#111827] tracking-tight uppercase leading-tight">{restaurant?.name || 'Restaurant Name'}</h3>
-                      <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest leading-tight">{selectedTable.table_no}</p>
+                      <p className="text-xs font-bold text-gray-450 mt-1 uppercase tracking-widest leading-tight">{selectedTable.table_no}</p>
                     </div>
 
                     <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8 flex justify-center items-center">
@@ -442,7 +442,7 @@ export default function TablesPage() {
 
                     <div className="text-center">
                       <p className="text-sm font-bold text-[#111827] tracking-widest uppercase leading-tight">Contactless Dining</p>
-                      <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-widest leading-tight">Scan for Menu</p>
+                      <p className="text-[10px] text-gray-450 font-bold mt-1 uppercase tracking-widest leading-tight">Scan for Menu</p>
                     </div>
                   </div>
                 </div>
@@ -452,22 +452,22 @@ export default function TablesPage() {
                     href={`${origin}/menu/${restaurant?.slug}?tableId=${selectedTable.id}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full bg-white border border-gray-200 hover:bg-gray-50 text-[#111827] font-bold py-3 px-6 rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 text-sm"
+                    className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-sm"
                   >
                     <LinkIcon className="w-4 h-4" /> Live Preview
                   </a>
                   <button
                     onClick={handleDownloadPNG}
-                    className="w-full bg-[#111827] hover:bg-black text-white font-bold py-3 px-6 rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 text-sm"
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-[0_0_20px_rgba(234,88,12,0.3)] animate-pulse"
                   >
                     <Download className="w-4 h-4" /> Download PNG
                   </button>
                 </div>
               </>
             ) : (
-              <div className="py-24 flex flex-col items-center text-gray-400">
-                <QrCode className="w-12 h-12 text-gray-200 mb-4" />
-                <h3 className="font-bold text-[#111827] text-sm">No Table Selected</h3>
+              <div className="py-24 flex flex-col items-center text-white/20">
+                <QrCode className="w-12 h-12 text-white/10 mb-4 animate-pulse" />
+                <h3 className="font-bold text-gray-450 text-sm">No Table Selected</h3>
               </div>
             )}
           </div>
