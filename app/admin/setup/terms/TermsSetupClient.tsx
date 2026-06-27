@@ -168,7 +168,7 @@ export default function TermsAcceptancePage() {
             <h4 className="text-white font-bold">2. Annual Billing Model & Continuous Uptime</h4>
             <p>
               RESTDIGI services are provisioned strictly on an **Annual Billing Cycle** (billed once per year). We do not offer monthly plans. 
-              <strong> Reason:</strong> Annual billing guarantees system stability, continuous menu hosting uptime for your diners, and dedicated database allocations without the constant risk of monthly subscription renewal declines or card expiry failures disrupting your operations.
+              Annual billing guarantees system stability, continuous menu hosting uptime for your diners, and dedicated database allocations without the constant risk of monthly subscription renewal declines or card expiry failures disrupting your operations.
             </p>
 
             <h4 className="text-white font-bold">3. Food Quality & Merchant Liability</h4>

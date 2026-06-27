@@ -43,10 +43,10 @@ export default function TermsAndConditions() {
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-white mb-3">3. Annual Plan Model & Reason</h2>
+            <h2 className="text-xl font-black text-white mb-3">3. Annual Plan Model</h2>
             <p>
               RESTDIGI services are structured exclusively as **Annual Subscription Plans** (Basic, Pro, Premium, Enterprise). We do not offer monthly plans. 
-              <strong> Reason:</strong> We bill annually to ensure uninterrupted database operations, guarantee continuous menu hosting uptime for diners, and provide dedicated support resources without the constant risk of monthly billing/card failures disrupting your restaurant's service.
+              We bill annually to ensure uninterrupted database operations, guarantee continuous menu hosting uptime for diners, and provide dedicated support resources without the constant risk of monthly billing/card failures disrupting your restaurant's service.
             </p>
           </section>
 
