@@ -41,10 +41,10 @@ export async function POST(req: Request) {
     // Formatted expiry date
     const expiryFormatted = expiryDate
       ? new Date(expiryDate).toLocaleDateString('en-IN', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
-        })
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
       : 'N/A';
 
     // Build plan label
@@ -57,8 +57,8 @@ export async function POST(req: Request) {
       type === 'trial' || type === 'promo'
         ? '14-Day Free Trial'
         : billingCycle === 'yearly'
-        ? 'Yearly'
-        : 'Monthly';
+          ? 'Yearly'
+          : 'Monthly';
 
     // Amount label
     const amountLabel =
@@ -67,8 +67,8 @@ export async function POST(req: Request) {
     // Subject
     const subject =
       type === 'paid'
-        ? `Payment Confirmed — ${planLabel} Activated! 🎉`
-        : `Your 14-Day Pro Trial is Active! 🎉`;
+        ? `Payment Confirmed — ${planLabel} Activated!`
+        : `Your 14-Day Pro Trial is Active!`;
 
     // Intro sentence
     const introLine =
@@ -130,7 +130,7 @@ export async function POST(req: Request) {
         'api-key': process.env.BREVO_API_KEY || ''
       },
       body: JSON.stringify({
-        sender: { name: 'Mamoon from RestDigi', email: 'success@restdigi.online' },
+        sender: { name: 'Mamoon from RestDigi', email: 'noreply@restdigi.online' },
         to: [{ email: recipientEmail, name: ownerName }],
         subject,
         htmlContent

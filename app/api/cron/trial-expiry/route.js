@@ -68,7 +68,7 @@ async function handleCron(req) {
       // ── Scenario A: 3-day warning ──
       if (expiry >= new Date(windowAStart) && expiry <= new Date(windowAEnd)) {
         scenario = 'warning';
-        subject = `⏳ Your RestDigi trial ends in 3 days — upgrade to keep going`;
+        subject = `Your RestDigi trial ends in 3 days — upgrade to keep going`;
         htmlContent = `
 <div style="font-family: Arial, sans-serif; font-size: 15px; color: #111111; line-height: 1.7; max-width: 600px; padding: 20px 0;">
   <p>Hi ${ownerName},</p>
@@ -142,7 +142,7 @@ async function handleCron(req) {
             'api-key': process.env.BREVO_API_KEY || ''
           },
           body: JSON.stringify({
-            sender: { name: 'Mamoon from RestDigi', email: 'success@restdigi.online' },
+            sender: { name: 'Mamoon from RestDigi', email: 'noreply@restdigi.online' },
             to: [{ email: r.email, name: ownerName }],
             subject,
             htmlContent

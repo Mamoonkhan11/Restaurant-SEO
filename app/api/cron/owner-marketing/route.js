@@ -111,7 +111,7 @@ async function handleCron(req) {
             'api-key': process.env.BREVO_API_KEY || ''
           },
           body: JSON.stringify({
-            sender: { name: "Mamoon from Restdigi", email: "noreply@restdigi.online" },
+            sender: { name: "Mamoon from Restdigi", email: "success@restdigi.online" },
             to: [{ email: restaurant.email, name: restaurant.digital_signature || restaurant.name || "Restaurant Partner" }],
             subject: emailData.subject,
             htmlContent: htmlContent

@@ -19,7 +19,7 @@ async function handleCron(req) {
     });
 
     const now = new Date();
-    
+
     // Scenario A: Inactive subscription for 7+ days
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const { data: inactiveLeads, error: inactiveError } = await supabaseAdmin
@@ -80,7 +80,7 @@ async function handleCron(req) {
             'api-key': process.env.BREVO_API_KEY || ''
           },
           body: JSON.stringify({
-            sender: { name: "Mamoon from Restdigi", email: "success@restdigi.online" },
+            sender: { name: "Mamoon from Restdigi", email: "noreply@restdigi.online" },
             to: [{ email: recipientEmail, name: brandName }],
             subject: "Your RestDigi Digital Menu is Paused | Reactivate Now",
             htmlContent: htmlContent
