@@ -3,7 +3,7 @@ import React, { useEffect, useState, Suspense } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { X, MessageCircle, Loader2, Search, MapPin, AlertCircle, CheckCircle, Check } from 'lucide-react';
+import { X, MessageCircle, Loader2, Search, MapPin, AlertCircle, CheckCircle, Check, Star, Copy, ExternalLink } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 const formatTableNumber = (name?: string) => {
@@ -11,6 +11,13 @@ const formatTableNumber = (name?: string) => {
   const trimmed = name.trim();
   if (/^table\b/i.test(trimmed)) return trimmed;
   return `Table ${trimmed}`;
+};
+
+const ensureAbsoluteUrl = (url: string) => {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
 };
 
 const MenuHeader = React.memo(({ restaurant, menuBlocked, tableNo }: { restaurant: any, menuBlocked: boolean, tableNo?: string }) => (
@@ -327,8 +334,11 @@ export default function MenuClient({
     if (trackedOrders.length > 0 && !googleReviewShown && restaurant?.google_review_url) {
       const hasServedOrder = trackedOrders.some(o => o.status === 'served');
       if (hasServedOrder) {
-        setShowGoogleReviewModal(true);
-        setGoogleReviewShown(true);
+        const timer = setTimeout(() => {
+          setShowGoogleReviewModal(true);
+          setGoogleReviewShown(true);
+        }, 3000); // 3 seconds delay after served
+        return () => clearTimeout(timer);
       }
     }
     if (trackedOrders.length === 0) {
@@ -545,19 +555,29 @@ export default function MenuClient({
 
       {/* Google Review Rating Modal */}
       {showGoogleReviewModal && restaurant?.google_review_url && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-5">
-          <div className="bg-[#121318] rounded-2xl max-w-sm w-full p-7 shadow-2xl border border-white/10 text-center animate-fade-in-up">
-            {/* Glowing Star Icon */}
-            <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-5 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
-              <span className="text-3xl animate-bounce">⭐</span>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <div className="bg-[#121318] rounded-[2rem] max-w-sm w-full p-6 shadow-2xl border border-white/10 text-center relative overflow-hidden animate-fade-in-up">
+            
+            {/* Top Close Button */}
+            <button 
+              onClick={() => setShowGoogleReviewModal(false)}
+              className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors p-1"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Glowing Header Graphic */}
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+              <Star className="w-8 h-8 text-amber-400 fill-amber-400" />
             </div>
-            <h3 className="text-xl font-black text-white mb-2">How was the food?</h3>
-            <p className="text-sm text-gray-400 leading-relaxed mb-6">
-              How did you like the <span className="text-orange-400 font-bold">{dishName}</span>? Rate us on Google to support our team!
+
+            <h3 className="text-xl font-black text-white tracking-tight mb-1">Rate Your Experience</h3>
+            <p className="text-xs text-gray-400 leading-relaxed px-2 mb-5">
+              How did you like the <span className="text-orange-400 font-extrabold">{dishName}</span>? Tap to review us on Google!
             </p>
 
             {/* Stars row */}
-            <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="flex items-center justify-center gap-2 mb-6">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -567,24 +587,53 @@ export default function MenuClient({
                     // Copy to clipboard
                     if (navigator.clipboard && navigator.clipboard.writeText) {
                       navigator.clipboard.writeText(defaultText).then(() => {
-                        toast.success("Review copied! Tap paste on Google.");
+                        toast.success("Review template copied to clipboard!");
                       }).catch(() => {});
                     }
                     
-                    // Redirect
-                    window.open(restaurant.google_review_url, '_blank');
+                    // Open Google review page
+                    const targetUrl = ensureAbsoluteUrl(restaurant.google_review_url);
+                    window.open(targetUrl, '_blank');
                     setShowGoogleReviewModal(false);
                   }}
-                  className="text-4xl transition-all duration-150 hover:scale-125 focus:outline-none filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)] cursor-pointer"
+                  className="group p-1 focus:outline-none cursor-pointer"
                 >
-                  ⭐
+                  <Star className="w-10 h-10 text-amber-400 hover:text-amber-300 fill-amber-400 hover:scale-125 transition-all filter drop-shadow-[0_0_8px_rgba(245,158,11,0.4)]" />
                 </button>
               ))}
             </div>
 
-            <p className="text-[10px] text-gray-500 font-medium leading-relaxed">
-              Tapping any star will automatically copy a pre-filled review about your dish & open Google Reviews.
-            </p>
+            {/* Review Template Preview Card */}
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 text-left mb-6 relative">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[9px] font-black uppercase tracking-widest text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                  Review Draft
+                </span>
+                <span className="text-[9px] text-gray-500 font-medium flex items-center gap-1">
+                  <Copy className="w-2.5 h-2.5" /> Auto-copies on tap
+                </span>
+              </div>
+              <p className="text-xs text-gray-300 leading-relaxed font-medium italic">
+                "The {dishName} at {restaurant?.name || 'this restaurant'} was absolutely delicious! Great service and highly recommended."
+              </p>
+            </div>
+
+            {/* Manual Review Button */}
+            <button
+              onClick={() => {
+                const defaultText = `The ${dishName} at ${restaurant?.name || 'this restaurant'} was absolutely delicious! Great service and highly recommended.`;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  navigator.clipboard.writeText(defaultText);
+                }
+                const targetUrl = ensureAbsoluteUrl(restaurant.google_review_url);
+                window.open(targetUrl, '_blank');
+                setShowGoogleReviewModal(false);
+              }}
+              className="w-full bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white font-extrabold py-3.5 px-6 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 text-sm active:scale-98 cursor-pointer"
+            >
+              <span>Write Review on Google</span>
+              <ExternalLink className="w-4 h-4" />
+            </button>
           </div>
         </div>
       )}
