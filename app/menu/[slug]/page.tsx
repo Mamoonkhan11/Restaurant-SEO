@@ -108,9 +108,18 @@ export default async function DigitalMenu({
     initialCategories = uniqueCategories;
   }
 
-  // Fire-and-forget scan count increment only when scanning a table QR code (table parameter present)
-  if (tableNo) {
-    supabase.rpc('increment_scans', { row_id: restaurant.id }).then();
+  // Track menu scan — uses service role via API to bypass RLS on anon client
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.restdigi.online';
+    await fetch(`${baseUrl}/api/track-scan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ restaurantId: restaurant.id }),
+      cache: 'no-store',
+    });
+  } catch (err) {
+    // Non-critical — don't block page render on tracking failures
+    console.error('[track-scan] Failed to increment:', err);
   }
 
   return (
