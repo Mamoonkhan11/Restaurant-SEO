@@ -189,6 +189,21 @@ export default function BillingPage() {
       });
 
       toast.success('Successfully activated your 14-Day Free Trial of Pro Live-KOT Plan!');
+
+      // 📧 Fire-and-forget: send trial activation confirmation email
+      fetch('/api/send-transaction-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          restaurantId: restaurant?.id,
+          plan: 'pro',
+          amount: 0,
+          billingCycle: 'trial',
+          expiryDate: newExpiry.toISOString(),
+          type: 'trial'
+        })
+      }).catch((err) => console.error('[BillingClient] Trial email failed:', err));
+
       await refreshRestaurant();
       await fetchPayments();
     } catch (err: any) {
@@ -244,6 +259,21 @@ export default function BillingPage() {
       });
 
       toast.success('Successfully activated your 14-Day Free Trial of Pro Live-KOT Plan!');
+
+      // 📧 Fire-and-forget: send promo code confirmation email
+      fetch('/api/send-transaction-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          restaurantId: restaurant?.id,
+          plan: 'pro',
+          amount: 0,
+          billingCycle: 'trial',
+          expiryDate: newExpiry.toISOString(),
+          type: 'promo'
+        })
+      }).catch((err) => console.error('[BillingClient] Promo email failed:', err));
+
       setPromoCode('');
       await refreshRestaurant();
       await fetchPayments();

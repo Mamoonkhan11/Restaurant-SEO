@@ -49,9 +49,25 @@ export async function POST(req: Request) {
       created_at: new Date().toISOString()
     });
 
+    // 📧 Fire-and-forget: send payment confirmation email to owner
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.restdigi.online';
+    fetch(`${baseUrl}/api/send-transaction-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        restaurantId,
+        plan,
+        amount,
+        billingCycle: isYearly ? 'yearly' : 'monthly',
+        expiryDate: newExpiry.toISOString(),
+        type: 'paid'
+      })
+    }).catch((err) => console.error('[verify] Email send failed:', err));
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error verifying payment:', error);
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
