@@ -24,14 +24,14 @@ const MenuHeader = React.memo(({ restaurant, menuBlocked, tableNo }: { restauran
   <div className="pt-8 pb-6 px-4 flex flex-col items-center justify-center bg-transparent relative z-10">
     <div className="w-24 h-24 sm:w-28 sm:h-28 bg-white/5 rounded-full border border-white/10 flex items-center justify-center overflow-hidden mb-3 relative shadow-sm transition-transform hover:scale-105">
       {restaurant?.logo_url ? (
-        <Image 
-          src={restaurant.logo_url} 
-          alt="Logo" 
+        <Image
+          src={restaurant.logo_url}
+          alt="Logo"
           fill
           sizes="(max-width: 768px) 96px, 112px"
           priority
-          className="object-cover" 
-          key={restaurant.logo_url} 
+          className="object-cover"
+          key={restaurant.logo_url}
         />
       ) : (
         <span className="text-4xl font-black text-white">
@@ -95,6 +95,9 @@ export default function MenuClient({
   const [cancelSuccessModal, setCancelSuccessModal] = useState(false);
   const [showGoogleReviewModal, setShowGoogleReviewModal] = useState(false);
   const [googleReviewShown, setGoogleReviewShown] = useState(false);
+  const [reviewTemplate, setReviewTemplate] = useState('');
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [selectedRating, setSelectedRating] = useState(0);
 
   const handleToggleCancelItem = (itemKey: { orderId: string; dishId: string; size: string; name: string; price: number; quantity: number }) => {
     setSelectedCancelItems(prev => {
@@ -346,6 +349,21 @@ export default function MenuClient({
     }
   }, [trackedOrders, googleReviewShown, restaurant?.google_review_url]);
 
+  // Choose a randomized review template whenever the rating modal is shown
+  useEffect(() => {
+    if (showGoogleReviewModal) {
+      const templates = [
+        `The food and experience at ${restaurant?.name || 'this restaurant'} was absolutely amazing! Great service and highly recommended.`,
+        `Visited ${restaurant?.name || 'this place'} recently. The food was delicious and the hospitality was top-notch. Must visit!`,
+        `Had an outstanding meal here. Incredible service, beautiful presentation, and extremely fresh food. Will definitely be back!`,
+        `Excellent dining experience! The flavors were outstanding and the staff was extremely friendly. Highly recommend trying their dishes.`,
+        `Truly delicious food and fantastic vibes. ${restaurant?.name || 'This restaurant'} never fails to impress. Highly recommended!`
+      ];
+      const randomIndex = Math.floor(Math.random() * templates.length);
+      setReviewTemplate(templates[randomIndex]);
+    }
+  }, [showGoogleReviewModal, restaurant?.name]);
+
   useEffect(() => {
     const ownerId = initialRestaurant?.owner_id;
     const restaurantId = initialRestaurant?.id;
@@ -522,10 +540,6 @@ export default function MenuClient({
 
   const menuBlocked = isExpiredWithGrace();
 
-  // Find first served dish name
-  const firstServedOrder = trackedOrders.find(o => o.status === 'served');
-  const firstDish = firstServedOrder?.items?.[0];
-  const dishName = firstDish?.name || 'your meal';
 
   return (
     <div className="min-h-screen flex flex-col bg-[#07080B] text-white pb-24 font-sans relative selection:bg-orange-600/30 overflow-hidden">
@@ -560,7 +574,11 @@ export default function MenuClient({
             
             {/* Top Close Button */}
             <button 
-              onClick={() => setShowGoogleReviewModal(false)}
+              onClick={() => {
+                setShowGoogleReviewModal(false);
+                setSelectedRating(0);
+                setHoveredRating(0);
+              }}
               className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors p-1"
             >
               <X className="w-5 h-5" />
@@ -573,34 +591,53 @@ export default function MenuClient({
 
             <h3 className="text-xl font-black text-white tracking-tight mb-1">Rate Your Experience</h3>
             <p className="text-xs text-gray-400 leading-relaxed px-2 mb-5">
-              How did you like the <span className="text-orange-400 font-extrabold">{dishName}</span>? Tap to review us on Google!
+              How did you like our food and service? Tap to review us on Google to support our team!
             </p>
 
             {/* Stars row */}
-            <div className="flex items-center justify-center gap-2 mb-6">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  onClick={() => {
-                    const defaultText = `The ${dishName} at ${restaurant?.name || 'this restaurant'} was absolutely delicious! Great service and highly recommended.`;
-                    
-                    // Copy to clipboard
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                      navigator.clipboard.writeText(defaultText).then(() => {
-                        toast.success("Review template copied to clipboard!");
-                      }).catch(() => {});
-                    }
-                    
-                    // Open Google review page
-                    const targetUrl = ensureAbsoluteUrl(restaurant.google_review_url);
-                    window.open(targetUrl, '_blank');
-                    setShowGoogleReviewModal(false);
-                  }}
-                  className="group p-1 focus:outline-none cursor-pointer"
-                >
-                  <Star className="w-10 h-10 text-amber-400 hover:text-amber-300 fill-amber-400 hover:scale-125 transition-all filter drop-shadow-[0_0_8px_rgba(245,158,11,0.4)]" />
-                </button>
-              ))}
+            <div 
+              className="flex items-center justify-center gap-2 mb-6"
+              onMouseLeave={() => setHoveredRating(0)}
+            >
+              {[1, 2, 3, 4, 5].map((star) => {
+                const activeRating = hoveredRating || selectedRating;
+                const isFilled = star <= activeRating;
+
+                return (
+                  <button
+                    key={star}
+                    onMouseEnter={() => setHoveredRating(star)}
+                    onClick={() => {
+                      setSelectedRating(star);
+                      
+                      // Copy to clipboard
+                      if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(reviewTemplate).then(() => {
+                          toast.success("Review template copied to clipboard!");
+                        }).catch(() => {});
+                      }
+                      
+                      // Open Google review page with a short delay for filled star visual feedback
+                      const targetUrl = ensureAbsoluteUrl(restaurant.google_review_url);
+                      setTimeout(() => {
+                        window.open(targetUrl, '_blank');
+                        setShowGoogleReviewModal(false);
+                        setSelectedRating(0);
+                        setHoveredRating(0);
+                      }, 400);
+                    }}
+                    className="group p-1 focus:outline-none cursor-pointer"
+                  >
+                    <Star 
+                      className={`w-10 h-10 transition-all duration-150 transform group-hover:scale-115 ${
+                        isFilled 
+                          ? 'text-amber-400 fill-amber-400 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]' 
+                          : 'text-white/20 fill-transparent hover:text-amber-400'
+                      }`} 
+                    />
+                  </button>
+                );
+              })}
             </div>
 
             {/* Review Template Preview Card */}
@@ -614,20 +651,21 @@ export default function MenuClient({
                 </span>
               </div>
               <p className="text-xs text-gray-300 leading-relaxed font-medium italic">
-                "The {dishName} at {restaurant?.name || 'this restaurant'} was absolutely delicious! Great service and highly recommended."
+                "{reviewTemplate}"
               </p>
             </div>
 
             {/* Manual Review Button */}
             <button
               onClick={() => {
-                const defaultText = `The ${dishName} at ${restaurant?.name || 'this restaurant'} was absolutely delicious! Great service and highly recommended.`;
                 if (navigator.clipboard && navigator.clipboard.writeText) {
-                  navigator.clipboard.writeText(defaultText);
+                  navigator.clipboard.writeText(reviewTemplate);
                 }
                 const targetUrl = ensureAbsoluteUrl(restaurant.google_review_url);
                 window.open(targetUrl, '_blank');
                 setShowGoogleReviewModal(false);
+                setSelectedRating(0);
+                setHoveredRating(0);
               }}
               className="w-full bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white font-extrabold py-3.5 px-6 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 text-sm active:scale-98 cursor-pointer"
             >
@@ -736,7 +774,7 @@ export default function MenuClient({
                 <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x pl-1 pr-4">
                   {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).map(item => {
                     const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
-                    
+
                     return (
                       <motion.div
                         key={`offer-${item.id}`}
@@ -749,7 +787,7 @@ export default function MenuClient({
                           <span className={`w-3.5 h-3.5 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0 mt-0.5`}>
                             <div className={`w-2 h-2 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}></div>
                           </span>
-                          
+
                           {item.special_tag && item.special_tag.trim() !== "" ? (
                             <span className="bg-orange-500/10 text-orange-450 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider border border-orange-500/20">
                               {item.special_tag}
@@ -770,7 +808,7 @@ export default function MenuClient({
                               <span className="text-3xl font-black text-gray-500 uppercase select-none">{item.name.charAt(0)}</span>
                             )}
                           </div>
-                          
+
                           {item.offer_tag && (
                             <span className="absolute -bottom-2 -right-1 bg-orange-500/20 text-orange-400 text-[9px] font-black px-2.5 py-1 rounded-md border border-orange-500/30 shadow-sm uppercase tracking-wide animate-pulse">
                               {item.offer_tag}
@@ -801,7 +839,7 @@ export default function MenuClient({
           {/* Curved Dark Sheet Container (Full Width Edge-to-Edge) */}
           <div className="w-full bg-white/[0.02] backdrop-blur-md rounded-t-[40px] border-t border-white/10 shadow-[0_-12px_40px_rgba(0,0,0,0.6)] relative mt-8 pb-32">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-              
+
               {/* Search Bar */}
               <div className="mb-8">
                 <div className="relative group">
@@ -843,8 +881,8 @@ export default function MenuClient({
                           }
                         }}
                         className={`whitespace-nowrap shrink-0 px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 snap-start focus:outline-none shadow-sm ${activeCategory === cat
-                            ? 'text-white bg-[#EA580C] shadow-[0_0_12px_rgba(234,88,12,0.4)]'
-                            : 'bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10'
+                          ? 'text-white bg-[#EA580C] shadow-[0_0_12px_rgba(234,88,12,0.4)]'
+                          : 'bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10'
                           }`}
                       >
                         {cat}
@@ -883,7 +921,7 @@ export default function MenuClient({
                             Popular
                           </span>
                         </h2>
-                        
+
                         <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6">
                           {categoryDishes.map((item: any, idx: number) => {
                             const sizeKey = item.sizes && Object.keys(item.sizes).length > 0
@@ -1057,12 +1095,12 @@ export default function MenuClient({
               {/* Powered By Footer — inside the dark container to keep visual contrast */}
               <footer className="w-full text-center py-10 mt-16 border-t border-white/5 shrink-0 flex flex-col items-center justify-center gap-1.5">
                 <span className="text-[9px] tracking-widest font-black uppercase text-gray-500">Powered By</span>
-                <Image 
-                  src="/restdigi-logo.png" 
-                  alt="RESTDIGI" 
+                <Image
+                  src="/restdigi-logo.png"
+                  alt="RESTDIGI"
                   width={90}
                   height={20}
-                  className="h-5 w-auto object-contain drop-shadow-[0_0_8px_rgba(234,88,12,0.6)] select-none" 
+                  className="h-5 w-auto object-contain drop-shadow-[0_0_8px_rgba(234,88,12,0.6)] select-none"
                 />
               </footer>
             </div>
@@ -1073,7 +1111,7 @@ export default function MenuClient({
       {/* Sticky Bottom Bar for Cart */}
       {cartItemCount > 0 && !showTracking && (
         <div className="fixed bottom-4 left-4 right-4 z-50 animate-slide-up sm:max-w-md sm:mx-auto">
-          <div 
+          <div
             onClick={() => {
               setShowTracking(false);
               setIsCartOpen(true);
@@ -1282,7 +1320,7 @@ export default function MenuClient({
                   isCancelViewOpen ? (
                     <div className="flex flex-col gap-6">
                       <span className="font-bold text-xs uppercase text-gray-500 tracking-wider px-1">Select items to cancel</span>
-                      
+
                       {(() => {
                         const pendingOrders = trackedOrders.filter(order => order.status === 'pending');
                         const allPendingItems: { orderId: string, dishId: string, size: string, name: string, price: number, quantity: number }[] = [];
@@ -1365,7 +1403,7 @@ export default function MenuClient({
                           {(() => {
                             const activeOrdersList = [...trackedOrders].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
                             const primaryOrder = activeOrdersList[0];
-                            const orderTimeStr = primaryOrder 
+                            const orderTimeStr = primaryOrder
                               ? new Date(primaryOrder.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                               : 'Just now';
 
@@ -1380,7 +1418,7 @@ export default function MenuClient({
                                     {formatTableNumber(tableNo) || '-'}
                                   </span>
                                 </div>
-                                
+
                                 <div className="border-t border-gray-100 pt-3.5 flex justify-between items-center text-xs">
                                   <div>
                                     <p className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-0.5">Order Time</p>
@@ -1440,8 +1478,8 @@ export default function MenuClient({
                                   animate={{
                                     height:
                                       orderStatus === 'pending' ? '0%' :
-                                      orderStatus === 'preparing' ? '50%' :
-                                      orderStatus === 'served' ? '100%' : '0%'
+                                        orderStatus === 'preparing' ? '50%' :
+                                          orderStatus === 'served' ? '100%' : '0%'
                                   }}
                                   transition={{ duration: 0.5, ease: "easeInOut" }}
                                   className="w-full bg-[#EA580C] shadow-[0_0_8px_rgba(234,88,12,0.4)]"
@@ -1483,7 +1521,7 @@ export default function MenuClient({
                           {/* Detailed KOT Ticket Items List */}
                           <div className="flex flex-col gap-4 mt-2">
                             <span className="font-bold text-xs uppercase text-gray-500 tracking-wider px-1">KOT Ticket Details</span>
-                            
+
                             {trackedOrders.map((order, orderIdx) => {
                               const orderItems = originalItemsCache[order.id] || order.items || [];
                               const isOrderCancelled = order.status === 'cancelled';
@@ -1707,48 +1745,91 @@ export default function MenuClient({
                           return;
                         }
 
-                        setOrderStatus('pending');
-                        const payload = {
+                        // Save current cart for rollback if needed
+                        const savedCart = [...cart];
+
+                        // Create optimistic order structure
+                        const tempOrderId = `temp_${Date.now()}`;
+                        const optimisticItems = cart.map(item => ({
+                          dish_id: item.dish_id,
+                          name: item.name,
+                          price: item.price,
+                          quantity: item.quantity,
+                          size: item.size
+                        }));
+
+                        const optimisticOrder = {
+                          id: tempOrderId,
                           restaurant_id: restaurant.id,
                           table_no: tableNo,
                           status: 'pending',
-                          items: cart.map(item => ({
-                            dish_id: item.dish_id,
-                            name: item.name,
-                            price: item.price,
-                            quantity: item.quantity,
-                            size: item.size
-                          })),
-                          total_amount: cartTotal
+                          items: optimisticItems,
+                          total_amount: cartTotal,
+                          created_at: new Date().toISOString()
                         };
 
-                        const { data, error } = await supabase.from('orders').insert(payload).select().single();
-                        if (error) {
-                          console.error('Order placement failed:', error);
-                          setOrderStatus('idle');
-                          toast.error(`Failed to place order: ${error.message || 'Please try again.'}`);
-                        } else {
-                          // Append to activeOrderIds list
+                        // Instantly clear cart and switch to tracking view
+                        setCart([]);
+                        setOrderStatus('pending');
+                        setShowTracking(true);
+                        setTrackedOrders([optimisticOrder]);
+                        setActiveOrderIds([tempOrderId]);
+
+                        // Cache optimistic items list
+                        setOriginalItemsCache(prev => {
+                          const updated = { ...prev, [tempOrderId]: optimisticItems };
+                          if (typeof window !== 'undefined') {
+                            localStorage.setItem(`original_items_cache_${params.slug}`, JSON.stringify(updated));
+                          }
+                          return updated;
+                        });
+
+                        // Run DB insert in background
+                        try {
+                          const { data, error } = await supabase
+                            .from('orders')
+                            .insert({
+                              restaurant_id: restaurant.id,
+                              table_no: tableNo,
+                              status: 'pending',
+                              items: optimisticItems,
+                              total_amount: cartTotal
+                            })
+                            .select()
+                            .single();
+
+                          if (error) throw error;
+
+                          // Replace temp ID with real ID in state & cache
                           setActiveOrderIds(prev => {
-                            const updated = [...prev, data.id];
+                            const filtered = prev.filter(id => id !== tempOrderId);
+                            const updated = [...filtered, data.id];
                             if (typeof window !== 'undefined') {
                               localStorage.setItem(`active_order_ids_${params.slug}`, JSON.stringify(updated));
                             }
                             return updated;
                           });
 
-                          // Cache original items list for change comparisons
                           setOriginalItemsCache(prev => {
-                            const updated = { ...prev, [data.id]: payload.items };
+                            const updated: Record<string, any[]> = { ...prev, [data.id]: optimisticItems };
+                            delete updated[tempOrderId];
                             if (typeof window !== 'undefined') {
                               localStorage.setItem(`original_items_cache_${params.slug}`, JSON.stringify(updated));
                             }
                             return updated;
                           });
 
-                          setOrderStatus('pending');
-                          setShowTracking(true);
-                          setCart([]); // Clear cart on success
+                          setTrackedOrders(prev => prev.map(o => o.id === tempOrderId ? data : o));
+
+                        } catch (err: any) {
+                          console.error('Order placement failed:', err);
+                          // Rollback on failure
+                          setCart(savedCart);
+                          setOrderStatus('idle');
+                          setShowTracking(false);
+                          setTrackedOrders([]);
+                          setActiveOrderIds([]);
+                          toast.error(`Order failed: ${err.message || 'Please check your connection.'}`);
                         }
                       }}
                       className={`w-full py-4 rounded-2xl font-black text-lg transition-transform active:scale-95 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(234,88,12,0.4)] text-white cursor-pointer bg-[#EA580C] hover:bg-orange-600`}
