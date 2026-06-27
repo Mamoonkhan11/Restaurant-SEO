@@ -337,33 +337,34 @@ export default function BillingPage() {
   )}`;
 
   return (
-    <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-8 animate-fade-in">
+    <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-8 animate-fade-in text-white">
       <Toaster />
 
+      {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Billing & Subscription</h1>
-        <p className="mt-1 text-gray-500 font-medium">Manage your subscription plan, pricing options, and view payment history.</p>
+        <h1 className="text-3xl font-black text-white tracking-tight">Billing & Subscription</h1>
+        <p className="mt-1 text-sm text-gray-400 font-medium">Manage your subscription plan, pricing options, and view payment history.</p>
       </div>
 
       {/* Current Status Card */}
-      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className="bg-white/[0.03] backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Current Plan</p>
+          <p className="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-2">Current Plan</p>
           <div className="flex items-center gap-3">
             <span className={`px-4 py-1.5 rounded-full text-sm font-bold capitalize ${currentPlan === 'free'
-              ? 'bg-gray-100 text-gray-700'
+              ? 'bg-white/5 text-gray-300 border border-white/10'
               : currentPlan === 'basic'
-                ? 'bg-emerald-100 text-emerald-700'
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                 : currentPlan === 'pro'
-                  ? 'bg-orange-100 text-orange-700'
+                  ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20'
                   : currentPlan === 'premium'
-                    ? 'bg-purple-100 text-purple-700'
-                    : 'bg-indigo-100 text-indigo-700'
+                    ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                    : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
               }`}>
               {currentPlan} plan
             </span>
             {currentPlan !== 'free' && (
-              <span className={`text-sm font-medium ${isExpired ? 'text-red-600 font-bold' : 'text-gray-600'}`}>
+              <span className={`text-sm font-semibold ${isExpired ? 'text-red-400 font-bold' : 'text-gray-300'}`}>
                 {isExpired ? 'Expired' : `${daysRemaining} days remaining`}
               </span>
             )}
@@ -371,7 +372,7 @@ export default function BillingPage() {
         </div>
 
         {isExpired && (
-          <div className="bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl flex items-center gap-3">
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl flex items-center gap-3">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span className="text-sm font-medium">Your subscription has expired. Your menu is currently hidden from customers.</span>
           </div>
@@ -380,10 +381,10 @@ export default function BillingPage() {
 
       {/* Yearly Billing Banner */}
       <div className="flex flex-col items-center justify-center space-y-2 py-4">
-        <span className="text-xs font-extrabold text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100 animate-fade-in">
+        <span className="text-xs font-extrabold text-orange-400 uppercase tracking-widest bg-orange-500/10 px-3 py-1.5 rounded-full border border-orange-500/20 animate-fade-in">
           Yearly Subscriptions
         </span>
-        <p className="text-sm font-medium text-gray-500 animate-fade-in">
+        <p className="text-sm font-medium text-gray-400 animate-fade-in">
           All RestDigi subscription plans are billed annually.
         </p>
       </div>
@@ -397,9 +398,9 @@ export default function BillingPage() {
             <div
               id={plan.id}
               key={plan.id}
-              className={`bg-white rounded-3xl p-8 border flex flex-col relative overflow-hidden transition-all duration-300 ${plan.highlight
-                ? 'border-orange-500 ring-2 ring-orange-500 shadow-lg md:-translate-y-2'
-                : 'border-gray-100 shadow-sm hover:shadow-md'
+              className={`rounded-3xl p-8 border flex flex-col relative overflow-hidden transition-all duration-300 ${plan.highlight
+                ? 'bg-white/[0.05] border-orange-500 ring-2 ring-orange-500 shadow-lg md:-translate-y-2'
+                : 'bg-white/[0.03] backdrop-blur-md border-white/10 shadow-sm hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.06)]'
                 }`}
             >
               {plan.banner && (
@@ -414,22 +415,22 @@ export default function BillingPage() {
               )}
 
               <div className={`flex-1 flex flex-col ${plan.banner ? 'pt-6' : ''}`}>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
 
                 <div className="flex items-baseline gap-1 mb-1">
                   {typeof plan.price === 'number' ? (
                     <>
-                      <span className="text-4xl font-extrabold text-gray-900">₹{plan.price}</span>
-                      <span className="text-gray-500 font-medium text-sm">{plan.period}</span>
+                      <span className="text-4xl font-extrabold text-white">₹{plan.price}</span>
+                      <span className="text-gray-400 font-medium text-sm">{plan.period}</span>
                     </>
                   ) : (
-                    <span className="text-xl font-extrabold text-gray-900 leading-tight">{plan.price}</span>
+                    <span className="text-xl font-extrabold text-white leading-tight">{plan.price}</span>
                   )}
                 </div>
 
                 {isAnnual && plan.savings ? (
                   <div className="mb-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                       {plan.savings}
                     </span>
                   </div>
@@ -437,19 +438,19 @@ export default function BillingPage() {
                   <div className="mb-4 h-[22px]" />
                 )}
 
-                <p className="text-sm text-gray-500 mb-6 font-medium leading-relaxed">{plan.description}</p>
+                <p className="text-sm text-gray-400 mb-6 font-medium leading-relaxed">{plan.description}</p>
 
                 <ul className="space-y-4 flex-1 mb-8">
                   {plan.features.map((feature, i) => (
                     <li
                       key={i}
                       className={`flex items-start gap-2.5 text-sm font-medium transition-all ${feature.included
-                        ? 'text-gray-700'
-                        : 'text-rose-400 line-through text-opacity-50 text-gray-400'
+                        ? 'text-gray-200'
+                        : 'text-rose-400/50 line-through text-gray-500'
                         }`}
                     >
                       {feature.included ? (
-                        <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                        <Check className="w-5 h-5 text-emerald-400 shrink-0" />
                       ) : (
                         <X className="w-5 h-5 text-rose-400 shrink-0" />
                       )}
@@ -475,10 +476,10 @@ export default function BillingPage() {
                   }}
                   disabled={isLoading || (isCurrent && !isCurrentExpiring)}
                   className={`w-full py-3 rounded-xl font-bold transition-all ${(isCurrent && !isCurrentExpiring)
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                    ? 'bg-white/5 text-white/40 cursor-not-allowed border border-white/5'
                     : plan.highlight
                       ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-md hover:shadow-lg'
-                      : 'bg-gray-900 hover:bg-gray-800 text-white shadow-sm hover:shadow-md'
+                      : 'bg-white/10 hover:bg-white/20 text-white shadow-sm'
                     }`}
                 >
                   {getCtaLabel(plan.id)}
@@ -488,7 +489,7 @@ export default function BillingPage() {
                   <button
                     onClick={() => setIsCancelModalOpen(true)}
                     disabled={isLoading}
-                    className="w-full mt-3 py-2.5 rounded-xl font-bold text-sm transition-all border border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                    className="w-full mt-3 py-2.5 rounded-xl font-bold text-sm transition-all border border-rose-500/20 text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                   >
                     <X className="w-4 h-4" />
                     Cancel Subscription
@@ -501,19 +502,19 @@ export default function BillingPage() {
       </div>
 
       {/* Billing History */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-          <h3 className="text-lg font-bold text-gray-900">Billing History</h3>
+      <div className="bg-white/[0.03] backdrop-blur-md rounded-2xl shadow-sm border border-white/10 overflow-hidden">
+        <div className="px-6 py-5 border-b border-white/5 bg-white/[0.01]">
+          <h3 className="text-lg font-bold text-white">Billing History</h3>
         </div>
         {payments.length === 0 ? (
-          <div className="p-12 text-center text-gray-500 font-medium">
+          <div className="p-12 text-center text-gray-400 font-medium">
             No past invoices found.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-white border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wider font-bold">
+                <tr className="border-b border-white/10 text-gray-400 text-xs uppercase tracking-wider font-bold">
                   <th className="px-6 py-4">Date</th>
                   <th className="px-6 py-4">Plan</th>
                   <th className="px-6 py-4">Amount</th>
@@ -521,23 +522,23 @@ export default function BillingPage() {
                   <th className="px-6 py-4">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-white/5">
                 {payments.map((payment) => (
-                  <tr key={payment.id} className="hover:bg-gray-50/80 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                  <tr key={payment.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-6 py-4 text-sm font-medium text-white">
                       {new Date(payment.created_at).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-sm font-bold text-gray-700 capitalize">
+                    <td className="px-6 py-4 text-sm font-bold text-gray-200 capitalize">
                       {payment.plan_tier}
                     </td>
-                    <td className="px-6 py-4 text-sm font-bold text-gray-900">
+                    <td className="px-6 py-4 text-sm font-bold text-white">
                       ₹{payment.amount}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 capitalize">
+                    <td className="px-6 py-4 text-sm text-gray-400 capitalize">
                       {payment.payment_gateway || 'Online'}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">
                         {payment.status}
                       </span>
                     </td>
@@ -566,24 +567,24 @@ export default function BillingPage() {
       `}</style>
 
       {isCancelModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 text-center transform scale-100 transition-all animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Cancel Your Subscription?</h3>
-            <p className="text-sm text-slate-500 leading-relaxed mb-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 text-white">
+          <div className="bg-[#121318] rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-white/10 text-center transform scale-100 transition-all animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold text-white mb-2">Cancel Your Subscription?</h3>
+            <p className="text-sm text-gray-400 leading-relaxed mb-6">
               Are you sure you want to proceed? Your operational features will be instantly downgraded to our free plan metrics.
             </p>
             <div className="grid grid-cols-2 gap-3 mt-4">
               <button
                 onClick={() => setIsCancelModalOpen(false)}
                 disabled={isLoading}
-                className="border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl py-3 text-sm font-semibold transition-colors disabled:opacity-50"
+                className="bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl py-3 text-sm font-semibold transition-colors disabled:opacity-50"
               >
                 Keep Plan
               </button>
               <button
                 onClick={handleCancelSubscription}
                 disabled={isLoading}
-                className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl py-3 text-sm font-semibold transition-colors shadow-sm shadow-rose-100 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl py-3 text-sm font-semibold transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5"
               >
                 {isLoading ? "Cancelling..." : "Confirm"}
               </button>

@@ -5,7 +5,7 @@ import { Loader2, Plus, Trash2, Link as LinkIcon, QrCode, Download, Lock } from 
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useRestaurant } from '@/lib/RestaurantContext';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 import { useSubscription } from '@/lib/useSubscription';
 
@@ -366,13 +366,13 @@ export default function TablesPage() {
                 value={newTableName}
                 onChange={(e) => setNewTableName(e.target.value)}
                 disabled={isAddLocked}
-                className="flex-1 px-4 py-2.5 bg-white/[0.02] border border-white/10 rounded-xl text-white font-medium placeholder:text-gray-550 focus:bg-white/[0.04] focus:outline-none focus:border-white/20 transition-all text-sm disabled:cursor-not-allowed disabled:opacity-75"
+                className="flex-1 px-4 py-2.5 bg-white/[0.02] border border-white/10 rounded-xl text-white font-medium placeholder:text-gray-500 focus:bg-white/[0.04] focus:outline-none focus:border-white/20 transition-all text-sm disabled:cursor-not-allowed disabled:opacity-75"
                 required
               />
               <button
                 type="submit"
                 disabled={isAdding || !newTableName.trim() || isAddLocked}
-                className="bg-[#111827] text-white px-5 py-2.5 rounded-xl font-bold hover:bg-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm shadow-sm"
+                className="bg-gradient-to-r from-orange-600 to-red-500 hover:from-orange-700 hover:to-red-600 text-white px-5 py-2.5 rounded-xl font-bold transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 text-sm shadow-[0_4px_12px_rgba(234,88,12,0.25)] hover:shadow-[0_4px_20px_rgba(234,88,12,0.4)] hover:scale-[1.02] active:scale-[0.98]"
               >
                 {isAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                 Add
@@ -411,7 +411,7 @@ export default function TablesPage() {
 
             {tables.length === 0 && (
               <div className="col-span-full py-12 text-center border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
-                <h3 className="text-gray-450 font-bold">No tables added yet</h3>
+                <h3 className="text-gray-400 font-bold">No tables added yet</h3>
                 <p className="text-sm text-gray-500 mt-1 font-medium">Add your first table to start generating QR links.</p>
               </div>
             )}
@@ -427,11 +427,11 @@ export default function TablesPage() {
                   <div className="qr-print-frame">
                     <div className="mb-8 text-center">
                       <h3 className="text-xl font-bold text-[#111827] tracking-tight uppercase leading-tight">{restaurant?.name || 'Restaurant Name'}</h3>
-                      <p className="text-xs font-bold text-gray-450 mt-1 uppercase tracking-widest leading-tight">{selectedTable.table_no}</p>
+                      <p className="text-xs font-bold text-gray-600 mt-1 uppercase tracking-widest leading-tight">{selectedTable.table_no}</p>
                     </div>
 
                     <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8 flex justify-center items-center">
-                      <QRCodeSVG
+                      <QRCodeCanvas
                         value={`${origin}/menu/${restaurant?.slug}?tableId=${selectedTable.id}`}
                         size={200}
                         fgColor="#000000"
@@ -442,7 +442,7 @@ export default function TablesPage() {
 
                     <div className="text-center">
                       <p className="text-sm font-bold text-[#111827] tracking-widest uppercase leading-tight">Contactless Dining</p>
-                      <p className="text-[10px] text-gray-450 font-bold mt-1 uppercase tracking-widest leading-tight">Scan for Menu</p>
+                      <p className="text-[10px] text-gray-500 font-bold mt-1 uppercase tracking-widest leading-tight">Scan for Menu</p>
                     </div>
                   </div>
                 </div>
@@ -467,7 +467,7 @@ export default function TablesPage() {
             ) : (
               <div className="py-24 flex flex-col items-center text-white/20">
                 <QrCode className="w-12 h-12 text-white/10 mb-4 animate-pulse" />
-                <h3 className="font-bold text-gray-450 text-sm">No Table Selected</h3>
+                <h3 className="font-bold text-gray-400 text-sm">No Table Selected</h3>
               </div>
             )}
           </div>

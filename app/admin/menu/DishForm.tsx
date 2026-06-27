@@ -103,31 +103,31 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up border border-gray-100 flex flex-col max-h-[90vh]">
-        <div className="px-8 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
-          <h3 className="text-xl font-bold text-gray-900">{initialData ? 'Edit Dish' : 'Add New Dish'}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-200 transition-colors">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-[#121318] rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up border border-white/10 flex flex-col max-h-[90vh] text-white">
+        <div className="px-8 py-5 border-b border-white/10 flex justify-between items-center bg-white/[0.01] shrink-0">
+          <h3 className="text-xl font-bold text-white">{initialData ? 'Edit Dish' : 'Add New Dish'}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-white p-2 rounded-xl hover:bg-white/5 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6 overflow-y-auto flex-1">
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Dish Name</label>
-            <input {...register('name')} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium" placeholder="e.g. Wagyu Burger" />
-            {errors.name && <p className="text-red-500 text-xs mt-1">{String(errors.name.message)}</p>}
+            <label className="block text-sm font-bold text-gray-300 mb-2">Dish Name</label>
+            <input {...register('name')} className="w-full px-5 py-4 bg-white/[0.02] border border-white/10 rounded-2xl text-white focus:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium placeholder:text-gray-500" placeholder="e.g. Wagyu Burger" />
+            {errors.name && <p className="text-red-400 text-xs mt-1">{String(errors.name.message)}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
-            <textarea {...register('description')} rows={2} className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium" placeholder="Delicious ingredients..." />
-            {errors.description && <p className="text-red-500 text-xs mt-1">{String(errors.description.message)}</p>}
+            <label className="block text-sm font-bold text-gray-300 mb-2">Description</label>
+            <textarea {...register('description')} rows={2} className="w-full px-5 py-4 bg-white/[0.02] border border-white/10 rounded-2xl text-white focus:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium placeholder:text-gray-550" placeholder="Delicious ingredients..." />
+            {errors.description && <p className="text-red-400 text-xs mt-1">{String(errors.description.message)}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Category</label>
+              <label className="block text-sm font-bold text-gray-300 mb-2">Category</label>
               {!isCustomCategory ? (
                 <select
                   {...register('category')}
@@ -139,19 +139,19 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
                       setValue('category', e.target.value);
                     }
                   }}
-                  className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium appearance-none"
+                  className="w-full px-5 py-4 bg-white/[0.02] border border-white/10 rounded-2xl text-white focus:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium appearance-none"
                 >
                   {standardCategories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat} value={cat} className="bg-[#121318] text-white">{cat}</option>
                   ))}
-                  <option value="custom" className="font-bold text-orange-600">➕ Add Custom Category</option>
+                  <option value="custom" className="font-bold text-orange-400 bg-[#121318]">➕ Add Custom Category</option>
                 </select>
               ) : (
                 <div className="relative">
                   <input
                     {...register('category')}
                     autoFocus
-                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium"
+                    className="w-full px-5 py-4 bg-white/[0.02] border border-white/10 rounded-2xl text-white focus:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium"
                     placeholder="Type custom category..."
                   />
                   <button
@@ -160,20 +160,20 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
                       setIsCustomCategory(false);
                       setValue('category', standardCategories[0]);
                     }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 p-1 rounded-full transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 p-1 rounded-full transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               )}
-              {errors.category && <p className="text-red-500 text-xs mt-1">{String(errors.category.message)}</p>}
+              {errors.category && <p className="text-red-400 text-xs mt-1">{String(errors.category.message)}</p>}
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <label className="block text-sm font-bold text-gray-700">Portion Sizes & Prices</label>
-              <button type="button" onClick={handleAddSize} className="text-orange-600 text-sm font-bold hover:text-orange-700 flex items-center gap-1">
+              <label className="block text-sm font-bold text-gray-300">Portion Sizes & Prices</label>
+              <button type="button" onClick={handleAddSize} className="text-orange-400 text-sm font-bold hover:text-orange-300 flex items-center gap-1">
                 + Add Size
               </button>
             </div>
@@ -184,7 +184,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
                   placeholder="e.g. Half, Full, Large"
                   value={size.label}
                   onChange={(e) => handleSizeChange(index, 'label', e.target.value)}
-                  className="w-1/2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium"
+                  className="w-1/2 px-4 py-3 bg-white/[0.02] border border-white/10 rounded-xl text-white focus:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium placeholder:text-gray-500"
                 />
                 <input
                   type="number"
@@ -192,10 +192,10 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
                   placeholder="Price (₹)"
                   value={size.price}
                   onChange={(e) => handleSizeChange(index, 'price', e.target.value)}
-                  className="w-1/2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium"
+                  className="w-1/2 px-4 py-3 bg-white/[0.02] border border-white/10 rounded-xl text-white focus:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium placeholder:text-gray-500"
                 />
                 {sizes.length > 1 && (
-                  <button type="button" onClick={() => handleRemoveSize(index)} className="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                  <button type="button" onClick={() => handleRemoveSize(index)} className="p-2 text-gray-400 hover:text-red-400 transition-colors">
                     <X className="w-5 h-5" />
                   </button>
                 )}
@@ -203,15 +203,15 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
             ))}
           </div>
 
-          <div className="bg-orange-50/50 border border-orange-100 rounded-2xl p-5 space-y-4">
+          <div className="bg-orange-500/[0.03] border border-orange-500/20 rounded-2xl p-5 space-y-4 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <label className="block text-sm font-bold text-orange-900">Special Offer</label>
-                <p className="text-xs text-orange-700/80 mt-0.5">Feature this item at the top of your menu.</p>
+                <label className="block text-sm font-bold text-orange-300">Special Offer</label>
+                <p className="text-xs text-orange-200/60 mt-0.5">Feature this item at the top of your menu.</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" checked={isSpecialOffer} onChange={(e) => setIsSpecialOffer(e.target.checked)} className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
               </label>
             </div>
             {isSpecialOffer && (
@@ -221,30 +221,30 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
                   placeholder="Offer Tag (e.g. Eid Special , 50% Off)"
                   value={offerTag}
                   onChange={(e) => setOfferTag(e.target.value)}
-                  className="w-full px-5 py-3 bg-white border border-orange-200 rounded-xl text-orange-900 placeholder-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium"
+                  className="w-full px-5 py-3 bg-white/[0.02] border border-orange-500/20 rounded-xl text-white placeholder-orange-300/40 focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium"
                 />
               </div>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Dish Photo</label>
-            <div className="mt-1 flex justify-center px-6 pt-7 pb-8 border-2 border-gray-200 border-dashed rounded-2xl hover:border-orange-500 hover:bg-orange-50/50 transition-colors relative bg-gray-50">
+            <label className="block text-sm font-bold text-gray-300 mb-2">Dish Photo</label>
+            <div className="mt-1 flex justify-center px-6 pt-7 pb-8 border-2 border-white/10 border-dashed rounded-2xl hover:border-orange-500 hover:bg-orange-500/[0.02] transition-colors relative bg-white/[0.01]">
               {previewUrl ? (
                 <div className="text-center w-full">
                   <img src={previewUrl} alt="Preview" className="mx-auto h-32 w-32 object-cover rounded-xl shadow-sm mb-4" />
-                  <label className="cursor-pointer font-bold text-orange-600 hover:text-orange-700 bg-orange-50 px-4 py-2 rounded-lg transition-colors">
+                  <label className="cursor-pointer font-bold text-orange-400 hover:text-orange-300 bg-orange-500/10 border border-orange-500/20 px-4 py-2 rounded-lg transition-colors">
                     Change Photo
                     <input type="file" className="sr-only" onChange={handleImageChange} accept="image/*" />
                   </label>
                 </div>
               ) : (
                 <div className="space-y-2 text-center">
-                  <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto shadow-sm border border-gray-100">
-                    <UploadCloud className="h-8 w-8 text-orange-500" />
+                  <div className="bg-white/5 w-16 h-16 rounded-full flex items-center justify-center mx-auto shadow-sm border border-white/10">
+                    <UploadCloud className="h-8 w-8 text-orange-400" />
                   </div>
-                  <div className="flex text-sm text-gray-600 justify-center">
-                    <label className="cursor-pointer bg-transparent rounded-md font-bold text-orange-600 hover:text-orange-500">
+                  <div className="flex text-sm text-gray-400 justify-center">
+                    <label className="cursor-pointer bg-transparent rounded-md font-bold text-orange-400 hover:text-orange-300">
                       <span>Click to upload</span>
                       <input type="file" className="sr-only" onChange={handleImageChange} accept="image/*" />
                     </label>
@@ -256,7 +256,7 @@ export default function DishForm({ initialData, onClose, onSave }: { initialData
           </div>
 
           <div className="pt-4 flex gap-4">
-            <button type="button" onClick={onClose} className="flex-1 bg-white border-2 border-gray-200 text-gray-700 px-6 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-colors">
+            <button type="button" onClick={onClose} className="flex-1 bg-white/5 border border-white/10 text-white px-6 py-4 rounded-2xl font-bold hover:bg-white/10 transition-colors">
               Cancel
             </button>
             <button type="submit" disabled={isSubmitting || isUploading} className="flex-1 bg-orange-600 text-white px-6 py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all disabled:opacity-70 flex justify-center items-center gap-2">

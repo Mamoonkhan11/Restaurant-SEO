@@ -104,7 +104,7 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   const wrapWithLock = (content: React.ReactNode) => {
     if (isSubLoading) {
       return (
-        <div className="bg-white p-8 rounded-3xl border border-orange-100 shadow-sm flex items-center justify-center mb-8 relative min-h-[220px]">
+        <div className="bg-white/[0.03] backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-sm flex items-center justify-center mb-8 relative min-h-[220px]">
           <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
         </div>
       );
@@ -117,17 +117,17 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           {content}
         </div>
         <div className="absolute inset-0 flex items-center justify-center p-4 z-20 pointer-events-auto">
-          <div className="bg-white/70 backdrop-blur-xl p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] max-w-md w-full text-center border border-white/40 animate-fade-in-up">
-            <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-100 shadow-sm">
+          <div className="bg-black/60 backdrop-blur-xl p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.4)] max-w-md w-full text-center border border-white/10 animate-fade-in-up">
+            <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20 shadow-sm">
               <Lock className="w-7 h-7" />
             </div>
-            <h3 className="text-xl font-black text-gray-900 mb-2">No Active Plan</h3>
-            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+            <h3 className="text-xl font-black text-white mb-2">No Active Plan</h3>
+            <p className="text-sm text-gray-400 mb-6 leading-relaxed">
               Please select a subscription tier from the Billing panel to unlock these management interfaces.
             </p>
             <Link
               href="/admin/billing"
-              className="inline-block bg-gradient-to-r from-orange-600 to-red-500 hover:from-orange-700 hover:to-red-600 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-[0_4px_15px_rgba(234,88,12,0.2)] transition-all hover:scale-[1.02]"
+              className="inline-block bg-gradient-to-r from-orange-600 to-red-500 hover:from-orange-700 hover:to-red-600 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-[0_4px_15px_rgba(234,88,12,0.25)] transition-all hover:scale-[1.02]"
             >
               Go to Billing
             </Link>
@@ -138,21 +138,21 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
   };
 
   return wrapWithLock(
-    <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.02)] flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
+    <div className="bg-white/[0.03] backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-[0_4px_25px_rgba(0,0,0,0.02)] flex flex-col mb-8 relative overflow-hidden min-h-[500px]">
       <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-500 to-red-500"></div>
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-black text-gray-900 flex flex-wrap items-center gap-2">
+          <h3 className="text-xl font-black text-white flex flex-wrap items-center gap-2">
             <span>Live Kitchen Orders (KOT)</span>
             {liveOrders.filter(o => o.status === 'pending').length > 0 && (
-              <span className="bg-red-100 text-red-600 text-xs px-2.5 py-1 rounded-full font-bold animate-pulse">
+              <span className="bg-red-500/20 text-red-400 border border-red-500/20 text-xs px-2.5 py-1 rounded-full font-bold animate-pulse">
                 {liveOrders.filter(o => o.status === 'pending').length} Action Required
               </span>
             )}
             {!audioMuted ? (
               <button
                 onClick={handleToggleAudio}
-                className="bg-orange-50 hover:bg-orange-100 text-orange-700 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-orange-200/50 transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
+                className="bg-orange-600/10 hover:bg-orange-600/20 text-orange-400 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-orange-500/20 transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
                 title="Click to Mute Notifications"
               >
                 Tap Here to Disable Audio
@@ -160,100 +160,105 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
             ) : (
               <button
                 onClick={handleToggleAudio}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-slate-200 transition-colors animate-pulse flex items-center gap-1 cursor-pointer shadow-sm"
+                className="bg-white/5 hover:bg-white/10 text-white/80 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-white/10 transition-colors animate-pulse flex items-center gap-1 cursor-pointer shadow-sm"
                 title="Click to Enable Audio"
               >
                 Tap Here to Enable Audio
               </button>
             )}
           </h3>
-          <p className="text-sm font-medium text-gray-500 mt-1">Manage real-time incoming orders from your tables.</p>
+          <p className="text-sm font-medium text-gray-400 mt-1">Manage real-time incoming orders from your tables.</p>
         </div>
       </div>
 
       {liveOrders.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {liveOrders.map(order => (
-            <div key={order.id} className={`p-6 rounded-2xl border transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md flex flex-col relative ${order.status === 'pending' ? 'border-amber-200 bg-amber-50/20 shadow-[0_4px_15px_rgba(245,158,11,0.03)]' : order.status === 'preparing' ? 'border-orange-200 bg-orange-50/20 shadow-[0_4px_15px_rgba(249,115,22,0.03)]' : 'border-slate-100 bg-white shadow-sm'}`}>
-              <div className="flex justify-between items-start mb-4 border-b border-slate-100 pb-4">
-                <div>
-                  <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-1 block">Table</span>
-                  <h4 className="font-black text-[#111827] text-2xl leading-none">{order.table_no}</h4>
+          {liveOrders.map(order => {
+            const cleanTableNo = String(order.table_no).replace(/^table\s+/i, '');
+            const tableLabel = /^table\b/i.test(String(order.table_no)) ? order.table_no : `Table ${order.table_no}`;
+
+            return (
+              <div key={order.id} className={`p-6 rounded-2xl border transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md flex flex-col relative ${order.status === 'pending' ? 'border-amber-500/20 bg-amber-500/[0.03] shadow-[0_0_15px_rgba(245,158,11,0.08)]' : order.status === 'preparing' ? 'border-orange-500/20 bg-orange-500/[0.03] shadow-[0_0_15px_rgba(249,115,22,0.08)]' : 'border-white/10 bg-white/[0.02] shadow-sm'}`}>
+                <div className="flex justify-between items-start mb-4 border-b border-white/5 pb-4">
+                  <div>
+                    <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-1 block">Table</span>
+                    <h4 className="font-black text-white text-2xl leading-none">{cleanTableNo}</h4>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-extrabold text-gray-300 uppercase tracking-widest bg-white/5 px-2.5 py-1 rounded border border-white/10">
+                        {timeAgo(order.created_at)}
+                      </span>
+                      <button
+                        onClick={async () => {
+                          if (confirm(`Cancel and delete the entire order for ${tableLabel}?`)) {
+                            await supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id);
+                            toast.success(`Order from ${tableLabel} has been cancelled`);
+                          }
+                        }}
+                        className="text-red-400 hover:text-red-300 p-1.5 rounded-lg hover:bg-red-500/10 transition-all cursor-pointer flex items-center justify-center shrink-0 border border-transparent hover:border-red-500/20"
+                        title="Cancel Order"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    {order.status === 'pending' && <span className="flex items-center gap-1.5 text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending</span>}
+                    {order.status === 'preparing' && <span className="flex items-center gap-1.5 text-xs font-bold text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Preparing</span>}
+                    {order.status === 'served' && <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
+                  </div>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest bg-slate-50 px-2.5 py-1 rounded border border-slate-100">
-                      {timeAgo(order.created_at)}
-                    </span>
+
+                <div className="space-y-4 mb-6 flex-1">
+                  {order.items?.map((item: any, idx: number) => (
+                    <div key={idx} className="flex justify-between items-start text-sm group transition-all duration-200">
+                      <div className="flex items-start gap-3">
+                        <span className="text-white font-black bg-white/5 border border-white/10 px-2 py-0.5 rounded text-xs">{item.quantity}x</span>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-white leading-tight">{item.name}</span>
+                          {item.size && item.size !== 'Standard' && <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400 mt-0.5">{item.size}</span>}
+                        </div>
+                      </div>
+                      <span className="font-bold text-gray-300 tabular-nums">₹{(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-4 border-t border-dashed border-white/5 flex justify-between items-center mb-6">
+                  <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Total Amount</span>
+                  <span className="text-xl font-black text-white tabular-nums">₹{Number(order.total_amount || 0).toFixed(2)}</span>
+                </div>
+
+                <div className="flex gap-3 mt-auto">
+                  {order.status === 'pending' && (
                     <button
                       onClick={async () => {
-                        if (confirm(`Cancel and delete the entire order for Table ${order.table_no}?`)) {
-                          await supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id);
-                          toast.success(`Order from ${order.table_no} has been cancelled`);
-                        }
+                        await supabase.from('orders').update({ status: 'preparing' }).eq('id', order.id);
                       }}
-                      className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-all cursor-pointer flex items-center justify-center shrink-0 border border-transparent hover:border-red-100"
-                      title="Cancel Order"
+                      className="flex-1 bg-gradient-to-r from-orange-600 to-red-500 hover:from-orange-700 hover:to-red-600 text-white text-sm font-extrabold py-3.5 px-4 rounded-xl shadow-[0_4px_12px_rgba(234,88,12,0.25)] transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
                     >
-                      <X className="w-4 h-4" />
+                      Start Preparing
                     </button>
-                  </div>
-                  {order.status === 'pending' && <span className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending</span>}
-                  {order.status === 'preparing' && <span className="flex items-center gap-1.5 text-xs font-bold text-orange-700 bg-orange-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span> Preparing</span>}
-                  {order.status === 'served' && <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
+                  )}
+                  {order.status === 'preparing' && (
+                    <button
+                      onClick={async () => {
+                        await supabase.from('orders').update({ status: 'served' }).eq('id', order.id);
+                      }}
+                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
+                    >
+                      Mark as Served
+                    </button>
+                  )}
                 </div>
               </div>
-
-              <div className="space-y-4 mb-6 flex-1">
-                {order.items?.map((item: any, idx: number) => (
-                  <div key={idx} className="flex justify-between items-start text-sm group transition-all duration-200">
-                    <div className="flex items-start gap-3">
-                      <span className="text-[#111827] font-black bg-slate-100 px-2 py-0.5 rounded text-xs">{item.quantity}x</span>
-                      <div className="flex flex-col">
-                        <span className="font-bold text-[#111827] leading-tight">{item.name}</span>
-                        {item.size && item.size !== 'Standard' && <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mt-0.5">{item.size}</span>}
-                      </div>
-                    </div>
-                    <span className="font-bold text-gray-600 tabular-nums">₹{(item.price * item.quantity).toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="pt-4 border-t border-dashed border-slate-200/80 flex justify-between items-center mb-6">
-                <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Total Amount</span>
-                <span className="text-xl font-black text-[#111827] tabular-nums">₹{Number(order.total_amount || 0).toFixed(2)}</span>
-              </div>
-
-              <div className="flex gap-3 mt-auto">
-                {order.status === 'pending' && (
-                  <button
-                    onClick={async () => {
-                      await supabase.from('orders').update({ status: 'preparing' }).eq('id', order.id);
-                    }}
-                    className="flex-1 bg-slate-900 hover:bg-black text-white text-sm font-extrabold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
-                  >
-                    Start Preparing
-                  </button>
-                )}
-                {order.status === 'preparing' && (
-                  <button
-                    onClick={async () => {
-                      await supabase.from('orders').update({ status: 'served' }).eq('id', order.id);
-                    }}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
-                  >
-                    Mark as Served
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-full max-w-2xl py-16 flex flex-col items-center justify-center border-2 border-dashed border-orange-100 bg-orange-50/10 rounded-3xl">
-            <h3 className="text-slate-900 font-black text-xl">No Active Orders</h3>
-            <p className="text-slate-500 font-semibold mt-1 text-sm">Waiting for fresh KOT orders to arrive...</p>
+          <div className="w-full max-w-2xl py-16 flex flex-col items-center justify-center border-2 border-dashed border-white/10 bg-white/[0.01] rounded-3xl">
+            <h3 className="text-white font-black text-xl">No Active Orders</h3>
+            <p className="text-gray-400 font-semibold mt-1 text-sm">Waiting for fresh KOT orders to arrive...</p>
           </div>
         </div>
       )}
@@ -274,6 +279,9 @@ export default function AdminDashboardOverview() {
   // Real Data States
   const [chartData, setChartData] = useState<any[]>([]);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [allWeeklyActivity, setAllWeeklyActivity] = useState<any[]>([]);
+  const [allTablesList, setAllTablesList] = useState<any[]>([]);
+  const [activeOrders, setActiveOrders] = useState<any[]>([]);
 
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [activeModalTitle, setActiveModalTitle] = useState<string | null>(null);
@@ -358,12 +366,13 @@ export default function AdminDashboardOverview() {
       const [
         resetLogRes,
         dishCountRes,
-        tableCountRes,
+        tablesDataRes,
         dishesDataRes,
         month1Res,
         month2Res,
         month3Res,
-        logsDataRes
+        logsDataRes,
+        activeOrdersRes
       ] = await Promise.all([
         supabase
           .from('activity_logs')
@@ -379,8 +388,9 @@ export default function AdminDashboardOverview() {
           .eq('restaurant_id', restaurant.id),
         supabase
           .from('tables')
-          .select('*', { count: 'exact', head: true })
-          .eq('restaurant_id', restaurant.id),
+          .select('*')
+          .eq('restaurant_id', restaurant.id)
+          .order('table_no', { ascending: true }),
         supabase
           .from('dishes')
           .select('name, view_count')
@@ -394,13 +404,17 @@ export default function AdminDashboardOverview() {
         supabase.from('restaurants').select('*', { count: 'exact', head: true })
           .eq('slug', restaurant.slug).gte('created_at', firstDayOf3MonthsAgo).lt('created_at', firstDayOf2MonthsAgo),
         supabase
-          .from('activity_logs')
+          .from('orders')
           .select('*')
-          .eq('admin_id', user.id)
           .eq('restaurant_id', restaurant.id)
+          .eq('status', 'served')
           .gte('created_at', monday.toISOString())
-          .order('created_at', { ascending: false })
-          .limit(10)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('orders')
+          .select('table_no')
+          .eq('restaurant_id', restaurant.id)
+          .in('status', ['pending', 'preparing'])
       ]);
 
       // 4. Handle Weekly Reset logic
@@ -434,7 +448,9 @@ export default function AdminDashboardOverview() {
 
       // 5. Populate stats and metrics from concurrent responses
       setTotalItems(dishCountRes.count ?? 0);
-      setTotalTables(tableCountRes.count ?? 0);
+      setTotalTables(tablesDataRes.data?.length ?? 0);
+      setAllTablesList(tablesDataRes.data || []);
+      setActiveOrders(activeOrdersRes.data || []);
 
       const month1 = month1Res.count;
       const month2 = month2Res.count;
@@ -447,29 +463,47 @@ export default function AdminDashboardOverview() {
       ]);
 
       if (logsDataRes.data) {
-        setRecentActivity(logsDataRes.data);
+        setRecentActivity(logsDataRes.data.slice(0, 10));
+        setAllWeeklyActivity(logsDataRes.data);
       }
 
       // Helper function to re-fetch logs for realtime update triggers
       const fetchLogs = async () => {
-        const { data: logsData } = await supabase
-          .from('activity_logs')
-          .select('*')
-          .eq('admin_id', user.id)
-          .eq('restaurant_id', restaurant.id)
-          .gte('created_at', monday.toISOString())
-          .order('created_at', { ascending: false })
-          .limit(10);
-        if (logsData) {
-          setRecentActivity(logsData);
+        const [logsDataRes, activeOrdersRes] = await Promise.all([
+          supabase
+            .from('orders')
+            .select('*')
+            .eq('restaurant_id', restaurant.id)
+            .eq('status', 'served')
+            .gte('created_at', monday.toISOString())
+            .order('created_at', { ascending: false }),
+          supabase
+            .from('orders')
+            .select('table_no')
+            .eq('restaurant_id', restaurant.id)
+            .in('status', ['pending', 'preparing'])
+        ]);
+        if (logsDataRes.data) {
+          setRecentActivity(logsDataRes.data.slice(0, 10));
+          setAllWeeklyActivity(logsDataRes.data);
+        }
+        if (activeOrdersRes.data) {
+          setActiveOrders(activeOrdersRes.data);
         }
       };
 
       const subscription = supabase
-        .channel('public:activity_logs')
+        .channel('public:orders-activity')
         .on(
           'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'activity_logs', filter: `admin_id=eq.${user.id}` },
+          { event: 'UPDATE', schema: 'public', table: 'orders', filter: `restaurant_id=eq.${restaurant.id}` },
+          () => {
+            fetchLogs();
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'orders', filter: `restaurant_id=eq.${restaurant.id}` },
           () => {
             fetchLogs();
           }
@@ -490,38 +524,37 @@ export default function AdminDashboardOverview() {
     };
   }, [router]);
 
-
   if (isLoading || isSubLoading) {
     return (
-      <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-8 min-h-screen">
+      <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-8 min-h-screen text-white">
         <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-gray-200 rounded-xl w-64"></div>
-          <div className="h-5 bg-gray-200 rounded-xl w-96"></div>
+          <div className="h-10 bg-white/5 rounded-xl w-64"></div>
+          <div className="h-5 bg-white/5 rounded-xl w-96"></div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
-          {[1, 2, 3, 4].map(i => <div key={i} className="h-36 bg-gray-200 rounded-3xl"></div>)}
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-36 bg-white/5 rounded-3xl"></div>)}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
-          <div className="lg:col-span-2 h-[400px] bg-gray-200 rounded-3xl"></div>
-          <div className="h-[400px] bg-gray-200 rounded-3xl"></div>
+          <div className="lg:col-span-2 h-[400px] bg-white/5 rounded-3xl"></div>
+          <div className="h-[400px] bg-white/5 rounded-3xl"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-4 sm:p-8 relative animate-fade-in">
+    <div className="p-4 sm:p-8 relative animate-fade-in text-white">
       <Toaster />
       <div className="max-w-6xl mx-auto space-y-8">
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-6">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-2">
               Welcome, {ownerName}
-              <span className="text-xs font-extrabold bg-orange-100 text-orange-800 px-3 py-0.5 rounded-full border border-orange-200">Owner</span>
+              <span className="text-xs font-extrabold bg-orange-500/10 text-orange-400 px-3 py-0.5 rounded-full border border-orange-500/20">Owner</span>
             </h1>
-            <p className="mt-1 text-sm text-slate-500 font-medium">Here's what's happening with your digital menu today.</p>
+            <p className="mt-1 text-sm text-gray-400 font-medium">Here's what's happening with your digital menu today.</p>
           </div>
         </div>
 
@@ -539,14 +572,13 @@ export default function AdminDashboardOverview() {
                 setActiveModalTitle('Total Scans');
               }
             }}
-            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.04)] transition-all duration-300 relative cursor-pointer group"
+            className="bg-white/[0.03] p-6 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.1)] transition-all duration-300 relative cursor-pointer group"
           >
             <div className={`flex flex-col h-full ${showTotalScansLock ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
               <div className="flex justify-between items-start mb-3">
-                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Total Scans</p>
-                <span className="text-slate-400 p-2 bg-slate-50 rounded-xl group-hover:bg-orange-50 group-hover:text-orange-600 transition-colors"><TrendingUp className="w-4 h-4" /></span>
+                <p className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">Total Scans</p>
               </div>
-              <p className="text-3xl font-black text-slate-900 mt-1">{showTotalScansLock ? '999' : totalScans}</p>
+              <p className="text-3xl font-black text-white mt-1">{showTotalScansLock ? '999' : totalScans}</p>
             </div>
           </div>
 
@@ -559,33 +591,35 @@ export default function AdminDashboardOverview() {
                 setActiveModalTitle('Top Selling Dish');
               }
             }}
-            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.04)] transition-all duration-300 relative cursor-pointer group"
+            className="bg-white/[0.03] p-6 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.1)] transition-all duration-300 relative cursor-pointer group"
           >
             <div className={`flex flex-col h-full ${showTopSellingDishLock ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
               <div className="flex justify-between items-start mb-3">
-                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Top Selling Dish</p>
-                <span className="text-slate-400 p-2 bg-slate-50 rounded-xl group-hover:bg-orange-50 group-hover:text-orange-600 transition-colors"><Sparkles className="w-4 h-4" /></span>
+                <p className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">Top Selling Dish</p>
               </div>
-              <p className="text-xl font-black text-slate-900 mt-1 truncate max-w-[140px]" title={topDish}>
+              <p className="text-xl font-black text-white mt-1 truncate max-w-[140px]" title={topDish}>
                 {showTopSellingDishLock ? 'XXXXXXXXXX' : topDish}
               </p>
             </div>
           </div>
 
           {/* Total Items Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.04)] transition-all duration-300 group">
+          <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.1)] transition-all duration-300 group">
             <div className="flex justify-between items-start mb-3">
-              <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Total Items</p>
+              <p className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">Total Items</p>
             </div>
-            <p className="text-3xl font-black text-slate-900 mt-1">{totalItems} <span className="text-xs text-slate-400 font-bold">dishes</span></p>
+            <p className="text-3xl font-black text-white mt-1">{totalItems} <span className="text-xs text-gray-400 font-bold">dishes</span></p>
           </div>
 
           {/* Total Tables Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.04)] transition-all duration-300 group">
+          <div
+            onClick={() => setActiveModalTitle('Total Tables')}
+            className="bg-white/[0.03] p-6 rounded-2xl border border-white/10 shadow-sm flex flex-col justify-between hover:border-orange-500/20 hover:shadow-[0_8px_30px_rgba(234,88,12,0.1)] transition-all duration-300 group cursor-pointer"
+          >
             <div className="flex justify-between items-start mb-3">
-              <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Total Tables</p>
+              <p className="text-xs font-extrabold text-gray-400 uppercase tracking-wider">Total Tables</p>
             </div>
-            <p className="text-3xl font-black text-slate-900 mt-1">{totalTables} <span className="text-xs text-slate-400 font-bold">tables</span></p>
+            <p className="text-3xl font-black text-white mt-1">{totalTables} <span className="text-xs text-gray-400 font-bold">tables</span></p>
           </div>
         </div>
 
@@ -601,29 +635,29 @@ export default function AdminDashboardOverview() {
                 setActiveModalTitle('UpgradeToBasicAdvancedAnalytics');
               }
             }}
-            className={`lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col relative ${!canViewAdvancedAnalytics ? 'cursor-pointer' : ''}`}
+            className={`lg:col-span-2 bg-white/[0.03] backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-sm flex flex-col relative ${!canViewAdvancedAnalytics ? 'cursor-pointer' : ''}`}
           >
             <div className={`flex flex-col h-full ${!canViewAdvancedAnalytics ? 'blur-[5px] select-none pointer-events-none' : ''}`}>
               <div className="mb-6">
-                <h3 className="text-lg font-bold text-gray-900">Menu Item Views</h3>
-                <p className="text-sm text-gray-500">Track which dishes customers are looking at the most.</p>
+                <h3 className="text-lg font-bold text-white">Menu Item Views</h3>
+                <p className="text-sm text-gray-400">Track which dishes customers are looking at the most.</p>
               </div>
               <div className="h-[300px] w-full mt-4">
                 {chartData.length > 0 ? (
                   <ResponsiveContainer width="99%" height={300}>
                     <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 30, left: -20 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 11 }} dy={15} angle={-25} textAnchor="end" />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.05)" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 11 }} dy={15} angle={-25} textAnchor="end" />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: 'rgba(255, 255, 255, 0.6)', fontSize: 12 }} />
                       <Tooltip
-                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                        itemStyle={{ color: '#1f2937', fontWeight: 'bold' }}
+                        contentStyle={{ borderRadius: '12px', background: 'rgba(7, 8, 11, 0.9)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }}
+                        itemStyle={{ color: '#ffffff', fontWeight: 'bold' }}
                       />
                       <Line type="monotone" dataKey="views" stroke="#ea580c" strokeWidth={4} dot={{ r: 4, fill: '#ea580c', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-full flex items-center justify-center border-2 border-dashed border-gray-100 rounded-xl">
+                  <div className="h-full flex items-center justify-center border-2 border-dashed border-white/10 rounded-xl">
                     <p className="text-gray-400 font-medium text-sm">No view data available yet.</p>
                   </div>
                 )}
@@ -632,36 +666,46 @@ export default function AdminDashboardOverview() {
           </div>
 
           {/* Recent Activity Section */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-            <div className="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-              <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
+          <div className="bg-white/[0.03] backdrop-blur-md rounded-2xl border border-white/10 shadow-sm overflow-hidden flex flex-col">
+            <div className="px-6 py-5 border-b border-white/5 bg-white/[0.01]">
+              <h3 className="text-lg font-bold text-white">Recent Activity</h3>
             </div>
             <div className="p-6 flex-1 overflow-y-auto max-h-[350px]">
               <div className="space-y-6">
                 {recentActivity.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-10 text-center">
-                    <svg className="w-10 h-10 text-gray-200 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <p className="text-sm font-medium text-gray-500">No recent activity.</p>
+                    <svg className="w-10 h-10 text-white/10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p className="text-sm font-medium text-gray-400">No recent activity.</p>
                   </div>
                 ) : (
                   recentActivity.map((activity, index) => {
+                    const cleanTableNo = String(activity.table_no).replace(/^table\s+/i, '');
                     return (
                       <div key={activity.id || index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
                         {/* Timeline line */}
                         {index !== recentActivity.length - 1 && (
-                          <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
+                          <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-white/10"></div>
                         )}
-                        {/* Dot with numbering */}
-                        <div className="absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white bg-orange-600 shadow-sm flex items-center justify-center">
-                          <span className="text-[11px] font-extrabold text-white">{index + 1}</span>
+                        {/* Dot with green checkmark */}
+                        <div className="absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white/10 bg-emerald-600 shadow-sm flex items-center justify-center">
+                          <span className="text-[10px] text-white">✓</span>
                         </div>
 
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">{activity.description || activity.action}</p>
-                          {activity.item_name && !activity.description && <p className="text-sm text-gray-500 mt-0.5">{activity.item_name}</p>}
-                          <p className="text-[10px] text-gray-400 mt-1 font-bold tracking-wider uppercase">
-                            {timeAgo(activity.created_at)}
-                          </p>
+                        <div className="flex justify-between items-start gap-4">
+                          <div>
+                            <p className="text-sm font-bold text-white">
+                              {activity.table_no ? `Table ${cleanTableNo}` : 'WhatsApp Order'}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {activity.items?.length || 0} item{activity.items?.length === 1 ? '' : 's'} served
+                            </p>
+                            <p className="text-[10px] text-gray-500 mt-1 font-bold tracking-wider uppercase">
+                              {timeAgo(activity.created_at)}
+                            </p>
+                          </div>
+                          <span className="text-sm font-black text-emerald-400 tabular-nums">
+                            ₹{Number(activity.total_amount || 0).toFixed(2)}
+                          </span>
                         </div>
                       </div>
                     );
@@ -670,8 +714,11 @@ export default function AdminDashboardOverview() {
               </div>
             </div>
             {recentActivity.length > 0 && (
-              <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 text-center">
-                <button className="text-sm font-bold text-orange-600 hover:text-orange-800 transition-colors">
+              <div className="px-6 py-4 border-t border-white/5 bg-white/[0.01] text-center">
+                <button
+                  onClick={() => setActiveModalTitle('All Activity')}
+                  className="text-sm font-bold text-orange-400 hover:text-orange-300 transition-colors cursor-pointer"
+                >
                   View All Activity
                 </button>
               </div>
@@ -683,30 +730,30 @@ export default function AdminDashboardOverview() {
 
       {/* History Log Modal */}
       {activeModalTitle && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up border border-gray-100 flex flex-col max-h-[80vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-[#121318] rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up border border-white/10 flex flex-col max-h-[80vh] text-white">
             {activeModalTitle.startsWith('UpgradeTo') ? (
               <>
-                <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
-                  <h3 className="text-xl font-black text-gray-900">
+                <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center bg-white/[0.01] shrink-0">
+                  <h3 className="text-xl font-black text-white">
                     {activeModalTitle === 'UpgradeToProTopSellingDish' ? 'Upgrade to Pro' : 'Upgrade to Basic'}
                   </h3>
-                  <button onClick={() => setActiveModalTitle(null)} className="text-gray-400 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-200 transition-colors">
+                  <button onClick={() => setActiveModalTitle(null)} className="text-gray-400 hover:text-white p-2 rounded-xl hover:bg-white/5 transition-colors">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
                 <div className="p-6 flex flex-col items-center text-center gap-4">
-                  <div className="w-16 h-16 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 bg-orange-500/10 text-orange-400 rounded-full flex items-center justify-center">
                     <Lock className="w-8 h-8" />
                   </div>
-                  <h4 className="text-lg font-bold text-gray-900">
+                  <h4 className="text-lg font-bold text-white">
                     {activeModalTitle === 'UpgradeToBasicTotalScans'
                       ? 'Total Scans Metrics Locked'
                       : activeModalTitle === 'UpgradeToBasicAdvancedAnalytics'
                         ? 'Advanced Analytics Locked'
                         : 'Top Selling Dish Locked'}
                   </h4>
-                  <p className="text-sm text-gray-500 leading-relaxed">
+                  <p className="text-sm text-gray-400 leading-relaxed">
                     {activeModalTitle === 'UpgradeToBasicTotalScans'
                       ? 'Upgrade to Basic Dine-In to see the total scans and analyze customer traffic on your digital menu.'
                       : activeModalTitle === 'UpgradeToBasicAdvancedAnalytics'
@@ -722,13 +769,69 @@ export default function AdminDashboardOverview() {
                   </Link>
                 </div>
               </>
+            ) : activeModalTitle === 'All Activity' ? (
+              <>
+                <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center bg-white/[0.01] shrink-0">
+                  <h3 className="text-xl font-bold text-white">
+                    Weekly Activity <span className="text-gray-450 font-medium text-xs ml-1">(Since Mon Reset)</span>
+                  </h3>
+                  <button onClick={() => setActiveModalTitle(null)} className="text-gray-400 hover:text-white p-2 rounded-xl hover:bg-white/5 transition-colors">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-6 overflow-y-auto flex-1">
+                  <div className="space-y-6">
+                    {allWeeklyActivity.length === 0 ? (
+                      <p className="text-sm font-medium text-gray-400 text-center py-4">No served orders this week.</p>
+                    ) : (
+                      allWeeklyActivity.map((activity, index) => {
+                        const cleanTableNo = String(activity.table_no).replace(/^table\s+/i, '');
+                        return (
+                          <div key={activity.id || index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 30}ms` }}>
+                            {index !== allWeeklyActivity.length - 1 && (
+                              <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-white/10"></div>
+                            )}
+                            <div className="absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white/10 bg-emerald-600 shadow-sm flex items-center justify-center">
+                              <span className="text-[10px] text-white">✓</span>
+                            </div>
+                            <div className="flex justify-between items-start gap-4">
+                              <div>
+                                <p className="text-sm font-bold text-white">
+                                  {activity.table_no ? `Table ${cleanTableNo}` : 'WhatsApp Order'}
+                                </p>
+                                <div className="text-xs text-gray-400 mt-0.5 max-w-[200px] truncate">
+                                  {activity.items?.map((i: any) => `${i.quantity}x ${i.name}`).join(', ')}
+                                </div>
+                                <p className="text-[10px] text-gray-500 mt-1 font-bold tracking-wider uppercase">
+                                  {new Date(activity.created_at).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                              </div>
+                              <span className="text-sm font-black text-emerald-400 tabular-nums">
+                                ₹{Number(activity.total_amount || 0).toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+                <div className="px-6 py-4 bg-white/[0.01] border-t border-white/10 text-center">
+                  <div className="flex justify-between items-center text-xs text-gray-400 font-bold uppercase tracking-wider">
+                    <span>Total Sales this week</span>
+                    <span className="text-emerald-400 text-sm font-black">
+                      ₹{allWeeklyActivity.reduce((sum, item) => sum + Number(item.total_amount || 0), 0).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </>
             ) : (
               <>
-                <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
-                  <h3 className="text-xl font-bold text-gray-900">
-                    {activeModalTitle} <span className="text-gray-400 font-medium text-base ml-1">History</span>
+                <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center bg-white/[0.01] shrink-0">
+                  <h3 className="text-xl font-bold text-white">
+                    {activeModalTitle === 'Total Tables' ? 'Tables Overview' : activeModalTitle} <span className="text-gray-450 font-medium text-base ml-1">{activeModalTitle === 'Total Tables' ? 'Live Status' : 'History'}</span>
                   </h3>
-                  <button onClick={() => setActiveModalTitle(null)} className="text-gray-400 hover:text-gray-900 p-2 rounded-xl hover:bg-gray-200 transition-colors">
+                  <button onClick={() => setActiveModalTitle(null)} className="text-gray-400 hover:text-white p-2 rounded-xl hover:bg-white/5 transition-colors">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -736,19 +839,19 @@ export default function AdminDashboardOverview() {
                   <div className="space-y-6">
                     {activeModalTitle === 'Total Scans' ? (
                       historicalStats.length === 0 ? (
-                        <p className="text-sm font-medium text-gray-500 text-center py-4">No historical data available.</p>
+                        <p className="text-sm font-medium text-gray-400 text-center py-4">No historical data available.</p>
                       ) : (
                         historicalStats.map((stat, index) => (
                           <div key={index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
                             {index !== historicalStats.length - 1 && (
-                              <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
+                              <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-white/10"></div>
                             )}
-                            <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white bg-purple-500 shadow-sm flex items-center justify-center`}>
+                            <div className={`absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white/10 bg-purple-500 shadow-sm flex items-center justify-center`}>
                               <span className="text-[10px]">📊</span>
                             </div>
                             <div>
-                              <p className="text-sm font-semibold text-gray-900">{stat.label}</p>
-                              <p className="text-xs text-gray-500 mt-0.5 font-bold">
+                              <p className="text-sm font-semibold text-white">{stat.label}</p>
+                              <p className="text-xs text-gray-400 mt-0.5 font-bold">
                                 {stat.scans} Scans
                               </p>
                             </div>
@@ -757,29 +860,68 @@ export default function AdminDashboardOverview() {
                       )
                     ) : activeModalTitle === 'Top Selling Dish' ? (
                       chartData.slice(0, 3).length === 0 ? (
-                        <p className="text-sm font-medium text-gray-500 text-center py-4">No dish data available.</p>
+                        <p className="text-sm font-medium text-gray-400 text-center py-4">No dish data available.</p>
                       ) : (
                         chartData.slice(0, 3).map((dish, index) => (
                           <div key={index} className="relative pl-8 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
                             {index !== chartData.slice(0, 3).length - 1 && (
-                              <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-gray-100"></div>
+                              <div className="absolute left-[11px] top-6 bottom-[-24px] w-0.5 bg-white/10"></div>
                             )}
-                            <div className="absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white bg-orange-500 shadow-sm flex items-center justify-center">
+                            <div className="absolute left-0 top-0.5 w-6 h-6 rounded-full border-2 border-white/10 bg-orange-500 shadow-sm flex items-center justify-center">
                               <span className="text-[10px]">🏆</span>
                             </div>
                             <div>
-                              <p className="text-sm font-semibold text-gray-900">Rank #{index + 1}: {dish.name}</p>
-                              <p className="text-xs text-gray-500 mt-0.5 font-bold">{dish.views} Views this week</p>
+                              <p className="text-sm font-semibold text-white">Rank #{index + 1}: {dish.name}</p>
+                              <p className="text-xs text-gray-400 mt-0.5 font-bold">{dish.views} Views this week</p>
                             </div>
                           </div>
                         ))
                       )
+                    ) : activeModalTitle === 'Total Tables' ? (
+                      allTablesList.length === 0 ? (
+                        <p className="text-sm font-medium text-gray-400 text-center py-4">No tables registered yet.</p>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-4">
+                          {allTablesList.map((table, index) => {
+                            const cleanTableNo = String(table.table_no).replace(/^table\s+/i, '');
+                            const isOccupied = activeOrders.some(o => {
+                              const orderTableNo = String(o.table_no).replace(/^table\s+/i, '').toLowerCase();
+                              return orderTableNo === cleanTableNo.toLowerCase();
+                            });
+                            return (
+                              <div
+                                key={table.id || index}
+                                className={`p-4 rounded-2xl border transition-all ${isOccupied ? 'border-amber-500/20 bg-amber-500/[0.03] shadow-[0_0_15px_rgba(245,158,11,0.05)]' : 'border-white/5 bg-white/[0.01]'}`}
+                              >
+                                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-1">Table</span>
+                                <h4 className="font-black text-white text-lg leading-none mb-3">{cleanTableNo}</h4>
+                                <div className="flex items-center gap-2">
+                                  <span className={`w-2 h-2 rounded-full ${isOccupied ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`}></span>
+                                  <span className={`text-[11px] font-bold uppercase tracking-wider ${isOccupied ? 'text-amber-400' : 'text-emerald-500'}`}>
+                                    {isOccupied ? 'Occupied' : 'Empty'}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )
                     ) : null}
                   </div>
                 </div>
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
-                  <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
-                    {(activeModalTitle === 'Estimated Revenue' || activeModalTitle === 'Total Scans') ? 'Showing last 3 months' : 'Showing top 3 dishes'}
+                <div className="px-6 py-4 bg-white/[0.01] border-t border-white/10 text-center">
+                  <p className="text-xs text-gray-455 font-bold uppercase tracking-wider">
+                    {activeModalTitle === 'Total Tables' ? (
+                      <span className="flex justify-between items-center text-xs text-gray-400 font-bold uppercase tracking-wider">
+                        <span>Total Occupied</span>
+                        <span className="text-amber-400 font-black text-sm">
+                          {allTablesList.filter(t => {
+                            const cleanT = String(t.table_no).replace(/^table\s+/i, '').toLowerCase();
+                            return activeOrders.some(o => String(o.table_no).replace(/^table\s+/i, '').toLowerCase() === cleanT);
+                          }).length} / {allTablesList.length}
+                        </span>
+                      </span>
+                    ) : (activeModalTitle === 'Estimated Revenue' || activeModalTitle === 'Total Scans') ? 'Showing last 3 months' : 'Showing top 3 dishes'}
                   </p>
                 </div>
               </>

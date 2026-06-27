@@ -94,7 +94,6 @@ CREATE TABLE public.orders (
 
 -- Enable realtime replication
 ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
-
 -- Create marketing_leads table for cold outreach
 CREATE TABLE IF NOT EXISTS marketing_leads (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

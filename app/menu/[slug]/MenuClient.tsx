@@ -3,7 +3,7 @@ import React, { useEffect, useState, Suspense } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { X, MessageCircle, Loader2, Search, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
+import { X, MessageCircle, Loader2, Search, MapPin, AlertCircle, CheckCircle, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 const formatTableNumber = (name?: string) => {
   if (!name) return '';
@@ -80,6 +80,76 @@ export default function MenuClient({
   const [showTracking, setShowTracking] = useState(false);
   const [trackedOrders, setTrackedOrders] = useState<any[]>([]);
   const [originalItemsCache, setOriginalItemsCache] = useState<Record<string, any[]>>({});
+
+  // Cancel Items View State
+  const [isCancelViewOpen, setIsCancelViewOpen] = useState(false);
+  const [selectedCancelItems, setSelectedCancelItems] = useState<{ orderId: string; dishId: string; size: string; name: string; price: number; quantity: number }[]>([]);
+
+  const handleToggleCancelItem = (itemKey: { orderId: string; dishId: string; size: string; name: string; price: number; quantity: number }) => {
+    setSelectedCancelItems(prev => {
+      const exists = prev.some(i => i.orderId === itemKey.orderId && i.dishId === itemKey.dishId && i.size === itemKey.size);
+      if (exists) {
+        return prev.filter(i => !(i.orderId === itemKey.orderId && i.dishId === itemKey.dishId && i.size === itemKey.size));
+      } else {
+        return [...prev, itemKey];
+      }
+    });
+  };
+
+  const handleCancelSelectedItems = async () => {
+    if (selectedCancelItems.length === 0) return;
+
+    try {
+      // Group selected items by orderId
+      const groupedByOrder: Record<string, typeof selectedCancelItems> = {};
+      selectedCancelItems.forEach(item => {
+        if (!groupedByOrder[item.orderId]) {
+          groupedByOrder[item.orderId] = [];
+        }
+        groupedByOrder[item.orderId].push(item);
+      });
+
+      // For each order, perform the update in Supabase
+      for (const orderId of Object.keys(groupedByOrder)) {
+        const itemsToCancel = groupedByOrder[orderId];
+        const dbOrder = trackedOrders.find(o => o.id === orderId);
+        if (!dbOrder) continue;
+
+        // Filter out the cancelled items from the dbOrder items list
+        const updatedItems = dbOrder.items.filter((i: any) => {
+          const itemSize = i.size || 'Standard';
+          return !itemsToCancel.some(c => c.dishId === i.dish_id && c.size === itemSize);
+        });
+
+        const newTotal = updatedItems.reduce(
+          (sum: number, curr: any) => sum + (curr.price * curr.quantity),
+          0
+        );
+
+        if (updatedItems.length === 0) {
+          // Cancel the whole order ticket if all items in it are cancelled
+          await supabase
+            .from('orders')
+            .update({ status: 'cancelled', items: [], total_amount: 0 })
+            .eq('id', orderId);
+        } else {
+          // Update order items list and total amount
+          await supabase
+            .from('orders')
+            .update({ items: updatedItems, total_amount: newTotal })
+            .eq('id', orderId);
+        }
+      }
+
+      // Reset cancellation view state
+      setSelectedCancelItems([]);
+      setIsCancelViewOpen(false);
+      alert("Selected items successfully cancelled.");
+    } catch (err) {
+      console.error("Error cancelling items:", err);
+      alert("Failed to cancel items. Please try again.");
+    }
+  };
 
   // Cart State
   const [cart, setCart] = useState<any[]>([]);
@@ -1072,297 +1142,341 @@ export default function MenuClient({
 
               <div className="px-6 pb-4 border-b border-white/5 shrink-0">
                 <h2 className="text-2xl font-black text-white">
-                  {showTracking ? "KOT Status" : "Your Cart"}
+                  {isCancelViewOpen ? "Cancel Items" : showTracking ? "KOT Status" : "Your Cart"}
                 </h2>
               </div>
 
               <div className="p-6 overflow-y-auto flex-1 space-y-6 scrollbar-hide">
                 {showTracking && activeOrderIds.length > 0 ? (
-                  <div className="flex flex-col gap-6">
-                    {trackedOrders.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-                        <Loader2 className="w-8 h-8 animate-spin text-[#EA580C] mb-3" />
-                        <p className="font-bold text-sm">Retrieving order details...</p>
-                      </div>
-                    ) : (
-                      <>
-                        {/* Upper Card: KOT Confirmed */}
-                        {(() => {
-                          const activeOrdersList = [...trackedOrders].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-                          const primaryOrder = activeOrdersList[0];
-                          const orderTimeStr = primaryOrder 
-                            ? new Date(primaryOrder.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                            : 'Just now';
+                  isCancelViewOpen ? (
+                    <div className="flex flex-col gap-6">
+                      <span className="font-bold text-xs uppercase text-gray-500 tracking-wider px-1">Select items to cancel</span>
+                      
+                      {(() => {
+                        const pendingOrders = trackedOrders.filter(order => order.status === 'pending');
+                        const allPendingItems: { orderId: string, dishId: string, size: string, name: string, price: number, quantity: number }[] = [];
+                        pendingOrders.forEach(order => {
+                          const orderItems = order.items || [];
+                          orderItems.forEach((item: any) => {
+                            allPendingItems.push({
+                              orderId: order.id,
+                              dishId: item.dish_id,
+                              size: item.size || 'Standard',
+                              name: item.name,
+                              price: item.price,
+                              quantity: item.quantity
+                            });
+                          });
+                        });
 
+                        if (allPendingItems.length === 0) {
                           return (
-                            <div className="bg-white text-[#0F1012] rounded-3xl p-5 shadow-lg flex flex-col gap-4">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <span className="text-[10px] font-black text-gray-450 uppercase tracking-widest block mb-1">Kitchen Order Ticket</span>
-                                  <h3 className="text-xl font-black text-[#0F1012] leading-none">KOT Confirmed</h3>
-                                </div>
-                                <span className="bg-[#EA580C] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-[0_0_12px_rgba(234,88,12,0.2)]">
-                                  {formatTableNumber(tableNo) || '-'}
-                                </span>
-                              </div>
-                              
-                              <div className="border-t border-gray-100 pt-3.5 flex justify-between items-center text-xs">
-                                <div>
-                                  <p className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-0.5">Order Time</p>
-                                  <p className="font-black text-gray-900">{orderTimeStr}</p>
-                                </div>
-                                <div className="text-right">
-                                  <p className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-0.5">Est. Ready In</p>
-                                  <p className="font-black text-[#B27A23]">15 - 20 mins</p>
-                                </div>
-                              </div>
+                            <div className="text-center py-12 text-gray-400 font-medium">
+                              No pending items available to cancel.
                             </div>
                           );
-                        })()}
+                        }
 
-                        {/* Middle Card: Cooking Animation */}
-                        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center relative overflow-hidden">
-                          <div className="relative w-20 h-20 flex items-center justify-center mb-2">
-                            <motion.div
-                              animate={{ y: [0, -4, 0] }}
-                              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                              className="text-[#EA580C]"
-                            >
-                              <svg className="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                <path d="M4 11h11a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3v-2a3 3 0 0 1 3-3Z" fill="currentColor" fillOpacity="0.05" />
-                                <path d="M18 14.5h4" strokeLinecap="round" />
-                                <motion.path
-                                  animate={{ opacity: [0.3, 1, 0.3], y: [1, -2, 1] }}
-                                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                                  d="M6 7c0-1.5 1-2.5 1-2.5M10 7c0-1.5 1-2.5 1-2.5M14 7c0-1.5 1-2.5 1-2.5"
-                                  strokeWidth="1.8"
-                                  strokeLinecap="round"
-                                />
-                              </svg>
-                            </motion.div>
-                          </div>
-                          <p className="text-xs font-black text-white text-center uppercase tracking-wider mb-1">
-                            {orderStatus === 'pending' && "Order Queued"}
-                            {orderStatus === 'preparing' && "Preparing Meal"}
-                            {orderStatus === 'served' && "Meal Served"}
-                            {orderStatus === 'cancelled' && "Order Cancelled"}
-                          </p>
-                          <p className="text-[11px] text-gray-400 text-center max-w-[85%] leading-normal">
-                            {orderStatus === 'pending' && "Your ticket is received and will be sent to the kitchen shortly."}
-                            {orderStatus === 'preparing' && "The chef has started cooking your food with fresh ingredients."}
-                            {orderStatus === 'served' && "Your hot meal has been delivered. Bon appétit!"}
-                            {orderStatus === 'cancelled' && "This order ticket was cancelled. Please contact staff if this is an error."}
-                          </p>
-                        </div>
+                        return (
+                          <div className="space-y-4">
+                            {allPendingItems.map((item, idx) => {
+                              const dishDetail = dishes.find(d => d.id === item.dishId);
+                              const imgUrl = dishDetail?.image_url;
+                              const isSelected = selectedCancelItems.some(
+                                i => i.orderId === item.orderId && i.dishId === item.dishId && i.size === item.size
+                              );
 
-                        {/* Lower Card: Stepper */}
-                        <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 flex flex-col gap-6">
-                          <div className="relative pl-8 space-y-8">
-                            {/* Stepper Vertical line */}
-                            <div className="absolute top-2 bottom-2 left-[11px] w-[2px] bg-white/10">
-                              <motion.div
-                                initial={{ height: 0 }}
-                                animate={{
-                                  height:
-                                    orderStatus === 'pending' ? '0%' :
-                                    orderStatus === 'preparing' ? '50%' :
-                                    orderStatus === 'served' ? '100%' : '0%'
-                                }}
-                                transition={{ duration: 0.5, ease: "easeInOut" }}
-                                className="w-full bg-[#EA580C] shadow-[0_0_8px_rgba(234,88,12,0.4)]"
-                              />
-                            </div>
-
-                            {[
-                              { label: 'Order Received', desc: 'Added to live kitchen queue', active: orderStatus === 'pending' || orderStatus === 'preparing' || orderStatus === 'served' },
-                              { label: 'Cooking KOT', desc: 'Being prepared by the chefs', active: orderStatus === 'preparing' || orderStatus === 'served' },
-                              { label: 'Served & Ready', desc: 'Delivered hot to your table', active: orderStatus === 'served' }
-                            ].map((step, index) => {
-                              const isActive = step.active && orderStatus !== 'cancelled';
                               return (
-                                <div key={index} className="relative flex gap-4 items-start">
-                                  {/* Dot / Indicator */}
-                                  <div className="absolute -left-[29px] top-1 z-10 flex items-center justify-center">
-                                    {isActive ? (
-                                      <div className="relative">
-                                        <div className="w-[24px] h-[24px] rounded-full bg-[#EA580C] flex items-center justify-center text-white font-black text-[10px] shadow-[0_0_12px_rgba(234,88,12,0.4)]">
-                                          <CheckCircle className="w-3.5 h-3.5 stroke-[3]" />
-                                        </div>
-                                        <span className="absolute -inset-1 rounded-full bg-[#EA580C]/30 animate-ping z-0" />
-                                      </div>
+                                <div
+                                  key={idx}
+                                  onClick={() => handleToggleCancelItem(item)}
+                                  className={`flex gap-4 p-4 rounded-2xl border transition-all cursor-pointer items-center select-none ${isSelected ? 'border-red-500/40 bg-red-500/[0.03] shadow-[0_0_15px_rgba(239,68,68,0.08)]' : 'border-white/10 bg-white/[0.02] hover:bg-white/[0.03]'}`}
+                                >
+                                  <div className="w-12 h-12 rounded-xl bg-white/5 overflow-hidden relative shrink-0 border border-white/5 flex items-center justify-center">
+                                    {imgUrl ? (
+                                      <Image src={imgUrl} fill sizes="48px" alt={item.name} className="object-cover" />
                                     ) : (
-                                      <div className="w-[24px] h-[24px] rounded-full bg-[#16181B] border-2 border-white/20 flex items-center justify-center text-gray-500 font-bold text-xs" />
+                                      <span className="text-xs font-black text-gray-500 uppercase">{item.name.charAt(0)}</span>
                                     )}
                                   </div>
-
                                   <div className="flex-1 min-w-0">
-                                    <h5 className={`font-black text-sm transition-colors ${isActive ? 'text-white' : 'text-gray-500'}`}>{step.label}</h5>
-                                    <p className={`text-xs mt-0.5 transition-colors ${isActive ? 'text-gray-300' : 'text-gray-655'}`}>{step.desc}</p>
+                                    <h4 className="font-bold text-white text-sm truncate">{item.name}</h4>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                      <span className="text-xs font-black text-gray-400">Qty: {item.quantity}</span>
+                                      {item.size && item.size !== 'Standard' && (
+                                        <span className="text-[9px] bg-white/5 text-gray-300 px-1 py-0.5 rounded border border-white/10 font-bold uppercase tracking-wider">{item.size}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <span className="font-black text-sm text-[#EA580C] tabular-nums">₹{(item.price * item.quantity).toFixed(2)}</span>
+                                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${isSelected ? 'bg-red-600 border-red-600 text-white' : 'border-white/20'}`}>
+                                      {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                                    </div>
                                   </div>
                                 </div>
                               );
                             })}
                           </div>
+                        );
+                      })()}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-6">
+                      {trackedOrders.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                          <Loader2 className="w-8 h-8 animate-spin text-[#EA580C] mb-3" />
+                          <p className="font-bold text-sm">Retrieving order details...</p>
                         </div>
-
-                        {/* Detailed KOT Ticket Items List */}
-                        <div className="flex flex-col gap-4 mt-2">
-                          <span className="font-bold text-xs uppercase text-gray-500 tracking-wider px-1">KOT Ticket Details</span>
-                          
-                          {trackedOrders.map((order, orderIdx) => {
-                            const orderItems = originalItemsCache[order.id] || order.items || [];
-                            const isOrderCancelled = order.status === 'cancelled';
-                            const isOrderServed = order.status === 'served';
-                            const isOrderPreparing = order.status === 'preparing';
-                            const isOrderPending = order.status === 'pending';
+                      ) : (
+                        <>
+                          {/* Upper Card: KOT Confirmed */}
+                          {(() => {
+                            const activeOrdersList = [...trackedOrders].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+                            const primaryOrder = activeOrdersList[0];
+                            const orderTimeStr = primaryOrder 
+                              ? new Date(primaryOrder.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                              : 'Just now';
 
                             return (
-                              <div
-                                key={order.id}
-                                className="p-5 rounded-3xl bg-white/[0.02] border border-white/10 shadow-lg flex flex-col gap-4 relative overflow-hidden transition-all duration-200"
-                              >
-                                {/* Card Header */}
-                                <div className="flex justify-between items-start border-b border-white/5 pb-3">
+                              <div className="bg-white text-[#0F1012] rounded-3xl p-5 shadow-lg flex flex-col gap-4">
+                                <div className="flex justify-between items-start">
                                   <div>
-                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block leading-none mb-1">
-                                      KOT Ticket #{orderIdx + 1}
-                                    </span>
-                                    <span className="text-sm font-black text-white leading-none">
-                                      {tableNo ? formatTableNumber(tableNo) : 'WhatsApp Order'}
-                                    </span>
+                                    <span className="text-[10px] font-black text-gray-450 uppercase tracking-widest block mb-1">Kitchen Order Ticket</span>
+                                    <h3 className="text-xl font-black text-[#0F1012] leading-none">KOT Confirmed</h3>
                                   </div>
-                                  <div className="flex flex-col items-end gap-1">
-                                    {isOrderPending && <span className="flex items-center gap-1 text-[10px] font-black text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Pending</span>}
-                                    {isOrderPreparing && <span className="flex items-center gap-1 text-[10px] font-black text-orange-400 bg-orange-400/10 border border-orange-400/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span> Preparing</span>}
-                                    {isOrderServed && <span className="flex items-center gap-1 text-[10px] font-black text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Served</span>}
-                                    {isOrderCancelled && <span className="flex items-center gap-1 text-[10px] font-black text-red-400 bg-red-400/10 border border-red-400/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-red-400"></span> Cancelled</span>}
-                                  </div>
-                                </div>
-
-                                {/* Items List */}
-                                <div className="space-y-4">
-                                  <AnimatePresence initial={false}>
-                                    {orderItems.map((item: any, itemIdx: number) => {
-                                      const dishDetail = dishes.find(d => d.id === item.dish_id);
-                                      const imgUrl = dishDetail?.image_url;
-
-                                      const originalQty = item.quantity;
-                                      const dbItem = order.items?.find((i: any) => i.dish_id === item.dish_id && i.size === item.size);
-                                      const activeQty = isOrderCancelled ? 0 : (dbItem ? dbItem.quantity : 0);
-                                      const cancelledQty = originalQty - activeQty;
-
-                                      return (
-                                        <div key={itemIdx} className="flex flex-col gap-2">
-                                          {activeQty > 0 && (
-                                            <motion.div
-                                              key={`active-${item.dish_id}-${item.size || 'Standard'}`}
-                                              initial={{ opacity: 1, height: 'auto' }}
-                                              exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                                              className="flex gap-3 items-center"
-                                            >
-                                              <div className="w-10 h-10 rounded-xl bg-white/5 overflow-hidden relative shrink-0 border border-white/5 flex items-center justify-center">
-                                                {imgUrl ? (
-                                                  <Image src={imgUrl} fill sizes="40px" alt={item.name} className="object-cover" />
-                                                ) : (
-                                                  <span className="text-xs font-black text-gray-500 uppercase select-none">{item.name.charAt(0)}</span>
-                                                )}
-                                              </div>
-                                              <div className="flex-1 min-w-0">
-                                                <h4 className="font-bold text-sm text-white truncate">{item.name}</h4>
-                                                <div className="flex items-center gap-1.5 mt-0.5">
-                                                  <span className="text-xs font-black text-gray-400">Qty: {activeQty}</span>
-                                                  {item.size && item.size !== 'Standard' && (
-                                                    <span className="text-[9px] bg-white/5 text-gray-300 px-1 py-0.5 rounded border border-white/10 font-bold uppercase tracking-wider">{item.size}</span>
-                                                  )}
-                                                </div>
-                                              </div>
-                                              <div className="flex items-center gap-2">
-                                                <span className="font-black text-sm text-[#EA580C] tabular-nums">₹{(item.price * activeQty).toFixed(2)}</span>
-                                                {isOrderPending && (
-                                                  <button
-                                                    onClick={async () => {
-                                                      if (confirm(`Cancel "${item.name}" from your order?`)) {
-                                                        const updatedItems = order.items.filter(
-                                                          (i: any) => !(i.dish_id === item.dish_id && i.size === item.size)
-                                                        );
-                                                        const newTotal = updatedItems.reduce(
-                                                          (sum: number, curr: any) => sum + (curr.price * curr.quantity),
-                                                          0
-                                                        );
-
-                                                        if (updatedItems.length === 0) {
-                                                          await supabase
-                                                            .from('orders')
-                                                            .update({ status: 'cancelled', items: [], total_amount: 0 })
-                                                            .eq('id', order.id);
-                                                        } else {
-                                                          await supabase
-                                                            .from('orders')
-                                                            .update({ items: updatedItems, total_amount: newTotal })
-                                                            .eq('id', order.id);
-                                                        }
-                                                      }
-                                                    }}
-                                                    className="text-red-400 hover:text-red-300 p-1.5 rounded-lg hover:bg-red-500/10 transition-all cursor-pointer flex items-center justify-center shrink-0"
-                                                    title="Cancel item"
-                                                  >
-                                                    <X className="w-4 h-4" />
-                                                  </button>
-                                                )}
-                                              </div>
-                                            </motion.div>
-                                          )}
-
-                                          {cancelledQty > 0 && (
-                                            <motion.div
-                                              key={`cancelled-${item.dish_id}-${item.size || 'Standard'}`}
-                                              initial={{ opacity: 0, height: 0 }}
-                                              animate={{ opacity: 1, height: 'auto' }}
-                                              className="flex gap-3 items-center opacity-40 line-through text-gray-550"
-                                            >
-                                              <div className="w-10 h-10 rounded-xl bg-white/5 overflow-hidden relative shrink-0 border border-white/5 flex items-center justify-center grayscale">
-                                                {imgUrl ? (
-                                                  <Image src={imgUrl} fill sizes="40px" alt={item.name} className="object-cover" />
-                                                ) : (
-                                                  <span className="text-xs font-black text-gray-500 uppercase select-none">{item.name.charAt(0)}</span>
-                                                )}
-                                              </div>
-                                              <div className="flex-1 min-w-0">
-                                                <h4 className="font-bold text-sm text-gray-550 truncate">{item.name}</h4>
-                                                <div className="flex items-center gap-1.5 mt-0.5">
-                                                  <span className="text-xs font-medium text-gray-550">Qty: {cancelledQty}</span>
-                                                  {item.size && item.size !== 'Standard' && (
-                                                    <span className="text-[9px] bg-white/5 text-gray-550 px-1 py-0.5 rounded border border-white/10 font-bold uppercase tracking-wider">{item.size}</span>
-                                                  )}
-                                                </div>
-                                              </div>
-                                              <div className="flex items-center gap-2 shrink-0">
-                                                <span className="text-[9px] font-black text-red-400 bg-red-400/10 px-2 py-0.5 rounded border border-red-400/25 flex items-center gap-1">
-                                                  Cancelled
-                                                </span>
-                                              </div>
-                                            </motion.div>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
-                                  </AnimatePresence>
-                                </div>
-
-                                {/* Total */}
-                                <div className="border-t border-dashed border-white/10 pt-3 flex justify-between items-center mt-1">
-                                  <span className="font-bold text-xs text-gray-550 uppercase tracking-wide">Ticket Total</span>
-                                  <span className="font-black text-base text-[#EA580C] tabular-nums">
-                                    ₹{Number(order.total_amount || 0).toFixed(2)}
+                                  <span className="bg-[#EA580C] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-[0_0_12px_rgba(234,88,12,0.2)]">
+                                    {formatTableNumber(tableNo) || '-'}
                                   </span>
+                                </div>
+                                
+                                <div className="border-t border-gray-100 pt-3.5 flex justify-between items-center text-xs">
+                                  <div>
+                                    <p className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-0.5">Order Time</p>
+                                    <p className="font-black text-gray-900">{orderTimeStr}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="font-bold text-gray-400 uppercase tracking-wider text-[9px] mb-0.5">Est. Ready In</p>
+                                    <p className="font-black text-[#B27A23]">15 - 20 mins</p>
+                                  </div>
                                 </div>
                               </div>
                             );
-                          })}
-                        </div>
-                      </>
-                    )}
-                  </div>
+                          })()}
+
+                          {/* Middle Card: Cooking Animation */}
+                          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                            <div className="relative w-20 h-20 flex items-center justify-center mb-2">
+                              <motion.div
+                                animate={{ y: [0, -4, 0] }}
+                                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                                className="text-[#EA580C]"
+                              >
+                                <svg className="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                  <path d="M4 11h11a3 3 0 0 1 3 3v2a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3v-2a3 3 0 0 1 3-3Z" fill="currentColor" fillOpacity="0.05" />
+                                  <path d="M18 14.5h4" strokeLinecap="round" />
+                                  <motion.path
+                                    animate={{ opacity: [0.3, 1, 0.3], y: [1, -2, 1] }}
+                                    transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                                    d="M6 7c0-1.5 1-2.5 1-2.5M10 7c0-1.5 1-2.5 1-2.5M14 7c0-1.5 1-2.5 1-2.5"
+                                    strokeWidth="1.8"
+                                    strokeLinecap="round"
+                                  />
+                                </svg>
+                              </motion.div>
+                            </div>
+                            <p className="text-xs font-black text-white text-center uppercase tracking-wider mb-1">
+                              {orderStatus === 'pending' && "Order Queued"}
+                              {orderStatus === 'preparing' && "Preparing Meal"}
+                              {orderStatus === 'served' && "Meal Served"}
+                              {orderStatus === 'cancelled' && "Order Cancelled"}
+                            </p>
+                            <p className="text-[11px] text-gray-400 text-center max-w-[85%] leading-normal">
+                              {orderStatus === 'pending' && "Your ticket is received and will be sent to the kitchen shortly."}
+                              {orderStatus === 'preparing' && "The chef has started cooking your food with fresh ingredients."}
+                              {orderStatus === 'served' && "Your hot meal has been delivered. Bon appétit!"}
+                              {orderStatus === 'cancelled' && "This order ticket was cancelled. Please contact staff if this is an error."}
+                            </p>
+                          </div>
+
+                          {/* Lower Card: Stepper */}
+                          <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 flex flex-col gap-6">
+                            <div className="relative pl-8 space-y-8">
+                              {/* Stepper Vertical line */}
+                              <div className="absolute top-2 bottom-2 left-[11px] w-[2px] bg-white/10">
+                                <motion.div
+                                  initial={{ height: 0 }}
+                                  animate={{
+                                    height:
+                                      orderStatus === 'pending' ? '0%' :
+                                      orderStatus === 'preparing' ? '50%' :
+                                      orderStatus === 'served' ? '100%' : '0%'
+                                  }}
+                                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                                  className="w-full bg-[#EA580C] shadow-[0_0_8px_rgba(234,88,12,0.4)]"
+                                />
+                              </div>
+
+                              {[
+                                { label: 'Order Received', desc: 'Added to live kitchen queue', active: orderStatus === 'pending' || orderStatus === 'preparing' || orderStatus === 'served' },
+                                { label: 'Cooking KOT', desc: 'Being prepared by the chefs', active: orderStatus === 'preparing' || orderStatus === 'served' },
+                                { label: 'Served & Ready', desc: 'Delivered hot to your table', active: orderStatus === 'served' }
+                              ].map((step, index) => {
+                                const isActive = step.active && orderStatus !== 'cancelled';
+                                return (
+                                  <div key={index} className="relative flex gap-4 items-start">
+                                    {/* Dot / Indicator */}
+                                    <div className="absolute -left-[29px] top-1 z-10 flex items-center justify-center">
+                                      {isActive ? (
+                                        <div className="relative">
+                                          <div className="w-[24px] h-[24px] rounded-full bg-[#EA580C] flex items-center justify-center text-white font-black text-[10px] shadow-[0_0_12px_rgba(234,88,12,0.4)]">
+                                            <CheckCircle className="w-3.5 h-3.5 stroke-[3]" />
+                                          </div>
+                                          <span className="absolute -inset-1 rounded-full bg-[#EA580C]/30 animate-ping z-0" />
+                                        </div>
+                                      ) : (
+                                        <div className="w-[24px] h-[24px] rounded-full bg-[#16181B] border-2 border-white/20 flex items-center justify-center text-gray-500 font-bold text-xs" />
+                                      )}
+                                    </div>
+
+                                    <div className="flex-1 min-w-0">
+                                      <h5 className={`font-black text-sm transition-colors ${isActive ? 'text-white' : 'text-gray-500'}`}>{step.label}</h5>
+                                      <p className={`text-xs mt-0.5 transition-colors ${isActive ? 'text-gray-300' : 'text-gray-655'}`}>{step.desc}</p>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Detailed KOT Ticket Items List */}
+                          <div className="flex flex-col gap-4 mt-2">
+                            <span className="font-bold text-xs uppercase text-gray-500 tracking-wider px-1">KOT Ticket Details</span>
+                            
+                            {trackedOrders.map((order, orderIdx) => {
+                              const orderItems = originalItemsCache[order.id] || order.items || [];
+                              const isOrderCancelled = order.status === 'cancelled';
+                              const isOrderServed = order.status === 'served';
+                              const isOrderPreparing = order.status === 'preparing';
+                              const isOrderPending = order.status === 'pending';
+
+                              return (
+                                <div
+                                  key={order.id}
+                                  className="p-5 rounded-3xl bg-white/[0.02] border border-white/10 shadow-lg flex flex-col gap-4 relative overflow-hidden transition-all duration-200"
+                                >
+                                  {/* Card Header */}
+                                  <div className="flex justify-between items-start border-b border-white/5 pb-3">
+                                    <div>
+                                      <span className="text-[10px] font-black text-gray-550 uppercase tracking-widest block leading-none mb-1">
+                                        KOT Ticket #{orderIdx + 1}
+                                      </span>
+                                      <span className="text-sm font-black text-white leading-none">
+                                        {tableNo ? formatTableNumber(tableNo) : 'WhatsApp Order'}
+                                      </span>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-1">
+                                      {isOrderPending && <span className="flex items-center gap-1 text-[10px] font-black text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Pending</span>}
+                                      {isOrderPreparing && <span className="flex items-center gap-1 text-[10px] font-black text-orange-400 bg-orange-400/10 border border-orange-400/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span> Preparing</span>}
+                                      {isOrderServed && <span className="flex items-center gap-1 text-[10px] font-black text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Served</span>}
+                                      {isOrderCancelled && <span className="flex items-center gap-1 text-[10px] font-black text-red-400 bg-red-400/10 border border-red-400/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-red-400"></span> Cancelled</span>}
+                                    </div>
+                                  </div>
+
+                                  {/* Items List */}
+                                  <div className="space-y-4">
+                                    <AnimatePresence initial={false}>
+                                      {orderItems.map((item: any, itemIdx: number) => {
+                                        const dishDetail = dishes.find(d => d.id === item.dish_id);
+                                        const imgUrl = dishDetail?.image_url;
+
+                                        const originalQty = item.quantity;
+                                        const dbItem = order.items?.find((i: any) => i.dish_id === item.dish_id && i.size === item.size);
+                                        const activeQty = isOrderCancelled ? 0 : (dbItem ? dbItem.quantity : 0);
+                                        const cancelledQty = originalQty - activeQty;
+
+                                        return (
+                                          <div key={itemIdx} className="flex flex-col gap-2">
+                                            {activeQty > 0 && (
+                                              <motion.div
+                                                key={`active-${item.dish_id}-${item.size || 'Standard'}`}
+                                                initial={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                                className="flex gap-3 items-center"
+                                              >
+                                                <div className="w-10 h-10 rounded-xl bg-white/5 overflow-hidden relative shrink-0 border border-white/5 flex items-center justify-center">
+                                                  {imgUrl ? (
+                                                    <Image src={imgUrl} fill sizes="40px" alt={item.name} className="object-cover" />
+                                                  ) : (
+                                                    <span className="text-xs font-black text-gray-500 uppercase select-none">{item.name.charAt(0)}</span>
+                                                  )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                  <h4 className="font-bold text-sm text-white truncate">{item.name}</h4>
+                                                  <div className="flex items-center gap-1.5 mt-0.5">
+                                                    <span className="text-xs font-black text-gray-400">Qty: {activeQty}</span>
+                                                    {item.size && item.size !== 'Standard' && (
+                                                      <span className="text-[9px] bg-white/5 text-gray-300 px-1 py-0.5 rounded border border-white/10 font-bold uppercase tracking-wider">{item.size}</span>
+                                                    )}
+                                                  </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                  <span className="font-black text-sm text-[#EA580C] tabular-nums">₹{(item.price * activeQty).toFixed(2)}</span>
+                                                </div>
+                                              </motion.div>
+                                            )}
+
+                                            {cancelledQty > 0 && (
+                                              <motion.div
+                                                key={`cancelled-${item.dish_id}-${item.size || 'Standard'}`}
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                className="flex gap-3 items-center opacity-40 line-through text-gray-550"
+                                              >
+                                                <div className="w-10 h-10 rounded-xl bg-white/5 overflow-hidden relative shrink-0 border border-white/5 flex items-center justify-center grayscale">
+                                                  {imgUrl ? (
+                                                    <Image src={imgUrl} fill sizes="40px" alt={item.name} className="object-cover" />
+                                                  ) : (
+                                                    <span className="text-xs font-black text-gray-500 uppercase select-none">{item.name.charAt(0)}</span>
+                                                  )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                  <h4 className="font-bold text-sm text-gray-555 truncate">{item.name}</h4>
+                                                  <div className="flex items-center gap-1.5 mt-0.5">
+                                                    <span className="text-xs font-medium text-gray-550">Qty: {cancelledQty}</span>
+                                                    {item.size && item.size !== 'Standard' && (
+                                                      <span className="text-[9px] bg-white/5 text-gray-555 px-1 py-0.5 rounded border border-white/10 font-bold uppercase tracking-wider">{item.size}</span>
+                                                    )}
+                                                  </div>
+                                                </div>
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                  <span className="text-[9px] font-black text-red-400 bg-red-400/10 px-2 py-0.5 rounded border border-red-400/25 flex items-center gap-1">
+                                                    Cancelled
+                                                  </span>
+                                                </div>
+                                              </motion.div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </AnimatePresence>
+                                  </div>
+
+                                  {/* Total */}
+                                  <div className="border-t border-dashed border-white/10 pt-3 flex justify-between items-center mt-1">
+                                    <span className="font-bold text-xs text-gray-555 uppercase tracking-wide">Ticket Total</span>
+                                    <span className="font-black text-base text-[#EA580C] tabular-nums">
+                                      ₹{Number(order.total_amount || 0).toFixed(2)}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )
                 ) : cart.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-gray-500">
                     <MessageCircle className="w-12 h-12 mb-4 opacity-30" />
@@ -1409,24 +1523,45 @@ export default function MenuClient({
 
               {/* Drawer Footer Actions */}
               {showTracking && activeOrderIds.length > 0 ? (
-                <div className="p-6 bg-[#0F1012] border-t border-white/10 shrink-0 flex flex-col gap-3">
-                  <button
-                    onClick={() => {
-                      setShowTracking(false);
-                      setIsCartOpen(false);
-                    }}
-                    className="w-full bg-[#EA580C] text-white hover:bg-[#EA580C] py-4 rounded-2xl font-black transition-all shadow-[0_0_20px_rgba(234,88,12,0.4)] active:scale-95 cursor-pointer text-sm text-center"
-                  >
-                    Order More Items
-                  </button>
-                  <button
-                    onClick={handleCallWaiter}
-                    className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 py-4 rounded-2xl font-bold transition-all active:scale-95 cursor-pointer text-sm text-center flex items-center justify-center gap-2"
-                  >
-                    <MessageCircle className="w-4 h-4 text-orange-450" />
-                    Call Waiter (Table Assistance)
-                  </button>
-                </div>
+                isCancelViewOpen ? (
+                  <div className="p-6 bg-[#0F1012] border-t border-white/10 shrink-0 flex flex-col gap-3">
+                    <button
+                      onClick={handleCancelSelectedItems}
+                      disabled={selectedCancelItems.length === 0}
+                      className="w-full bg-red-600 hover:bg-red-700 disabled:bg-white/5 disabled:text-gray-500 disabled:border-white/5 text-white py-4 rounded-2xl font-black transition-all shadow-[0_0_20px_rgba(239,68,68,0.2)] active:scale-95 cursor-pointer text-sm text-center"
+                    >
+                      Cancel {selectedCancelItems.length > 0 ? selectedCancelItems.length : ""}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsCancelViewOpen(false);
+                        setSelectedCancelItems([]);
+                      }}
+                      className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 py-4 rounded-2xl font-bold transition-all active:scale-95 cursor-pointer text-sm text-center"
+                    >
+                      Go Back
+                    </button>
+                  </div>
+                ) : (
+                  <div className="p-6 bg-[#0F1012] border-t border-white/10 shrink-0 flex flex-col gap-3">
+                    <button
+                      onClick={() => {
+                        setShowTracking(false);
+                        setIsCartOpen(false);
+                      }}
+                      className="w-full bg-[#EA580C] text-white hover:bg-[#EA580C] py-4 rounded-2xl font-black transition-all shadow-[0_0_20px_rgba(234,88,12,0.4)] active:scale-95 cursor-pointer text-sm text-center"
+                    >
+                      Order More Items
+                    </button>
+                    <button
+                      onClick={() => setIsCancelViewOpen(true)}
+                      className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 py-4 rounded-2xl font-bold transition-all active:scale-95 cursor-pointer text-sm text-center flex items-center justify-center gap-2"
+                    >
+                      <X className="w-4 h-4 text-rose-400" />
+                      Cancel Item
+                    </button>
+                  </div>
+                )
               ) : (
                 !showTracking && cart.length > 0 && (
                   <div className="p-6 bg-[#0F1012] border-t border-white/10 shrink-0">
@@ -1465,8 +1600,9 @@ export default function MenuClient({
 
                         const { data, error } = await supabase.from('orders').insert(payload).select().single();
                         if (error) {
+                          console.error('Order placement failed:', error);
                           setOrderStatus('idle');
-                          alert('Failed to place order. Please try again.');
+                          alert(`Failed to place order: ${error.message || 'Please try again.'}`);
                         } else {
                           // Append to activeOrderIds list
                           setActiveOrderIds(prev => {

@@ -75,7 +75,14 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   if (pathname === '/admin/setup/terms') {
-    return <div className="min-h-screen bg-gray-50">{children}</div>;
+    return (
+      <div className="min-h-screen bg-[#07080B] flex flex-col justify-center items-center font-sans overflow-y-auto relative text-white">
+        {/* Background Radial Glows */}
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px] pointer-events-none z-0"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-amber-500/10 blur-[120px] pointer-events-none z-0"></div>
+        <div className="relative z-10 w-full flex justify-center py-8">{children}</div>
+      </div>
+    );
   }
 
   if (!isLoading && restaurant && restaurant.terms_accepted === false) {
@@ -97,7 +104,9 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           <div className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
         )}
 
-        <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white/[0.02] backdrop-blur-xl border-r border-white/10 text-white/90 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white/[0.02] backdrop-blur-xl border-r border-white/10 text-white/90 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} overflow-hidden`}>
+          {/* Sidebar Glow */}
+          <div className="absolute top-1/2 left-[-50px] -translate-y-1/2 w-48 h-96 rounded-full bg-orange-600/10 blur-[60px] pointer-events-none -z-10"></div>
           <div className="w-full flex items-center justify-center py-7 lg:py-10 border-b border-white/10 shrink-0">
             <img
               src="/restdigi-logo.png"

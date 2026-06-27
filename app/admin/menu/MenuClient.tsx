@@ -12,19 +12,19 @@ const FALLBACK_SLUG = 'demo-restaurant';
 
 const MenuTableSkeleton = () => (
   <div className="animate-pulse space-y-4">
-    <div className="bg-gray-50/50 h-12 w-full rounded-t-xl" />
+    <div className="bg-white/5 h-12 w-full rounded-t-xl" />
     {[1, 2, 3, 4].map(n => (
-      <div key={n} className="px-6 py-4 flex items-center justify-between border-b border-gray-100 h-20">
+      <div key={n} className="px-6 py-4 flex items-center justify-between border-b border-white/5 h-20">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gray-200/60" />
-          <div className="h-5 bg-gray-200/60 rounded w-32" />
+          <div className="w-12 h-12 rounded-xl bg-white/5" />
+          <div className="h-5 bg-white/5 rounded w-32" />
         </div>
-        <div className="h-6 bg-gray-200/60 rounded-full w-20" />
-        <div className="h-5 bg-gray-200/60 rounded w-16" />
-        <div className="h-6 bg-gray-200/60 rounded-full w-12" />
+        <div className="h-6 bg-white/5 rounded-full w-20" />
+        <div className="h-5 bg-white/5 rounded w-16" />
+        <div className="h-6 bg-white/5 rounded-full w-12" />
         <div className="flex gap-2">
-          <div className="w-8 h-8 bg-gray-200/60 rounded-lg" />
-          <div className="w-8 h-8 bg-gray-200/60 rounded-lg" />
+          <div className="w-8 h-8 bg-white/5 rounded-lg" />
+          <div className="w-8 h-8 bg-white/5 rounded-lg" />
         </div>
       </div>
     ))}
@@ -154,7 +154,7 @@ export default function MenuManagement() {
   const wrapWithLock = (content: React.ReactNode) => {
     if (isSubLoading) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="min-h-screen flex items-center justify-center bg-[#07080B] text-white">
           <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
         </div>
       );
@@ -167,12 +167,12 @@ export default function MenuManagement() {
           {content}
         </div>
         <div className="absolute inset-0 flex items-start justify-center pt-12 sm:pt-24 p-4 z-20 pointer-events-auto">
-          <div className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/20 animate-fade-in-up">
-            <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="bg-black/60 backdrop-blur-xl p-8 rounded-3xl shadow-2xl max-w-md w-full text-center border border-white/10 animate-fade-in-up">
+            <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
               <Lock className="w-8 h-8" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No Active Plan</h3>
-            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+            <h3 className="text-xl font-bold text-white mb-2">No Active Plan</h3>
+            <p className="text-sm text-gray-400 mb-6 leading-relaxed">
               Please select a subscription tier from the Billing panel to unlock these management interfaces.
             </p>
             <Link
@@ -188,21 +188,21 @@ export default function MenuManagement() {
   };
 
   return wrapWithLock(
-    <div className="p-4 sm:p-8 relative">
+    <div className="p-4 sm:p-8 relative text-white">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="flex justify-between items-end">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Menu Management</h1>
-            <p className="mt-1 text-gray-500">
+            <h1 className="text-3xl font-black text-white tracking-tight">Menu Management</h1>
+            <p className="mt-1 text-gray-400">
               Manage your dishes, pricing, and availability (used {dishes.length} of {limits.items === 999999 ? 'unlimited' : limits.items} items).
             </p>
           </div>
           {isAddLocked ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 hidden md:block">
+              <span className="text-sm font-semibold text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20 hidden md:block">
                 Item limit reached. Upgrade plan to add more dishes!
               </span>
-              <button disabled className="bg-gray-200 text-gray-400 px-6 py-3 rounded-xl font-bold shadow-sm flex items-center gap-2 cursor-not-allowed">
+              <button disabled className="bg-white/5 text-gray-500 border border-white/5 px-6 py-3 rounded-xl font-bold shadow-sm flex items-center gap-2 cursor-not-allowed">
                 <Plus className="w-5 h-5" />
                 <span className="hidden sm:inline">Add Dish</span>
               </button>
@@ -215,18 +215,18 @@ export default function MenuManagement() {
           )}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white/[0.03] rounded-2xl shadow-sm border border-white/10 overflow-hidden">
           <div className="overflow-x-auto">
             {isLoading ? (
               <MenuTableSkeleton />
             ) : dishes.length === 0 ? (
-              <div className="p-12 text-center text-gray-500">
+              <div className="p-12 text-center text-gray-400">
                 <p>No dishes found. Add your first dish to get started!</p>
               </div>
             ) : (
               <table className="w-full text-left border-collapse min-w-[700px]">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wider font-bold">
+                  <tr className="bg-white/[0.01] border-b border-white/10 text-gray-400 text-xs uppercase tracking-wider font-bold">
                     <th className="px-6 py-4">Dish</th>
                     <th className="px-6 py-4">Category</th>
                     <th className="px-6 py-4">Price</th>
@@ -234,41 +234,41 @@ export default function MenuManagement() {
                     <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-white/5">
                   {dishes.map((dish) => (
-                    <tr key={dish.id} className="hover:bg-gray-50/80 transition-colors group">
+                    <tr key={dish.id} className="hover:bg-white/[0.02] transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
-                          <div className="relative w-12 h-12 rounded-xl bg-gray-100 overflow-hidden shrink-0 border border-gray-200">
+                          <div className="relative w-12 h-12 rounded-xl bg-white/5 overflow-hidden shrink-0 border border-white/10">
                             {dish.image_url ? (
                               <img src={dish.image_url} alt={dish.name} className="w-full h-full object-cover" />
                             ) : (
-                              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 font-bold text-xs">No Img</div>
+                              <div className="w-full h-full bg-white/5 flex items-center justify-center text-gray-400 font-bold text-xs">No Img</div>
                             )}
                           </div>
-                          <div className="font-bold text-gray-900 text-sm sm:text-base">{dish.name}</div>
+                          <div className="font-bold text-white text-sm sm:text-base">{dish.name}</div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-700">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-orange-500/10 text-orange-400 border border-orange-500/20">
                           {dish.category}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="font-bold text-gray-900">
+                        <div className="font-bold text-white">
                           ₹{dish.sizes && typeof dish.sizes === 'object' && Object.keys(dish.sizes).length > 0 ? Number(Object.values(dish.sizes)[0] ?? 0).toFixed(2) : Number(dish.price ?? 0).toFixed(2)}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <button onClick={() => handleToggle(dish)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${dish.is_available ? 'bg-green-500' : 'bg-gray-300'}`}>
+                        <button onClick={() => handleToggle(dish)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${dish.is_available ? 'bg-green-500' : 'bg-white/10'}`}>
                           <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${dish.is_available ? 'translate-x-6' : 'translate-x-1'}`} />
                         </button>
                       </td>
                       <td className="px-6 py-4 text-right space-x-2">
-                        <button onClick={() => { setEditingDish(dish); setIsFormOpen(true); }} className="p-2 text-gray-400 hover:text-orange-600 rounded-xl hover:bg-orange-50 transition-colors">
+                        <button onClick={() => { setEditingDish(dish); setIsFormOpen(true); }} className="p-2 text-gray-400 hover:text-orange-400 rounded-xl hover:bg-white/5 transition-colors">
                           <Edit2 className="w-4 h-4" />
                         </button>
-                        <button onClick={() => setDishToDelete(dish)} className="p-2 text-gray-400 hover:text-red-600 rounded-xl hover:bg-red-50 transition-colors">
+                        <button onClick={() => setDishToDelete(dish)} className="p-2 text-gray-400 hover:text-red-400 rounded-xl hover:bg-white/5 transition-colors">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
@@ -286,15 +286,15 @@ export default function MenuManagement() {
       )}
 
       {dishToDelete && (
-        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl animate-fade-in-up border border-gray-100">
-            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#121318] rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl animate-fade-in-up border border-white/10 text-white">
+            <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
               <AlertTriangle className="w-8 h-8" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Dish?</h3>
-            <p className="text-gray-500 text-sm mb-6">Are you sure you want to delete <strong>{dishToDelete.name}</strong>? This will permanently remove its data and photo.</p>
+            <h3 className="text-xl font-bold text-white mb-2">Delete Dish?</h3>
+            <p className="text-gray-400 text-sm mb-6">Are you sure you want to delete <strong>{dishToDelete.name}</strong>? This will permanently remove its data and photo.</p>
             <div className="flex gap-3">
-              <button onClick={() => setDishToDelete(null)} className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors">Cancel</button>
+              <button onClick={() => setDishToDelete(null)} className="flex-1 bg-white/5 text-white py-3 rounded-xl font-bold hover:bg-white/10 transition-colors border border-white/5">Cancel</button>
               <button onClick={handleDelete} className="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition-colors">Delete</button>
             </div>
           </div>

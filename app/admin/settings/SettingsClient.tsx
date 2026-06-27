@@ -132,27 +132,27 @@ export default function SettingsPage() {
 
   if (isLoadingSettings) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-[#07080B] text-white">
         <Loader2 className="w-8 h-8 animate-spin text-orange-600" />
       </div>
     );
   }
 
   return (
-    <div className="p-4 sm:p-8 relative min-h-screen">
+    <div className="p-4 sm:p-8 relative min-h-screen text-white">
       <Toaster />
       <div className="max-w-6xl mx-auto space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Restaurant Settings</h1>
-          <p className="mt-1 text-gray-500">Manage your brand identity and public profile.</p>
+          <h1 className="text-3xl font-black text-white tracking-tight">Restaurant Settings</h1>
+          <p className="mt-1 text-sm text-gray-400 font-medium">Manage your brand identity and public profile.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           
           {/* Form */}
-          <form onSubmit={handleSave} className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
+          <form onSubmit={handleSave} className="bg-white/[0.03] backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-lg space-y-6">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Business Name</label>
+              <label className="block text-sm font-bold text-gray-300 mb-2">Business Name</label>
               <input 
                 type="text" 
                 value={formData.name} 
@@ -167,16 +167,14 @@ export default function SettingsPage() {
                     setHasWarnedNameChange(true);
                   }
                 }}
-                className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium text-gray-900" 
+                className="w-full px-5 py-4 bg-white/[0.02] border border-white/10 rounded-2xl focus:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium text-white" 
               />
             </div>
 
-
-
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Restaurant Logo</label>
+              <label className="block text-sm font-bold text-gray-300 mb-2">Restaurant Logo</label>
               <div className="flex items-center gap-6">
-                <div className="w-20 h-20 rounded-full bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center relative overflow-hidden group hover:border-gray-400 transition-colors cursor-pointer shrink-0">
+                <div className="w-20 h-20 rounded-full bg-white/5 border border-dashed border-white/10 flex items-center justify-center relative overflow-hidden group hover:border-white/20 transition-colors cursor-pointer shrink-0">
                   {logoPreview ? (
                     <>
                       <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
@@ -185,7 +183,7 @@ export default function SettingsPage() {
                       </div>
                     </>
                   ) : (
-                    <UploadCloud className="w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                    <UploadCloud className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors" />
                   )}
                   <input 
                     type="file"
@@ -194,14 +192,14 @@ export default function SettingsPage() {
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                 </div>
-                <div className="text-sm text-gray-500">
-                  <p className="font-bold text-gray-700">Upload a logo</p>
+                <div className="text-sm text-gray-400">
+                  <p className="font-bold text-white">Upload a logo</p>
                   <p>Recommended size: 256x256px. PNG or JPG.</p>
                 </div>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-100">
+            <div className="pt-4 border-t border-white/10">
               <button type="submit" disabled={isSaving} className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold hover:bg-orange-700 shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-70">
                 {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                 {isSaving ? 'Saving...' : 'Save Changes'}
@@ -210,42 +208,43 @@ export default function SettingsPage() {
           </form>
 
           {/* Mini Preview */}
-          <div className="bg-gray-100 p-8 rounded-3xl flex justify-center lg:sticky lg:top-8">
-            <div className="w-[300px] h-[600px] bg-white rounded-[40px] shadow-2xl overflow-hidden border-[10px] border-gray-900 relative">
+          <div className="bg-white/[0.01] border border-white/5 p-8 rounded-3xl flex justify-center lg:sticky lg:top-8">
+            <div className="w-[300px] h-[600px] bg-[#07080B] rounded-[40px] shadow-2xl overflow-hidden border-[10px] border-[#1c1d24] relative flex flex-col">
               {/* Notches */}
-              <div className="absolute top-0 inset-x-0 h-6 bg-gray-900 rounded-b-3xl w-40 mx-auto z-20"></div>
-              
+              <div className="absolute top-0 inset-x-0 h-6 bg-[#1c1d24] rounded-b-3xl w-40 mx-auto z-20"></div>
+
+              {/* Phone Background Radial Glows */}
+              <div className="absolute top-[-10%] right-[-10%] w-[180px] h-[180px] rounded-full bg-orange-600/15 blur-[25px] pointer-events-none z-0"></div>
+              <div className="absolute bottom-[-10%] left-[-10%] w-[180px] h-[180px] rounded-full bg-amber-500/15 blur-[25px] pointer-events-none z-0"></div>
+
               {/* App Header */}
-              <div className="h-40 relative transition-colors duration-300 bg-white border-b border-gray-100">
-                <div className="absolute bottom-6 inset-x-0 flex justify-center">
-                  <div className="w-24 h-24 bg-white rounded-full p-1.5 shadow-lg">
-                    {logoPreview ? (
-                      <img src={logoPreview} alt="Logo" className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center font-bold text-3xl text-gray-400">
-                        {formData.name ? formData.name.charAt(0) : '?'}
-                      </div>
-                    )}
-                  </div>
+              <div className="h-44 relative bg-transparent shrink-0 flex flex-col justify-end items-center pb-4 z-10">
+                <div className="w-20 h-20 bg-white/5 rounded-full p-1 border border-white/10 flex items-center justify-center overflow-hidden mb-2 relative shadow-sm">
+                  {logoPreview ? (
+                    <img src={logoPreview} alt="Logo" className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-transparent rounded-full flex items-center justify-center font-black text-3xl text-white">
+                      {formData.name ? formData.name.charAt(0) : '?'}
+                    </div>
+                  )}
                 </div>
+                <h3 className="font-black text-lg text-white leading-tight">{formData.name || 'Your Restaurant'}</h3>
+                <span className="mt-1.5 px-2.5 py-0.5 rounded-full bg-white/5 text-white font-extrabold text-[8px] tracking-wider border border-white/10 uppercase shadow-sm">
+                  Table 1
+                </span>
               </div>
 
               {/* Content Mockup */}
-              <div className="p-6 text-center">
-                <h3 className="font-bold text-xl text-gray-900">{formData.name || 'Your Restaurant'}</h3>
-                <p className="text-gray-500 text-sm mt-1 mb-6">Digital Menu</p>
-                
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-20 bg-gray-50 rounded-2xl border border-gray-100 flex items-center p-3 gap-3">
-                      <div className="w-14 h-14 bg-gray-200 rounded-xl shrink-0"></div>
-                      <div className="flex-1 space-y-2 text-left">
-                        <div className="h-3 w-3/4 bg-gray-200 rounded-full"></div>
-                        <div className="h-2 w-1/2 bg-gray-200 rounded-full"></div>
-                      </div>
+              <div className="p-4 flex-1 overflow-y-auto relative z-10 space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-white/[0.03] backdrop-blur-md rounded-2xl border border-white/5 flex items-center p-3 gap-3">
+                    <div className="w-12 h-12 bg-white/5 rounded-xl border border-white/10 shrink-0"></div>
+                    <div className="flex-1 space-y-2 text-left">
+                      <div className="h-2 w-3/4 bg-white/20 rounded-full"></div>
+                      <div className="h-1.5 w-1/2 bg-white/10 rounded-full"></div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
