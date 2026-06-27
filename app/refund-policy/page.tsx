@@ -25,29 +25,28 @@ export default function RefundPolicy() {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
           </Link>
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-2">Cancellation & Refund Policy</h1>
-          <p className="text-sm text-gray-400">Last Updated: May 2026</p>
+          <p className="text-sm text-gray-400">Last Updated: June 2026</p>
         </div>
 
         <div className="space-y-8 text-gray-300 leading-relaxed font-medium">
           <section>
-            <h2 className="text-xl font-black text-white mb-3">1. Merchant SaaS Subscriptions</h2>
+            <h2 className="text-xl font-black text-white mb-3">1. SaaS Subscription Cancellation</h2>
             <p>
-              RESTDIGI operates on clean SaaS pricing tiers (Basic, Pro, Premium, Enterprise) with dynamic Monthly and Annual cycles.
-              Subscribers can cancel their renewals at any point directly from the account portal before the next billing cycle triggers.
+              RESTDIGI services are billed exclusively on an **Annual Plan model** to secure system stability and prevent service cuts. Merchants can turn off automated renewals from their billing dashboard at any time. Once turned off, your subscription remains active until the end of your current paid year, and no future renewal charges will occur.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-white mb-3">2. No-Refund Policy for Digital Services</h2>
+            <h2 className="text-xl font-black text-white mb-3">2. Strictly Non-Refundable Policy</h2>
             <p>
-              Because RESTDIGI instantly unlocks database quotas, limits configurations (up to 12, 20, or 23 items/tables), automated real-time KOT audio channels, and SEO mapping resources immediately upon payment confirmation, <strong>all processed subscription fees are strictly non-refundable</strong>.
+              Since RESTDIGI immediately unlocks database quotas, real-time audio alerts, custom settings configurations, and SEO mapping resources upon subscription activation, **all annual plan payments are strictly non-refundable**. We do not offer partial refunds or credits for unused months within your subscription year.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-white mb-3">3. End-Diner Order Cancellations</h2>
+            <h2 className="text-xl font-black text-white mb-3">3. Dine-In Guest Order Cancellations</h2>
             <p>
-              The decision to process refunds or void transactions for food/beverages placed by a Diner rests entirely with the respective Merchant's management panel. RESTDIGI provides a digital 'Delete/Cancel' button control on the interface that operates strictly when an order status is marked as <strong>Pending</strong>. Once a Merchant accepts an order into preparation status, the system locks modification rules.
+              The decision to cancel, void, or refund food and beverage payments placed by your guests (Diners) rests 100% with the restaurant's management. Guests can cancel items through their menu interface **only** when the order status is marked as **Pending**. Once accepted by the kitchen into preparation, orders are locked and cancellations must be handled manually by your waitstaff.
             </p>
           </section>
         </div>

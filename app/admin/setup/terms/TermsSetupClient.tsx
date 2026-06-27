@@ -154,60 +154,60 @@ export default function TermsAcceptancePage() {
         </div>
 
         {/* Scrollable Terms Content */}
-        <div className="p-8 overflow-y-auto flex-1 bg-transparent">
+        <div className="p-8 overflow-y-auto flex-1 bg-transparent scrollbar-hide">
           <div className="prose prose-sm max-w-none text-gray-300 space-y-6">
             <h3 className="text-lg font-bold text-white">RESTDIGI Platform Agreement</h3>
 
             <p>Welcome to RESTDIGI. By proceeding, you agree to the following terms which govern your use of our digital menu infrastructure.</p>
 
-            <h4 className="text-white font-bold">1. Food Quality & SEO Ranking</h4>
+            <h4 className="text-white font-bold">1. Nature of Service & Direct Order Delivery</h4>
             <p>
-              As a Restaurant Owner, you are strictly responsible for maintaining high food quality and hygiene standards.
-              <strong> User feedback, ratings, and food quality are direct factors in our internal "SEO Ranking" and "Customer Satisfaction Rate" within the RESTDIGI ecosystem.</strong>
+              RESTDIGI provides an interactive, cloud-hosted digital menu infrastructure and local SEO amplification system. Subscribing restaurants ("Merchants") can allow their guests ("Diners") to Scan, View, and Place Orders directly from mobile browsers to the Merchant's live Kitchen Order Ticket (KOT) dashboard. RESTDIGI does **not** route orders through third-party platforms (like WhatsApp) or SMS relays; all transmission happens natively within our ecosystem to guarantee zero wait time.
             </p>
 
-            <h4 className="text-white font-bold">2. Elimination of Ordering Intermediaries</h4>
+            <h4 className="text-white font-bold">2. Annual Billing Model & Continuous Uptime</h4>
             <p>
-              RESTDIGI operates via direct local network socket handshakes and real-time database structures. RESTDIGI does <strong>not</strong> route orders through third-party messaging applications (such as WhatsApp), SMS relays, or external manual agents. All transmission happens natively within the RESTDIGI ecosystem to eliminate waiting times.
+              RESTDIGI services are provisioned strictly on an **Annual Billing Cycle** (billed once per year). We do not offer monthly plans. 
+              <strong> Reason:</strong> Annual billing guarantees system stability, continuous menu hosting uptime for your diners, and dedicated database allocations without the constant risk of monthly subscription renewal declines or card expiry failures disrupting your operations.
             </p>
 
-            <h4 className="text-white font-bold">3. Accuracy of Information</h4>
+            <h4 className="text-white font-bold">3. Food Quality & Merchant Liability</h4>
             <p>
-              It is your responsibility to provide accurate menu prices, ingredients, and availability. RESTDIGI holds no legal liability for any disputes or customer grievances arising from incorrect menu descriptions or pricing.
+              As a Merchant, you hold 100% responsibility for food quality, pricing accuracy, catalog items, and kitchen operations. RESTDIGI functions solely as a software conduit and is not liable for customer disputes, order delays, kitchen errors, or transaction settlements.
             </p>
 
-            <h4 className="text-white font-bold">4. Limitation of Operational Liability</h4>
+            <h4 className="text-white font-bold">4. Google Review Integration</h4>
             <p>
-              RESTDIGI functions solely as a software utility conduit. We disclaim all liability regarding payment settlement failures between Diners and Merchants, physical preparation delays, kitchen errors, order cancellations, or hardware/internet disconnections at the restaurant premises.
+              For Pro-tier and higher Merchants, the platform provides automated customer Google Review redirection. Merchants agree to configure valid and accurate Google review URLs inside their settings. RESTDIGI is not responsible for reviews published on Google.
             </p>
 
-            <h4 className="text-white font-bold">5. Automated Communications & Nurturing Consent</h4>
+            <h4 className="text-white font-bold">5. Automated Communications Consent</h4>
             <p>
-              By accepting these terms, you grant RESTDIGI explicit consent to send you automated operational notifications, platform performance reports, value-nurturing tips, marketing campaigns, and promotional tier/upgrade suggestions via email. You may opt out of promotional communications at any time.
+              By accepting these terms, you grant RESTDIGI consent to send you automated operational notifications, KOT summaries, marketing/nurturing guides, and sales analysis suggestions. You can opt out of promotional emails at any time.
             </p>
 
             <hr className="my-8 border-white/10" />
 
             <h3 className="text-lg font-bold text-white">Privacy Policy</h3>
 
-            <h4 className="text-white font-bold">1. Data Collected from Diners (Customers)</h4>
+            <h4 className="text-white font-bold">1. Diner Data Processing</h4>
             <p>
-              To preserve zero-friction speed, Diners do not need to create accounts or download applications. We only process operational tokens required to fulfill table-ordering: specific item cart selections, dynamic table numbers, and timestamps. No persistent personal social metrics or chat data are monitored.
+              To maintain a zero-friction experience, Diners do not need to register, create accounts, or download applications. We process only minimal, non-identifying operational tokens necessary to fulfill table-ordering (dynamic table numbers, cart selections, and timestamps).
             </p>
 
-            <h4 className="text-white font-bold">2. Data Collected from Merchants (Restaurants)</h4>
+            <h4 className="text-white font-bold">2. Merchant Data Collection</h4>
             <p>
-              We collect standard administrative variables necessary to operate the SaaS platform: corporate business names, profile logos uploaded via secure cloud storage buckets, contact details, pricing records, and regional location coordinates required to run the automated Local SEO ranking enhancement model.
+              We collect necessary administrative variables: business name, email, profile logo, pricing catalogs, digital signature records, IP address, and browser metadata (for verification and security logging).
             </p>
 
-            <h4 className="text-white font-bold">3. Third-Party Data Disclosures</h4>
+            <h4 className="text-white font-bold">3. Zero Third-Party Disclosures</h4>
             <p>
-              RESTDIGI does not share, lease, sell, or disclose food menu metrics, transaction histories, or location logs to external monetization brokers or advertising channels. All platform telemetry is handled directly through encrypted database layers.
+              RESTDIGI does not sell, lease, or share food transaction logs, restaurant menu metrics, or owner contact details with third-party advertising companies. All platform telemetry is handled directly through encrypted database layers.
             </p>
 
-            <h4 className="text-white font-bold">4. Cookies</h4>
+            <h4 className="text-white font-bold">4. SaaS Refund & Cancellation Rules</h4>
             <p>
-              We use essential cookies strictly for session management and to keep restaurant owners logged into their admin dashboards securely. We do not use invasive tracking cookies across our platform.
+              Since RESTDIGI immediately unlocks database quotas, real-time audio channels, and hosting resources upon billing, **all annual plan payments are strictly non-refundable**. You can disable auto-renewal at any time; your plan will stay active until the end of your paid year.
             </p>
           </div>
         </div>

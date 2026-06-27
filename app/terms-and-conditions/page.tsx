@@ -24,42 +24,50 @@ export default function TermsAndConditions() {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
           </Link>
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-2">Terms and Conditions</h1>
-          <p className="text-gray-400 font-medium text-sm">Last Updated: May 2026</p>
+          <p className="text-gray-400 font-medium text-sm">Last Updated: June 2026</p>
         </div>
 
         <div className="space-y-8 text-gray-300 leading-relaxed font-medium">
           <section>
             <h2 className="text-xl font-black text-white mb-3">1. Nature of Service</h2>
             <p>
-              <strong className="text-orange-400">RESTDIGI</strong> provides an interactive, cloud-hosted digital menu infrastructure and local SEO amplification system. By utilizing our table-specific QR code matrices, subscribing restaurants ("Merchants") can allow their customers ("Diners") to <strong>Scan, View, and Place Orders Instantly</strong> directly from their mobile browsers to the Merchant's live administrative Kitchen Order Ticket (KOT) dashboard.
+              <strong className="text-orange-400">RESTDIGI</strong> provides a direct, cloud-hosted digital menu infrastructure and local SEO amplification system. Subscribing restaurants ("Merchants") can deploy table-specific QR codes, allowing their customers ("Diners") to view menus, configure carts, and route orders directly to the Merchant's live administrative Kitchen Order Ticket (KOT) dashboard.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-white mb-3">2. Elimination of Ordering Intermediaries</h2>
+            <h2 className="text-xl font-black text-white mb-3">2. Direct Order Delivery Architecture</h2>
             <p>
-              RESTDIGI operates via direct local network socket handshakes and real-time database structures. RESTDIGI does <strong>not</strong> route orders through third-party messaging applications (such as WhatsApp), SMS relays, or external manual agents. All transmission happens natively within the RESTDIGI ecosystem to eliminate waiting times.
+              RESTDIGI operations run entirely on direct cloud database structures. RESTDIGI does **not** rely on third-party messaging software (such as WhatsApp), SMS relays, or external manual agents. All order transmissions are native to the KOT ecosystem to guarantee immediate delivery and zero wait time.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-white mb-3">3. Content Accuracy & Pricing</h2>
+            <h2 className="text-xl font-black text-white mb-3">3. Annual Plan Model & Reason</h2>
             <p>
-              Merchants retain exclusive 100% control over item descriptions, imagery, variations, availability toggles, and pricing catalogs. RESTDIGI is not responsible for any disputes arising from incorrect pricing inputs, out-of-stock items, or outdated digital menus presented to Diners.
+              RESTDIGI services are structured exclusively as **Annual Subscription Plans** (Basic, Pro, Premium, Enterprise). We do not offer monthly plans. 
+              <strong> Reason:</strong> We bill annually to ensure uninterrupted database operations, guarantee continuous menu hosting uptime for diners, and provide dedicated support resources without the constant risk of monthly billing/card failures disrupting your restaurant's service.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-white mb-3">4. Limitation of Operational Liability</h2>
+            <h2 className="text-xl font-black text-white mb-3">4. Merchant Operational Responsibilities</h2>
             <p>
-              RESTDIGI functions solely as a software utility conduit. We disclaim all liability regarding payment settlement failures between Diners and Merchants, physical preparation delays, kitchen errors, order cancellations, or hardware/internet disconnections at the restaurant premises.
+              Merchants retain 100% control over item configurations, pricing, and active table listings. The Merchant is responsible for updating dish availability and ensuring KOT orders match physical kitchen capabilities. RESTDIGI holds no liability for order errors, customer disputes, table mix-ups, or card settlement issues between Merchants and Diners.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-white mb-3">5. Automated Communications & Nurturing Consent</h2>
+            <h2 className="text-xl font-black text-white mb-3">5. Google Review Redirections</h2>
             <p>
-              By creating an account, accepting these terms, or using the RESTDIGI service, you grant RESTDIGI explicit consent to send you automated operational notifications, platform performance reports, marketing/nurturing emails, sales impact analyses, and promotional tier/upgrade suggestions. You may opt out of promotional messages at any time using the unsubscribe link provided in such emails.
+              For Pro-tier and higher Merchants, the platform provides automated customer Google Review redirection. Merchants agree to configure valid and accurate Google review URLs inside their settings. RESTDIGI is not responsible for reviews published on Google or account flags from Google's platform.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-black text-white mb-3">6. Nurturing Communications</h2>
+            <p>
+              By agreeing to these terms, you grant RESTDIGI explicit consent to send automated operational emails, KOT summary reports, marketing/nurturing guides, and sales analysis suggestions. You can opt out of promotional communications at any time via the unsubscribe links.
             </p>
           </section>
         </div>

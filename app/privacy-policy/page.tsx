@@ -25,28 +25,42 @@ export default function PrivacyPolicy() {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
           </Link>
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-2">Privacy Policy</h1>
-          <p className="text-sm text-gray-400">Last Updated: May 2026</p>
+          <p className="text-sm text-gray-400">Last Updated: June 2026</p>
         </div>
 
         <div className="space-y-8 text-gray-300 leading-relaxed font-medium">
           <section>
             <h2 className="text-xl font-black text-white mb-3">1. Data Collected from Diners (Customers)</h2>
             <p>
-              To preserve zero-friction speed, Diners do not need to create accounts or download applications. We only process operational tokens required to fulfill table-ordering: specific item cart selections, dynamic table numbers, and timestamps. No persistent personal social metrics or chat data are monitored.
+              To maintain a zero-friction guest experience, Diners do not need to register, create accounts, or download any application. We process only minimal, non-identifying operational tokens necessary to route table orders: cart selections, dynamic table numbers, and timestamps. No personal data, social profiles, or payment card details are collected or stored by RESTDIGI.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-black text-white mb-3">2. Data Collected from Merchants (Restaurants)</h2>
             <p>
-              We collect standard administrative variables necessary to operate the SaaS platform: corporate business names, profile logos uploaded via secure cloud storage buckets, contact details, pricing records, and regional location coordinates required to run the automated Local SEO ranking enhancement model.
+              We collect the administrative parameters required to manage your account and platform billing: business name, email address, logo image, contact details, pricing catalogs, digital signature, IP address, and browser metadata (for terms acceptance verification). We also store the Google Review URL configured by Pro-tier merchants to power the local rating feature.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-white mb-3">3. Third-Party Data Disclosures</h2>
+            <h2 className="text-xl font-black text-white mb-3">3. Annual Plan & Billing Stability</h2>
             <p>
-              RESTDIGI does not share, lease, sell, or disclose food menu metrics, transaction histories, or location logs to external monetization brokers or advertising channels. All platform telemetry is handled directly through encrypted database layers.
+              RESTDIGI services are provisioned strictly on an **Annual Billing Cycle** (billed once per year). We do not offer monthly plans. This is to ensure operational continuity, dedicated cloud database allocation, and continuous menu uptime for your diners. Annual billing protects your operations from monthly renewal failures (e.g. expired cards or bank declines) which would otherwise result in immediate digital menu shutdown.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-black text-white mb-3">4. Third-Party Disclosures & Security</h2>
+            <p>
+              RESTDIGI does not sell, lease, or share food transaction logs, restaurant catalogs, or owner profiles with third-party advertising companies or marketing brokers. All data is saved on secure cloud hosting infrastructure protected by modern encryption algorithms.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-black text-white mb-3">5. Cookie Usage</h2>
+            <p>
+              We use essential security cookies solely for session management to keep administrators securely authenticated inside the management dashboard. No invasive tracking cookies are used.
             </p>
           </section>
         </div>
