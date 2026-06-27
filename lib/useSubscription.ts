@@ -52,7 +52,6 @@ export const useSubscription = () => {
     canViewRevenue: ['pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired),
     canViewAllAnalytics: ['pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired),
     canCustomBrand: ['pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired),
-    canWhatsAppOrder: ['pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired),
     isExpired,
     isLoading,
     hasActivePlan,

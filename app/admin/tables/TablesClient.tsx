@@ -5,7 +5,7 @@ import { Loader2, Plus, Trash2, Link as LinkIcon, QrCode, Download, Lock } from 
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useRestaurant } from '@/lib/RestaurantContext';
-import { QRCodeCanvas } from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 import { useSubscription } from '@/lib/useSubscription';
 
@@ -59,6 +59,17 @@ export default function TablesPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [selectedTable, setSelectedTable] = useState<any>(null);
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
 
   const planType = restaurant?.plan_type || 'free';
   const getPlanLimits = (plan: string) => {
@@ -243,24 +254,30 @@ export default function TablesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this table?')) return;
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Table?',
+      message: 'Are you sure you want to delete this table? This will disable its unique QR code.',
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        const { error } = await supabase
+          .from('tables')
+          .delete()
+          .eq('id', id)
+          .eq('restaurant_id', restaurant.id);
 
-    const { error } = await supabase
-      .from('tables')
-      .delete()
-      .eq('id', id)
-      .eq('restaurant_id', restaurant.id);
-
-    if (error) {
-      toast.error('Failed to delete table');
-    } else {
-      toast.success('Table deleted');
-      const newTables = tables.filter(t => t.id !== id);
-      setTables(newTables);
-      if (selectedTable?.id === id) {
-        setSelectedTable(newTables.length > 0 ? newTables[0] : null);
+        if (error) {
+          toast.error('Failed to delete table');
+        } else {
+          toast.success('Table deleted');
+          const newTables = tables.filter(t => t.id !== id);
+          setTables(newTables);
+          if (selectedTable?.id === id) {
+            setSelectedTable(newTables.length > 0 ? newTables[0] : null);
+          }
+        }
       }
-    }
+    });
   };
 
   const wrapWithLock = (content: React.ReactNode) => {
@@ -391,7 +408,7 @@ export default function TablesPage() {
                   className={`bg-white/[0.03] backdrop-blur-md p-4 rounded-2xl border transition-all cursor-pointer shadow-sm flex items-center justify-between ${isSelected ? 'border-orange-500 ring-1 ring-orange-500 bg-orange-500/[0.02]' : 'border-white/5 hover:border-white/15'}`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${isLive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-white/10'}`}></div>
+                    <QrCode className={`w-5 h-5 transition-all duration-300 ${isLive ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)] animate-pulse' : 'text-white/40'}`} />
                     <div className="flex flex-col">
                       <h3 className="font-bold text-white text-sm tracking-tight leading-tight">{table.table_no}</h3>
                       {isLive && (
@@ -431,12 +448,20 @@ export default function TablesPage() {
                     </div>
 
                     <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8 flex justify-center items-center">
-                      <QRCodeCanvas
+                      <QRCodeSVG
                         value={`${origin}/menu/${restaurant?.slug}?tableId=${selectedTable.id}`}
                         size={200}
                         fgColor="#000000"
                         bgColor="#FFFFFF"
                         level="H"
+                        imageSettings={{
+                          src: "/favicon-tab.png",
+                          x: undefined,
+                          y: undefined,
+                          height: 36,
+                          width: 36,
+                          excavate: true,
+                        }}
                       />
                     </div>
 
@@ -473,6 +498,32 @@ export default function TablesPage() {
           </div>
         </div>
       </div>
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 text-white">
+          <div className="bg-[#121318] rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-white/10 text-center transform scale-100 transition-all animate-fade-in-up">
+            <h3 className="text-xl font-bold text-white mb-2">{confirmModal.title}</h3>
+            <p className="text-sm text-gray-400 leading-relaxed mb-6">
+              {confirmModal.message}
+            </p>
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              <button
+                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                className="bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl py-3 text-sm font-semibold transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  confirmModal.onConfirm();
+                }}
+                className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl py-3 text-sm font-semibold transition-colors shadow-sm cursor-pointer"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

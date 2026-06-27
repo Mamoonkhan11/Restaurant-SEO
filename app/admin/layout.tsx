@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { RestaurantProvider, useRestaurant } from '@/lib/RestaurantContext';
 import { useSubscription } from '@/lib/useSubscription';
+import { Toaster } from 'react-hot-toast';
 
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -174,6 +175,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                 )}
               </div>
             )}
+            <Toaster />
             {children}
           </div>
 

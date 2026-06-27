@@ -40,6 +40,17 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     handleToggleAudio
   } = useRestaurant();
   const { hasActivePlan, isLoading: isSubLoading } = useSubscription();
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
 
   useEffect(() => {
     if (!restaurantId) return;
@@ -190,11 +201,17 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                         {timeAgo(order.created_at)}
                       </span>
                       <button
-                        onClick={async () => {
-                          if (confirm(`Cancel and delete the entire order for ${tableLabel}?`)) {
-                            await supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id);
-                            toast.success(`Order from ${tableLabel} has been cancelled`);
-                          }
+                        onClick={() => {
+                          setConfirmModal({
+                            isOpen: true,
+                            title: 'Cancel Order?',
+                            message: `Are you sure you want to cancel and delete the entire order for ${tableLabel}?`,
+                            onConfirm: async () => {
+                              setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                              await supabase.from('orders').update({ status: 'cancelled' }).eq('id', order.id);
+                              toast.success(`Order from ${tableLabel} has been cancelled`);
+                            }
+                          });
                         }}
                         className="text-red-400 hover:text-red-300 p-1.5 rounded-lg hover:bg-red-500/10 transition-all cursor-pointer flex items-center justify-center shrink-0 border border-transparent hover:border-red-500/20"
                         title="Cancel Order"
@@ -262,6 +279,32 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
           </div>
         </div>
       )}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 text-white">
+          <div className="bg-[#121318] rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-white/10 text-center transform scale-100 transition-all animate-fade-in-up">
+            <h3 className="text-xl font-bold text-white mb-2">{confirmModal.title}</h3>
+            <p className="text-sm text-gray-400 leading-relaxed mb-6">
+              {confirmModal.message}
+            </p>
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              <button
+                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                className="bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl py-3 text-sm font-semibold transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  confirmModal.onConfirm();
+                }}
+                className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl py-3 text-sm font-semibold transition-colors shadow-sm cursor-pointer"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -290,7 +333,7 @@ export default function AdminDashboardOverview() {
 
   // Basic Dine-In Plan (and above) has access to Total Scans and Item View Performance Graphs
   const hasBasicAccess = ['basic', 'pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired);
-  
+
   // Pro Live-KOT Plan (and above) has access to Top Selling Dish Analytics
   const hasProAccess = ['pro', 'premium', 'enterprise'].includes(planType) || (planType === 'free' && isTrial && !isExpired);
 
@@ -426,7 +469,7 @@ export default function AdminDashboardOverview() {
             admin_id: user.id,
             restaurant_id: restaurant.id,
             action_type: 'WEEKLY_RESET',
-            description: 'Weekly item views reset automatically'
+            description: 'Weekly item activity reset automatically'
           })
         ]);
         setTopDish('N/A');
@@ -694,7 +737,7 @@ export default function AdminDashboardOverview() {
                         <div className="flex justify-between items-start gap-4">
                           <div>
                             <p className="text-sm font-bold text-white">
-                              {activity.table_no ? `Table ${cleanTableNo}` : 'WhatsApp Order'}
+                              {activity.table_no ? `Table ${cleanTableNo}` : 'Direct Order'}
                             </p>
                             <p className="text-xs text-gray-400 mt-0.5">
                               {activity.items?.length || 0} item{activity.items?.length === 1 ? '' : 's'} served
@@ -797,7 +840,7 @@ export default function AdminDashboardOverview() {
                             <div className="flex justify-between items-start gap-4">
                               <div>
                                 <p className="text-sm font-bold text-white">
-                                  {activity.table_no ? `Table ${cleanTableNo}` : 'WhatsApp Order'}
+                                  {activity.table_no ? `Table ${cleanTableNo}` : 'Direct Order'}
                                 </p>
                                 <div className="text-xs text-gray-400 mt-0.5 max-w-[200px] truncate">
                                   {activity.items?.map((i: any) => `${i.quantity}x ${i.name}`).join(', ')}

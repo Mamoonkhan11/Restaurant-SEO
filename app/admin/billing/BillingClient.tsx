@@ -11,6 +11,7 @@ export default function BillingPage() {
   const [payments, setPayments] = useState<any[]>([]);
   const [isAnnual, setIsAnnual] = useState(true);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
 
   useEffect(() => {
     if (restaurant) {
@@ -188,6 +189,62 @@ export default function BillingPage() {
       });
 
       toast.success('Successfully activated your 14-Day Free Trial of Pro Live-KOT Plan!');
+      await refreshRestaurant();
+      await fetchPayments();
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Failed to activate free trial: ' + err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleApplyPromoCode = async () => {
+    if (promoCode.trim().toUpperCase() !== '14FREETRIAL') {
+      toast.error('Invalid promo code. Please try again.');
+      return;
+    }
+
+    const hasUsedPromo = payments.some(
+      p => p.payment_gateway === 'system_promo' && p.description?.includes('14FREETRIAL')
+    );
+    if (hasUsedPromo) {
+      toast.error('This promo code has already been used by your restaurant.');
+      return;
+    }
+
+    if (isLoading) return;
+    setIsLoading(true);
+
+    try {
+      const newExpiry = new Date();
+      newExpiry.setDate(newExpiry.getDate() + 14); // 14 days trial
+
+      const { error } = await supabase
+        .from('restaurants')
+        .update({
+          plan_type: 'pro',
+          subscription_status: 'active',
+          expiry_date: newExpiry.toISOString()
+        })
+        .eq('id', restaurant?.id);
+
+      if (error) throw error;
+
+      // Insert billing payment record
+      await supabase.from('payments').insert({
+        restaurant_id: restaurant?.id,
+        amount: 0,
+        plan_tier: 'pro',
+        billing_cycle: 'yearly',
+        status: 'success',
+        payment_gateway: 'system_promo',
+        description: '14-Day Free Trial activated via Promo Code: 14FREETRIAL',
+        created_at: new Date().toISOString()
+      });
+
+      toast.success('Successfully activated your 14-Day Free Trial of Pro Live-KOT Plan!');
+      setPromoCode('');
       await refreshRestaurant();
       await fetchPayments();
     } catch (err: any) {
@@ -379,6 +436,30 @@ export default function BillingPage() {
         )}
       </div>
 
+      {/* Promo Code Entry */}
+      <div className="bg-white/[0.03] backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+        <div className="flex-1 animate-fade-in">
+          <h3 className="text-lg font-black text-white">Have a Promo Code?</h3>
+          <p className="text-sm text-gray-400 font-medium mt-1">Enter code `14FREETRIAL` to claim your 14-day free trial of Pro Live-KOT plan.</p>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <input
+            type="text"
+            placeholder="PROMOCODE"
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+            className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-extrabold tracking-widest text-white uppercase placeholder-white/20 focus:outline-none focus:border-orange-500 transition-colors w-48 sm:w-56"
+          />
+          <button
+            onClick={handleApplyPromoCode}
+            disabled={isLoading || !promoCode.trim()}
+            className="bg-orange-600 hover:bg-orange-700 text-white font-extrabold px-6 py-3 rounded-xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+          >
+            Apply
+          </button>
+        </div>
+      </div>
+
       {/* Yearly Billing Banner */}
       <div className="flex flex-col items-center justify-center space-y-2 py-4">
         <span className="text-xs font-extrabold text-orange-400 uppercase tracking-widest bg-orange-500/10 px-3 py-1.5 rounded-full border border-orange-500/20 animate-fade-in">
@@ -485,16 +566,6 @@ export default function BillingPage() {
                   {getCtaLabel(plan.id)}
                 </button>
 
-                {isCurrent && (
-                  <button
-                    onClick={() => setIsCancelModalOpen(true)}
-                    disabled={isLoading}
-                    className="w-full mt-3 py-2.5 rounded-xl font-bold text-sm transition-all border border-rose-500/20 text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
-                  >
-                    <X className="w-4 h-4" />
-                    Cancel Subscription
-                  </button>
-                )}
               </div>
             </div>
           );

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { X, MessageCircle, Loader2, Search, MapPin, AlertCircle, CheckCircle, Check } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 const formatTableNumber = (name?: string) => {
   if (!name) return '';
@@ -144,10 +145,10 @@ export default function MenuClient({
       // Reset cancellation view state
       setSelectedCancelItems([]);
       setIsCancelViewOpen(false);
-      alert("Selected items successfully cancelled.");
+      toast.success("Selected items successfully cancelled.");
     } catch (err) {
       console.error("Error cancelling items:", err);
-      alert("Failed to cancel items. Please try again.");
+      toast.error("Failed to cancel items. Please try again.");
     }
   };
 
@@ -156,16 +157,7 @@ export default function MenuClient({
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [dishQuantity, setDishQuantity] = useState(1);
 
-  const handleCallWaiter = () => {
-    const tableText = tableNo ? formatTableNumber(tableNo).toLowerCase() : 'our table';
-    const msg = `Hi! I need assistance at ${tableText}. Could a waiter please come over?`;
-    const whatsappNum = (restaurant?.whatsapp_number || '').replace(/[^0-9]/g, '');
-    if (whatsappNum) {
-      window.open(`https://wa.me/${whatsappNum}?text=${msg}`, '_blank');
-    } else {
-      alert('WhatsApp assistance is not configured for this restaurant.');
-    }
-  };
+
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -506,6 +498,7 @@ export default function MenuClient({
 
   return (
     <div className="min-h-screen flex flex-col bg-[#07080B] text-white pb-24 font-sans relative selection:bg-orange-600/30 overflow-hidden">
+      <Toaster />
       {/* Background Radial Glows — left, center & right, low opacity */}
       {/* LEFT side */}
       <div className="absolute top-[5%] left-[-12%] w-[420px] h-[420px] rounded-full bg-orange-600/10 blur-[90px] pointer-events-none z-0"></div>
@@ -1572,14 +1565,7 @@ export default function MenuClient({
                     <button
                       onClick={async () => {
                         if (!tableNo) {
-                          const itemsList = cart.map(i => `${i.quantity}x ${i.name}`).join('%0A');
-                          const msg = `Hi! I would like to order:%0A${itemsList}%0ATotal: ₹${cartTotal.toFixed(2)}%0ACould you let me know if delivery is available?`;
-                          const whatsappNum = (restaurant?.whatsapp_number || '').replace(/[^0-9]/g, '');
-                          if (whatsappNum) {
-                            window.open(`https://wa.me/${whatsappNum}?text=${msg}`, '_blank');
-                          } else {
-                            alert('WhatsApp ordering is not configured for this restaurant.');
-                          }
+                          toast.error('Ordering is only available by scanning the QR code at your table.');
                           return;
                         }
 
@@ -1602,7 +1588,7 @@ export default function MenuClient({
                         if (error) {
                           console.error('Order placement failed:', error);
                           setOrderStatus('idle');
-                          alert(`Failed to place order: ${error.message || 'Please try again.'}`);
+                          toast.error(`Failed to place order: ${error.message || 'Please try again.'}`);
                         } else {
                           // Append to activeOrderIds list
                           setActiveOrderIds(prev => {
