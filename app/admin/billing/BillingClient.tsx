@@ -440,7 +440,7 @@ export default function BillingPage() {
       <div className="bg-white/[0.03] backdrop-blur-md p-6 rounded-2xl border border-white/10 shadow-lg flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
         <div className="flex-1 animate-fade-in">
           <h3 className="text-lg font-black text-white">Have a Promo Code?</h3>
-          <p className="text-sm text-gray-400 font-medium mt-1">Enter code `14FREETRIAL` to claim your 14-day free trial of Pro Live-KOT plan.</p>
+          <p className="text-sm text-gray-400 font-medium mt-1">Enter your promo code below to unlock exclusive plans and offers.</p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <input

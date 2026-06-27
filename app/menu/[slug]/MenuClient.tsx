@@ -85,6 +85,7 @@ export default function MenuClient({
   // Cancel Items View State
   const [isCancelViewOpen, setIsCancelViewOpen] = useState(false);
   const [selectedCancelItems, setSelectedCancelItems] = useState<{ orderId: string; dishId: string; size: string; name: string; price: number; quantity: number }[]>([]);
+  const [cancelSuccessModal, setCancelSuccessModal] = useState(false);
 
   const handleToggleCancelItem = (itemKey: { orderId: string; dishId: string; size: string; name: string; price: number; quantity: number }) => {
     setSelectedCancelItems(prev => {
@@ -145,7 +146,7 @@ export default function MenuClient({
       // Reset cancellation view state
       setSelectedCancelItems([]);
       setIsCancelViewOpen(false);
-      toast.success("Selected items successfully cancelled.");
+      setCancelSuccessModal(true);
     } catch (err) {
       console.error("Error cancelling items:", err);
       toast.error("Failed to cancel items. Please try again.");
@@ -499,6 +500,28 @@ export default function MenuClient({
   return (
     <div className="min-h-screen flex flex-col bg-[#07080B] text-white pb-24 font-sans relative selection:bg-orange-600/30 overflow-hidden">
       <Toaster />
+
+      {/* Item Cancellation Success Modal */}
+      {cancelSuccessModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-5">
+          <div className="bg-[#121318] rounded-2xl max-w-sm w-full p-7 shadow-2xl border border-white/10 text-center animate-fade-in-up">
+            {/* Green check icon */}
+            <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-5">
+              <CheckCircle className="w-8 h-8 text-emerald-400" />
+            </div>
+            <h3 className="text-xl font-black text-white mb-2">Items Cancelled</h3>
+            <p className="text-sm text-gray-400 leading-relaxed mb-6">
+              Selected items have been successfully cancelled from your order.
+            </p>
+            <button
+              onClick={() => setCancelSuccessModal(false)}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-all shadow-sm cursor-pointer active:scale-95"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
       {/* Background Radial Glows — left, center & right, low opacity */}
       {/* LEFT side */}
       <div className="absolute top-[5%] left-[-12%] w-[420px] h-[420px] rounded-full bg-orange-600/10 blur-[90px] pointer-events-none z-0"></div>

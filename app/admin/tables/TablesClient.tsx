@@ -5,8 +5,7 @@ import { Loader2, Plus, Trash2, Link as LinkIcon, QrCode, Download, Lock } from 
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useRestaurant } from '@/lib/RestaurantContext';
-import { QRCodeSVG } from 'qrcode.react';
-import html2canvas from 'html2canvas';
+import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { useSubscription } from '@/lib/useSubscription';
 
 const TableSkeleton = () => (
@@ -88,28 +87,79 @@ export default function TablesPage() {
 
   const handleDownloadPNG = async () => {
     if (!selectedTable || !restaurant) return;
-    const element = document.getElementById('printable-qr-frame');
-    if (!element) {
-      toast.error('QR frame not found');
-      return;
-    }
 
-    const toastId = toast.loading('Generating PNG image...');
+    const toastId = toast.loading('Generating PNG...');
     try {
-      // Force white background and render high-res canvas (scale 3 for crisp print output)
-      const canvas = await html2canvas(element, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: '#FFFFFF',
-        logging: false
-      });
+      // --- Dimensions (2x scale for crisp print quality) ---
+      const SCALE = 2;
+      const W = 320 * SCALE;
+      const PAD = 32 * SCALE;
+      const QR_SIZE = 200 * SCALE;
+      const HEADER_H = 80 * SCALE;
+      const FOOTER_H = 56 * SCALE;
+      const QRPAD = 16 * SCALE;
+      const H = PAD + HEADER_H + QRPAD + QR_SIZE + QRPAD + FOOTER_H + PAD;
 
+      // --- Get the hidden QR canvas that has the logo baked in ---
+      const hiddenQrCanvas = document.getElementById('hidden-qr-canvas') as HTMLCanvasElement | null;
+      if (!hiddenQrCanvas) throw new Error('Hidden QR canvas not found');
+
+      // --- Build flyer canvas ---
+      const canvas = document.createElement('canvas');
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d')!;
+
+      // White background
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, W, H);
+
+      // Thin border
+      ctx.strokeStyle = '#E5E7EB';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(1, 1, W - 2, H - 2);
+
+      // Restaurant name
+      ctx.fillStyle = '#111827';
+      ctx.font = `bold ${16 * SCALE}px 'Arial', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(
+        (restaurant.name || 'Restaurant').toUpperCase(),
+        W / 2,
+        PAD + 20 * SCALE
+      );
+
+      // Table number
+      ctx.fillStyle = '#4B5563';
+      ctx.font = `bold ${10 * SCALE}px 'Arial', sans-serif`;
+      ctx.letterSpacing = `${2 * SCALE}px`;
+      ctx.fillText(
+        (selectedTable.table_no || '').toUpperCase(),
+        W / 2,
+        PAD + 44 * SCALE
+      );
+      ctx.letterSpacing = '0px';
+
+      // QR code (draw from hidden canvas which has the logo)
+      const qrY = PAD + HEADER_H + QRPAD;
+      const qrX = (W - QR_SIZE) / 2;
+      ctx.drawImage(hiddenQrCanvas, qrX, qrY, QR_SIZE, QR_SIZE);
+
+      // Footer
+      const footerY = qrY + QR_SIZE + QRPAD;
+      ctx.fillStyle = '#111827';
+      ctx.font = `bold ${11 * SCALE}px 'Arial', sans-serif`;
+      ctx.fillText('CONTACTLESS DINING', W / 2, footerY + 18 * SCALE);
+      ctx.fillStyle = '#6B7280';
+      ctx.font = `bold ${8 * SCALE}px 'Arial', sans-serif`;
+      ctx.fillText('SCAN FOR MENU', W / 2, footerY + 34 * SCALE);
+
+      // Download
       const dataUrl = canvas.toDataURL('image/png');
-
       const link = document.createElement('a');
-      const sanitizedRestaurantName = (restaurant.name || 'Restaurant').replace(/[^a-z0-9]/gi, '_');
-      const sanitizedTableNo = (selectedTable.table_no || 'Table').replace(/[^a-z0-9]/gi, '_');
-      link.download = `${sanitizedRestaurantName}_${sanitizedTableNo}.png`;
+      const safeName = (restaurant.name || 'Restaurant').replace(/[^a-z0-9]/gi, '_');
+      const safeTable = (selectedTable.table_no || 'Table').replace(/[^a-z0-9]/gi, '_');
+      link.download = `${safeName}_${safeTable}_QR.png`;
       link.href = dataUrl;
       document.body.appendChild(link);
       link.click();
@@ -117,7 +167,7 @@ export default function TablesPage() {
       toast.success('PNG Downloaded!', { id: toastId });
     } catch (err) {
       console.error(err);
-      toast.error('Failed to export PNG', { id: toastId });
+      toast.error('Failed to generate PNG', { id: toastId });
     }
   };
 
@@ -448,6 +498,7 @@ export default function TablesPage() {
                     </div>
 
                     <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8 flex justify-center items-center">
+                      {/* Visible on-screen preview — SVG with logo */}
                       <QRCodeSVG
                         value={`${origin}/menu/${restaurant?.slug}?tableId=${selectedTable.id}`}
                         size={200}
@@ -462,6 +513,24 @@ export default function TablesPage() {
                           width: 36,
                           excavate: true,
                         }}
+                      />
+                      {/* Hidden canvas used for PNG export — canvas has logo pixels baked in */}
+                      <QRCodeCanvas
+                        id="hidden-qr-canvas"
+                        value={`${origin}/menu/${restaurant?.slug}?tableId=${selectedTable.id}`}
+                        size={200}
+                        fgColor="#000000"
+                        bgColor="#FFFFFF"
+                        level="H"
+                        imageSettings={{
+                          src: "/favicon-tab.png",
+                          x: undefined,
+                          y: undefined,
+                          height: 36,
+                          width: 36,
+                          excavate: true,
+                        }}
+                        style={{ display: 'none' }}
                       />
                     </div>
 
@@ -483,9 +552,10 @@ export default function TablesPage() {
                   </a>
                   <button
                     onClick={handleDownloadPNG}
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-[0_0_20px_rgba(234,88,12,0.3)] animate-pulse"
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-[0_0_20px_rgba(234,88,12,0.3)] flex items-center justify-center gap-2"
                   >
-                    <Download className="w-4 h-4" /> Download PNG
+                    <Download className="w-4 h-4 shrink-0" />
+                    <span>Download PNG</span>
                   </button>
                 </div>
               </>
