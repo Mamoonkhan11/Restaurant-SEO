@@ -18,3 +18,14 @@ body {
   color: var(--foreground);
   background: var(--background);
 }
+
+/* Hide scrollbars globally on all elements while keeping scroll functionality */
+::-webkit-scrollbar {
+  display: none !important;
+}
+
+* {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+}
+

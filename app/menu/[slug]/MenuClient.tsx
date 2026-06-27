@@ -257,13 +257,26 @@ export default function MenuClient({
     }
 
     const fetchOrders = async () => {
+      const realIds = activeOrderIds.filter(id => !id.startsWith('temp_'));
+      if (realIds.length === 0) {
+        setTrackedOrders(prev => prev.filter(o => o.id.startsWith('temp_')));
+        return;
+      }
+
       const { data, error } = await supabase
         .from('orders')
         .select('*')
         .eq('restaurant_id', initialRestaurant.id)
-        .in('id', activeOrderIds);
+        .in('id', realIds);
       if (data && !error) {
-        setTrackedOrders(data);
+        setTrackedOrders(prev => {
+          const optimisticOrders = prev.filter(o => o.id.startsWith('temp_'));
+          const merged = [
+            ...optimisticOrders,
+            ...data.filter(d => !optimisticOrders.some(o => o.id === d.id))
+          ];
+          return merged;
+        });
         const sorted = [...data].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         if (sorted.length > 0) {
           setOrderStatus(sorted[0].status);
@@ -335,8 +348,9 @@ export default function MenuClient({
 
   useEffect(() => {
     if (trackedOrders.length > 0 && !googleReviewShown && restaurant?.google_review_url) {
-      const hasServedOrder = trackedOrders.some(o => o.status === 'served');
-      if (hasServedOrder) {
+      const allServedOrCancelled = trackedOrders.every(o => o.status === 'served' || o.status === 'cancelled');
+      const hasServed = trackedOrders.some(o => o.status === 'served');
+      if (allServedOrCancelled && hasServed) {
         const timer = setTimeout(() => {
           setShowGoogleReviewModal(true);
           setGoogleReviewShown(true);
@@ -1772,8 +1786,8 @@ export default function MenuClient({
                         setCart([]);
                         setOrderStatus('pending');
                         setShowTracking(true);
-                        setTrackedOrders([optimisticOrder]);
-                        setActiveOrderIds([tempOrderId]);
+                        setTrackedOrders(prev => [...prev.filter(o => o.id !== tempOrderId), optimisticOrder]);
+                        setActiveOrderIds(prev => [...prev.filter(id => id !== tempOrderId), tempOrderId]);
 
                         // Cache optimistic items list
                         setOriginalItemsCache(prev => {
