@@ -86,6 +86,8 @@ export default function MenuClient({
   const [isCancelViewOpen, setIsCancelViewOpen] = useState(false);
   const [selectedCancelItems, setSelectedCancelItems] = useState<{ orderId: string; dishId: string; size: string; name: string; price: number; quantity: number }[]>([]);
   const [cancelSuccessModal, setCancelSuccessModal] = useState(false);
+  const [showGoogleReviewModal, setShowGoogleReviewModal] = useState(false);
+  const [googleReviewShown, setGoogleReviewShown] = useState(false);
 
   const handleToggleCancelItem = (itemKey: { orderId: string; dishId: string; size: string; name: string; price: number; quantity: number }) => {
     setSelectedCancelItems(prev => {
@@ -322,6 +324,19 @@ export default function MenuClient({
   }, [trackedOrders, params.slug]);
 
   useEffect(() => {
+    if (trackedOrders.length > 0 && !googleReviewShown && restaurant?.google_review_url) {
+      const hasServedOrder = trackedOrders.some(o => o.status === 'served');
+      if (hasServedOrder) {
+        setShowGoogleReviewModal(true);
+        setGoogleReviewShown(true);
+      }
+    }
+    if (trackedOrders.length === 0) {
+      setGoogleReviewShown(false);
+    }
+  }, [trackedOrders, googleReviewShown, restaurant?.google_review_url]);
+
+  useEffect(() => {
     const ownerId = initialRestaurant?.owner_id;
     const restaurantId = initialRestaurant?.id;
 
@@ -497,6 +512,11 @@ export default function MenuClient({
 
   const menuBlocked = isExpiredWithGrace();
 
+  // Find first served dish name
+  const firstServedOrder = trackedOrders.find(o => o.status === 'served');
+  const firstDish = firstServedOrder?.items?.[0];
+  const dishName = firstDish?.name || 'your meal';
+
   return (
     <div className="min-h-screen flex flex-col bg-[#07080B] text-white pb-24 font-sans relative selection:bg-orange-600/30 overflow-hidden">
       <Toaster />
@@ -519,6 +539,52 @@ export default function MenuClient({
             >
               OK
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Google Review Rating Modal */}
+      {showGoogleReviewModal && restaurant?.google_review_url && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-5">
+          <div className="bg-[#121318] rounded-2xl max-w-sm w-full p-7 shadow-2xl border border-white/10 text-center animate-fade-in-up">
+            {/* Glowing Star Icon */}
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-5 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+              <span className="text-3xl animate-bounce">⭐</span>
+            </div>
+            <h3 className="text-xl font-black text-white mb-2">How was the food?</h3>
+            <p className="text-sm text-gray-400 leading-relaxed mb-6">
+              How did you like the <span className="text-orange-400 font-bold">{dishName}</span>? Rate us on Google to support our team!
+            </p>
+
+            {/* Stars row */}
+            <div className="flex items-center justify-center gap-3 mb-6">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => {
+                    const defaultText = `The ${dishName} at ${restaurant?.name || 'this restaurant'} was absolutely delicious! Great service and highly recommended.`;
+                    
+                    // Copy to clipboard
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                      navigator.clipboard.writeText(defaultText).then(() => {
+                        toast.success("Review copied! Tap paste on Google.");
+                      }).catch(() => {});
+                    }
+                    
+                    // Redirect
+                    window.open(restaurant.google_review_url, '_blank');
+                    setShowGoogleReviewModal(false);
+                  }}
+                  className="text-4xl transition-all duration-150 hover:scale-125 focus:outline-none filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)] cursor-pointer"
+                >
+                  ⭐
+                </button>
+              ))}
+            </div>
+
+            <p className="text-[10px] text-gray-500 font-medium leading-relaxed">
+              Tapping any star will automatically copy a pre-filled review about your dish & open Google Reviews.
+            </p>
           </div>
         </div>
       )}

@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS marketing_leads (
 -- Alter restaurants to add last_seen_at and last_retention_emailed_at columns
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS last_retention_emailed_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS google_review_url TEXT;
 
 -- Create performance indexes for optimized lookup speeds
 CREATE INDEX IF NOT EXISTS idx_restaurants_slug ON public.restaurants(slug);

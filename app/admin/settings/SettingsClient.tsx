@@ -10,9 +10,11 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const { canCustomBrand, planType } = useSubscription();
+  const isProOrAbove = ['pro', 'premium', 'enterprise'].includes(planType);
   const [formData, setFormData] = useState({
     name: '',
     planType: 'free',
+    googleReviewUrl: '',
   });
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -38,6 +40,7 @@ export default function SettingsPage() {
         setFormData({
           name: fetchedName,
           planType: restaurant.plan_type || 'free',
+          googleReviewUrl: restaurant.google_review_url || '',
         });
         setLogoPreview(restaurant.logo_url || null);
       }
@@ -101,13 +104,19 @@ export default function SettingsPage() {
       }
 
       // 3. Update the Restaurant Profile in the database
+      const updatePayload: any = {
+        name: formData.name,
+        slug: generatedSlug,
+        logo_url: finalLogoUrl
+      };
+
+      if (isProOrAbove) {
+        updatePayload.google_review_url = formData.googleReviewUrl;
+      }
+
       const { data, error } = await supabase
         .from('restaurants')
-        .update({
-          name: formData.name,
-          slug: generatedSlug,
-          logo_url: finalLogoUrl
-        })
+        .update(updatePayload)
         .eq('owner_id', session.user.id)
         .select()
         .single();
@@ -169,6 +178,42 @@ export default function SettingsPage() {
                 }}
                 className="w-full px-5 py-4 bg-white/[0.02] border border-white/10 rounded-2xl focus:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium text-white" 
               />
+            </div>
+
+            {/* Google Review URL */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-bold text-gray-300">Google Review URL</label>
+                {!isProOrAbove && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">
+                    <Lock className="w-2.5 h-2.5" /> PRO Feature
+                  </span>
+                )}
+              </div>
+              <div className="relative">
+                <input 
+                  type="url" 
+                  disabled={!isProOrAbove}
+                  placeholder={isProOrAbove ? "https://g.page/r/your-restaurant-id/review" : "Upgrade to Pro to collect Google reviews"}
+                  value={formData.googleReviewUrl} 
+                  onChange={e => setFormData({...formData, googleReviewUrl: e.target.value})}
+                  className={`w-full px-5 py-4 bg-white/[0.02] border rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium ${
+                    isProOrAbove 
+                      ? 'border-white/10 text-white focus:bg-white/[0.04]' 
+                      : 'border-white/5 text-white/30 cursor-not-allowed select-none bg-white/[0.01]'
+                  }`} 
+                />
+                {!isProOrAbove && (
+                  <div className="absolute inset-0 rounded-2xl bg-black/10 backdrop-blur-[0.5px] cursor-not-allowed flex items-center justify-end pr-4">
+                    <Link href="/admin/billing" className="text-xs font-bold text-orange-500 hover:text-orange-400 pointer-events-auto">
+                      Upgrade Now
+                    </Link>
+                  </div>
+                )}
+              </div>
+              <p className="mt-1.5 text-xs text-gray-500 font-medium">
+                Allows customers to automatically rate your restaurant on Google right after their order is served.
+              </p>
             </div>
 
             <div>

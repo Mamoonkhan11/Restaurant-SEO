@@ -12,6 +12,7 @@ export default function BillingPage() {
   const [isAnnual, setIsAnnual] = useState(true);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [promoCode, setPromoCode] = useState('');
+  const [promoAgainModal, setPromoAgainModal] = useState(false);
 
   useEffect(() => {
     if (restaurant) {
@@ -224,7 +225,7 @@ export default function BillingPage() {
       p => p.payment_gateway === 'system_promo' && p.description?.includes('14FREETRIAL')
     );
     if (hasUsedPromo) {
-      toast.error('This promo code has already been used by your restaurant.');
+      setPromoAgainModal(true);
       return;
     }
 
@@ -690,6 +691,28 @@ export default function BillingPage() {
                 {isLoading ? "Cancelling..." : "Confirm"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Already Redeemed Promo Code Modal */}
+      {promoAgainModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4 text-white">
+          <div className="bg-[#121318] rounded-2xl max-w-sm w-full p-7 shadow-2xl border border-white/10 text-center animate-fade-in-up">
+            {/* Glowing Orange alert icon */}
+            <div className="w-16 h-16 rounded-full bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-5 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
+              <AlertCircle className="w-8 h-8 text-orange-500 animate-pulse" />
+            </div>
+            <h3 className="text-xl font-black text-white mb-2">Already Redeemed</h3>
+            <p className="text-sm text-gray-400 leading-relaxed mb-6">
+              This promo code has already been used by your restaurant. The 14-day free trial can only be claimed once per account.
+            </p>
+            <button
+              onClick={() => setPromoAgainModal(false)}
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-xl transition-all shadow-md active:scale-95 cursor-pointer font-sans"
+            >
+              Understand
+            </button>
           </div>
         </div>
       )}
