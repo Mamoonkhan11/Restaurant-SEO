@@ -39,7 +39,19 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
     audioNeedsInteraction,
     handleToggleAudio
   } = useRestaurant();
-  const { hasActivePlan, isLoading: isSubLoading } = useSubscription();
+  const { hasActivePlan, planType, isLoading: isSubLoading } = useSubscription();
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkScreen = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    checkScreen();
+    window.addEventListener('resize', checkScreen);
+    return () => window.removeEventListener('resize', checkScreen);
+  }, []);
+
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -120,32 +132,61 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
         </div>
       );
     }
-    if (hasActivePlan) return content;
-
-    return (
-      <div className="relative w-full mb-8">
-        <div className="pointer-events-none select-none blur-md opacity-50">
-          {content}
-        </div>
-        <div className="absolute inset-0 flex items-center justify-center p-4 z-20 pointer-events-auto">
-          <div className="bg-black/60 backdrop-blur-xl p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.4)] max-w-md w-full text-center border border-white/10 animate-fade-in-up">
-            <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20 shadow-sm">
-              <Lock className="w-7 h-7" />
+    if (!hasActivePlan) {
+      return (
+        <div className="relative w-full mb-8">
+          <div className="pointer-events-none select-none blur-md opacity-50">
+            {content}
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center p-4 z-20 pointer-events-auto">
+            <div className="bg-black/60 backdrop-blur-xl p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.4)] max-w-md w-full text-center border border-white/10 animate-fade-in-up">
+              <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20 shadow-sm">
+                <Lock className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-black text-white mb-2">No Active Plan</h3>
+              <p className="text-sm text-gray-400 mb-6 leading-relaxed">
+                Please select a subscription tier from the Billing panel to unlock these management interfaces.
+              </p>
+              <Link
+                href="/admin/billing"
+                className="inline-block bg-gradient-to-r from-orange-600 to-red-500 hover:from-orange-700 hover:to-red-600 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-[0_4px_15px_rgba(234,88,12,0.25)] transition-all hover:scale-[1.02]"
+              >
+                Go to Billing
+              </Link>
             </div>
-            <h3 className="text-xl font-black text-white mb-2">No Active Plan</h3>
-            <p className="text-sm text-gray-400 mb-6 leading-relaxed">
-              Please select a subscription tier from the Billing panel to unlock these management interfaces.
-            </p>
-            <Link
-              href="/admin/billing"
-              className="inline-block bg-gradient-to-r from-orange-600 to-red-500 hover:from-orange-700 hover:to-red-600 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-[0_4px_15px_rgba(234,88,12,0.25)] transition-all hover:scale-[1.02]"
-            >
-              Go to Billing
-            </Link>
           </div>
         </div>
-      </div>
-    );
+      );
+    }
+
+    if (planType === 'basic' && isDesktop) {
+      return (
+        <div className="relative w-full mb-8">
+          <div className="pointer-events-none select-none blur-md opacity-50">
+            {content}
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center p-4 z-20 pointer-events-auto">
+            <div className="bg-black/60 backdrop-blur-xl p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.4)] max-w-md w-full text-center border border-white/10 animate-fade-in-up">
+              <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-amber-500/20 shadow-sm">
+                <Lock className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-black text-white mb-2">Desktop KOT Locked</h3>
+              <p className="text-sm text-gray-400 mb-6 leading-relaxed">
+                Your **Basic Plan** includes Mobile KOT only. To track live orders, please open this dashboard on a mobile device, or upgrade to a **Pro Plan** to access the desktop dashboard.
+              </p>
+              <Link
+                href="/admin/billing"
+                className="inline-block bg-gradient-to-r from-orange-600 to-red-500 hover:from-orange-700 hover:to-red-600 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-[0_4px_15px_rgba(234,88,12,0.25)] transition-all hover:scale-[1.02]"
+              >
+                Upgrade to Pro Plan
+              </Link>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return content;
   };
 
   return wrapWithLock(
@@ -160,7 +201,11 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 {liveOrders.filter(o => o.status === 'pending').length} Action Required
               </span>
             )}
-            {!audioMuted ? (
+            {planType === 'basic' ? (
+              <span className="bg-white/5 text-gray-500 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-white/5 cursor-not-allowed select-none">
+                Chime Locked (Basic)
+              </span>
+            ) : !audioMuted ? (
               <button
                 onClick={handleToggleAudio}
                 className="bg-orange-600/10 hover:bg-orange-600/20 text-orange-400 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-orange-500/20 transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
@@ -510,28 +555,66 @@ export default function AdminDashboardOverview() {
         setAllWeeklyActivity(logsDataRes.data);
       }
 
-      // Helper function to re-fetch logs for realtime update triggers
-      const fetchLogs = async () => {
-        const [logsDataRes, activeOrdersRes] = await Promise.all([
-          supabase
-            .from('orders')
-            .select('*')
-            .eq('restaurant_id', restaurant.id)
-            .eq('status', 'served')
-            .gte('created_at', monday.toISOString())
-            .order('created_at', { ascending: false }),
-          supabase
-            .from('orders')
-            .select('table_no')
-            .eq('restaurant_id', restaurant.id)
-            .in('status', ['pending', 'preparing'])
-        ]);
-        if (logsDataRes.data) {
-          setRecentActivity(logsDataRes.data.slice(0, 10));
-          setAllWeeklyActivity(logsDataRes.data);
+      // Incremental local state updates on realtime event payloads to prevent heavy database query roundtrips
+      const handleRealtimeOrderInsert = (payload: any) => {
+        const newOrder = payload.new;
+        if (!newOrder) return;
+
+        setActiveOrders(prev => {
+          if (prev.some(o => o.id === newOrder.id)) return prev;
+          if (newOrder.status === 'pending' || newOrder.status === 'preparing') {
+            return [...prev, newOrder];
+          }
+          return prev;
+        });
+
+        if (newOrder.status === 'served') {
+          setAllWeeklyActivity(prev => {
+            if (prev.some(o => o.id === newOrder.id)) return prev;
+            if (new Date(newOrder.created_at) >= monday) {
+              const updated = [newOrder, ...prev].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+              setRecentActivity(updated.slice(0, 10));
+              return updated;
+            }
+            return prev;
+          });
         }
-        if (activeOrdersRes.data) {
-          setActiveOrders(activeOrdersRes.data);
+      };
+
+      const handleRealtimeOrderUpdate = (payload: any) => {
+        const updatedOrder = payload.new;
+        if (!updatedOrder) return;
+
+        setActiveOrders(prev => {
+          if (updatedOrder.status === 'pending' || updatedOrder.status === 'preparing') {
+            const exists = prev.some(o => o.id === updatedOrder.id);
+            if (exists) {
+              return prev.map(o => o.id === updatedOrder.id ? updatedOrder : o);
+            }
+            return [...prev, updatedOrder];
+          }
+          return prev.filter(o => o.id !== updatedOrder.id);
+        });
+
+        if (updatedOrder.status === 'served') {
+          setAllWeeklyActivity(prev => {
+            const exists = prev.some(o => o.id === updatedOrder.id);
+            let updated = prev;
+            if (exists) {
+              updated = prev.map(o => o.id === updatedOrder.id ? updatedOrder : o);
+            } else if (new Date(updatedOrder.created_at) >= monday) {
+              updated = [updatedOrder, ...prev];
+            }
+            const sorted = [...updated].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            setRecentActivity(sorted.slice(0, 10));
+            return sorted;
+          });
+        } else {
+          setAllWeeklyActivity(prev => {
+            const updated = prev.filter(o => o.id !== updatedOrder.id);
+            setRecentActivity(updated.slice(0, 10));
+            return updated;
+          });
         }
       };
 
@@ -540,16 +623,12 @@ export default function AdminDashboardOverview() {
         .on(
           'postgres_changes',
           { event: 'UPDATE', schema: 'public', table: 'orders', filter: `restaurant_id=eq.${restaurant.id}` },
-          () => {
-            fetchLogs();
-          }
+          handleRealtimeOrderUpdate
         )
         .on(
           'postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'orders', filter: `restaurant_id=eq.${restaurant.id}` },
-          () => {
-            fetchLogs();
-          }
+          handleRealtimeOrderInsert
         )
         .subscribe();
 

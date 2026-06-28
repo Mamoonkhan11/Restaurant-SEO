@@ -443,7 +443,8 @@ export const RestaurantProvider = ({ children }: { children: React.ReactNode }) 
         },
         (payload) => {
           if (payload.new && payload.new.restaurant_id === restaurant.id) {
-            if (!audioMutedRef.current) {
+            const hasChimeAccess = ['pro', 'premium', 'enterprise'].includes(restaurant.plan_type || 'free');
+            if (hasChimeAccess && !audioMutedRef.current) {
               setIsAlerting(true);
               playSynthesizedBell();
             }

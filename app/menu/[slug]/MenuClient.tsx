@@ -1675,9 +1675,13 @@ export default function MenuClient({
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-bold text-white truncate">{item.name}</h4>
-                          <div className="flex items-center justify-between mt-1">
+                          <div className="flex flex-col mt-1 gap-0.5">
                             <span className="font-black text-[#EA580C]">₹{item.price}</span>
-                            {item.size !== 'Standard' && <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">{item.size}</span>}
+                            {item.size !== 'Standard' && (
+                              <span className="text-[10px] text-gray-450 font-black uppercase tracking-widest mt-0.5">
+                                {item.size}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2 bg-white/5 p-1 rounded-lg border border-white/10 shrink-0">
