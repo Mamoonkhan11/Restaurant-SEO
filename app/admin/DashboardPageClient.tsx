@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { X, Lock, TrendingUp, Sparkles, Loader2 } from 'lucide-react';
+import { X, Lock, TrendingUp, Loader2 } from 'lucide-react';
 import { useSubscription } from '@/lib/useSubscription';
 import { useRestaurant } from '@/lib/RestaurantContext';
 
@@ -794,11 +794,7 @@ export default function AdminDashboardOverview() {
               <div className="space-y-6">
                 {recentActivity.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center select-none">
-                    <div className="w-12 h-12 rounded-full bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-3">
-                      <Sparkles className="w-6 h-6 text-orange-400 animate-pulse" />
-                    </div>
-                    <p className="text-sm font-bold text-white mb-1">Happy New Week!</p>
-                    <p className="text-xs text-gray-400 leading-relaxed max-w-[200px] mx-auto">
+                    <p className="text-gray-400 font-medium text-sm">
                       Activity resets weekly on Mondays. Let's get some orders rolling!
                     </p>
                   </div>
