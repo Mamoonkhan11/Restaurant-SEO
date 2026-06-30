@@ -30,7 +30,7 @@ export default function Home() {
     };
   }, [router]);
   return (
-    <div className="min-h-screen flex flex-col bg-[#07080B] text-[#E5E7EB] font-sans selection:bg-orange-600/30 selection:text-white relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-[#07080B] landing-glow-bg text-zinc-100 font-sans selection:bg-orange-600/30 selection:text-white relative overflow-hidden">
 
       {/* Background Radial Glows */}
       <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-orange-600/15 blur-[120px] pointer-events-none"></div>
@@ -194,7 +194,7 @@ export default function Home() {
       </header>
 
       {/* Frictionless 3-Step Dining Journey Section */}
-      <section className="bg-[#0B0C10] py-24 border-t border-white/5 relative z-10 overflow-hidden">
+      <section className="bg-transparent py-24 border-t border-white/5 relative z-10 overflow-hidden">
         {/* Section Ambient Glows */}
         <div className="absolute top-[20%] left-[-10%] w-[450px] h-[450px] rounded-full bg-orange-500/10 blur-[100px] pointer-events-none mix-blend-screen"></div>
         <div className="absolute bottom-[10%] right-[-10%] w-[450px] h-[450px] rounded-full bg-amber-500/8 blur-[100px] pointer-events-none mix-blend-screen"></div>
@@ -287,7 +287,7 @@ export default function Home() {
       </section>
 
       {/* Engineered for Restaurant Success Section (Features Showcase) */}
-      <section id="features" className="bg-[#090A0F] py-24 border-t border-white/5 relative z-10 overflow-hidden">
+      <section id="features" className="bg-transparent py-24 border-t border-white/5 relative z-10 overflow-hidden">
         {/* Section Ambient Glows */}
         <div className="absolute top-[30%] right-[-15%] w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px] pointer-events-none mix-blend-screen"></div>
         <div className="absolute bottom-[5%] left-[-10%] w-[500px] h-[500px] rounded-full bg-amber-500/8 blur-[100px] pointer-events-none mix-blend-screen"></div>
@@ -385,7 +385,7 @@ export default function Home() {
       </section>
 
       {/* Engineered for Restaurant Success Section (Premium Capabilities) */}
-      <section className="bg-[#0B0C10] py-24 border-t border-white/5 relative z-10 overflow-hidden">
+      <section className="bg-transparent py-24 border-t border-white/5 relative z-10 overflow-hidden">
         {/* Section Ambient Glows */}
         <div className="absolute top-[10%] left-[-10%] w-[450px] h-[450px] rounded-full bg-orange-600/10 blur-[100px] pointer-events-none mix-blend-screen"></div>
         <div className="absolute bottom-[20%] right-[-10%] w-[450px] h-[450px] rounded-full bg-amber-500/10 blur-[100px] pointer-events-none mix-blend-screen"></div>
@@ -480,7 +480,7 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="bg-[#090A0F] py-24 border-t border-white/5 relative z-10 overflow-hidden">
+      <section id="pricing" className="bg-transparent py-24 border-t border-white/5 relative z-10 overflow-hidden">
         {/* Section Ambient Glows */}
         <div className="absolute top-[40%] right-[-10%] w-[600px] h-[600px] rounded-full bg-orange-500/10 blur-[135px] pointer-events-none mix-blend-screen"></div>
         <div className="absolute bottom-[10%] left-[-15%] w-[550px] h-[550px] rounded-full bg-amber-600/8 blur-[120px] pointer-events-none mix-blend-screen"></div>
@@ -852,6 +852,18 @@ export default function Home() {
 
       {/* Floating Plate Micro-animations */}
       <style>{`
+        .landing-glow-bg {
+          background-color: #07080B;
+          background-image: 
+            radial-gradient(circle at 15% 8%, rgba(249, 115, 22, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at 85% 22%, rgba(234, 88, 12, 0.04) 0%, transparent 45%),
+            radial-gradient(circle at 20% 38%, rgba(220, 38, 38, 0.03) 0%, transparent 40%),
+            radial-gradient(circle at 80% 55%, rgba(245, 158, 11, 0.04) 0%, transparent 45%),
+            radial-gradient(circle at 15% 72%, rgba(249, 115, 22, 0.03) 0%, transparent 40%),
+            radial-gradient(circle at 85% 88%, rgba(234, 88, 12, 0.04) 0%, transparent 45%),
+            radial-gradient(circle at 50% 98%, rgba(245, 158, 11, 0.05) 0%, transparent 40%);
+          background-attachment: scroll;
+        }
         @keyframes floatSlow {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-10px) rotate(3deg); }
