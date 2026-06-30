@@ -189,7 +189,7 @@ export default function SettingsPage() {
               <input 
                 type="text" 
                 required
-                placeholder="e.g. +919876543210"
+                placeholder="WhatsApp Number"
                 value={formData.whatsappNumber} 
                 onChange={e => setFormData({...formData, whatsappNumber: e.target.value})}
                 className="w-full px-5 py-4 bg-white/[0.02] border border-white/10 rounded-2xl focus:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium text-white" 

@@ -245,7 +245,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                     <input
                       type="text"
                       required
-                      placeholder="WhatsApp Number (e.g. 9876543210)"
+                      placeholder="WhatsApp Number"
                       value={phoneInput}
                       onChange={e => setPhoneInput(e.target.value)}
                       className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:bg-white/[0.08] focus:outline-none focus:ring-1 focus:ring-orange-500/40 focus:border-orange-500/40 transition-all font-bold text-white placeholder-gray-500"

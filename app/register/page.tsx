@@ -199,7 +199,7 @@ export default function RegisterPage() {
                     required
                     value={whatsappNumber}
                     onChange={e => setWhatsappNumber(e.target.value)}
-                    placeholder="WhatsApp Number (e.g. +919876543210)"
+                    placeholder="WhatsApp Number"
                     className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:bg-white/[0.08] focus:outline-none focus:ring-1 focus:ring-orange-500/40 focus:border-orange-500/40 transition-all font-bold text-white placeholder-gray-500"
                   />
                 </div>
