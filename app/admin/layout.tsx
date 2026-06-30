@@ -217,7 +217,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                   </div>
                   <h2 className="text-2xl font-black text-white tracking-tight mb-2">WhatsApp Required</h2>
                   <p className="text-gray-400 text-sm leading-relaxed">
-                    To continue using RESTDIGI, please provide a valid WhatsApp number. We use this to route live table orders and customer notifications.
+                    To continue using RESTDIGI, please provide a valid WhatsApp number. We use this to send you weekly restaurant activity and progress reports to keep you updated on your business growth.
                   </p>
                 </div>
 
@@ -251,22 +251,13 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                       className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:bg-white/[0.08] focus:outline-none focus:ring-1 focus:ring-orange-500/40 focus:border-orange-500/40 transition-all font-bold text-white placeholder-gray-500"
                     />
                   </div>
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setHasSkipped(true)}
-                      className="flex-1 bg-white/5 text-white py-4 rounded-2xl font-bold hover:bg-white/10 transition-all border border-white/10 text-center cursor-pointer"
-                    >
-                      Skip
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isPhoneSaving}
-                      className="flex-[2] bg-gradient-to-r from-orange-600 to-red-500 text-white py-4 px-6 rounded-2xl font-bold hover:from-orange-700 hover:to-red-600 transition-all shadow-[0_4px_15px_rgba(234,88,12,0.3)] flex justify-center items-center gap-2 cursor-pointer"
-                    >
-                      {isPhoneSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save & Continue'}
-                    </button>
-                  </div>
+                  <button
+                    type="submit"
+                    disabled={isPhoneSaving}
+                    className="w-full bg-gradient-to-r from-orange-600 to-red-500 text-white py-4 px-6 rounded-2xl font-bold hover:from-orange-700 hover:to-red-600 transition-all shadow-[0_4px_15px_rgba(234,88,12,0.3)] flex justify-center items-center gap-2 cursor-pointer"
+                  >
+                    {isPhoneSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save & Continue'}
+                  </button>
                 </form>
               </div>
             </div>
