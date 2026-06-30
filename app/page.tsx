@@ -117,7 +117,7 @@ export default function Home() {
             {/* Main Central Plate (Kashmiri Wazwan) */}
             <div className="absolute z-10 w-[240px] h-[240px] md:w-[320px] md:h-[320px] rounded-full border-4 border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-500 hover:scale-105 group">
               <Image
-                src="/kashmiri_wazwan_trami.jpg"
+                src="/kashmiri_wazwan.webp"
                 alt="Kashmiri Wazwan Plate"
                 fill
                 sizes="(max-width: 768px) 240px, 320px"
