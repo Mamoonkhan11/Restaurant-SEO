@@ -131,8 +131,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               return (
-                <Link 
-                  key={item.name} 
+                <Link
+                  key={item.name}
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 transform ${isActive ? 'bg-gradient-to-r from-orange-600 to-red-500 text-white shadow-[0_4px_12px_rgba(234,88,12,0.25)] scale-[1.02]' : 'text-white/70 hover:bg-white/5 hover:text-white hover:translate-x-1'}`}
                   onClick={() => setIsSidebarOpen(false)}
@@ -177,8 +177,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                   Free Trial: {daysLeft} Days Left
                 </span>
                 {isUrgent && (
-                  <Link 
-                    href="/admin/billing" 
+                  <Link
+                    href="/admin/billing"
                     className="py-1.5 px-4 text-center text-[10px] font-extrabold uppercase tracking-wider rounded-full shadow-sm bg-orange-600 text-white hover:bg-orange-700 transition-all duration-300"
                   >
                     Upgrade Now
@@ -195,7 +195,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
               <div className="bg-white/[0.03] backdrop-blur-xl p-8 sm:p-12 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] max-w-md w-full border border-white/10 relative overflow-hidden animate-fade-in-up">
                 {/* Close Button / Skip Option */}
-                <button 
+                <button
                   type="button"
                   onClick={() => setHasSkipped(true)}
                   className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5 cursor-pointer"
@@ -245,7 +245,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                     <input
                       type="text"
                       required
-                      placeholder="WhatsApp Number (e.g. +919876543210)"
+                      placeholder="WhatsApp Number (e.g. 9876543210)"
                       value={phoneInput}
                       onChange={e => setPhoneInput(e.target.value)}
                       className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:bg-white/[0.08] focus:outline-none focus:ring-1 focus:ring-orange-500/40 focus:border-orange-500/40 transition-all font-bold text-white placeholder-gray-500"
