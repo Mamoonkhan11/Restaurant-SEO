@@ -201,26 +201,24 @@ function LiveOrderQueue({ restaurantId }: { restaurantId: string }) {
                 {liveOrders.filter(o => o.status === 'pending').length} Action Required
               </span>
             )}
-            {planType === 'basic' ? (
-              <span className="bg-white/5 text-gray-500 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-white/5 cursor-not-allowed select-none">
-                Chime Locked (Basic)
-              </span>
-            ) : !audioMuted ? (
-              <button
-                onClick={handleToggleAudio}
-                className="bg-orange-600/10 hover:bg-orange-600/20 text-orange-400 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-orange-500/20 transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
-                title="Click to Mute Notifications"
-              >
-                Tap Here to Disable Audio
-              </button>
-            ) : (
-              <button
-                onClick={handleToggleAudio}
-                className="bg-white/5 hover:bg-white/10 text-white/80 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-white/10 transition-colors animate-pulse flex items-center gap-1 cursor-pointer shadow-sm"
-                title="Click to Enable Audio"
-              >
-                Tap Here to Enable Audio
-              </button>
+            {['pro', 'premium', 'enterprise'].includes(planType) && (
+              !audioMuted ? (
+                <button
+                  onClick={handleToggleAudio}
+                  className="bg-orange-600/10 hover:bg-orange-600/20 text-orange-400 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-orange-500/20 transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
+                  title="Click to Mute Notifications"
+                >
+                  Tap Here to Disable Audio
+                </button>
+              ) : (
+                <button
+                  onClick={handleToggleAudio}
+                  className="bg-white/5 hover:bg-white/10 text-white/80 text-[11px] px-3.5 py-1 rounded-full font-extrabold border border-white/10 transition-colors animate-pulse flex items-center gap-1 cursor-pointer shadow-sm"
+                  title="Click to Enable Audio"
+                >
+                  Tap Here to Enable Audio
+                </button>
+              )
             )}
           </h3>
           <p className="text-sm font-medium text-gray-400 mt-1">Manage real-time incoming orders from your tables.</p>
@@ -795,9 +793,14 @@ export default function AdminDashboardOverview() {
             <div className="p-6 flex-1 overflow-y-auto max-h-[350px]">
               <div className="space-y-6">
                 {recentActivity.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-10 text-center">
-                    <svg className="w-10 h-10 text-white/10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <p className="text-sm font-medium text-gray-400">No recent activity.</p>
+                  <div className="flex flex-col items-center justify-center py-12 text-center select-none">
+                    <div className="w-12 h-12 rounded-full bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-3">
+                      <Sparkles className="w-6 h-6 text-orange-400 animate-pulse" />
+                    </div>
+                    <p className="text-sm font-bold text-white mb-1">Happy New Week!</p>
+                    <p className="text-xs text-gray-400 leading-relaxed max-w-[200px] mx-auto">
+                      Activity resets weekly on Mondays. Let's get some orders rolling!
+                    </p>
                   </div>
                 ) : (
                   recentActivity.map((activity, index) => {
