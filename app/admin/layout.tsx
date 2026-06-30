@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase';
 import { RestaurantProvider, useRestaurant } from '@/lib/RestaurantContext';
 import { useSubscription } from '@/lib/useSubscription';
 import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
+import { Loader2 } from 'lucide-react';
 
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -17,6 +19,15 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const isUrgent = daysLeft !== null && daysLeft <= 5;
   const isPromoUser = planType === 'pro' && payments && payments.some(p => p.plan_tier === 'pro' && p.payment_gateway === 'system_promo');
   const [loading, setLoading] = useState(true);
+  const [phoneInput, setPhoneInput] = useState('');
+  const [isPhoneSaving, setIsPhoneSaving] = useState(false);
+  const [hasSkipped, setHasSkipped] = useState(false);
+
+  useEffect(() => {
+    if (pathname === '/admin') {
+      setHasSkipped(false);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     const checkUserSession = async () => {
@@ -178,6 +189,88 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             <Toaster />
             {children}
           </div>
+
+          {/* Mandatory WhatsApp Number Modal Overlay (Triggered on Dashboard if whatsapp_number is missing and not skipped) */}
+          {!isLoading && restaurant && !restaurant.whatsapp_number && pathname === '/admin' && !hasSkipped && (
+            <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+              <div className="bg-white/[0.03] backdrop-blur-xl p-8 sm:p-12 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] max-w-md w-full border border-white/10 relative overflow-hidden animate-fade-in-up">
+                {/* Close Button / Skip Option */}
+                <button 
+                  type="button"
+                  onClick={() => setHasSkipped(true)}
+                  className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5 cursor-pointer"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+
+                {/* Background Glows inside modal */}
+                <div className="absolute top-[-10%] right-[-10%] w-48 h-48 rounded-full bg-orange-600/10 blur-[40px] pointer-events-none"></div>
+                <div className="absolute bottom-[-10%] left-[-10%] w-48 h-48 rounded-full bg-amber-500/10 blur-[40px] pointer-events-none"></div>
+
+                <div className="text-center mb-8 relative z-10">
+                  <div className="w-16 h-16 bg-orange-500/10 text-orange-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-500/20">
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                    </svg>
+                  </div>
+                  <h2 className="text-2xl font-black text-white tracking-tight mb-2">WhatsApp Required</h2>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    To continue using RESTDIGI, please provide a valid WhatsApp number. We use this to route live table orders and customer notifications.
+                  </p>
+                </div>
+
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!phoneInput.trim()) {
+                    toast.error('Please enter a valid number');
+                    return;
+                  }
+                  setIsPhoneSaving(true);
+                  try {
+                    const { error } = await supabase
+                      .from('restaurants')
+                      .update({ whatsapp_number: phoneInput.trim() })
+                      .eq('id', restaurant.id);
+                    if (error) throw error;
+                    toast.success('WhatsApp number saved!');
+                  } catch (err: any) {
+                    toast.error(err.message || 'Failed to save phone number');
+                  } finally {
+                    setIsPhoneSaving(false);
+                  }
+                }} className="space-y-4 relative z-10">
+                  <div>
+                    <input
+                      type="text"
+                      required
+                      placeholder="WhatsApp Number (e.g. +919876543210)"
+                      value={phoneInput}
+                      onChange={e => setPhoneInput(e.target.value)}
+                      className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:bg-white/[0.08] focus:outline-none focus:ring-1 focus:ring-orange-500/40 focus:border-orange-500/40 transition-all font-bold text-white placeholder-gray-500"
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setHasSkipped(true)}
+                      className="flex-1 bg-white/5 text-white py-4 rounded-2xl font-bold hover:bg-white/10 transition-all border border-white/10 text-center cursor-pointer"
+                    >
+                      Skip
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isPhoneSaving}
+                      className="flex-[2] bg-gradient-to-r from-orange-600 to-red-500 text-white py-4 px-6 rounded-2xl font-bold hover:from-orange-700 hover:to-red-600 transition-all shadow-[0_4px_15px_rgba(234,88,12,0.3)] flex justify-center items-center gap-2 cursor-pointer"
+                    >
+                      {isPhoneSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save & Continue'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
           {showExpiredOverlay && (
             <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">

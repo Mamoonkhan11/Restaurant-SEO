@@ -10,12 +10,13 @@ export default function RegisterPage() {
   const [fullName, setFullName] = useState('');
   const [businessName, setBusinessName] = useState('');
   const [email, setEmail] = useState('');
+  const [whatsappNumber, setWhatsappNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleRegister = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!fullName || !businessName || !email) return;
+    if (!fullName || !businessName || !email || !whatsappNumber) return;
 
     setIsLoading(true);
 
@@ -92,7 +93,8 @@ export default function RegisterPage() {
           owner_id: authData.user.id,
           email: authData.user.email,
           name: trimmedBusinessName,
-          slug: targetSlug
+          slug: targetSlug,
+          whatsapp_number: whatsappNumber.trim()
         });
 
         if (dbError) {
@@ -180,13 +182,24 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                <div>
+                 <div>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="Work Email"
+                    className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:bg-white/[0.08] focus:outline-none focus:ring-1 focus:ring-orange-500/40 focus:border-orange-500/40 transition-all font-bold text-white placeholder-gray-500"
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    required
+                    value={whatsappNumber}
+                    onChange={e => setWhatsappNumber(e.target.value)}
+                    placeholder="WhatsApp Number (e.g. +919876543210)"
                     className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl focus:bg-white/[0.08] focus:outline-none focus:ring-1 focus:ring-orange-500/40 focus:border-orange-500/40 transition-all font-bold text-white placeholder-gray-500"
                   />
                 </div>

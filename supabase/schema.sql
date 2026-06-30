@@ -119,3 +119,6 @@ CREATE INDEX IF NOT EXISTS idx_tables_qr_slug ON public.tables(qr_slug);
 CREATE INDEX IF NOT EXISTS idx_orders_restaurant_id ON public.orders(restaurant_id);
 CREATE INDEX IF NOT EXISTS idx_orders_restaurant_status ON public.orders(restaurant_id, status);
 CREATE INDEX IF NOT EXISTS idx_payments_restaurant_id ON public.payments(restaurant_id);
+
+-- Alter restaurants to add whatsapp_number column for direct contact features
+ALTER TABLE public.restaurants ADD COLUMN IF NOT EXISTS whatsapp_number TEXT;

@@ -15,6 +15,7 @@ export default function SettingsPage() {
     name: '',
     planType: 'free',
     googleReviewUrl: '',
+    whatsappNumber: '',
   });
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -41,6 +42,7 @@ export default function SettingsPage() {
           name: fetchedName,
           planType: restaurant.plan_type || 'free',
           googleReviewUrl: restaurant.google_review_url || '',
+          whatsappNumber: restaurant.whatsapp_number || '',
         });
         setLogoPreview(restaurant.logo_url || null);
       }
@@ -107,7 +109,8 @@ export default function SettingsPage() {
       const updatePayload: any = {
         name: formData.name,
         slug: generatedSlug,
-        logo_url: finalLogoUrl
+        logo_url: finalLogoUrl,
+        whatsapp_number: formData.whatsappNumber.trim()
       };
 
       if (isProOrAbove) {
@@ -176,6 +179,19 @@ export default function SettingsPage() {
                     setHasWarnedNameChange(true);
                   }
                 }}
+                className="w-full px-5 py-4 bg-white/[0.02] border border-white/10 rounded-2xl focus:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium text-white" 
+              />
+            </div>
+
+            {/* WhatsApp Number */}
+            <div>
+              <label className="block text-sm font-bold text-gray-300 mb-2">WhatsApp Number</label>
+              <input 
+                type="text" 
+                required
+                placeholder="e.g. +919876543210"
+                value={formData.whatsappNumber} 
+                onChange={e => setFormData({...formData, whatsappNumber: e.target.value})}
                 className="w-full px-5 py-4 bg-white/[0.02] border border-white/10 rounded-2xl focus:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-orange-500/40 transition-all font-medium text-white" 
               />
             </div>
