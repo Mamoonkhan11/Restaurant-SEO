@@ -42,6 +42,9 @@ const MenuHeader = React.memo(({ restaurant, menuBlocked, tableNo }: { restauran
     <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight text-center">
       {restaurant?.name || 'Restaurant Name'}
     </h1>
+    <span className="mt-2 px-3 py-1 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[10px] tracking-wider uppercase border border-orange-400/20 shadow-[0_0_12px_rgba(234,88,12,0.3)]">
+      Digital Menu
+    </span>
     {tableNo && (
       <span className="mt-2 px-3 py-1 rounded-full bg-white/5 text-white font-extrabold text-[10px] tracking-wider border border-white/10 uppercase shadow-sm">
         {formatTableNumber(tableNo)}
@@ -947,10 +950,10 @@ export default function MenuClient({
                             const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
                             const isStartItem = idx === 0;
                             const cardBgBorderClasses = !item.is_available
-                              ? 'bg-white/[0.02] border-white/5 opacity-40 grayscale cursor-not-allowed'
+                              ? 'bg-[#1E1E1E] border-white/5 opacity-40 grayscale cursor-not-allowed'
                               : isStartItem
-                                ? 'bg-orange-500/[0.02] border-orange-500/30 shadow-[0_0_18px_rgba(234,88,12,0.18)] cursor-pointer hover:border-orange-500/50 hover:bg-orange-500/[0.04] hover:shadow-[0_0_26px_rgba(234,88,12,0.28)]'
-                                : 'bg-white/[0.02] border-white/5 cursor-pointer hover:border-white/15 hover:bg-white/[0.04] hover:shadow-lg hover:shadow-black/20';
+                                ? 'bg-[#1E1E1E] border-orange-500/30 shadow-[0_0_18px_rgba(234,88,12,0.18)] cursor-pointer hover:border-orange-500/50 hover:bg-[#252525] hover:shadow-[0_0_26px_rgba(234,88,12,0.28)]'
+                                : 'bg-[#1E1E1E] border-white/5 cursor-pointer hover:border-white/15 hover:bg-[#252525] hover:shadow-lg hover:shadow-black/20';
 
                             return (
                               <motion.div
@@ -996,7 +999,7 @@ export default function MenuClient({
                                     )}
                                   </div>
                                   {item.description && (
-                                    <p className="text-gray-450 text-xs sm:text-sm mt-0.5 line-clamp-2 leading-relaxed">
+                                    <p className="text-[#A0A0A0] text-xs sm:text-sm mt-0.5 line-clamp-2 leading-relaxed">
                                       {item.description}
                                     </p>
                                   )}
@@ -1223,7 +1226,7 @@ export default function MenuClient({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.1, delay: 0.02 }}
-                    className="text-gray-350 text-sm sm:text-base leading-relaxed mb-8"
+                    className="text-[#A0A0A0] text-sm sm:text-base leading-relaxed mb-8"
                   >
                     {selectedDish.description || "Prepared with fresh ingredients and our secret house spices."}
                   </motion.p>

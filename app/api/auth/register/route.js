@@ -12,7 +12,7 @@ export async function POST(req) {
       const htmlContent = `<div style="font-family: Arial, sans-serif; font-size: 16px; color: #111111; line-height: 1.6; max-width: 600px; padding: 20px 0;">
   <p>Woohoo! Your digital transformation has officially started. Welcome to the RestDigi family, ${name}!</p>
   
-  <p>Your account has been successfully activated on the <strong>Early Bird Tier (One Month FREE for core modules)</strong>.</p>
+  <p>Your account has been successfully activated. We are excited to help you streamline operations, eliminate ordering delays, and grow your sales.</p>
   
   <p><strong>Quick Start Guide Action Steps:</strong></p>
   <ol style="padding-left: 20px; margin-bottom: 20px;">
@@ -22,7 +22,7 @@ export async function POST(req) {
   </ol>
   
   <p style="margin-bottom: 24px;">
-    <a href="https://www.restdigi.online/dashboard" style="display: inline-block; background-color: #ea580c; color: #ffffff; text-decoration: none; font-weight: bold; padding: 12px 24px; border-radius: 8px;">Go to Dashboard Workspace</a>
+    <a href="https://www.restdigi.online/admin" style="display: inline-block; background-color: #ea580c; color: #ffffff; text-decoration: none; font-weight: bold; padding: 12px 24px; border-radius: 8px;">Go to Dashboard Workspace</a>
   </p>
   
   <p>Got stuck somewhere? Reply to this email or contact us at <a href="mailto:support@restdigi.online" style="color: #D32F2F; text-decoration: underline; font-weight: bold;">support@restdigi.online</a>. Let's eliminate order latency together!</p>

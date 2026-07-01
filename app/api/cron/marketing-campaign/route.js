@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+export const dynamic = 'force-dynamic';
+
 async function handleCron(req) {
   try {
     const authHeader = req.headers.get('authorization');

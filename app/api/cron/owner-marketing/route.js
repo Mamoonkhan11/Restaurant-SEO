@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+export const dynamic = 'force-dynamic';
+
 const emailMatrix = [
   {
     subject: "Is paper management leaking your restaurant profits?",
