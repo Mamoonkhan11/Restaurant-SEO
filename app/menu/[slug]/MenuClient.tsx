@@ -814,6 +814,15 @@ export default function MenuClient({
                           whileTap={{ scale: 0.98 }}
                           className="min-w-[280px] max-w-[280px] bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-white/[0.03] backdrop-blur-md rounded-[32px] p-5 flex flex-col justify-between shadow-xl border border-amber-500/30 relative overflow-visible snap-center cursor-pointer hover:border-amber-500/50 transition-all duration-300 shrink-0"
                         >
+                          {/* Top-Centered Blinking Offer Tag */}
+                          {item.offer_tag && (
+                            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20 pointer-events-none w-max max-w-[90%]">
+                              <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white text-[10px] font-black px-3.5 py-1 rounded-full shadow-[0_0_14px_rgba(234,88,12,0.7)] border border-white/20 uppercase tracking-wider animate-pulse text-center block truncate">
+                                ✨ {item.offer_tag}
+                              </span>
+                            </div>
+                          )}
+
                           {/* Tags */}
                           <div className="flex justify-between items-start w-full relative z-10">
                             <span className={`w-3.5 h-3.5 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0 mt-0.5`}>
@@ -958,6 +967,15 @@ export default function MenuClient({
                         whileTap={{ scale: 0.98 }}
                         className="min-w-[280px] max-w-[280px] bg-white/[0.03] backdrop-blur-md rounded-[32px] p-5 flex flex-col justify-between shadow-xl border border-white/10 relative overflow-visible snap-center cursor-pointer hover:border-white/20 transition-all duration-300 shrink-0"
                       >
+                        {/* Top-Centered Blinking Offer Tag */}
+                        {item.offer_tag && (
+                          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20 pointer-events-none w-max max-w-[90%]">
+                            <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white text-[10px] font-black px-3.5 py-1 rounded-full shadow-[0_0_14px_rgba(234,88,12,0.7)] border border-white/20 uppercase tracking-wider animate-pulse text-center block truncate">
+                              ✨ {item.offer_tag}
+                            </span>
+                          </div>
+                        )}
+
                         {/* Tags */}
                         <div className="flex justify-between items-start w-full relative z-10">
                           <span className={`w-3.5 h-3.5 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0 mt-0.5`}>
@@ -984,12 +1002,6 @@ export default function MenuClient({
                               <span className="text-3xl font-black text-gray-500 uppercase select-none">{item.name.charAt(0)}</span>
                             )}
                           </div>
-
-                          {item.offer_tag && (
-                            <span className="absolute -bottom-2 -right-1 bg-orange-500/20 text-orange-400 text-[9px] font-black px-2.5 py-1 rounded-md border border-orange-500/30 shadow-sm uppercase tracking-wide animate-pulse">
-                              {item.offer_tag}
-                            </span>
-                          )}
                         </div>
 
                         {/* Dish Meta */}
@@ -1340,9 +1352,11 @@ export default function MenuClient({
                                   </div>
                                 </div>
 
-                                {item.is_special_offer && item.offer_tag && item.is_available && item.restaurant_id === initialRestaurant.id && (
-                                  <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-orange-500 text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase border-b border-l border-white/10">
-                                    {item.offer_tag}
+                                {item.offer_tag && item.is_available && item.restaurant_id === initialRestaurant.id && (
+                                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none w-max max-w-[85%]">
+                                    <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white text-[9px] sm:text-[10px] font-black px-3 py-0.5 sm:py-1 rounded-full shadow-[0_0_12px_rgba(234,88,12,0.7)] border border-white/20 uppercase tracking-wider animate-pulse text-center block truncate">
+                                      ✨ {item.offer_tag}
+                                    </span>
                                   </div>
                                 )}
                                 {!item.is_available && (
@@ -1464,13 +1478,18 @@ export default function MenuClient({
                 </div>
 
                 <div className="p-6 sm:p-8 overflow-y-auto flex-1 bg-[#0F1012]">
-                  {(selectedDish.isBestSeller || (selectedDish.view_count || 0) >= 100) && (
-                    <div className="mb-2">
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {selectedDish.offer_tag && (
+                      <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-white border border-white/20 text-[10px] font-black px-3.5 py-1 rounded-full uppercase tracking-wider shadow-[0_0_12px_rgba(234,88,12,0.6)] animate-pulse">
+                        ✨ {selectedDish.offer_tag}
+                      </span>
+                    )}
+                    {(selectedDish.isBestSeller || (selectedDish.view_count || 0) >= 100) && (
                       <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
                         <span>⭐</span> Bestseller Dish of Week
                       </span>
-                    </div>
-                  )}
+                    )}
+                  </div>
                   <div className="flex justify-between items-start gap-4 mb-4">
                     <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">
                       {selectedDish.name}
