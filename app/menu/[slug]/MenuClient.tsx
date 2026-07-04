@@ -655,8 +655,8 @@ export default function MenuClient({
                   >
                     <Star
                       className={`w-10 h-10 transition-all duration-150 transform group-hover:scale-115 ${isFilled
-                          ? 'text-amber-400 fill-amber-400 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]'
-                          : 'text-white/20 fill-transparent hover:text-amber-400'
+                        ? 'text-amber-400 fill-amber-400 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+                        : 'text-white/20 fill-transparent hover:text-amber-400'
                         }`}
                     />
                   </button>
@@ -792,13 +792,8 @@ export default function MenuClient({
             {/* Bestseller Dish of Week Section (Item crosses 100 views) */}
             {dishes.filter(d => (d.isBestSeller || (d.view_count || 0) >= 100) && d.is_available && d.restaurant_id === initialRestaurant.id).length > 0 && (
               <div className="mb-8">
-                <h2 className="text-lg sm:text-xl font-black text-white mb-4 flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <span className="text-amber-400">🔥</span> Bestseller Dish of Week
-                  </span>
-                  <span className="text-[10px] bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                    100+ Views
-                  </span>
+                <h2 className="text-lg sm:text-xl font-black text-white mb-4 flex items-center gap-2">
+                  <span className="text-amber-400">🔥</span> Bestseller Dish of Week
                 </h2>
                 <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x pl-1 pr-4">
                   {dishes
@@ -806,6 +801,11 @@ export default function MenuClient({
                     .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
                     .map(item => {
                       const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
+                      const sizeKey = item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0
+                        ? Object.keys(item.sizes)[selectedSizes[item.id] || 0]
+                        : 'Standard';
+                      const cartItem = cart.find(c => c.dish_id === item.id && c.size === sizeKey);
+                      const quantity = cartItem ? cartItem.quantity : 0;
 
                       return (
                         <motion.div
@@ -826,30 +826,107 @@ export default function MenuClient({
                           </div>
 
                           {/* Centered Dish Image */}
-                          <div className="my-4 flex justify-center w-full relative">
-                            <div className="w-28 h-28 rounded-full overflow-hidden relative shadow-md border border-amber-500/30 bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center">
+                          <div className="my-3 flex justify-center w-full relative">
+                            <div className="w-24 h-24 rounded-full overflow-hidden relative shadow-md border border-amber-500/30 bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center">
                               {item.image_url ? (
-                                <Image src={item.image_url} fill sizes="112px" alt={item.name} className="object-cover" />
+                                <Image src={item.image_url} fill sizes="96px" alt={item.name} className="object-cover" />
                               ) : (
                                 <span className="text-3xl font-black text-amber-400 uppercase select-none">{item.name.charAt(0)}</span>
                               )}
                             </div>
-
-                            <span className="absolute -bottom-2 bg-black/90 text-amber-400 text-[9px] font-black px-2.5 py-0.5 rounded-full border border-amber-500/40 shadow-sm uppercase tracking-wide">
-                              {item.view_count || 100}+ Views
-                            </span>
                           </div>
 
                           {/* Dish Meta */}
-                          <div className="text-left w-full mt-2">
-                            <h3 className="text-lg font-black text-white leading-snug line-clamp-1">{item.name}</h3>
-                            <div className="flex items-center justify-between mt-2.5">
+                          <div className="text-left w-full mt-1">
+                            <h3 className="text-base font-black text-white leading-snug line-clamp-1">{item.name}</h3>
+
+                            {/* Portion / Size Selector (Half / Full / Pieces / Portion) */}
+                            {item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-1.5" onClick={e => e.stopPropagation()}>
+                                {Object.entries(item.sizes).map(([label], i: number) => {
+                                  const isSelected = (selectedSizes[item.id] || 0) === i;
+                                  return (
+                                    <button
+                                      key={i}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedSizes(prev => ({ ...prev, [item.id]: i }));
+                                      }}
+                                      className={`px-2.5 py-1 text-[9px] uppercase tracking-wide font-extrabold rounded-lg transition-all ${isSelected
+                                          ? 'bg-[#EA580C] text-white shadow-[0_0_8px_rgba(234,88,12,0.4)]'
+                                          : 'bg-white/10 text-gray-300 border border-white/10 hover:bg-white/20'
+                                        }`}
+                                    >
+                                      {label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between mt-3">
                               <span className="text-base font-black text-amber-400 tabular-nums">
                                 ₹{getDishPrice(item)}
                               </span>
-                              <span className="bg-[#EA580C] hover:bg-orange-600 text-white text-[10px] font-extrabold px-3.5 py-1.5 rounded-full shadow-[0_0_12px_rgba(234,88,12,0.3)] transition-colors">
-                                ADD +
-                              </span>
+                              {item.is_available && (
+                                <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                                  {quantity > 0 ? (
+                                    <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-1 py-1 rounded-full shadow-sm">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setCart(prev => {
+                                            const newCart = [...prev];
+                                            const idx = newCart.findIndex(c => c.dish_id === item.id && c.size === sizeKey);
+                                            if (idx >= 0) {
+                                              newCart[idx].quantity -= 1;
+                                              if (newCart[idx].quantity <= 0) newCart.splice(idx, 1);
+                                            }
+                                            return newCart;
+                                          });
+                                        }}
+                                        className="w-6 h-6 flex items-center justify-center bg-white/10 text-white rounded-full font-bold text-xs active:scale-95 transition-all hover:bg-white/20"
+                                      >
+                                        -
+                                      </button>
+                                      <span className="font-bold text-white text-xs w-4 text-center">{quantity}</span>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (quantity < 10) {
+                                            setCart(prev => {
+                                              const newCart = [...prev];
+                                              const idx = newCart.findIndex(c => c.dish_id === item.id && c.size === sizeKey);
+                                              if (idx >= 0) newCart[idx].quantity += 1;
+                                              return newCart;
+                                            });
+                                          }
+                                        }}
+                                        className="w-6 h-6 flex items-center justify-center bg-white/10 text-white rounded-full font-bold text-xs active:scale-95 transition-all hover:bg-white/20"
+                                      >
+                                        +
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setCart(prev => [...prev, {
+                                          dish_id: item.id,
+                                          name: item.name,
+                                          price: Number(getDishPrice(item)),
+                                          quantity: 1,
+                                          size: sizeKey,
+                                          img: item.image_url
+                                        }]);
+                                      }}
+                                      className="bg-[#EA580C] hover:bg-orange-600 text-white text-[10px] font-extrabold px-3.5 py-1.5 rounded-full shadow-[0_0_12px_rgba(234,88,12,0.3)] transition-colors"
+                                    >
+                                      ADD +
+                                    </button>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </motion.div>
@@ -863,11 +940,16 @@ export default function MenuClient({
             {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).length > 0 && (
               <div className="mb-4">
                 <h2 className="text-lg sm:text-xl font-bold text-white mb-4 flex items-center gap-2">
-                  <span className="text-orange-500">✨</span> Recommended For You
+                  <span className="text-orange-500">⭐</span> Recommended For You
                 </h2>
                 <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x pl-1 pr-4">
                   {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).map(item => {
                     const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
+                    const sizeKey = item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0
+                      ? Object.keys(item.sizes)[selectedSizes[item.id] || 0]
+                      : 'Standard';
+                    const cartItem = cart.find(c => c.dish_id === item.id && c.size === sizeKey);
+                    const quantity = cartItem ? cartItem.quantity : 0;
 
                     return (
                       <motion.div
@@ -894,10 +976,10 @@ export default function MenuClient({
                         </div>
 
                         {/* Centered Dish Image */}
-                        <div className="my-4 flex justify-center w-full relative">
-                          <div className="w-28 h-28 rounded-full overflow-hidden relative shadow-md border border-white/5 bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center">
+                        <div className="my-3 flex justify-center w-full relative">
+                          <div className="w-24 h-24 rounded-full overflow-hidden relative shadow-md border border-white/5 bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center">
                             {item.image_url ? (
-                              <Image src={item.image_url} fill sizes="112px" alt={item.name} className="object-cover" />
+                              <Image src={item.image_url} fill sizes="96px" alt={item.name} className="object-cover" />
                             ) : (
                               <span className="text-3xl font-black text-gray-500 uppercase select-none">{item.name.charAt(0)}</span>
                             )}
@@ -911,15 +993,96 @@ export default function MenuClient({
                         </div>
 
                         {/* Dish Meta */}
-                        <div className="text-left w-full mt-2">
-                          <h3 className="text-lg font-black text-white leading-snug line-clamp-1">{item.name}</h3>
-                          <div className="flex items-center justify-between mt-2.5">
+                        <div className="text-left w-full mt-1">
+                          <h3 className="text-base font-black text-white leading-snug line-clamp-1">{item.name}</h3>
+
+                          {/* Portion / Size Selector (Half / Full / Pieces / Portion) */}
+                          {item.sizes && typeof item.sizes === 'object' && Object.keys(item.sizes).length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1.5" onClick={e => e.stopPropagation()}>
+                              {Object.entries(item.sizes).map(([label], i: number) => {
+                                const isSelected = (selectedSizes[item.id] || 0) === i;
+                                return (
+                                  <button
+                                    key={i}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedSizes(prev => ({ ...prev, [item.id]: i }));
+                                    }}
+                                    className={`px-2.5 py-1 text-[9px] uppercase tracking-wide font-extrabold rounded-lg transition-all ${isSelected
+                                        ? 'bg-[#EA580C] text-white shadow-[0_0_8px_rgba(234,88,12,0.4)]'
+                                        : 'bg-white/10 text-gray-300 border border-white/10 hover:bg-white/20'
+                                      }`}
+                                  >
+                                    {label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between mt-3">
                             <span className="text-base font-black text-amber-400 tabular-nums">
                               ₹{getDishPrice(item)}
                             </span>
-                            <span className="bg-[#EA580C] hover:bg-orange-600 text-white text-[10px] font-extrabold px-3.5 py-1.5 rounded-full shadow-[0_0_12px_rgba(234,88,12,0.3)] transition-colors">
-                              ADD +
-                            </span>
+                            {item.is_available && (
+                              <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                                {quantity > 0 ? (
+                                  <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-1 py-1 rounded-full shadow-sm">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setCart(prev => {
+                                          const newCart = [...prev];
+                                          const idx = newCart.findIndex(c => c.dish_id === item.id && c.size === sizeKey);
+                                          if (idx >= 0) {
+                                            newCart[idx].quantity -= 1;
+                                            if (newCart[idx].quantity <= 0) newCart.splice(idx, 1);
+                                          }
+                                          return newCart;
+                                        });
+                                      }}
+                                      className="w-6 h-6 flex items-center justify-center bg-white/10 text-white rounded-full font-bold text-xs active:scale-95 transition-all hover:bg-white/20"
+                                    >
+                                      -
+                                    </button>
+                                    <span className="font-bold text-white text-xs w-4 text-center">{quantity}</span>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (quantity < 10) {
+                                          setCart(prev => {
+                                            const newCart = [...prev];
+                                            const idx = newCart.findIndex(c => c.dish_id === item.id && c.size === sizeKey);
+                                            if (idx >= 0) newCart[idx].quantity += 1;
+                                            return newCart;
+                                          });
+                                        }
+                                      }}
+                                      className="w-6 h-6 flex items-center justify-center bg-white/10 text-white rounded-full font-bold text-xs active:scale-95 transition-all hover:bg-white/20"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setCart(prev => [...prev, {
+                                        dish_id: item.id,
+                                        name: item.name,
+                                        price: Number(getDishPrice(item)),
+                                        quantity: 1,
+                                        size: sizeKey,
+                                        img: item.image_url
+                                      }]);
+                                    }}
+                                    className="bg-[#EA580C] hover:bg-orange-600 text-white text-[10px] font-extrabold px-3.5 py-1.5 rounded-full shadow-[0_0_12px_rgba(234,88,12,0.3)] transition-colors"
+                                  >
+                                    ADD +
+                                  </button>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </motion.div>
@@ -1304,7 +1467,7 @@ export default function MenuClient({
                   {(selectedDish.isBestSeller || (selectedDish.view_count || 0) >= 100) && (
                     <div className="mb-2">
                       <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                        <span>🔥</span> Bestseller Dish of Week ({selectedDish.view_count || 100}+ Views)
+                        <span>⭐</span> Bestseller Dish of Week
                       </span>
                     </div>
                   )}
