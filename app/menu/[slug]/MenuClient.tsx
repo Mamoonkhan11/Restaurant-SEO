@@ -1225,23 +1225,27 @@ export default function MenuClient({
 
                                 {/* Info */}
                                 <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
-                                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                    <div className={`w-3 h-3 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0`}>
+                                  <div className="flex items-start gap-2 mb-1">
+                                    <div className={`w-3.5 h-3.5 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0 mt-1`}>
                                       <div className={`w-1.5 h-1.5 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}></div>
                                     </div>
-                                    <h3 className="text-base sm:text-lg font-bold text-white truncate">
-                                      {item.name}
-                                    </h3>
-                                    {/* Bestseller Badge (100+ views) or Special Tag */}
-                                    {(item.isBestSeller || (item.view_count || 0) >= 100) ? (
-                                      <span className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1 shadow-sm">
-                                        <span>⭐</span> Bestseller Dish of Week
-                                      </span>
-                                    ) : item.special_tag && item.special_tag.trim() !== "" ? (
-                                      <span className="bg-orange-500/10 text-orange-400 border border-orange-500/20 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
-                                        {item.special_tag}
-                                      </span>
-                                    ) : null}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <h3 className="text-base sm:text-lg font-bold text-white leading-snug break-words">
+                                          {item.name}
+                                        </h3>
+                                        {/* Bestseller Badge (100+ views) or Special Tag */}
+                                        {(item.isBestSeller || (item.view_count || 0) >= 100) ? (
+                                          <span className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1 shadow-sm">
+                                            <span>⭐</span> Bestseller Dish of Week
+                                          </span>
+                                        ) : item.special_tag && item.special_tag.trim() !== "" ? (
+                                          <span className="bg-orange-500/10 text-orange-400 border border-orange-500/20 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+                                            {item.special_tag}
+                                          </span>
+                                        ) : null}
+                                      </div>
+                                    </div>
                                   </div>
                                   {item.description && (
                                     <p className="text-[#A0A0A0] text-xs sm:text-sm mt-0.5 line-clamp-2 leading-relaxed">
@@ -1334,6 +1338,11 @@ export default function MenuClient({
                                   </div>
                                 </div>
 
+                                {item.offer_tag && item.is_available && item.restaurant_id === initialRestaurant.id && (
+                                  <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] font-black px-2.5 py-1 shadow-md tracking-wider z-10 uppercase border-b border-l border-white/10">
+                                    {item.offer_tag}
+                                  </div>
+                                )}
                                 {!item.is_available && (
                                   <div className="absolute top-0 right-0 rounded-bl-xl rounded-tr-xl bg-gray-700 text-white text-[10px] font-black px-2.5 py-1 shadow-sm tracking-wider z-10 uppercase">
                                     Out of stock
