@@ -99,7 +99,7 @@ export default async function DigitalMenu({
   if (dishesData) {
     initialDishes = dishesData.map((d) => ({
       ...d,
-      isBestSeller: (d.view_count || 0) > 60,
+      isBestSeller: (d.view_count || 0) >= 100,
       view_count: d.view_count || 0
     }));
 

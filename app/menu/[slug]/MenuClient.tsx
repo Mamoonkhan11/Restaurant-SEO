@@ -424,7 +424,7 @@ export default function MenuClient({
           if (freshDishes) {
             setDishes(freshDishes.map(d => ({
               ...d,
-              isBestSeller: (d.view_count || 0) > 60,
+              isBestSeller: (d.view_count || 0) >= 100,
               view_count: d.view_count || 0
             })));
             updateCategories(freshDishes);
@@ -439,7 +439,7 @@ export default function MenuClient({
             if (payload.new.restaurant_id !== restaurantId) return prev;
             const newDish = {
               ...payload.new,
-              isBestSeller: (payload.new.view_count || 0) > 60,
+              isBestSeller: (payload.new.view_count || 0) >= 100,
               view_count: payload.new.view_count || 0
             };
             const newDishes = [newDish, ...prev];
@@ -457,7 +457,7 @@ export default function MenuClient({
             const newDishes = prev.map(d =>
               d.id === payload.new.id ? {
                 ...payload.new,
-                isBestSeller: (payload.new.view_count || 0) > 60,
+                isBestSeller: (payload.new.view_count || 0) >= 100,
                 view_count: payload.new.view_count || 0
               } : d
             );
@@ -516,13 +516,21 @@ export default function MenuClient({
     setSelectedDish(dish);
     setDishQuantity(1);
 
-    setDishes(prev => prev.map(d =>
-      d.id === dish.id ? { ...d, view_count: d.view_count + 1 } : d
-    ));
+    setDishes(prev => prev.map(d => {
+      if (d.id === dish.id) {
+        const newCount = (d.view_count || 0) + 1;
+        return {
+          ...d,
+          view_count: newCount,
+          isBestSeller: newCount >= 100
+        };
+      }
+      return d;
+    }));
 
     const { error } = await supabase.rpc('increment_view_count', { dish_id: dish.id });
     if (error) {
-      await supabase.from('dishes').update({ view_count: dish.view_count + 1 }).eq('id', dish.id);
+      await supabase.from('dishes').update({ view_count: (dish.view_count || 0) + 1 }).eq('id', dish.id);
     }
   };
 
@@ -588,9 +596,9 @@ export default function MenuClient({
       {showGoogleReviewModal && restaurant?.google_review_url && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
           <div className="bg-[#121318] rounded-[2rem] max-w-sm w-full p-6 shadow-2xl border border-white/10 text-center relative overflow-hidden animate-fade-in-up">
-            
+
             {/* Top Close Button */}
-            <button 
+            <button
               onClick={() => {
                 setShowGoogleReviewModal(false);
                 setSelectedRating(0);
@@ -612,7 +620,7 @@ export default function MenuClient({
             </p>
 
             {/* Stars row */}
-            <div 
+            <div
               className="flex items-center justify-center gap-2 mb-6"
               onMouseLeave={() => setHoveredRating(0)}
             >
@@ -626,14 +634,14 @@ export default function MenuClient({
                     onMouseEnter={() => setHoveredRating(star)}
                     onClick={() => {
                       setSelectedRating(star);
-                      
+
                       // Copy to clipboard
                       if (navigator.clipboard && navigator.clipboard.writeText) {
                         navigator.clipboard.writeText(reviewTemplate).then(() => {
                           toast.success("Review template copied to clipboard!");
-                        }).catch(() => {});
+                        }).catch(() => { });
                       }
-                      
+
                       // Open Google review page with a short delay for filled star visual feedback
                       const targetUrl = ensureAbsoluteUrl(restaurant.google_review_url);
                       setTimeout(() => {
@@ -645,12 +653,11 @@ export default function MenuClient({
                     }}
                     className="group p-1 focus:outline-none cursor-pointer"
                   >
-                    <Star 
-                      className={`w-10 h-10 transition-all duration-150 transform group-hover:scale-115 ${
-                        isFilled 
-                          ? 'text-amber-400 fill-amber-400 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]' 
+                    <Star
+                      className={`w-10 h-10 transition-all duration-150 transform group-hover:scale-115 ${isFilled
+                          ? 'text-amber-400 fill-amber-400 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]'
                           : 'text-white/20 fill-transparent hover:text-amber-400'
-                      }`} 
+                        }`}
                     />
                   </button>
                 );
@@ -780,8 +787,78 @@ export default function MenuClient({
         </main>
       ) : (
         <>
-          {/* Recommended/Special Offers Section (Warm Cream Background replaced with Dark Glass) */}
+          {/* Recommended & Bestseller Section */}
           <div className="w-full max-w-4xl mx-auto px-4 pt-4 pb-2 relative z-10">
+            {/* Bestseller Dish of Week Section (Item crosses 100 views) */}
+            {dishes.filter(d => (d.isBestSeller || (d.view_count || 0) >= 100) && d.is_available && d.restaurant_id === initialRestaurant.id).length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-lg sm:text-xl font-black text-white mb-4 flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <span className="text-amber-400">🔥</span> Bestseller Dish of Week
+                  </span>
+                  <span className="text-[10px] bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                    100+ Views
+                  </span>
+                </h2>
+                <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x pl-1 pr-4">
+                  {dishes
+                    .filter(d => (d.isBestSeller || (d.view_count || 0) >= 100) && d.is_available && d.restaurant_id === initialRestaurant.id)
+                    .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
+                    .map(item => {
+                      const isVeg = item.category?.toLowerCase().includes('non-veg') || item.category?.toLowerCase().includes('chicken') || item.category?.toLowerCase().includes('meat') ? false : true;
+
+                      return (
+                        <motion.div
+                          key={`bestseller-${item.id}`}
+                          onClick={() => handleDishClick(item)}
+                          whileTap={{ scale: 0.98 }}
+                          className="min-w-[280px] max-w-[280px] bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-white/[0.03] backdrop-blur-md rounded-[32px] p-5 flex flex-col justify-between shadow-xl border border-amber-500/30 relative overflow-visible snap-center cursor-pointer hover:border-amber-500/50 transition-all duration-300 shrink-0"
+                        >
+                          {/* Tags */}
+                          <div className="flex justify-between items-start w-full relative z-10">
+                            <span className={`w-3.5 h-3.5 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0 mt-0.5`}>
+                              <div className={`w-2 h-2 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}></div>
+                            </span>
+
+                            <span className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider border border-amber-500/30 flex items-center gap-1 shadow-sm">
+                              <span>⭐</span> Bestseller Dish of Week
+                            </span>
+                          </div>
+
+                          {/* Centered Dish Image */}
+                          <div className="my-4 flex justify-center w-full relative">
+                            <div className="w-28 h-28 rounded-full overflow-hidden relative shadow-md border border-amber-500/30 bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center">
+                              {item.image_url ? (
+                                <Image src={item.image_url} fill sizes="112px" alt={item.name} className="object-cover" />
+                              ) : (
+                                <span className="text-3xl font-black text-amber-400 uppercase select-none">{item.name.charAt(0)}</span>
+                              )}
+                            </div>
+
+                            <span className="absolute -bottom-2 bg-black/90 text-amber-400 text-[9px] font-black px-2.5 py-0.5 rounded-full border border-amber-500/40 shadow-sm uppercase tracking-wide">
+                              {item.view_count || 100}+ Views
+                            </span>
+                          </div>
+
+                          {/* Dish Meta */}
+                          <div className="text-left w-full mt-2">
+                            <h3 className="text-lg font-black text-white leading-snug line-clamp-1">{item.name}</h3>
+                            <div className="flex items-center justify-between mt-2.5">
+                              <span className="text-base font-black text-amber-400 tabular-nums">
+                                ₹{getDishPrice(item)}
+                              </span>
+                              <span className="bg-[#EA580C] hover:bg-orange-600 text-white text-[10px] font-extrabold px-3.5 py-1.5 rounded-full shadow-[0_0_12px_rgba(234,88,12,0.3)] transition-colors">
+                                ADD +
+                              </span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
             {/* Special Offers Section */}
             {dishes.filter(d => d.is_special_offer && d.is_available && d.restaurant_id === initialRestaurant.id).length > 0 && (
               <div className="mb-4">
@@ -927,8 +1004,15 @@ export default function MenuClient({
                   </div>
                 ) : (
                   categories.map((cat, catIdx) => {
-                    const categoryDishes = groupedDishes[cat];
-                    if (!categoryDishes || categoryDishes.length === 0) return null;
+                    const rawCategoryDishes = groupedDishes[cat];
+                    if (!rawCategoryDishes || rawCategoryDishes.length === 0) return null;
+
+                    const categoryDishes = [...rawCategoryDishes].sort((a: any, b: any) => {
+                      const aBest = (a.isBestSeller || (a.view_count || 0) >= 100) ? 1 : 0;
+                      const bBest = (b.isBestSeller || (b.view_count || 0) >= 100) ? 1 : 0;
+                      if (aBest !== bBest) return bBest - aBest;
+                      return (b.view_count || 0) - (a.view_count || 0);
+                    });
 
                     return (
                       <div key={cat} id={`category-${cat}`} className="scroll-mt-36 pt-4">
@@ -984,19 +1068,23 @@ export default function MenuClient({
 
                                 {/* Info */}
                                 <div className="flex-1 min-w-0 py-1 flex flex-col justify-center">
-                                  <div className="flex items-center gap-2 mb-1">
+                                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                                     <div className={`w-3 h-3 border ${isVeg ? 'border-green-600' : 'border-red-600'} flex items-center justify-center rounded-sm shrink-0`}>
                                       <div className={`w-1.5 h-1.5 rounded-full ${isVeg ? 'bg-green-600' : 'bg-red-600'}`}></div>
                                     </div>
                                     <h3 className="text-base sm:text-lg font-bold text-white truncate">
                                       {item.name}
                                     </h3>
-                                    {/* Secure Strict Conditional Badge Rendering */}
-                                    {item.special_tag && item.special_tag.trim() !== "" && (
+                                    {/* Bestseller Badge (100+ views) or Special Tag */}
+                                    {(item.isBestSeller || (item.view_count || 0) >= 100) ? (
+                                      <span className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1 shadow-sm">
+                                        <span>⭐</span> Bestseller Dish of Week
+                                      </span>
+                                    ) : item.special_tag && item.special_tag.trim() !== "" ? (
                                       <span className="bg-orange-500/10 text-orange-400 border border-orange-500/20 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
                                         {item.special_tag}
                                       </span>
-                                    )}
+                                    ) : null}
                                   </div>
                                   {item.description && (
                                     <p className="text-[#A0A0A0] text-xs sm:text-sm mt-0.5 line-clamp-2 leading-relaxed">
@@ -1213,6 +1301,13 @@ export default function MenuClient({
                 </div>
 
                 <div className="p-6 sm:p-8 overflow-y-auto flex-1 bg-[#0F1012]">
+                  {(selectedDish.isBestSeller || (selectedDish.view_count || 0) >= 100) && (
+                    <div className="mb-2">
+                      <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                        <span>🔥</span> Bestseller Dish of Week ({selectedDish.view_count || 100}+ Views)
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between items-start gap-4 mb-4">
                     <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">
                       {selectedDish.name}
