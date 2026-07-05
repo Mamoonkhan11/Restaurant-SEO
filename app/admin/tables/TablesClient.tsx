@@ -510,13 +510,13 @@ export default function TablesPage() {
                           size={200}
                           fgColor="#000000"
                           bgColor="#FFFFFF"
-                          level="M"
+                          level="H"
                           imageSettings={{
                             src: "/favicon-tab.png",
                             x: undefined,
                             y: undefined,
-                            height: 36,
-                            width: 36,
+                            height: 28,
+                            width: 28,
                             excavate: true,
                           }}
                         />
@@ -527,13 +527,13 @@ export default function TablesPage() {
                           size={200}
                           fgColor="#000000"
                           bgColor="#FFFFFF"
-                          level="M"
+                          level="H"
                           imageSettings={{
                             src: "/favicon-tab.png",
                             x: undefined,
                             y: undefined,
-                            height: 36,
-                            width: 36,
+                            height: 28,
+                            width: 28,
                             excavate: true,
                           }}
                           style={{ display: 'none' }}
