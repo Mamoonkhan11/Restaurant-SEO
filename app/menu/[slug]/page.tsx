@@ -11,10 +11,10 @@ export default async function DigitalMenu({
   params: { slug: string };
   searchParams: { tableId?: string; table?: string };
 }) {
-  // Fetch Restaurant and Tables (if tableId present) in parallel
+  // Fetch Restaurant (with dishes joined) and Table in 1 single parallel roundtrip
   const restaurantPromise = supabase
     .from('restaurants')
-    .select('*')
+    .select('*, dishes(*)')
     .eq('slug', params.slug)
     .single();
 
@@ -49,11 +49,12 @@ export default async function DigitalMenu({
 
   if (expiryDate && now > expiryDate) {
     if (currentStatus !== 'inactive') {
-      // Update database status to inactive
-      await supabase
-        .from('restaurants')
-        .update({ subscription_status: 'inactive' })
-        .eq('id', restaurant.id);
+      Promise.resolve(
+        supabase
+          .from('restaurants')
+          .update({ subscription_status: 'inactive' })
+          .eq('id', restaurant.id)
+      ).catch(() => {});
       currentStatus = 'inactive';
     }
 
@@ -78,48 +79,35 @@ export default async function DigitalMenu({
     }
   }
 
-  const restaurantIdToFetch = (searchParams.tableId && tableRecord) ? tableRecord.restaurant_id : restaurant.id;
   const tableNo = (searchParams.tableId && tableRecord) ? tableRecord.table_no : undefined;
-
-  // Fetch Dishes using the resolved restaurant ID
-  const { data: dishesData, error: dishesError } = await supabase
-    .from('dishes')
-    .select('*')
-    .eq('restaurant_id', restaurantIdToFetch);
-
-  if (dishesError) {
-    console.error('Error fetching dishes:', dishesError);
-  }
-  console.log('Fetched dishes count:', dishesData?.length || 0);
-  console.log('Dishes array:', dishesData);
+  const rawDishes: any[] = restaurant.dishes || [];
 
   let initialDishes: any[] = [];
   let initialCategories: string[] = [];
 
-  if (dishesData) {
-    initialDishes = dishesData.map((d) => ({
+  if (rawDishes.length > 0) {
+    initialDishes = rawDishes.map((d: any) => ({
       ...d,
       isBestSeller: (d.view_count || 0) >= 100,
       view_count: d.view_count || 0
     }));
 
-    const uniqueCategories = Array.from(new Set(initialDishes.map(d => d.category || 'Uncategorized'))) as string[];
-    uniqueCategories.sort((a, b) => a.localeCompare(b));
-    initialCategories = uniqueCategories;
+    const categorySet = new Set<string>();
+    for (let i = 0; i < initialDishes.length; i++) {
+      categorySet.add(initialDishes[i].category || 'Uncategorized');
+    }
+    initialCategories = Array.from(categorySet).sort((a, b) => a.localeCompare(b));
   }
 
-  // Track menu scan — uses service role via API to bypass RLS on anon client
-  try {
+  // Non-blocking scan tracking (fire-and-forget in background)
+  if (restaurant?.id) {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.restdigi.online';
-    await fetch(`${baseUrl}/api/track-scan`, {
+    fetch(`${baseUrl}/api/track-scan`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ restaurantId: restaurant.id }),
       cache: 'no-store',
-    });
-  } catch (err) {
-    // Non-critical — don't block page render on tracking failures
-    console.error('[track-scan] Failed to increment:', err);
+    }).catch((err) => console.error('[track-scan] Non-blocking background error:', err));
   }
 
   return (
