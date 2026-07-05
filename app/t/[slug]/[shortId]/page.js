@@ -13,34 +13,32 @@ export default async function ShortIdRedirectPage({ params }) {
   let fullUuid = null;
 
   try {
-    // 1. Query 'tables' table where 'id' starts with shortId
-    const { data: tableData } = await supabase
-      .from('tables')
-      .select('id')
-      .ilike('id', `${shortId}%`)
-      .limit(1)
-      .maybeSingle();
+    // Fetch restaurant by slug and its list of tables
+    const { data: restaurant, error } = await supabase
+      .from('restaurants')
+      .select('id, tables(id, table_no)')
+      .eq('slug', slug)
+      .single();
 
-    if (tableData && tableData.id) {
-      fullUuid = tableData.id;
-    } else {
-      // 2. Fallback: Query 'orders' table where 'table_id' starts with shortId
-      const { data: orderData } = await supabase
-        .from('orders')
-        .select('table_id')
-        .ilike('table_id', `${shortId}%`)
-        .limit(1)
-        .maybeSingle();
+    if (error) {
+      console.error('[ShortIdRedirect] Error fetching restaurant:', error);
+    }
 
-      if (orderData && orderData.table_id) {
-        fullUuid = orderData.table_id;
+    if (restaurant && Array.isArray(restaurant.tables)) {
+      const targetShort = shortId.toLowerCase().trim();
+      const matchedTable = restaurant.tables.find(
+        (t) => t.id && t.id.toLowerCase().startsWith(targetShort)
+      );
+
+      if (matchedTable) {
+        fullUuid = matchedTable.id;
       }
     }
   } catch (err) {
-    console.error('[ShortIdRedirect] Error resolving shortId:', err);
+    console.error('[ShortIdRedirect] Unhandled error:', err);
   }
 
-  // 3. Redirect user browser to final long menu link
+  // Redirect user to digital menu with tableId attached
   if (fullUuid) {
     redirect(`/menu/${slug}?tableId=${fullUuid}`);
   } else {
