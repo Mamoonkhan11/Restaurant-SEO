@@ -490,19 +490,9 @@ export default function TablesPage() {
           <div className="bg-white/[0.03] backdrop-blur-md p-6 md:p-12 rounded-[2rem] border border-white/10 shadow-lg sticky top-8 flex flex-col items-center">
             {selectedTable ? (() => {
               const shortId = selectedTable?.id ? selectedTable.id.substring(0, 4) : '';
-              
-              // Ensure valid production HTTPS domain so mobile phone scanners recognize it as a Web URL
-              let baseDomain = 'https://www.restdigi.online';
-              if (typeof window !== 'undefined') {
-                const host = window.location.host;
-                if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
-                  baseDomain = window.location.origin;
-                }
-              }
-
               const qrUrl = shortId
-                ? `${baseDomain}/t/${restaurant?.slug}/${shortId}`
-                : `${baseDomain}/menu/${restaurant?.slug}?tableId=${selectedTable?.id}`;
+                ? `${origin}/t/${restaurant?.slug}/${shortId}`
+                : `${origin}/menu/${restaurant?.slug}?tableId=${selectedTable?.id}`;
 
               return (
                 <>
@@ -514,22 +504,38 @@ export default function TablesPage() {
                       </div>
 
                       <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8 flex justify-center items-center">
-                        {/* Visible on-screen preview — Clean high-contrast SVG for 100% scanner compatibility */}
+                        {/* Visible on-screen preview — SVG with logo */}
                         <QRCodeSVG
                           value={qrUrl}
                           size={200}
                           fgColor="#000000"
                           bgColor="#FFFFFF"
-                          level="M"
+                          level="H"
+                          imageSettings={{
+                            src: "/favicon-tab.png",
+                            x: undefined,
+                            y: undefined,
+                            height: 28,
+                            width: 28,
+                            excavate: true,
+                          }}
                         />
-                        {/* Hidden canvas used for PNG export */}
+                        {/* Hidden canvas used for PNG export — canvas has logo pixels baked in */}
                         <QRCodeCanvas
                           id="hidden-qr-canvas"
                           value={qrUrl}
                           size={200}
                           fgColor="#000000"
                           bgColor="#FFFFFF"
-                          level="M"
+                          level="H"
+                          imageSettings={{
+                            src: "/favicon-tab.png",
+                            x: undefined,
+                            y: undefined,
+                            height: 28,
+                            width: 28,
+                            excavate: true,
+                          }}
                           style={{ display: 'none' }}
                         />
                       </div>
