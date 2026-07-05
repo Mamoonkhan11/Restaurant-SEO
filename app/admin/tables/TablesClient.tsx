@@ -488,78 +488,85 @@ export default function TablesPage() {
         {/* Right Side: QR Live Preview */}
         <div className="lg:col-span-7">
           <div className="bg-white/[0.03] backdrop-blur-md p-6 md:p-12 rounded-[2rem] border border-white/10 shadow-lg sticky top-8 flex flex-col items-center">
-            {selectedTable ? (
-              <>
-                <div id="printable-qr-frame" className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm inline-flex flex-col items-center mb-8 w-[320px] shrink-0 print:border-none print:shadow-none print:w-[100vw]">
-                  <div className="qr-print-frame">
-                    <div className="mb-8 text-center">
-                      <h3 className="text-xl font-bold text-[#111827] tracking-tight uppercase leading-tight">{restaurant?.name || 'Restaurant Name'}</h3>
-                      <p className="text-xs font-bold text-gray-600 mt-1 uppercase tracking-widest leading-tight">{selectedTable.table_no}</p>
-                    </div>
+            {selectedTable ? (() => {
+              const shortId = selectedTable?.id ? selectedTable.id.substring(0, 4) : '';
+              const qrUrl = shortId
+                ? `${origin}/t/${restaurant?.slug}/${shortId}`
+                : `${origin}/menu/${restaurant?.slug}?tableId=${selectedTable?.id}`;
 
-                    <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8 flex justify-center items-center">
-                      {/* Visible on-screen preview — SVG with logo */}
-                      <QRCodeSVG
-                        value={`${origin}/menu/${restaurant?.slug}?tableId=${selectedTable.id}`}
-                        size={200}
-                        fgColor="#000000"
-                        bgColor="#FFFFFF"
-                        level="H"
-                        imageSettings={{
-                          src: "/favicon-tab.png",
-                          x: undefined,
-                          y: undefined,
-                          height: 36,
-                          width: 36,
-                          excavate: true,
-                        }}
-                      />
-                      {/* Hidden canvas used for PNG export — canvas has logo pixels baked in */}
-                      <QRCodeCanvas
-                        id="hidden-qr-canvas"
-                        value={`${origin}/menu/${restaurant?.slug}?tableId=${selectedTable.id}`}
-                        size={200}
-                        fgColor="#000000"
-                        bgColor="#FFFFFF"
-                        level="H"
-                        imageSettings={{
-                          src: "/favicon-tab.png",
-                          x: undefined,
-                          y: undefined,
-                          height: 36,
-                          width: 36,
-                          excavate: true,
-                        }}
-                        style={{ display: 'none' }}
-                      />
-                    </div>
+              return (
+                <>
+                  <div id="printable-qr-frame" className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm inline-flex flex-col items-center mb-8 w-[320px] shrink-0 print:border-none print:shadow-none print:w-[100vw]">
+                    <div className="qr-print-frame">
+                      <div className="mb-8 text-center">
+                        <h3 className="text-xl font-bold text-[#111827] tracking-tight uppercase leading-tight">{restaurant?.name || 'Restaurant Name'}</h3>
+                        <p className="text-xs font-bold text-gray-600 mt-1 uppercase tracking-widest leading-tight">{selectedTable.table_no}</p>
+                      </div>
 
-                    <div className="text-center">
-                      <p className="text-sm font-bold text-[#111827] tracking-widest uppercase leading-tight">Contactless Dining</p>
-                      <p className="text-[10px] text-gray-500 font-bold mt-1 uppercase tracking-widest leading-tight">Scan for Menu</p>
+                      <div className="bg-white p-2 border border-gray-100 rounded-lg mb-8 flex justify-center items-center">
+                        {/* Visible on-screen preview — SVG with logo */}
+                        <QRCodeSVG
+                          value={qrUrl}
+                          size={200}
+                          fgColor="#000000"
+                          bgColor="#FFFFFF"
+                          level="M"
+                          imageSettings={{
+                            src: "/favicon-tab.png",
+                            x: undefined,
+                            y: undefined,
+                            height: 36,
+                            width: 36,
+                            excavate: true,
+                          }}
+                        />
+                        {/* Hidden canvas used for PNG export — canvas has logo pixels baked in */}
+                        <QRCodeCanvas
+                          id="hidden-qr-canvas"
+                          value={qrUrl}
+                          size={200}
+                          fgColor="#000000"
+                          bgColor="#FFFFFF"
+                          level="M"
+                          imageSettings={{
+                            src: "/favicon-tab.png",
+                            x: undefined,
+                            y: undefined,
+                            height: 36,
+                            width: 36,
+                            excavate: true,
+                          }}
+                          style={{ display: 'none' }}
+                        />
+                      </div>
+
+                      <div className="text-center">
+                        <p className="text-sm font-bold text-[#111827] tracking-widest uppercase leading-tight">Contactless Dining</p>
+                        <p className="text-[10px] text-gray-500 font-bold mt-1 uppercase tracking-widest leading-tight">Scan for Menu</p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="w-[320px] space-y-3 print:hidden">
-                  <a
-                    href={`${origin}/menu/${restaurant?.slug}?tableId=${selectedTable.id}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-sm"
-                  >
-                    <LinkIcon className="w-4 h-4" /> Live Preview
-                  </a>
-                  <button
-                    onClick={handleDownloadPNG}
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-[0_0_20px_rgba(234,88,12,0.3)] flex items-center justify-center gap-2"
-                  >
-                    <Download className="w-4 h-4 shrink-0" />
-                    <span>Download PNG</span>
-                  </button>
-                </div>
-              </>
-            ) : (
+                  <div className="w-[320px] space-y-3 print:hidden">
+                    <a
+                      href={qrUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-sm"
+                    >
+                      <LinkIcon className="w-4 h-4" /> Live Preview
+                    </a>
+                    <button
+                      onClick={handleDownloadPNG}
+                      className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-[0_0_20px_rgba(234,88,12,0.3)] flex items-center justify-center gap-2"
+                    >
+                      <Download className="w-4 h-4 shrink-0" />
+                      <span>Download PNG</span>
+                    </button>
+                  </div>
+                </>
+              );
+            })() : (
               <div className="py-24 flex flex-col items-center text-white/20">
                 <QrCode className="w-12 h-12 text-white/10 mb-4 animate-pulse" />
                 <h3 className="font-bold text-gray-400 text-sm">No Table Selected</h3>
