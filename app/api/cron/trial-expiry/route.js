@@ -87,7 +87,7 @@ async function handleCron(req) {
     </a>
   </p>
 
-  <p>If you have any questions about which plan is right for you, just reply to this email — I'm happy to help you pick.</p>
+  <p>If you have any questions about which plan is right for you, just reply to <a href="mailto:[EMAIL_ADDRESS]">support@restdigi.online</a> — We're happy to help you pick.</p>
 
   <p style="margin-top: 28px;">
     Cheers,<br>

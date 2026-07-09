@@ -100,7 +100,7 @@ export default function Home() {
                 <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                href="/menu/restdigi"
+                href="/menu/the-backyard-grill"
                 className="inline-flex items-center justify-center px-8 py-4 text-base font-extrabold text-gray-300 transition-all bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:text-white"
               >
                 View Demo Menu
