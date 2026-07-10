@@ -1,9 +1,10 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRestaurant } from '@/lib/RestaurantContext';
-import { Check, X, AlertCircle } from 'lucide-react';
+import { Check, X, AlertCircle, Smartphone, QrCode, ArrowLeft, Copy, CheckCircle, ExternalLink, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import toast, { Toaster } from 'react-hot-toast';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function BillingPage() {
   const { restaurant, refreshRestaurant } = useRestaurant();
@@ -13,6 +14,25 @@ export default function BillingPage() {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [promoAgainModal, setPromoAgainModal] = useState(false);
+
+  // UPI Fallback Payment States
+  const [isUpiModalOpen, setIsUpiModalOpen] = useState(false);
+  const [upiPlan, setUpiPlan] = useState<'basic' | 'pro' | 'premium' | null>(null);
+  const [upiPrice, setUpiPrice] = useState<number>(0);
+  const [upiIsAnnual, setUpiIsAnnual] = useState(true);
+  const [selectedUpiApp, setSelectedUpiApp] = useState<string | null>(null);
+  const [upiStep, setUpiStep] = useState<'select_app' | 'confirm_payment'>('select_app');
+  const [utrNumber, setUtrNumber] = useState('');
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileDevice(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (restaurant) {
@@ -85,12 +105,135 @@ export default function BillingPage() {
     });
   };
 
+  const getUpiLink = (app: string | null) => {
+    const upiId = process.env.NEXT_PUBLIC_UPI_ID || "";
+    const payeeName = "MAMOON - RESTDIGI";
+    const amount = upiPrice;
+    const note = "RestDigi " + (upiPlan || '').toUpperCase() + " Plan Upgrade for " + (restaurant?.name || 'Restaurant');
+    const baseParams = "pa=" + upiId + "&pn=" + encodeURIComponent(payeeName) + "&am=" + amount + "&tn=" + encodeURIComponent(note) + "&cu=INR";
+
+    if (app === 'gpay') {
+      return "tez://upi/pay?" + baseParams;
+    }
+    if (app === 'phonepe') {
+      return "phonepe://pay?" + baseParams;
+    }
+    if (app === 'paytm') {
+      return "paytmmp://pay?" + baseParams;
+    }
+    return "upi://pay?" + baseParams;
+  };
+
+  const handleConfirmUpiPayment = async () => {
+    if (!upiPlan || isLoading) return;
+
+    if (utrNumber.trim() && !/^\d{12}$/.test(utrNumber.trim())) {
+      toast.error('Please enter a valid 12-digit UTR/Transaction ID, or leave it blank.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const newExpiry = new Date();
+      if (upiIsAnnual) {
+        newExpiry.setFullYear(newExpiry.getFullYear() + 1);
+      } else {
+        newExpiry.setDate(newExpiry.getDate() + 30);
+      }
+
+      // Update restaurant details
+      const { error: restaurantError } = await supabase
+        .from('restaurants')
+        .update({
+          plan_type: upiPlan,
+          subscription_status: 'active',
+          expiry_date: newExpiry.toISOString()
+        })
+        .eq('id', restaurant?.id);
+
+      if (restaurantError) throw restaurantError;
+
+      // Insert billing payment record
+      const utrStr = utrNumber.trim() ? " UTR: " + utrNumber.trim() : '';
+      const { error: paymentError } = await supabase.from('payments').insert({
+        restaurant_id: restaurant?.id,
+        amount: upiPrice,
+        plan_tier: upiPlan,
+        billing_cycle: upiIsAnnual ? 'yearly' : 'monthly',
+        status: 'success',
+        payment_gateway: 'upi',
+        description: "UPI Payment for " + upiPlan.toUpperCase() + " Plan (" + (upiIsAnnual ? 'Yearly' : 'Monthly') + ") via " + (selectedUpiApp || 'UPI App') + "." + utrStr,
+        created_at: new Date().toISOString()
+      });
+
+      if (paymentError) throw paymentError;
+
+      toast.success("Successfully activated your " + upiPlan.toUpperCase() + " Plan via UPI!");
+
+      // Fire-and-forget: send confirmation email to owner
+      fetch('/api/send-transaction-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          restaurantId: restaurant?.id,
+          plan: upiPlan,
+          amount: upiPrice,
+          billingCycle: upiIsAnnual ? 'yearly' : 'monthly',
+          expiryDate: newExpiry.toISOString(),
+          type: 'paid'
+        })
+      }).catch((err) => console.error('[BillingClient] UPI email failed:', err));
+
+      // Reset states
+      setIsUpiModalOpen(false);
+      setUpiPlan(null);
+      setUpiPrice(0);
+      setUpiIsAnnual(true);
+      setSelectedUpiApp(null);
+      setUpiStep('select_app');
+      setUtrNumber('');
+
+      // Refresh restaurant metadata and payments list
+      await refreshRestaurant();
+      await fetchPayments();
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Failed to confirm payment and activate plan: ' + err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleUpgrade = async (plan: 'basic' | 'pro' | 'premium', price: number, isAnnual: boolean) => {
     setIsLoading(true);
+
+    const isRazorpayConfigured = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID &&
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID !== 'rzp_test_YOUR_KEY_HERE';
+
+    if (!isRazorpayConfigured) {
+      toast.success('Redirecting to secure UPI payment...');
+      setUpiPlan(plan);
+      setUpiPrice(price);
+      setUpiIsAnnual(isAnnual);
+      setUpiStep('select_app');
+      setSelectedUpiApp(null);
+      setUtrNumber('');
+      setIsUpiModalOpen(true);
+      setIsLoading(false);
+      return;
+    }
+
     const res = await loadRazorpay();
 
     if (!res) {
-      toast.error('Razorpay SDK failed to load. Are you online?');
+      toast.error('Razorpay SDK failed to load. Redirecting to UPI payment fallback.');
+      setUpiPlan(plan);
+      setUpiPrice(price);
+      setUpiIsAnnual(isAnnual);
+      setUpiStep('select_app');
+      setSelectedUpiApp(null);
+      setUtrNumber('');
+      setIsUpiModalOpen(true);
       setIsLoading(false);
       return;
     }
@@ -104,14 +247,25 @@ export default function BillingPage() {
       });
       const orderData = await orderRes.json();
 
-      if (!orderData.id) throw new Error('Order creation failed');
+      if (!orderData.id) {
+        console.warn('Razorpay order creation failed, falling back to UPI payment...');
+        toast.error('Payment gateway unavailable. Redirecting to UPI payment fallback.');
+        setUpiPlan(plan);
+        setUpiPrice(price);
+        setUpiIsAnnual(isAnnual);
+        setUpiStep('select_app');
+        setSelectedUpiApp(null);
+        setUtrNumber('');
+        setIsUpiModalOpen(true);
+        return;
+      }
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_YOUR_KEY_HERE",
         amount: orderData.amount,
         currency: orderData.currency,
         name: restaurant?.name || "RESTDIGI",
-        description: `${plan.toUpperCase()} Plan Subscription`,
+        description: plan.toUpperCase() + " Plan Subscription",
         order_id: orderData.id,
         handler: async function (response: any) {
           try {
@@ -153,7 +307,15 @@ export default function BillingPage() {
       const rzp1 = new (window as any).Razorpay(options);
       rzp1.open();
     } catch (err) {
-      toast.error('Failed to initiate payment.');
+      console.warn('Failed to initiate Razorpay payment, falling back to UPI...');
+      toast.error('Failed to initiate gateway. Redirecting to UPI payment fallback.');
+      setUpiPlan(plan);
+      setUpiPrice(price);
+      setUpiIsAnnual(isAnnual);
+      setUpiStep('select_app');
+      setSelectedUpiApp(null);
+      setUtrNumber('');
+      setIsUpiModalOpen(true);
     } finally {
       setIsLoading(false);
     }
@@ -713,6 +875,240 @@ export default function BillingPage() {
             >
               Understand
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* UPI Fallback Modal */}
+      {isUpiModalOpen && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[100] flex items-center justify-center p-4 text-white overflow-y-auto">
+          <div className="bg-[#121318] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-white/10 relative transform scale-100 transition-all animate-fade-in-up my-8">
+
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                setIsUpiModalOpen(false);
+                setUpiStep('select_app');
+                setSelectedUpiApp(null);
+                setUtrNumber('');
+              }}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header */}
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(249,115,22,0.15)]">
+                <Smartphone className="w-6 h-6 text-orange-500 animate-pulse" />
+              </div>
+              <h3 className="text-xl font-black text-white">UPI Payment Fallback</h3>
+              <p className="text-xs text-gray-400 font-medium mt-1">
+                Online payment is currently processing via UPI direct route.
+              </p>
+            </div>
+
+            {/* Plan Info Card */}
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 mb-6 flex justify-between items-center">
+              <div>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Selected Plan</p>
+                <p className="text-sm font-extrabold text-white mt-0.5 capitalize">
+                  {upiPlan === 'basic' ? 'Basic Dine-In' : upiPlan === 'pro' ? 'Pro Live-KOT' : 'Premium Houseboat'} Plan
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Amount Due</p>
+                <p className="text-base font-black text-orange-400 mt-0.5">₹{upiPrice}</p>
+              </div>
+            </div>
+
+            {upiStep === 'select_app' ? (
+              <div className="space-y-4">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider text-center">
+                  Select the UPI App on your Smartphone:
+                </p>
+                <div className="grid grid-cols-1 gap-2.5">
+                  {[
+                    { id: 'gpay', name: 'Google Pay', color: 'hover:border-blue-500/30 hover:bg-blue-500/5', textColor: 'text-blue-400' },
+                    { id: 'phonepe', name: 'PhonePe', color: 'hover:border-purple-500/30 hover:bg-purple-500/5', textColor: 'text-purple-400' },
+                    { id: 'paytm', name: 'Paytm', color: 'hover:border-sky-500/30 hover:bg-sky-500/5', textColor: 'text-sky-400' },
+                    { id: 'bhim', name: 'BHIM UPI', color: 'hover:border-indigo-500/30 hover:bg-indigo-500/5', textColor: 'text-indigo-400' },
+                    { id: 'generic', name: 'Other UPI / Default App', color: 'hover:border-orange-500/30 hover:bg-orange-500/5', textColor: 'text-orange-400' }
+                  ].map((app) => (
+                    <button
+                      key={app.id}
+                      onClick={() => {
+                        setSelectedUpiApp(app.name);
+                        const link = getUpiLink(app.id);
+                        if (isMobileDevice) {
+                          // Try direct link launch
+                          window.location.href = link;
+                          setUpiStep('confirm_payment');
+                        } else {
+                          // Desktop flow - show QR code for selected app
+                          setUpiStep('confirm_payment');
+                        }
+                      }}
+                      className={"w-full py-3.5 px-4 rounded-xl border border-white/10 bg-white/[0.03] text-left font-bold text-sm transition-all flex items-center justify-between group active:scale-98 " + app.color}
+                    >
+                      <span className="flex items-center gap-3">
+                        <Smartphone className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
+                        <span>{app.name}</span>
+                      </span>
+                      <span className={"text-xs font-semibold " + app.textColor + " opacity-0 group-hover:opacity-100 transition-opacity"}>
+                        Select & Pay →
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Back button to re-select app */}
+                <button
+                  onClick={() => {
+                    setUpiStep('select_app');
+                    setSelectedUpiApp(null);
+                  }}
+                  className="flex items-center gap-1.5 text-xs text-orange-400 hover:text-orange-500 font-extrabold transition-colors"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" /> Back to App Selection
+                </button>
+
+                {/* Conditional UI based on Mobile/Desktop */}
+                {!isMobileDevice ? (
+                  <div className="text-center bg-white/[0.01] border border-white/5 rounded-2xl p-5">
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3.5">
+                      Scan QR Code with {selectedUpiApp}
+                    </p>
+                    <div className="bg-white p-3 rounded-2xl inline-block shadow-inner mb-4 border-2 border-white/10">
+                      <QRCodeSVG
+                        value={getUpiLink(
+                          selectedUpiApp === 'Google Pay' ? 'gpay' :
+                            selectedUpiApp === 'PhonePe' ? 'phonepe' :
+                              selectedUpiApp === 'Paytm' ? 'paytm' : 'generic'
+                        )}
+                        size={170}
+                        level="H"
+                        includeMargin={false}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-400 leading-relaxed font-medium">
+                      Open your smartphone's camera or <strong>{selectedUpiApp}</strong> app, scan this QR code, and complete the payment of <strong>₹{upiPrice}</strong>.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center bg-orange-500/5 border border-orange-500/10 rounded-2xl p-5">
+                    <p className="text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">
+                      Opening {selectedUpiApp}
+                    </p>
+                    <p className="text-xs text-gray-300 font-medium leading-relaxed mb-4">
+                      We have launched or redirected you to <strong>{selectedUpiApp}</strong>. Please complete the payment of <strong>₹{upiPrice}</strong> with the prefilled merchant details.
+                    </p>
+                    <button
+                      onClick={() => {
+                        window.location.href = getUpiLink(
+                          selectedUpiApp === 'Google Pay' ? 'gpay' :
+                            selectedUpiApp === 'PhonePe' ? 'phonepe' :
+                              selectedUpiApp === 'Paytm' ? 'paytm' : 'generic'
+                        );
+                      }}
+                      className="inline-flex items-center gap-2 bg-orange-600/20 border border-orange-600/30 hover:bg-orange-600/30 text-orange-400 text-xs font-extrabold px-4 py-2 rounded-xl transition-all"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" /> Re-open {selectedUpiApp}
+                    </button>
+                  </div>
+                )}
+
+                {/* Display Payment Reference Info */}
+                <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 space-y-2.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-gray-500 font-bold">UPI ID:</span>
+                    <span className="flex items-center gap-1.5 font-bold text-gray-300 font-sans">
+                      {process.env.NEXT_PUBLIC_UPI_ID || ""}
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(process.env.NEXT_PUBLIC_UPI_ID || "");
+                          toast.success('UPI ID copied!');
+                        }}
+                        className="text-gray-500 hover:text-white p-0.5 transition-colors"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-gray-500 font-bold">Amount:</span>
+                    <span className="flex items-center gap-1.5 font-bold text-gray-300">
+                      ₹{upiPrice}
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(upiPrice.toString());
+                          toast.success('Amount copied!');
+                        }}
+                        className="text-gray-500 hover:text-white p-0.5 transition-colors"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-start text-xs">
+                    <span className="text-gray-500 font-bold shrink-0 mt-0.5">Remark/Note:</span>
+                    <span className="flex items-center gap-1.5 font-bold text-gray-300 text-right leading-tight break-all max-w-[200px]">
+                      {"RestDigi " + (upiPlan || '').toUpperCase() + " Plan Upgrade for " + (restaurant?.name || 'Restaurant')}
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText("RestDigi " + (upiPlan || '').toUpperCase() + " Plan Upgrade for " + (restaurant?.name || 'Restaurant'));
+                          toast.success('Remark copied!');
+                        }}
+                        className="text-gray-500 hover:text-white p-0.5 transition-colors shrink-0"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  </div>
+                </div>
+
+                {/* UTR Input Block */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">
+                    12-Digit Transaction Ref / UTR Number
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={12}
+                    value={utrNumber}
+                    onChange={(e) => setUtrNumber(e.target.value.replace(/\D/g, ''))}
+                    placeholder="e.g. 123456789012"
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-extrabold tracking-widest text-white placeholder-white/20 focus:outline-none focus:border-orange-500 transition-colors text-center"
+                  />
+                  <p className="text-[10px] text-gray-500 text-center leading-normal">
+                    Enter the 12-digit transaction ID or UTR number from your payment confirmation screen to help us verify your request faster.
+                  </p>
+                </div>
+
+                {/* Actions */}
+                <div className="pt-2">
+                  <button
+                    onClick={handleConfirmUpiPayment}
+                    disabled={isLoading}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Activating Subscription...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Confirm Payment & Activate</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
