@@ -209,6 +209,19 @@ export default function BillingPage() {
     toast.error('Payment failed or cancelled.');
   };
 
+  const handleCloseUpiModal = () => {
+    if (upiStep === 'select_app') {
+      setIsUpiModalOpen(false);
+      setUpiPlan(null);
+      setUpiPrice(0);
+      setUpiIsAnnual(true);
+      setSelectedUpiApp(null);
+      setUtrNumber('');
+    } else {
+      handleCancelUpiPayment();
+    }
+  };
+
   const handleUpgrade = async (plan: 'basic' | 'pro' | 'premium', price: number, isAnnual: boolean) => {
     setIsLoading(true);
 
@@ -592,7 +605,34 @@ export default function BillingPage() {
 
   return (
     <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-8 animate-fade-in text-white">
-      <Toaster />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: '#121318',
+            color: '#ffffff',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '16px',
+            fontSize: '14px',
+            fontWeight: '800',
+            fontFamily: 'sans-serif',
+            padding: '12px 24px',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#121318',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ea580c',
+              secondary: '#121318',
+            },
+          },
+        }}
+      />
 
       {/* Header */}
       <div>
@@ -884,12 +924,18 @@ export default function BillingPage() {
       )}
       {/* UPI Fallback Modal */}
       {isUpiModalOpen && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[100] flex items-center justify-center p-4 text-white overflow-y-auto">
-          <div className="bg-[#121318] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-white/10 relative transform scale-100 transition-all animate-fade-in-up my-8">
+        <div
+          onClick={handleCloseUpiModal}
+          className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[100] flex items-center justify-center p-4 text-white overflow-y-auto"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-[#121318] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-white/10 relative transform scale-100 transition-all animate-fade-in-up my-8"
+          >
 
             {/* Close Button */}
             <button
-              onClick={handleCancelUpiPayment}
+              onClick={handleCloseUpiModal}
               className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
             >
               <X className="w-5 h-5" />
@@ -925,7 +971,7 @@ export default function BillingPage() {
                 {isMobileDevice ? (
                   <div className="space-y-4">
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider text-center">
-                      Click below to pay using any UPI app installed on your phone:
+                      Click below to pay using any UPI app:
                     </p>
                     <button
                       onClick={() => {
@@ -952,7 +998,7 @@ export default function BillingPage() {
                       />
                     </div>
                     <p className="text-xs text-gray-400 leading-relaxed font-medium">
-                      Scan this QR code using GPay, PhonePe, Paytm, or any UPI app on your smartphone to make the payment.
+                      Scan this QR code using any UPI app on your smartphone to make the payment.
                     </p>
                     <button
                       onClick={() => setUpiStep('confirm_payment')}
@@ -962,14 +1008,6 @@ export default function BillingPage() {
                     </button>
                   </div>
                 )}
-
-                {/* Cancel Button */}
-                <button
-                  onClick={handleCancelUpiPayment}
-                  className="w-full py-3 rounded-xl border border-white/5 hover:bg-white/5 text-gray-400 hover:text-white font-bold text-sm transition-all text-center"
-                >
-                  Cancel & Return
-                </button>
               </div>
             ) : (
               <div className="space-y-6">
