@@ -905,11 +905,11 @@ export default function BillingPage() {
       {isUpiModalOpen && (
         <div
           onClick={handleCloseUpiModal}
-          className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[100] flex items-center justify-center p-4 text-white overflow-y-auto"
+          className="fixed inset-0 bg-black z-[9999] flex items-center justify-center p-4 text-white"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-[#121318] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-white/10 relative transform scale-100 transition-all animate-fade-in-up my-8"
+            className="bg-[#121318] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-white/10 relative transform scale-100 transition-all animate-fade-in-up max-h-[90vh] overflow-y-auto"
           >
 
             {/* Close Button */}
@@ -921,30 +921,27 @@ export default function BillingPage() {
             </button>
 
             {/* Header */}
-            <div className="text-center mb-6 px-8">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500/20 to-orange-600/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(249,115,22,0.15)]">
-                <Smartphone className="w-7 h-7 text-orange-400" />
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(249,115,22,0.15)]">
+                <Smartphone className="w-6 h-6 text-orange-500" />
               </div>
-              <h3 className="text-2xl font-black text-white tracking-tight">UPI Payment</h3>
-              <p className="text-xs text-gray-400 font-medium mt-1.5 leading-relaxed">
+              <h3 className="text-xl font-black text-white">UPI Payment</h3>
+              <p className="text-xs text-gray-400 font-medium mt-1">
                 Complete your subscription upgrade securely via UPI transfer.
               </p>
             </div>
 
-            {/* Divider */}
-            <div className="border-t border-white/5 mb-5" />
-
             {/* Plan Info Card */}
-            <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-4 mb-5 flex justify-between items-center">
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 mb-6 flex justify-between items-center">
               <div>
-                <p className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest">Selected Plan</p>
-                <p className="text-sm font-extrabold text-white mt-1 capitalize">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Selected Plan</p>
+                <p className="text-sm font-extrabold text-white mt-0.5 capitalize">
                   {upiPlan === 'basic' ? 'Basic Dine-In' : upiPlan === 'pro' ? 'Pro Live-KOT' : 'Premium Houseboat'} Plan
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest">Amount Due</p>
-                <p className="text-lg font-black text-orange-400 mt-1">₹{upiPrice}</p>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Amount Due</p>
+                <p className="text-base font-black text-orange-400 mt-0.5">₹{upiPrice}</p>
               </div>
             </div>
 
