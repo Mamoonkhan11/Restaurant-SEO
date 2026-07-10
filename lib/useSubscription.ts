@@ -23,9 +23,15 @@ export const useSubscription = () => {
   const expiryDate = restaurant.expiry_date ? new Date(restaurant.expiry_date) : null;
   const now = new Date();
 
-  const isProTrial = planType === 'pro' && (
-    (payments && payments.some(p => p.plan_tier === 'pro' && p.payment_gateway === 'system_promo'))
+  const hasTrialPayment = payments && payments.some(
+    p => p.plan_tier === 'pro' && p.payment_gateway === 'system_promo'
   );
+  const hasPaidPayment = payments && payments.some(
+    p => p.payment_gateway !== 'system_promo' && p.status === 'success'
+  );
+
+  // isProTrial is only true if the user activated a free trial AND has not yet made any paid payment
+  const isProTrial = planType === 'pro' && hasTrialPayment && !hasPaidPayment;
 
   const isTrial = (planType === 'free' && !!trialEndsAt) || isProTrial;
   const isExpired = planType !== 'free' && expiryDate
