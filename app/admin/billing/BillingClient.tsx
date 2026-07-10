@@ -128,9 +128,10 @@ export default function BillingPage() {
       return;
     }
 
-    const firstDigit = parseInt(utr[0], 10);
+    const digits = utr.split('').map(Number);
+    const firstDigit = digits[0];
     const julianDay  = parseInt(utr.substring(1, 4), 10);
-    const trailing8  = utr.substring(4); // digits 5-12
+    const trailing8Digits = digits.slice(4); // positions 4-11
 
     // 1. First digit must match last digit of the CURRENT year exactly
     const currentYearLastDigit = new Date().getFullYear() % 10;
@@ -139,7 +140,7 @@ export default function BillingPage() {
       return;
     }
 
-    // 2. Julian day must be within ±30 days of today (prevents past/future fake UTRs)
+    // 2. Julian day must be within ±30 days of today
     const now = new Date();
     const startOfYear = new Date(now.getFullYear(), 0, 0);
     const todayJulian = Math.floor((now.getTime() - startOfYear.getTime()) / 86400000);
@@ -148,36 +149,51 @@ export default function BillingPage() {
       return;
     }
 
-    // 3. All 12 digits same (repetitive) — e.g. 666666666666
-    if (/^(\d)\1{11}$/.test(utr)) {
+    // 3. All 12 digits the same (e.g. 666666666666)
+    if (new Set(digits).size === 1) {
       toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
       return;
     }
 
-    // 4. Arithmetic progression in full 12 digits (sequential patterns)
-    const digits = utr.split('').map(Number);
-    const diffs = digits.slice(1).map((d, i) => d - digits[i]);
-    if (diffs.every(d => d === diffs[0])) {
+    // 4. Arithmetic progression modulo-10 across ALL 12 digits
+    //    Catches: 34567890xx, 12345678xx, wrapping sequences
+    const mod10Diffs = digits.slice(1).map((d, i) => ((d - digits[i] + 10) % 10));
+    if (mod10Diffs.every(d => d === mod10Diffs[0])) {
       toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
       return;
     }
 
-    // 5. Alternating digit pattern in trailing 8 (e.g. 12121212, 56565656)
-    const t = trailing8.split('').map(Number);
-    const isAlternating = t.every((d, i) => i < 2 || d === t[i % 2]);
+    // 5. Arithmetic progression modulo-10 in trailing 8 digits alone
+    const t8Diffs = trailing8Digits.slice(1).map((d, i) => ((d - trailing8Digits[i] + 10) % 10));
+    if (t8Diffs.every(d => d === t8Diffs[0])) {
+      toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
+      return;
+    }
+
+    // 6. Alternating pattern in trailing 8 (e.g. 12121212, 56565656)
+    const isAlternating = trailing8Digits.every((d, i) => i < 2 || d === trailing8Digits[i % 2]);
     if (isAlternating) {
       toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
       return;
     }
 
-    // 6. Trailing 8 digits all the same (e.g. 61900000000, 61911111111)
-    if (/^(\d)\1{7}$/.test(trailing8)) {
+    // 7. Fewer than 4 unique digits in trailing 8 (low entropy — likely fake)
+    if (new Set(trailing8Digits).size < 4) {
       toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
       return;
     }
 
-    // 7. Trailing 8 ends with 4+ zeros or 4+ nines (padding patterns)
-    if (/0{4,}$/.test(trailing8) || /9{4,}$/.test(trailing8)) {
+    // 8. Run of 3+ consecutive same digits anywhere in trailing 8 (e.g. 34500067)
+    for (let i = 0; i < trailing8Digits.length - 2; i++) {
+      if (trailing8Digits[i] === trailing8Digits[i + 1] && trailing8Digits[i + 1] === trailing8Digits[i + 2]) {
+        toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
+        return;
+      }
+    }
+
+    // 9. Trailing 8 ends with 3+ zeros or 3+ nines (padding patterns)
+    const t8str = trailing8Digits.join('');
+    if (/0{3,}$/.test(t8str) || /9{3,}$/.test(t8str) || /0{3,}/.test(t8str) || /(\d)\1{3,}/.test(t8str)) {
       toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
       return;
     }
