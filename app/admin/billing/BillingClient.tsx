@@ -1058,7 +1058,7 @@ export default function BillingPage() {
                     value={utrNumber}
                     onChange={(e) => setUtrNumber(e.target.value.replace(/\D/g, ''))}
                     placeholder="Enter 12-digit UTR"
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-extrabold tracking-widest text-white placeholder-white/20 focus:outline-none focus:border-orange-500 transition-colors text-center"
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-extrabold tracking-widest text-white placeholder-white/20 focus:outline-none focus:border-orange-500 transition-colors text-left"
                   />
                   <p className="text-[10px] text-gray-500 text-center leading-normal">
                     Please paste the 12-digit transaction ID or UTR number from your payment receipt to activate your plan.
