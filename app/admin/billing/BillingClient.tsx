@@ -126,15 +126,15 @@ export default function BillingPage() {
     const firstDigit = parseInt(utr[0], 10);
     const julianDay = parseInt(utr.substring(1, 4), 10);
     const isRepetitive = /^(\d)\1{11}$/.test(utr);
-    const isSequential = utr === "123456789012" || utr === "234567890123" || utr === "987654321098" || utr === "876543210987";
-    
+    const isSequential = utr === "123456789012" || utr === "234567890123" || utr === "987654321098" || utr === "876543210987" || utr === "123456789100";
+
     if (
       !/^\d{12}$/.test(utr) ||
       isRepetitive ||
       isSequential ||
-      firstDigit < 3 || 
+      firstDigit < 3 ||
       firstDigit > 7 ||
-      julianDay < 1 || 
+      julianDay < 1 ||
       julianDay > 366
     ) {
       toast.error('Invalid Transaction Reference/UTR. Please enter the valid 12-digit UTR number from your payment confirmation screen.');
@@ -146,8 +146,8 @@ export default function BillingPage() {
       // Query supabase payments table to check if UTR was already used
       const { data: duplicatePayments, error: searchError } = await supabase
         .from('payments')
-        .select('id')
-        .eq('transaction_id', utr);
+        .select('description')
+        .ilike('description', `%UTR: %${utr}%`);
 
       if (searchError) throw searchError;
 
@@ -176,6 +176,7 @@ export default function BillingPage() {
       if (restaurantError) throw restaurantError;
 
       // Insert billing payment record
+      const utrStr = " UTR: " + utrNumber.trim();
       const { error: paymentError } = await supabase.from('payments').insert({
         restaurant_id: restaurant?.id,
         amount: upiPrice,
@@ -183,8 +184,7 @@ export default function BillingPage() {
         billing_cycle: upiIsAnnual ? 'yearly' : 'monthly',
         status: 'success',
         payment_gateway: 'upi',
-        transaction_id: utr,
-        description: "UPI Payment for " + upiPlan.toUpperCase() + " Plan (" + (upiIsAnnual ? 'Yearly' : 'Monthly') + ") via UPI App.",
+        description: "UPI Payment for " + upiPlan.toUpperCase() + " Plan (" + (upiIsAnnual ? 'Yearly' : 'Monthly') + ") via UPI App." + utrStr,
         created_at: new Date().toISOString()
       });
 
@@ -399,7 +399,7 @@ export default function BillingPage() {
 
       toast.success('Successfully activated your 14-Day Free Trial of Pro Live-KOT Plan!');
 
-      // 📧 Fire-and-forget: send trial activation confirmation email
+      // Fire-and-forget: send trial activation confirmation email
       fetch('/api/send-transaction-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
