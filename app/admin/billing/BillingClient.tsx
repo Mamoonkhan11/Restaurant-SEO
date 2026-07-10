@@ -11,7 +11,7 @@ export default function BillingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [payments, setPayments] = useState<any[]>([]);
   const [isAnnual, setIsAnnual] = useState(true);
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+
   const [promoCode, setPromoCode] = useState('');
   const [promoAgainModal, setPromoAgainModal] = useState(false);
 
@@ -143,11 +143,11 @@ export default function BillingPage() {
 
     setIsLoading(true);
     try {
-      // Query supabase payments table to check if UTR was already used
+      // Check if UTR has already been used (duplicate prevention via transaction_id)
       const { data: duplicatePayments, error: searchError } = await supabase
         .from('payments')
-        .select('description')
-        .ilike('description', `%UTR: %${utr}%`);
+        .select('id')
+        .eq('transaction_id', utr);
 
       if (searchError) throw searchError;
 
@@ -175,8 +175,7 @@ export default function BillingPage() {
 
       if (restaurantError) throw restaurantError;
 
-      // Insert billing payment record
-      const utrStr = " UTR: " + utrNumber.trim();
+      // Insert billing payment record — UTR stored in transaction_id column
       const { error: paymentError } = await supabase.from('payments').insert({
         restaurant_id: restaurant?.id,
         amount: upiPrice,
@@ -184,7 +183,8 @@ export default function BillingPage() {
         billing_cycle: upiIsAnnual ? 'yearly' : 'monthly',
         status: 'success',
         payment_gateway: 'upi',
-        description: "UPI Payment for " + upiPlan.toUpperCase() + " Plan (" + (upiIsAnnual ? 'Yearly' : 'Monthly') + ") via UPI App." + utrStr,
+        transaction_id: utr,
+        description: "UPI Payment for " + upiPlan.toUpperCase() + " Plan (" + (upiIsAnnual ? 'Yearly' : 'Monthly') + ") via UPI App.",
         created_at: new Date().toISOString()
       });
 
@@ -495,33 +495,7 @@ export default function BillingPage() {
     }
   };
 
-  const handleCancelSubscription = async () => {
-    if (isLoading) return;
 
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('restaurants')
-        .update({
-          plan_type: 'free',
-          subscription_status: 'cancelled',
-          expiry_date: null
-        })
-        .eq('id', restaurant?.id);
-
-      if (error) throw error;
-
-      toast.success('Subscription cancelled successfully.');
-      await refreshRestaurant();
-      await fetchPayments();
-    } catch (err: any) {
-      console.error(err);
-      toast.error('Failed to cancel subscription: ' + err.message);
-    } finally {
-      setIsLoading(false);
-      setIsCancelModalOpen(false);
-    }
-  };
 
   const plans = [
     {
@@ -904,32 +878,7 @@ export default function BillingPage() {
         }
       `}</style>
 
-      {isCancelModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 text-white">
-          <div className="bg-[#121318] rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-white/10 text-center transform scale-100 transition-all animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-bold text-white mb-2">Cancel Your Subscription?</h3>
-            <p className="text-sm text-gray-400 leading-relaxed mb-6">
-              Are you sure you want to proceed? Your operational features will be instantly downgraded to our free plan metrics.
-            </p>
-            <div className="grid grid-cols-2 gap-3 mt-4">
-              <button
-                onClick={() => setIsCancelModalOpen(false)}
-                disabled={isLoading}
-                className="bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl py-3 text-sm font-semibold transition-colors disabled:opacity-50"
-              >
-                Keep Plan
-              </button>
-              <button
-                onClick={handleCancelSubscription}
-                disabled={isLoading}
-                className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl py-3 text-sm font-semibold transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5"
-              >
-                {isLoading ? "Cancelling..." : "Confirm"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Already Redeemed Promo Code Modal */}
       {promoAgainModal && (
@@ -972,27 +921,30 @@ export default function BillingPage() {
             </button>
 
             {/* Header */}
-            <div className="text-center mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(249,115,22,0.15)]">
-                <Smartphone className="w-6 h-6 text-orange-500" />
+            <div className="text-center mb-6 px-8">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500/20 to-orange-600/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(249,115,22,0.15)]">
+                <Smartphone className="w-7 h-7 text-orange-400" />
               </div>
-              <h3 className="text-xl font-black text-white">UPI Payment</h3>
-              <p className="text-xs text-gray-400 font-medium mt-1">
+              <h3 className="text-2xl font-black text-white tracking-tight">UPI Payment</h3>
+              <p className="text-xs text-gray-400 font-medium mt-1.5 leading-relaxed">
                 Complete your subscription upgrade securely via UPI transfer.
               </p>
             </div>
 
+            {/* Divider */}
+            <div className="border-t border-white/5 mb-5" />
+
             {/* Plan Info Card */}
-            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 mb-6 flex justify-between items-center">
+            <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-4 mb-5 flex justify-between items-center">
               <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Selected Plan</p>
-                <p className="text-sm font-extrabold text-white mt-0.5 capitalize">
+                <p className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest">Selected Plan</p>
+                <p className="text-sm font-extrabold text-white mt-1 capitalize">
                   {upiPlan === 'basic' ? 'Basic Dine-In' : upiPlan === 'pro' ? 'Pro Live-KOT' : 'Premium Houseboat'} Plan
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Amount Due</p>
-                <p className="text-base font-black text-orange-400 mt-0.5">₹{upiPrice}</p>
+                <p className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest">Amount Due</p>
+                <p className="text-lg font-black text-orange-400 mt-1">₹{upiPrice}</p>
               </div>
             </div>
 
