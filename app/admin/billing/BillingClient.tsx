@@ -116,18 +116,46 @@ export default function BillingPage() {
   const handleConfirmUpiPayment = async () => {
     if (!upiPlan || isLoading) return;
 
-    if (!utrNumber.trim()) {
+    const utr = utrNumber.trim();
+    if (!utr) {
       toast.error('Please enter the 12-digit UPI Transaction Ref/UTR number to activate your plan.');
       return;
     }
 
-    if (!/^\d{12}$/.test(utrNumber.trim())) {
-      toast.error('Please enter a valid 12-digit UTR/Transaction ID.');
+    // Strict UPI UTR validation
+    const firstDigit = parseInt(utr[0], 10);
+    const julianDay = parseInt(utr.substring(1, 4), 10);
+    const isRepetitive = /^(\d)\1{11}$/.test(utr);
+    const isSequential = utr === "123456789012" || utr === "234567890123" || utr === "987654321098" || utr === "876543210987";
+    
+    if (
+      !/^\d{12}$/.test(utr) ||
+      isRepetitive ||
+      isSequential ||
+      firstDigit < 3 || 
+      firstDigit > 7 ||
+      julianDay < 1 || 
+      julianDay > 366
+    ) {
+      toast.error('Invalid Transaction Reference/UTR. Please enter the valid 12-digit UTR number from your payment confirmation screen.');
       return;
     }
 
     setIsLoading(true);
     try {
+      // Query supabase payments table to check if UTR was already used
+      const { data: duplicatePayments, error: searchError } = await supabase
+        .from('payments')
+        .select('id')
+        .eq('transaction_id', utr);
+
+      if (searchError) throw searchError;
+
+      if (duplicatePayments && duplicatePayments.length > 0) {
+        toast.error('This transaction reference (UTR) has already been submitted. Duplicate UTR is not allowed.');
+        setIsLoading(false);
+        return;
+      }
       const newExpiry = new Date();
       if (upiIsAnnual) {
         newExpiry.setFullYear(newExpiry.getFullYear() + 1);
@@ -148,7 +176,6 @@ export default function BillingPage() {
       if (restaurantError) throw restaurantError;
 
       // Insert billing payment record
-      const utrStr = " UTR: " + utrNumber.trim();
       const { error: paymentError } = await supabase.from('payments').insert({
         restaurant_id: restaurant?.id,
         amount: upiPrice,
@@ -156,7 +183,8 @@ export default function BillingPage() {
         billing_cycle: upiIsAnnual ? 'yearly' : 'monthly',
         status: 'success',
         payment_gateway: 'upi',
-        description: "UPI Payment for " + upiPlan.toUpperCase() + " Plan (" + (upiIsAnnual ? 'Yearly' : 'Monthly') + ") via UPI App." + utrStr,
+        transaction_id: utr,
+        description: "UPI Payment for " + upiPlan.toUpperCase() + " Plan (" + (upiIsAnnual ? 'Yearly' : 'Monthly') + ") via UPI App.",
         created_at: new Date().toISOString()
       });
 
@@ -364,6 +392,7 @@ export default function BillingPage() {
         billing_cycle: 'yearly',
         status: 'success',
         payment_gateway: 'system_promo',
+        transaction_id: '14dayfreetrial',
         description: 'Automated 14-Day Pro Live-KOT Free Pilot',
         created_at: new Date().toISOString()
       });
@@ -434,6 +463,7 @@ export default function BillingPage() {
         billing_cycle: 'yearly',
         status: 'success',
         payment_gateway: 'system_promo',
+        transaction_id: '14dayfreetrial',
         description: '14-Day Free Trial activated via Promo Code: 14FREETRIAL',
         created_at: new Date().toISOString()
       });
