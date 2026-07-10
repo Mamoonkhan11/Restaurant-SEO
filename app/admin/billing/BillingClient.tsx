@@ -122,22 +122,63 @@ export default function BillingPage() {
       return;
     }
 
-    // Strict UPI UTR validation
-    const firstDigit = parseInt(utr[0], 10);
-    const julianDay = parseInt(utr.substring(1, 4), 10);
-    const isRepetitive = /^(\d)\1{11}$/.test(utr);
-    const isSequential = utr === "123456789012" || utr === "234567890123" || utr === "987654321098" || utr === "876543210987" || utr === "123456789100";
+    // ── Strict UPI UTR Validation ────────────────────────────────────────────
+    if (!/^\d{12}$/.test(utr)) {
+      toast.error('Invalid UTR. Must be exactly 12 digits.');
+      return;
+    }
 
-    if (
-      !/^\d{12}$/.test(utr) ||
-      isRepetitive ||
-      isSequential ||
-      firstDigit < 3 ||
-      firstDigit > 7 ||
-      julianDay < 1 ||
-      julianDay > 366
-    ) {
-      toast.error('Invalid Transaction Reference/UTR. Please enter the valid 12-digit UTR number from your payment confirmation screen.');
+    const firstDigit = parseInt(utr[0], 10);
+    const julianDay  = parseInt(utr.substring(1, 4), 10);
+    const trailing8  = utr.substring(4); // digits 5-12
+
+    // 1. First digit must match last digit of the CURRENT year exactly
+    const currentYearLastDigit = new Date().getFullYear() % 10;
+    if (firstDigit !== currentYearLastDigit) {
+      toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
+      return;
+    }
+
+    // 2. Julian day must be within ±30 days of today (prevents past/future fake UTRs)
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 0);
+    const todayJulian = Math.floor((now.getTime() - startOfYear.getTime()) / 86400000);
+    if (julianDay < 1 || julianDay > 366 || Math.abs(julianDay - todayJulian) > 30) {
+      toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
+      return;
+    }
+
+    // 3. All 12 digits same (repetitive) — e.g. 666666666666
+    if (/^(\d)\1{11}$/.test(utr)) {
+      toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
+      return;
+    }
+
+    // 4. Arithmetic progression in full 12 digits (sequential patterns)
+    const digits = utr.split('').map(Number);
+    const diffs = digits.slice(1).map((d, i) => d - digits[i]);
+    if (diffs.every(d => d === diffs[0])) {
+      toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
+      return;
+    }
+
+    // 5. Alternating digit pattern in trailing 8 (e.g. 12121212, 56565656)
+    const t = trailing8.split('').map(Number);
+    const isAlternating = t.every((d, i) => i < 2 || d === t[i % 2]);
+    if (isAlternating) {
+      toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
+      return;
+    }
+
+    // 6. Trailing 8 digits all the same (e.g. 61900000000, 61911111111)
+    if (/^(\d)\1{7}$/.test(trailing8)) {
+      toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
+      return;
+    }
+
+    // 7. Trailing 8 ends with 4+ zeros or 4+ nines (padding patterns)
+    if (/0{4,}$/.test(trailing8) || /9{4,}$/.test(trailing8)) {
+      toast.error('Invalid Transaction Reference. Please copy the exact UTR from your payment confirmation.');
       return;
     }
 
