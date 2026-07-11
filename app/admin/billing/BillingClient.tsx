@@ -63,6 +63,16 @@ export default function BillingPage() {
     return () => window.removeEventListener('hashchange', handleHashHighlight);
   }, []);
 
+  // Hide sidebar & hamburger header while UPI modal is open
+  useEffect(() => {
+    if (isUpiModalOpen) {
+      document.body.classList.add('upi-modal-open');
+    } else {
+      document.body.classList.remove('upi-modal-open');
+    }
+    return () => document.body.classList.remove('upi-modal-open');
+  }, [isUpiModalOpen]);
+
   const fetchPayments = async () => {
     try {
       const { data, error } = await supabase
@@ -668,6 +678,11 @@ export default function BillingPage() {
     <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-8 animate-fade-in text-white">
       <Toaster
         position="top-center"
+        containerStyle={{
+          top: 20,
+          zIndex: 99999,
+          marginLeft: 'clamp(0px, 8rem, 8rem)',
+        }}
         toastOptions={{
           style: {
             background: '#121318',
@@ -932,6 +947,11 @@ export default function BillingPage() {
         .pulse-highlight {
           animation: pulseHighlight 1.5s ease-in-out 2;
           z-index: 20;
+        }
+        /* Hide sidebar and mobile header when UPI modal is open */
+        body.upi-modal-open aside,
+        body.upi-modal-open header {
+          display: none !important;
         }
       `}</style>
 
