@@ -109,7 +109,7 @@ export async function POST(req: Request) {
 
   <p style="text-align: center; margin: 28px 0;">
     <a href="https://www.restdigi.online/admin" style="background: #D32F2F; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: bold; font-size: 15px; display: inline-block;">
-      Open Your Dashboard →
+      Open Your Dashboard
     </a>
   </p>
 

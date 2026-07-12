@@ -83,11 +83,11 @@ async function handleCron(req) {
 
   <p style="text-align: center; margin: 28px 0;">
     <a href="https://www.restdigi.online/admin/billing" style="background: #D32F2F; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: bold; font-size: 15px; display: inline-block;">
-      Upgrade Now →
+      Upgrade Now
     </a>
   </p>
 
-  <p>If you have any questions about which plan is right for you, just reply to <a href="mailto:[EMAIL_ADDRESS]">support@restdigi.online</a> — We're happy to help you pick.</p>
+  <p>If you have any questions about which plan is right for you, just reply to <a href="mailto:support@restdigi.online">support@restdigi.online</a> — We're happy to help you pick.</p>
 
   <p style="margin-top: 28px;">
     Cheers,<br>
@@ -119,11 +119,11 @@ async function handleCron(req) {
 
   <p style="text-align: center; margin: 28px 0;">
     <a href="https://www.restdigi.online/admin/billing" style="background: #D32F2F; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: bold; font-size: 15px; display: inline-block;">
-      Reactivate Your Restaurant →
+      Reactivate Your Restaurant
     </a>
   </p>
 
-  <p>If there's anything holding you back or if you'd like a quick demo call, just reply on support@restdigi.online">support@restdigi.online</a>.</p>
+  <p>If there's anything holding you back or if you'd like a quick demo call, just reply to <a href="mailto:support@restdigi.online">support@restdigi.online</a>.</p>
 
   <p style="margin-top: 28px;">
     Cheers,<br>
