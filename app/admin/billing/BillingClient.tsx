@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRestaurant } from '@/lib/RestaurantContext';
 import { Check, X, AlertCircle, Smartphone, QrCode, ArrowLeft, Copy, CheckCircle, ExternalLink, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function BillingPage() {
@@ -676,40 +676,6 @@ export default function BillingPage() {
 
   return (
     <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-8 animate-fade-in text-white">
-      <Toaster
-        position="top-center"
-        containerStyle={{
-          top: 20,
-          zIndex: 99999,
-          marginLeft: 'clamp(0px, 8rem, 8rem)',
-        }}
-        toastOptions={{
-          style: {
-            background: '#121318',
-            color: '#ffffff',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '16px',
-            fontSize: '14px',
-            fontWeight: '800',
-            fontFamily: 'sans-serif',
-            padding: '12px 24px',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
-          },
-          success: {
-            iconTheme: {
-              primary: '#10b981',
-              secondary: '#121318',
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: '#ea580c',
-              secondary: '#121318',
-            },
-          },
-        }}
-      />
-
       {/* Header */}
       <div>
         <h1 className="text-3xl font-black text-white tracking-tight">Billing & Subscription</h1>

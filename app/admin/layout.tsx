@@ -103,6 +103,35 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="h-screen bg-[#07080B] flex flex-col font-sans overflow-hidden relative text-white">
+      <Toaster
+        position="top-center"
+        containerClassName="admin-toaster"
+        toastOptions={{
+          style: {
+            background: '#121318',
+            color: '#ffffff',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '16px',
+            fontSize: '14px',
+            fontWeight: '800',
+            fontFamily: 'sans-serif',
+            padding: '12px 24px',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#121318',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ea580c',
+              secondary: '#121318',
+            },
+          },
+        }}
+      />
       {/* Background Radial Glows */}
       <div className="absolute top-[-10%] right-[-10%] w-[550px] h-[550px] rounded-full bg-orange-600/10 blur-[130px] pointer-events-none z-0"></div>
       <div className="absolute bottom-[-10%] left-[-10%] w-[550px] h-[550px] rounded-full bg-amber-500/10 blur-[130px] pointer-events-none z-0"></div>
@@ -186,7 +215,6 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                 )}
               </div>
             )}
-            <Toaster />
             {children}
           </div>
 

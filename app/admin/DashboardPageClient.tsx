@@ -10,7 +10,7 @@ const CartesianGrid = dynamic(() => import('recharts').then((mod) => mod.Cartesi
 const Tooltip = dynamic(() => import('recharts').then((mod) => mod.Tooltip), { ssr: false });
 const ResponsiveContainer = dynamic(() => import('recharts').then((mod) => mod.ResponsiveContainer), { ssr: false });
 import { supabase } from '@/lib/supabase';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { X, Lock, TrendingUp, Loader2 } from 'lucide-react';
@@ -664,7 +664,6 @@ export default function AdminDashboardOverview() {
 
   return (
     <div className="p-4 sm:p-8 relative animate-fade-in text-white">
-      <Toaster />
       <div className="max-w-6xl mx-auto space-y-8">
 
         {/* Header */}

@@ -29,3 +29,15 @@ body {
   scrollbar-width: none !important;  /* Firefox */
 }
 
+/* Custom Toaster container adjustment for admin dashboard layout */
+.admin-toaster {
+  z-index: 999999 !important;
+}
+
+@media (min-width: 768px) {
+  .admin-toaster {
+    margin-left: 8rem !important; /* Centers the toast within the main content area (accounting for sidebar) */
+  }
+}
+
+

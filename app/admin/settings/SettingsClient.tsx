@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Save, Loader2, UploadCloud, Lock } from 'lucide-react';
 import { supabase, uploadDishImage, logAdminAction, broadcastMenuUpdate } from '@/lib/supabase';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { useSubscription } from '@/lib/useSubscription';
 
@@ -152,7 +152,6 @@ export default function SettingsPage() {
 
   return (
     <div className="p-4 sm:p-8 relative min-h-screen text-white">
-      <Toaster />
       <div className="max-w-6xl mx-auto space-y-8">
         <div>
           <h1 className="text-3xl font-black text-white tracking-tight">Restaurant Settings</h1>
